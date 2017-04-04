@@ -1,0 +1,77 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="./site.css" rel="stylesheet">
+<title>image/jpeg</title>
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package jpeg</h2>
+    <p><code>import "image/jpeg"</code>
+    <p>jpeg包实现了jpeg格式图像的编解码。JPEG格式参见<a href="http://www.w3.org/Graphics/JPEG/itu-t81.pdf">http://www.w3.org/Graphics/JPEG/itu-t81.pdf</a></p>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#pkg-constants">Constants</a></li>
+        <li><a href="#Reader">type Reader</a></li>
+        <li><a href="#FormatError">type FormatError</a></li>
+        <ul>
+            <li><a href="#FormatError.Error">func (e FormatError) Error() string</a></li>
+        </ul>
+        <li><a href="#UnsupportedError">type UnsupportedError</a></li>
+        <ul>
+            <li><a href="#UnsupportedError.Error">func (e UnsupportedError) Error() string</a></li>
+        </ul>
+        <li><a href="#Options">type Options</a></li>
+        <li><a href="#Decode">func Decode(r io.Reader) (image.Image, error)</a></li>
+        <li><a href="#DecodeConfig">func DecodeConfig(r io.Reader) (image.Config, error)</a></li>
+        <li><a href="#Encode">func Encode(w io.Writer, m image.Image, o *Options) error</a></li>
+    </ul>
+    <h3 id="pkg-constants">Constants <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>const <span id="DefaultQuality">DefaultQuality</span> = 75</pre>
+    <p>DefaultQuality是默认的编码质量参数。</p>
+    <h3 id="Reader">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/jpeg/reader.go?name=release#88">Reader</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Reader interface {
+    <a href="io.htm">io</a>.<a href="io.htm#Reader">Reader</a>
+    <span id="Reader.ReadByte">ReadByte</span>() (c <a href="builtin.htm#byte">byte</a>, err <a href="builtin.htm#error">error</a>)
+}</pre>
+    <p>如果提供的io.Reader接口没有ReadByte方法，Decode函数会为该接口附加一个缓冲。</p>
+    <h3 id="FormatError">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/jpeg/reader.go?name=release#21">FormatError</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type FormatError <a href="builtin.htm#string">string</a></pre>
+    <p>当输入流不是合法的jpeg格式图像时，就会返回FormatError类型的错误。</p>
+    <h4 id="FormatError.Error">func (FormatError) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/jpeg/reader.go?name=release#23">Error</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (e <a href="#FormatError">FormatError</a>) Error() <a href="builtin.htm#string">string</a></pre>
+    <h3 id="UnsupportedError">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/jpeg/reader.go?name=release#26">UnsupportedError</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type UnsupportedError <a href="builtin.htm#string">string</a></pre>
+    <p>当输入流使用了合法但尚不支持的jpeg特性的时候，就会返回UnsupportedError类型的错误。</p>
+    <h4 id="UnsupportedError.Error">func (UnsupportedError) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/jpeg/reader.go?name=release#28">Error</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (e <a href="#UnsupportedError">UnsupportedError</a>) Error() <a href="builtin.htm#string">string</a></pre>
+    <h3 id="Options">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/jpeg/writer.go?name=release#488">Options</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Options struct {
+    <span id="Options.Quality">Quality</span> <a href="builtin.htm#int">int</a>
+}</pre>
+    <p>Options是编码质量参数。取值范围[1,100]，越大图像编码质量越高。</p>
+    <h3 id="Decode">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/jpeg/reader.go?name=release#346">Decode</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Decode(r <a href="io.htm">io</a>.<a href="io.htm#Reader">Reader</a>) (<a href="image.htm">image</a>.<a href="image.htm#Image">Image</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>从r读取一幅jpeg格式的图像并解码返回该图像。</p>
+    <h3 id="DecodeConfig">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/jpeg/reader.go?name=release#353">DecodeConfig</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func DecodeConfig(r <a href="io.htm">io</a>.<a href="io.htm#Reader">Reader</a>) (<a href="image.htm">image</a>.<a href="image.htm#Config">Config</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>返回JPEG图像的色彩模型和尺寸；函数不会解码整个图像。</p>
+    <h3 id="Encode">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/jpeg/writer.go?name=release#494">Encode</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Encode(w <a href="io.htm">io</a>.<a href="io.htm#Writer">Writer</a>, m <a href="image.htm">image</a>.<a href="image.htm#Image">Image</a>, o *<a href="#Options">Options</a>) <a href="builtin.htm#error">error</a></pre>
+    <p>Encode函数将采用JPEG 4:2:0基线格式和指定的编码质量将图像写入w。如果o为nil将使用DefaultQuality。</p>
+</div>
+<div id="x-footer" class="clearfix">
+  <div class="container">
+    <a href="http://studygolang.com/">Go语言中文网</a>
+    <span class="text-muted">|</span> <a href="http://golang.org/">Go Language</a>
+    <span class="pull-right"><a href="#">Back to top</a></span>
+  </div>
+</div>
+<script src="../assets/jquery-2.0.3.min.js"></script>
+<script src="../bootstrap.min.js"></script>
+<script src="../site.js"></script>
+</body>
+</html>

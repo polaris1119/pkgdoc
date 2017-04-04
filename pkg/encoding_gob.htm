@@ -1,0 +1,409 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="./site.css" rel="stylesheet">
+<title>encoding/gob</title>
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package gob</h2>
+    <p><code>import "encoding/gob"</code>
+    <p align="left">gob包管理gob流——在编码器（发送器）和解码器（接受器）之间交换的binary值。一般用于传递远端程序调用（RPC）的参数和结果，如net/rpc包就有提供。</p>
+    <p align="left">本实现给每一个数据类型都编译生成一个编解码程序，当单个编码器用于传递数据流时，会分期偿还编译的消耗，是效率最高的。</p>
+    <h4 id="hdr-Basics">Basics <a class="permalink" href="#pkg-index">&para</a></h4>
+    <p align="left">Gob流是自解码的。流中的所有数据都有前缀（采用一个预定义类型的集合）指明其类型。指针不会传递，而是传递值；也就是说数据是压平了的。递归的类型可以很好的工作，但是递归的值（比如说值内某个成员直接/间接指向该值）会出问题。这个问题将来可能会修复。</p>
+    <p align="left">要使用gob，先要创建一个编码器，并向其一共一系列数据：可以是值，也可以是指向实际存在数据的指针。编码器会确保所有必要的类型信息都被发送。在接收端，解码器从编码数据流中恢复数据并将它们填写进本地变量里。</p>
+    <h4 id="hdr-Types_and_Values">Types and Values <a class="permalink" href="#pkg-index">&para</a></h4>
+    <p>发送端和接收端的值/类型不需要严格匹配。对结构体来说，字段（根据字段名识别）如果发送端有而接收端没有，会被忽略；接收端有而发送端没有的字段也会被忽略；发送端和接收端都有的字段其类型必须是可兼容的；发送端和接收端都会在gob流和实际go类型之间进行必要的指针取址/寻址工作。举例如下：</p>
+    <pre>struct { A, B int }
+</pre>
+    <p>可以和如下类型互相发送和接收：</p>
+    <pre>struct { A, B int }	// 同一类型
+*struct { A, B int }	// 结构体需要额外重定向（指针）
+struct { *A, **B int }	// 字段需要额外重定向（指针）
+struct { A, B int64 }	// 同为整型/浮点型且符号类型相同的不同值类型，参见下面</pre>
+    <p>可以发送给如下任一类型：</p>
+    <pre>struct { A, B int }	// 同一类型
+struct { B, A int }	// 字段顺序改变无影响，按名称匹配
+struct { A, B, C int }	// 忽略多出的字段C
+struct { B int }	// 忽略缺少的字段A，会丢弃A的值
+struct { B, C int }	// 忽略缺少的字段A，忽略多出的字段C</pre>
+    <p>但尝试发送给如下类型的话就会导致错误：</p>
+    <pre>struct { A int; B uint }	// B字段改变了符号类型
+struct { A int; B float }	// B字段改变了类型
+struct { }			// 无共同字段名
+struct { C, D int }		// 无共同字段名</pre>
+    <p align="left">整数以两种方式传递：任意精度有符号整数和任意精度无符号整数。Gob里只有无符号和有符号整数的区别，没有int8、int16等类型的区分。如下所述，发送端会以变长编码发送整数值；接收端接收整数并保存在目标变量里。浮点数则总是使用IEEE-754 64位精度（参见下述）。</p>
+    <p align="left">有符号整数可以被任意有符号整形接收：int、int16等；无符号整数可以被任意无符号整形接收；浮点数可以被任意浮点数类型接收。但是，接收端类型必须能容纳该值（上溢/下溢都不行），否则解码操作会失败。</p>
+    <p align="left">结构体、数组和切片都被支持。结构体只编码和解码导出字段。字符串和byte数组/切片有专门的高效表示（参见下述）。当解码切片时，如果当前切片的容量足够会被复用，否则会申请新的底层数组（所以还是用切片地址为好）。此外，生成的切片的长度会修改为解码的成员的个数。</p>
+    <p align="left">Gob流不支持函数和通道。试图在最顶层编码这些类型的值会导致失败。结构体中包含函数或者通道类型的字段的话，会视作非导出字段（忽略）处理。</p>
+    <p align="left">Gob可以编码任意实现了GobEncoder接口或者encoding.BinaryMarshaler接口的类型的值（通过调用对应的方法），GobEncoder接口优先。</p>
+    <p align="left">Gob可以解码任意实现了GobDecoder接口或者encoding.BinaryUnmarshaler接口的类型的值（通过调用对应的方法），同样GobDecoder接口优先。</p>
+    <h4 id="hdr-Encoding_Details">Encoding Details <a class="permalink" href="#pkg-index">&para</a></h4>
+    <p align="left">这部分文档是编码细节，对多数使用者并不重要。细节是按从底向上的顺序展示的。</p>
+    <p align="left">无符号整数用两种方法发送。如果该整数小于128，则以一个字节发送该值；否则采用最小长度大端在前的字节流保存该整数，并在最前面使用一个字节保存字节流的字节数相反数。因此0被发送为(00)，7被发送为(07)，而256被发送为(FE 01 00)（字节数2，其相反数-2，用补码表示，为FE）。</p>
+    <p align="left">布尔值按无符号整数编码，0表示假，1表示真。</p>
+    <p align="left">有符号整数翻译为一个无符号整数（i=&gt;u）来编码。u的最低字位表示值的符号（以及是否应对值按位取反）；其余位表示值。编码算法表示为如下（非实际代码）：</p>
+    <pre>uint u;
+if i &lt; 0 {
+	u = (^i &lt;&lt; 1) | 1	// i按位取反，左移1位，第1位设为1
+} else {
+	u = (i &lt;&lt; 1)	// i不进行取反，左移1位，第1位为0
+}
+encodeUnsigned(u)</pre>
+    <p align="left">这样一来，最低位就相当于标志位，但还会对负数按位取反，以便保证负数不会出现特殊情况（补码表示的负数，其表示会受到整数类型的影响）。如，-129=^128=(^256&gt;&gt;1)编码为(FE 01 01)。</p>
+    <p align="left">浮点数的数值，首先总是转换float64类型值，该值使用math.Float64bits 函数转换为一个uint64整数，然后将字节序颠倒过来，最后作为一个普通无符号数编码传输。颠倒字节序说明数字的指数和高精度位数部分首先传送。因为低位一般是0，这样可以节约编码的字节数。例如，17.0编码后只有三个字节(FE 31 40)。</p>
+    <p align="left">字符串和byte数组/切片发送为一个无符号整数指定的字节数后跟不作处理的字节序列。</p>
+    <p align="left">其它切片和数组都发送为一个无符号整数指定的成员个数后跟所有成员的递归表示的gob编码。</p>
+    <p align="left">映射发送为一个无符号整数指定的键值对数后给许多键和值的gob编码。非nil但无成员的映射也会发送，因此如果发送者申请了一个映射，接收方也会申请一个映射，即使该映射内没有元素。</p>
+    <p align="left">结构体也以键值对（字段名：字段值）序列的形式发送。字段值采用递归表示的gob编码发送。如果字段为其类型的零值，则该字段不会被发送。字段编号由编码的结构体的类型确定：编码类型的第一个字段为字段0，第二个为字段1，依次类推。当编码一个结构体的值时，字段编号出于效率考虑是增量编码的，字段总是按字段编号递增的顺序被编码，增量是无符号整数。增量编码将字段编号初始化为-1，因此无符号整型值为7的字段0编码为增量1值7。最后，所有的字段都被发送后，会发送终止标记表明结构体的结束。终止标记为一个增量为0的值，其表示为(00)。</p>
+    <p align="left">接口类型不会检查兼容性；所有的接口都被视为同一种&ldquo;接口&rdquo;类型来传输；类似整数和字节切片，它们都被视为interface{}类型。接口值发送为一个表示其具体类型的字符串标志符（必须由调用者预先注册的名称）后跟表示后续数据字节数的无符号整数（以便需要时可以跳过该值），再后跟保存在接口里的值的动态具体类型的gob编码。nil接口值会发送为标志符为空字符串、不发送值的接口。在接收到之后，由解码器验证该值是否满足接收端变量接口。</p>
+    <p align="left">类型的表示如下所示。当一个编码器和解码器的连接中定义了一个类型时，该类型会被指定一个整数类型ID。当调用Encoder.Encode(v)时，该方法会确保v及v所有成员都有对应ID，然后本方法会发送一系列对（typeid，encoded-v） ，其中typeid是编码类型的类型ID，encoded-v是值v的gob编码。</p>
+    <p align="left">为了定义一个类型，编码器会选择一个未使用的正数作为id并发送对（-type id, encoded-type），其中encoded-type 是由如下类型构成、描述该类型的wireType类型的gob编码。</p>
+    <pre>type wireType struct {
+	ArrayT  *ArrayType
+	SliceT  *SliceType
+	StructT *StructType
+	MapT    *MapType
+}
+type arrayType struct {
+	CommonType
+	Elem typeId
+	Len  int
+}
+type CommonType struct {
+	Name string // 结构体的名字
+	Id  int    // 类型的ID
+}
+type sliceType struct {
+	CommonType
+	Elem typeId
+}
+type structType struct {
+	CommonType
+	Field []*fieldType // 结构体的字段
+}
+type fieldType struct {
+	Name string // 字段名
+	Id   int    // 字段的类型ID，必须是已经定义的类型
+}
+type mapType struct {
+	CommonType
+	Key  typeId
+	Elem typeId
+}
+</pre>
+    <p align="left">如果有嵌套的类型，必须先定义所有内部类型的ID才能定义顶层类型的ID用于描述encoded-v。</p>
+    <p align="left">为了简化启动，有些类型是预先定义好了的，这些类型及其ID如下：</p>
+    <pre>bool        1
+int         2
+uint        3
+float       4
+[]byte      5
+string      6
+complex     7
+interface   8
+// 空缺用于保留ID
+WireType    16
+ArrayType   17
+CommonType  18
+SliceType   19
+StructType  20
+FieldType   21
+// 22是[]fieldType类型的ID
+MapType     23</pre>
+    <p align="left">最后，每一次调用Encode创建的信息都会以一个编码了的无符号整数指明消息剩余部分的字节数。在开始的类型名后面，接口值也以同样的方式包装；事实上，接口值表现的就像对Encode进行递归调用一样。</p>
+    <p align="left">总的来说，一个gob流看起来是这样的：</p>
+    <pre>(byteCount (-type id, encoding of a wireType)* (type id, encoding of a value))*
+</pre>
+    <p align="left">其中*表示0或多次重复，值的类型id必须是预定义的，或者在流中值的前面定义。</p>
+    <p align="left">参见"Gobs of data"获取gob wire格式的设计讨论：</p>
+    <p><a href="http://golang.org/doc/articles/gobs_of_data.html">http://golang.org/doc/articles/gobs_of_data.html</a></p>
+    <div class="panel-group">
+        <div class="panel panel-default" id="example-package--Basic">
+            <div class="panel-heading" onclick="document.getElementById('ex-package--Basic').style.display = document.getElementById('ex-package--Basic').style.display=='none'?'block':'none';">Example (Basic)</div>
+            <div id="ex-package--Basic" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre>package gob_test
+import (
+    &#34;bytes&#34;
+    &#34;encoding/gob&#34;
+    &#34;fmt&#34;
+    &#34;log&#34;
+)
+type P struct {
+    X, Y, Z int
+    Name    string
+}
+type Q struct {
+    X, Y *int32
+    Name string
+}
+<span class="com">// This example shows the basic usage of the package: Create an encoder,</span>
+<span class="com">// transmit some values, receive them with a decoder.</span>
+func Example_basic() {
+    <span class="com">// Initialize the encoder and decoder.  Normally enc and dec would be</span>
+    <span class="com">// bound to network connections and the encoder and decoder would</span>
+    <span class="com">// run in different processes.</span>
+    var network bytes.Buffer        <span class="com">// Stand-in for a network connection</span>
+    enc := gob.NewEncoder(&amp;network) <span class="com">// Will write to network.</span>
+    dec := gob.NewDecoder(&amp;network) <span class="com">// Will read from network.</span>
+    <span class="com">// Encode (send) some values.</span>
+    err := enc.Encode(P{3, 4, 5, &#34;Pythagoras&#34;})
+    if err != nil {
+        log.Fatal(&#34;encode error:&#34;, err)
+    }
+    err = enc.Encode(P{1782, 1841, 1922, &#34;Treehouse&#34;})
+    if err != nil {
+        log.Fatal(&#34;encode error:&#34;, err)
+    }
+    <span class="com">// Decode (receive) and print the values.</span>
+    var q Q
+    err = dec.Decode(&amp;q)
+    if err != nil {
+        log.Fatal(&#34;decode error 1:&#34;, err)
+    }
+    fmt.Printf(&#34;%q: {%d, %d}\n&#34;, q.Name, *q.X, *q.Y)
+    err = dec.Decode(&amp;q)
+    if err != nil {
+        log.Fatal(&#34;decode error 2:&#34;, err)
+    }
+    fmt.Printf(&#34;%q: {%d, %d}\n&#34;, q.Name, *q.X, *q.Y)
+    <span class="com">// Output:</span>
+    <span class="com">// &#34;Pythagoras&#34;: {3, 4}</span>
+    <span class="com">// &#34;Treehouse&#34;: {1782, 1841}</span>
+}
+</pre>
+                </div>
+            </div>
+        </div>
+        <div class="panel panel-default" id="example-package--EncodeDecode">
+            <div class="panel-heading" onclick="document.getElementById('ex-package--EncodeDecode').style.display = document.getElementById('ex-package--EncodeDecode').style.display=='none'?'block':'none';">Example (EncodeDecode)</div>
+            <div id="ex-package--EncodeDecode" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre>package gob_test
+import (
+    &#34;bytes&#34;
+    &#34;encoding/gob&#34;
+    &#34;fmt&#34;
+    &#34;log&#34;
+)
+<span class="com">// The Vector type has unexported fields, which the package cannot access.</span>
+<span class="com">// We therefore write a BinaryMarshal/BinaryUnmarshal method pair to allow us</span>
+<span class="com">// to send and receive the type with the gob package. These interfaces are</span>
+<span class="com">// defined in the &#34;encoding&#34; package.</span>
+<span class="com">// We could equivalently use the locally defined GobEncode/GobDecoder</span>
+<span class="com">// interfaces.</span>
+type Vector struct {
+    x, y, z int
+}
+func (v Vector) MarshalBinary() ([]byte, error) {
+    <span class="com">// A simple encoding: plain text.</span>
+    var b bytes.Buffer
+    fmt.Fprintln(&amp;b, v.x, v.y, v.z)
+    return b.Bytes(), nil
+}
+<span class="com">// UnmarshalBinary modifies the receiver so it must take a pointer receiver.</span>
+func (v *Vector) UnmarshalBinary(data []byte) error {
+    <span class="com">// A simple encoding: plain text.</span>
+    b := bytes.NewBuffer(data)
+    _, err := fmt.Fscanln(b, &amp;v.x, &amp;v.y, &amp;v.z)
+    return err
+}
+<span class="com">// This example transmits a value that implements the custom encoding and decoding methods.</span>
+func Example_encodeDecode() {
+    var network bytes.Buffer <span class="com">// Stand-in for the network.</span>
+    <span class="com">// Create an encoder and send a value.</span>
+    enc := gob.NewEncoder(&amp;network)
+    err := enc.Encode(Vector{3, 4, 5})
+    if err != nil {
+        log.Fatal(&#34;encode:&#34;, err)
+    }
+    <span class="com">// Create a decoder and receive a value.</span>
+    dec := gob.NewDecoder(&amp;network)
+    var v Vector
+    err = dec.Decode(&amp;v)
+    if err != nil {
+        log.Fatal(&#34;decode:&#34;, err)
+    }
+    fmt.Println(v)
+    <span class="com">// Output:</span>
+    <span class="com">// {3 4 5}</span>
+}
+</pre>
+                </div>
+            </div>
+        </div>
+        <div class="panel panel-default" id="example-package--Interface">
+            <div class="panel-heading" onclick="document.getElementById('ex-package--Interface').style.display = document.getElementById('ex-package--Interface').style.display=='none'?'block':'none';">Example (Interface)</div>
+            <div id="ex-package--Interface" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre>package gob_test
+import (
+    &#34;bytes&#34;
+    &#34;encoding/gob&#34;
+    &#34;fmt&#34;
+    &#34;log&#34;
+    &#34;math&#34;
+)
+type Point struct {
+    X, Y int
+}
+func (p Point) Hypotenuse() float64 {
+    return math.Hypot(float64(p.X), float64(p.Y))
+}
+type Pythagoras interface {
+    Hypotenuse() float64
+}
+<span class="com">// This example shows how to encode an interface value. The key</span>
+<span class="com">// distinction from regular types is to register the concrete type that</span>
+<span class="com">// implements the interface.</span>
+func Example_interface() {
+    var network bytes.Buffer <span class="com">// Stand-in for the network.</span>
+    <span class="com">// We must register the concrete type for the encoder and decoder (which would</span>
+    <span class="com">// normally be on a separate machine from the encoder). On each end, this tells the</span>
+    <span class="com">// engine which concrete type is being sent that implements the interface.</span>
+    gob.Register(Point{})
+    <span class="com">// Create an encoder and send some values.</span>
+    enc := gob.NewEncoder(&amp;network)
+    for i := 1; i &lt;= 3; i++ {
+        interfaceEncode(enc, Point{3 * i, 4 * i})
+    }
+    <span class="com">// Create a decoder and receive some values.</span>
+    dec := gob.NewDecoder(&amp;network)
+    for i := 1; i &lt;= 3; i++ {
+        result := interfaceDecode(dec)
+        fmt.Println(result.Hypotenuse())
+    }
+    <span class="com">// Output:</span>
+    <span class="com">// 5</span>
+    <span class="com">// 10</span>
+    <span class="com">// 15</span>
+}
+<span class="com">// interfaceEncode encodes the interface value into the encoder.</span>
+func interfaceEncode(enc *gob.Encoder, p Pythagoras) {
+    <span class="com">// The encode will fail unless the concrete type has been</span>
+    <span class="com">// registered. We registered it in the calling function.</span>
+    <span class="com">// Pass pointer to interface so Encode sees (and hence sends) a value of</span>
+    <span class="com">// interface type.  If we passed p directly it would see the concrete type instead.</span>
+    <span class="com">// See the blog post, &#34;The Laws of Reflection&#34; for background.</span>
+    err := enc.Encode(&amp;p)
+    if err != nil {
+        log.Fatal(&#34;encode:&#34;, err)
+    }
+}
+<span class="com">// interfaceDecode decodes the next interface value from the stream and returns it.</span>
+func interfaceDecode(dec *gob.Decoder) Pythagoras {
+    <span class="com">// The decode will fail unless the concrete type on the wire has been</span>
+    <span class="com">// registered. We registered it in the calling function.</span>
+    var p Pythagoras
+    err := dec.Decode(&amp;p)
+    if err != nil {
+        log.Fatal(&#34;decode:&#34;, err)
+    }
+    return p
+}
+</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#GobDecoder">type GobDecoder</a></li>
+        <li><a href="#GobEncoder">type GobEncoder</a></li>
+        <li><a href="#Register">func Register(value interface{})</a></li>
+        <li><a href="#RegisterName">func RegisterName(name string, value interface{})</a></li>
+        <li><a href="#Decoder">type Decoder</a></li>
+        <ul>
+            <li><a href="#NewDecoder">func NewDecoder(r io.Reader) *Decoder</a></li>
+            <li><a href="#Decoder.Decode">func (dec *Decoder) Decode(e interface{}) error</a></li>
+            <li><a href="#Decoder.DecodeValue">func (dec *Decoder) DecodeValue(v reflect.Value) error</a></li>
+        </ul>
+        <li><a href="#Encoder">type Encoder</a></li>
+        <ul>
+            <li><a href="#NewEncoder">func NewEncoder(w io.Writer) *Encoder</a></li>
+            <li><a href="#Encoder.Encode">func (enc *Encoder) Encode(e interface{}) error</a></li>
+            <li><a href="#Encoder.EncodeValue">func (enc *Encoder) EncodeValue(value reflect.Value) error</a></li>
+        </ul>
+        <li><a href="#CommonType">type CommonType</a></li>
+    </ul>
+    <h4 id="pkg-examples">Examples <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#example-package--Basic" onclick="$('#ex-package--Basic').addClass('in').removeClass('collapse').height('auto')">package (Basic)</a></li>
+        <li><a href="#example-package--EncodeDecode" onclick="$('#ex-package--EncodeDecode').addClass('in').removeClass('collapse').height('auto')">package (EncodeDecode)</a></li>
+        <li><a href="#example-package--Interface" onclick="$('#ex-package--Interface').addClass('in').removeClass('collapse').height('auto')">package (Interface)</a></li>
+    </ul>
+    <h3 id="GobDecoder">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/gob/type.go?name=release#773">GobDecoder</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type GobDecoder interface {
+    <span class="com">// GobDecode必须是指针的方法，使用切片数据重写指针指向的值</span>
+    <span class="com">// 切片数据应该由同一具体类型的GobEncode生成</span>
+    <span id="GobDecoder.GobDecode">GobDecode</span>([]<a href="builtin.htm#byte">byte</a>) <a href="builtin.htm#error">error</a>
+}</pre>
+    <p>GobDecoder是一个描述数据的接口，提供自己的方案来解码GobEncoder发送的数据。</p>
+    <h3 id="GobEncoder">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/gob/type.go?name=release#764">GobEncoder</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type GobEncoder interface {
+    <span class="com">// GobEncode方法返回一个代表值的切片数据</span>
+    <span class="com">// 该切片数据由同一类型的指针方法GobDecoder接受解码</span><span class="com"></span>
+    <span id="GobEncoder.GobEncode">GobEncode</span>() ([]<a href="builtin.htm#byte">byte</a>, <a href="builtin.htm#error">error</a>)
+}</pre>
+    <p align="left">GobEncoder是一个描述数据的接口，提供自己的方案来将数据编码供GobDecoder接收并解码。一个实现了GobEncoder接口和GobDecoder接口的类型可以完全控制自身数据的表示，因此可以包含非导出字段、通道、函数等数据，这些数据gob流正常是不能传输的。</p>
+    <p align="left">注意：因为gob数据可以被永久保存，在软件更新的过程中保证用于GobEncoder编码的数据的稳定性（保证兼容）是较好的设计原则。例如，让GobEncode 接口在编码后数据里包含版本信息可能很有意义。</p>
+    <h3 id="Register">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/gob/type.go?name=release#816">Register</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Register(value interface{})</pre>
+    <p>Register记录value下层具体值的类型和其名称。该名称将用来识别发送或接受接口类型值时下层的具体类型。本函数只应在初始化时调用，如果类型和名字的映射不是一一对应的，会panic。</p>
+    <h3 id="RegisterName">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/gob/type.go?name=release#788">RegisterName</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func RegisterName(name <a href="builtin.htm#string">string</a>, value interface{})</pre>
+    <p>RegisterName类似Register，淡灰使用提供的name代替类型的默认名称。</p>
+    <h3 id="Decoder">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/gob/decoder.go?name=release#18">Decoder</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Decoder struct {
+    <span class="com">// 内含隐藏或不导出字段</span>
+}</pre>
+    <p>Decoder管理从连接远端读取的类型和数据信息的解释（的操作）。</p>
+    <h4 id="NewDecoder">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/gob/decoder.go?name=release#34">NewDecoder</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func NewDecoder(r <a href="io.htm">io</a>.<a href="io.htm#Reader">Reader</a>) *<a href="#Decoder">Decoder</a></pre>
+    <p>函数返回一个从r读取数据的*Decoder，如果r不满足io.ByteReader接口，则会包装r为bufio.Reader。</p>
+    <h4 id="Decoder.Decode">func (*Decoder) <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/gob/decoder.go?name=release#193">Decode</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (dec *<a href="#Decoder">Decoder</a>) Decode(e interface{}) <a href="builtin.htm#error">error</a></pre>
+    <p>Decode从输入流读取下一个之并将该值存入e。如果e是nil，将丢弃该值；否则e必须是可接收该值的类型的指针。如果输入结束，方法会返回io.EOF并且不修改e（指向的值）。</p>
+    <h4 id="Decoder.DecodeValue">func (*Decoder) <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/gob/decoder.go?name=release#213">DecodeValue</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (dec *<a href="#Decoder">Decoder</a>) DecodeValue(v <a href="reflect.htm">reflect</a>.<a href="reflect.htm#Value">Value</a>) <a href="builtin.htm#error">error</a></pre>
+    <p>DecodeValue从输入流读取下一个值，如果v是reflect.Value类型的零值（v.Kind() == Invalid），方法丢弃该值；否则它会把该值存入v。此时，v必须代表一个非nil的指向实际存在值的指针或者可写入的reflect.Value（v.CanSet()为真）。如果输入结束，方法会返回io.EOF并且不修改e（指向的值）。</p>
+    <h3 id="Encoder">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/gob/encoder.go?name=release#16">Encoder</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Encoder struct {
+    <span class="com">// 内含隐藏或不导出字段</span>
+}</pre>
+    <p>Encoder管理将数据和类型信息编码后发送到连接远端（的操作）。</p>
+    <h4 id="NewEncoder">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/gob/encoder.go?name=release#33">NewEncoder</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func NewEncoder(w <a href="io.htm">io</a>.<a href="io.htm#Writer">Writer</a>) *<a href="#Encoder">Encoder</a></pre>
+    <p>NewEncoder返回一个将编码后数据写入w的*Encoder。</p>
+    <h4 id="Encoder.Encode">func (*Encoder) <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/gob/encoder.go?name=release#170">Encode</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (enc *<a href="#Encoder">Encoder</a>) Encode(e interface{}) <a href="builtin.htm#error">error</a></pre>
+    <p>Encode方法将e编码后发送，并且会保证所有的类型信息都先发送。</p>
+    <h4 id="Encoder.EncodeValue">func (*Encoder) <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/gob/encoder.go?name=release#214">EncodeValue</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (enc *<a href="#Encoder">Encoder</a>) EncodeValue(value <a href="reflect.htm">reflect</a>.<a href="reflect.htm#Value">Value</a>) <a href="builtin.htm#error">error</a></pre>
+    <p>EncodeValue方法将value代表的数据编码后发送，并且会保证所有的类型信息都先发送。</p>
+    <h3 id="CommonType">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/gob/type.go?name=release#225">CommonType</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type CommonType struct {
+    <span id="CommonType.Name">Name</span> <a href="builtin.htm#string">string</a>
+    <span id="CommonType.Id">Id</span>   typeId
+}</pre>
+    <p>CommonType保存所有类型的成员。这是个历史遗留&ldquo;问题&rdquo;，出于保持binary兼容性才保留，只用于类型描述的编码。该类型应视为不导出类型。</p>
+</div>
+
+<div id="x-footer" class="clearfix">
+  <div class="container">
+    <a href="http://studygolang.com/">Go语言中文网</a>
+    <span class="text-muted">|</span> <a href="http://golang.org/">Go Language</a>
+    <span class="pull-right"><a href="#">Back to top</a></span>
+  </div>
+</div>
+<script src="../assets/jquery-2.0.3.min.js"></script>
+<script src="../bootstrap.min.js"></script>
+<script src="../site.js"></script>
+</body>
+</html>

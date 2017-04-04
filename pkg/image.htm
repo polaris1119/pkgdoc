@@ -1,0 +1,858 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="./site.css" rel="stylesheet">
+<title>image</title>
+<meta name="private:description" content="刘志曦翻译于2014年夏，Go 1.3版本">
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package image</h2>
+    <p><code>import "image"</code>
+    <p align="left">image实现了基本的2D图片库。</p>
+    <p align="left">基本接口叫作Image。图片的色彩定义在image/color包。</p>
+    <p align="left">Image接口可以通过调用如NewRGBA和NewPaletted函数等获得；也可以通过调用Decode函数解码包含GIF、JPEG或PNG格式图像数据的输入流获得。解码任何具体图像类型之前都必须注册对应类型的解码函数。注册过程一般是作为包初始化的副作用，放在包的init函数里。因此，要解码PNG图像，只需在程序的main包里嵌入如下代码：</p>
+    <pre>import _ &#34;image/png&#34;
+</pre>
+    <p align="left">_表示导入包但不使用包中的变量/函数/类型，只是为了包初始化函数的副作用。</p>
+    <p align="left">参见<a href="http://golang.org/doc/articles/image_package.html">http://golang.org/doc/articles/image_package.html</a></p>
+    <div class="panel-group">
+        <div class="panel panel-default" id="example-package">
+            <div class="panel-heading" onclick="document.getElementById('ex-package').style.display = document.getElementById('ex-package').style.display=='none'?'block':'none';">Example</div>
+            <div id="ex-package" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre><span class="com">// This example demonstrates decoding a JPEG image and examining its pixels.</span>
+package image_test
+import (
+    &#34;encoding/base64&#34;
+    &#34;fmt&#34;
+    &#34;image&#34;
+    &#34;log&#34;
+    &#34;strings&#34;
+    <span class="com">// Package image/jpeg is not used explicitly in the code below,</span>
+    <span class="com">// but is imported for its initialization side-effect, which allows</span>
+    <span class="com">// image.Decode to understand JPEG formatted images. Uncomment these</span>
+    <span class="com">// two lines to also understand GIF and PNG images:</span>
+    <span class="com">// _ &#34;image/gif&#34;</span>
+    <span class="com">// _ &#34;image/png&#34;</span>
+    _ &#34;image/jpeg&#34;
+)
+func Example() {
+    <span class="com">// Decode the JPEG data. If reading from file, create a reader with</span>
+    <span class="com">//</span>
+    <span class="com">// reader, err := os.Open(&#34;testdata/video-001.q50.420.jpeg&#34;)</span>
+    <span class="com">// if err != nil {</span>
+    <span class="com">//     log.Fatal(err)</span>
+    <span class="com">// }</span>
+    <span class="com">// defer reader.Close()</span>
+    reader := base64.NewDecoder(base64.StdEncoding, strings.NewReader(data))
+    m, _, err := image.Decode(reader)
+    if err != nil {
+        log.Fatal(err)
+    }
+    bounds := m.Bounds()
+    <span class="com">// Calculate a 16-bin histogram for m&#39;s red, green, blue and alpha components.</span>
+    <span class="com">//</span>
+    <span class="com">// An image&#39;s bounds do not necessarily start at (0, 0), so the two loops start</span>
+    <span class="com">// at bounds.Min.Y and bounds.Min.X. Looping over Y first and X second is more</span>
+    <span class="com">// likely to result in better memory access patterns than X first and Y second.</span>
+    var histogram [16][4]int
+    for y := bounds.Min.Y; y &lt; bounds.Max.Y; y++ {
+        for x := bounds.Min.X; x &lt; bounds.Max.X; x++ {
+            r, g, b, a := m.At(x, y).RGBA()
+            <span class="com">// A color&#39;s RGBA method returns values in the range [0, 65535].</span>
+            <span class="com">// Shifting by 12 reduces this to the range [0, 15].</span>
+            histogram[r&gt;&gt;12][0]++
+            histogram[g&gt;&gt;12][1]++
+            histogram[b&gt;&gt;12][2]++
+            histogram[a&gt;&gt;12][3]++
+        }
+    }
+    <span class="com">// Print the results.</span>
+    fmt.Printf(&#34;%-14s %6s %6s %6s %6s\n&#34;, &#34;bin&#34;, &#34;red&#34;, &#34;green&#34;, &#34;blue&#34;, &#34;alpha&#34;)
+    for i, x := range histogram {
+        fmt.Printf(&#34;0x%04x-0x%04x: %6d %6d %6d %6d\n&#34;, i&lt;&lt;12, (i+1)&lt;&lt;12-1, x[0], x[1], x[2], x[3])
+    }
+    <span class="com">// Output:</span>
+    <span class="com">// bin               red  green   blue  alpha</span>
+    <span class="com">// 0x0000-0x0fff:    353    759   7228      0</span>
+    <span class="com">// 0x1000-0x1fff:    629   2944   1036      0</span>
+    <span class="com">// 0x2000-0x2fff:   1075   2319    984      0</span>
+    <span class="com">// 0x3000-0x3fff:    838   2291    988      0</span>
+    <span class="com">// 0x4000-0x4fff:    540   1302    542      0</span>
+    <span class="com">// 0x5000-0x5fff:    319    971    263      0</span>
+    <span class="com">// 0x6000-0x6fff:    316    377    178      0</span>
+    <span class="com">// 0x7000-0x7fff:    581    280    216      0</span>
+    <span class="com">// 0x8000-0x8fff:   3457    228    274      0</span>
+    <span class="com">// 0x9000-0x9fff:   2294    237    334      0</span>
+    <span class="com">// 0xa000-0xafff:    938    283    370      0</span>
+    <span class="com">// 0xb000-0xbfff:    322    338    401      0</span>
+    <span class="com">// 0xc000-0xcfff:    229    386    295      0</span>
+    <span class="com">// 0xd000-0xdfff:    263    416    281      0</span>
+    <span class="com">// 0xe000-0xefff:    538    433    312      0</span>
+    <span class="com">// 0xf000-0xffff:   2758   1886   1748  15450</span>
+}
+const data = `
+/9j/4AAQSkZJRgABAQIAHAAcAAD/2wBDABALDA4MChAODQ4SERATGCgaGBYWGDEjJR0oOjM9PDkzODdA
+SFxOQERXRTc4UG1RV19iZ2hnPk1xeXBkeFxlZ2P/2wBDARESEhgVGC8aGi9jQjhCY2NjY2NjY2NjY2Nj
+Y2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2P/wAARCABnAJYDASIAAhEBAxEB/8QA
+HwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIh
+MUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVW
+V1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXG
+x8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQF
+BgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAV
+YnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOE
+hYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq
+8vP09fb3+Pn6/9oADAMBAAIRAxEAPwDlwKMD0pwzSiuK57QzGDxS7D6in8Y5ximnAPUfSlcq4m3ilUYp
+2OKXHvRcVxnTtS7c07HNFK4DQPakC4PNOA+tOx70XAjK/So5gBGP94fzqfvUVx/qxx/EP51UXqRP4WSE
+cmgjilP3jSEZqS0IO/NGDnpUiocDg/McDjvV6HTPOdVWYgsM5KcfzzQ2JySM2jp6VYu7SWzmMUwG4cgj
+kMPUVBjjtTGtRu0Zopw+lFFxhinrGzuqqMsxAA9yaXFSRv5cqSEcIwYj6GpuZ30O30fSLKzhUpbpNMv3
+5XGTn29BV28jt7pPLuIVljPBBFVreYx+VbqAjycgt3x14zRcNOxGyVFHQkIc/wA61exyKLbuzjdZ046d
+ftEuTEw3Rk9SPT8P8Kpbea3tchbyVae4JkjbbGpGdwOM89Af6ViFTWUtGdcXoM2+woK1JtpNtTcoZt+l
+Jt7ZqTbRtouFyPFRXI/c9D94fzqzioLsfuD/ALw/nVReqIn8LJCOTSY+tSMOTmkIpXLRu+F0t5pJxPHG
+wjjUAuBjJJz1+laD6Pai+WaK9SBX6puzn6ZP+NV/Dkdtc6ZNbyAFwxLAHDYPv6VoQ21nPNEEiQGEFRtk
+Gf0NaWTOeW7Of8QwGG4MRZnEbYXPJwRnOR0zWNXW+KrqBLUWi5EjbWCgcAA9c/gRXKYqZaGlK/LqMH0F
+FLtHvRSNiYD2pSDTgpp6p0ywUHoTULXYxcktzrdCf7Xo8LP/AKyEmMNjJ46dfbFWJ5TDGNwB9lFUvDV9
+YrbfYGbyrjcWG88S57g+vtV26ZIvMlumKwwjLZ6V0WfU54yTvYwtbubea2WNWbzg4bYQeBgj8OtYeKhj
+u4y2HQxqxOD1xzxmrWAQCCGB6EGsaikndmsJxeiYzBo280/Z7UbayuaXGY5oIp+2lx9KLjIsVDeD/Rj/
+ALy/zq1t96r3y4tT/vL/ADq4P3kRP4WSleTSFKkkKoCW4GaqNcMxIjXj1pxjKT0FKrGC1Nrw3vGrKkYz
+5kTAr6455/HH510UdwPtRgWCbzF5+YYUf4Vwun39xpmoR3qASMmQUJwGU9Rnt/8AWrpbrxhb8/ZdOmaQ
+gAGZwFH5ZJrpVKVlY5ZYhN6kXiu2eO/ikZlIljAAB5yM549OawSOOlPuLqe+umuLqTfM4OSOAo7ADsKh
+hl/cRsTuJHPv7mlKi3sVTxNtGP20VJhThgSQaK52mnZnUqsWrpkyeUrr5pABOAPU1AGaXUCWJISHGPfP
+P8qL7BiKnsMg46H3qrbzupbj5mPTPTpXVSglG551SpzSsXJ4/MBUgYIxyKpySyGBYJriV1D7kRpCVH4V
+bSeNJ4xchni3DeqnBI+td7F4b0mKIRjT45VbktJlzk455+n6VtYzv2PNwFZWBHBGKVJDGVC54/nXQeMN
+NttLNkba1jgWVWDmM8bhg4/nzXLSSbXVj6fyNKUdNRp21RtIRJGrjuM0u3FQ2DbodvcEkfQmrW2vLqLl
+k0ejCXNFMj2/jQV9qkxSYNRcsZiq2oI32N2CkhWXJxwOe9XMcVt6hoPn6dFaW0wgRpNzvKDlz6+/0rai
+ryv2Jm9LHJai+ZRGCBjnr71ErdAxAY9B611t1Y2cunbbaOQ3FvKZI3UqGlZMbiWwfcfhV231iwvLSM3U
+lt5Uq52TuZG+hGMA12xXJGxxzjzybOQtNOvb5j9ktZJhnBIHyg+5PFX38JayqK/2eLJIBUTgkDA9q7ex
+itrSHFpGsUbndhRgc+g7VNIyfZJAoJZUbb3I46CtFJMylBo8sdWhmYMuCnylc9wef5VUT7+1chc5NS7h
+sUZO5RtIPUH3pkBDOxxxmqM9TQtn+WilhHfHaik43KTG3Z4IyPyrNVjGCsZ+dmwv6V3cXhSG8sYpJLud
+JJIwxChdoJGcYx/Wkg8DafA4knvLiQr/ALqj+VQpKw3FtnFFfvbiSMgZJ6/jXp2n3d9cQRBTFsKD96EP
+oOxPU/8A68VVtbbRtMVntbePKDLTSHJH/Aj/AEqHTvE66rq72VugMMcbSGTnL4wMAfjT5n0HyW3L+s6b
+baxaJBdzN+7bcrxkAhun0rz3VNCv7e7lgigknWI43xLu6jjIHTjtXqfkpPGVYsBkghTikgsYIN/lhgXb
+cxLkknp/ShczQ7xtY8vtEmhkj8yGRBuCnehUcnHcVtmwfJ/fQ8e7f/E12txZW91C0U6b42xlST2OR/Ko
+Bo1gM/uW55/1jf41nOipu7LhV5FZHIGzI6zwj/vr/Ck+yr3uYf8Ax7/CutbQdMb71tn/ALaN/jSf8I/p
+X/PoP++2/wAan6rAr6wzkWt0II+1Rc/7Lf4Vd1eeCSKBbdZDdShYoiZNoyfY10P/AAj2lf8APmP++2/x
+oPh/SjKspsozIuNrZORjp3qo0FHYPb3OZt7ae3SzjuItsiRSAgnccl/UA+3Q1yNjKLR4ZZYY5VD7tkv3
+WwO/+e1evPp9nI257aJm6bioz1z1+tY+s6Hplnot9PbWMMcqwOFcLyOO1bJWMZSTOPHi+9w3mosrlyd2
+9lCj02g9P/1e9a3hzxAbl2ikZRcdQueHHt7j864Y8Z4I4oRzG6urFWU5BHBB7HNJxTFGbR6he6Vpmtgm
+eLy5zwZI/lb8fX8azIvBUUTHdfSFP4QsYB/HNZ+k+KEnRY75hHOvAk6K/v7H9K6yyvlnQBmDZ6GsnzR0
+N0oy1RzOtaN/Y1tHNFO06u+zYy4I4Jzx9KKveJblXuordSGES5b6n/62PzorKVdp2LjQTVyWz8UWEWlq
+jSgyxfJt6EgdDzWTdeLIZGO7zHI/hVajGmWWP+PWL8qwlAIURrhpMAHHJA71pRcZrToZzcoEuo6heakA
+GHk245CZ6/X1qPTLq40q+W5t2QybSpDAkEEc55/zilk5k2r91eKhLDzWz2rpsczbbuemeD76fUNG865I
+MiysmQMZAAwa3a5j4ftu0ByP+fh/5CulkLLG7INzhSVHqe1Fh3uOoqn9qQQxyhndmHIxwOmSR2xQ13KD
+KoiBZOV9JBnt707MVy5RWdNdy7wRGf3bfMinnO1jg+vY03WXLaJO3mhQ20b0zwpYf0qlG7S7icrJs08U
+VwumgC+YiQyeVtZH567hzj8aSL949oGhE/2v5pJCDkksQwBHC4/+vXQ8LZ2uYxxCavY7us/xCcaBfn0h
+b+VP0bnSrb94ZMJgOecj1rl/GfidUE2k2gy5+SeQjgA/wj3rlas2jdao48qrjLAGkSKPk4Gc1WMj92I+
+lIJnU8OfxPWo5inBokmtQTmM4OOh71b0q6vbFmWCbaxHyqQGAP0PT8KhSTzVyo5ocSKA5VfTOTmqsmRd
+pl99XjPzThzK3zOeOSeveirNmkgg/fIpYsTkYORxRXmzlTjJqx6EVUcU7mhkKCzdAK59QI9zYxtG1fYU
+UVtgtmY4nZEa8Ak9aqFv3rfSiiu1nMeifDv/AJF+T/r4f+QrqqKKQwzQenNFFMCOKFIgNuThdoJ5OPSk
+ubeK6t3gnXdG4wwziiii/UTKMOg6dbzJLFE4dSCP3rEdeOM8805tDsGMvySgSsS6rM6gk9eAcUUVftZt
+3uyVGNthuq3Eei6DK8H7sRR7YuMgHtXkc8rzTNLM26RyWY+p70UVnLY0iEsUipG7rhZBlDkc1HgYoorM
+0HwyBXGeRjmrcUhMg2ghezd//rUUVcTKW5s2jZtY/QDaOKKKK8ip8bPRj8KP/9k=
+`
+</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#pkg-variables">Variables</a></li>
+        <li><a href="#Image">type Image</a></li>
+        <ul>
+            <li><a href="#Decode">func Decode(r io.Reader) (Image, string, error)</a></li>
+        </ul>
+        <li><a href="#PalettedImage">type PalettedImage</a></li>
+        <li><a href="#Config">type Config</a></li>
+        <ul>
+            <li><a href="#DecodeConfig">func DecodeConfig(r io.Reader) (Config, string, error)</a></li>
+        </ul>
+        <li><a href="#RegisterFormat">func RegisterFormat(name, magic string, decode func(io.Reader) (Image, error), decodeConfig func(io.Reader) (Config, error))</a></li>
+        <li><a href="#Point">type Point</a></li>
+        <ul>
+            <li><a href="#Pt">func Pt(X, Y int) Point</a></li>
+            <li><a href="#Point.Eq">func (p Point) Eq(q Point) bool</a></li>
+            <li><a href="#Point.Add">func (p Point) Add(q Point) Point</a></li>
+            <li><a href="#Point.Sub">func (p Point) Sub(q Point) Point</a></li>
+            <li><a href="#Point.Mul">func (p Point) Mul(k int) Point</a></li>
+            <li><a href="#Point.Div">func (p Point) Div(k int) Point</a></li>
+            <li><a href="#Point.In">func (p Point) In(r Rectangle) bool</a></li>
+            <li><a href="#Point.Mod">func (p Point) Mod(r Rectangle) Point</a></li>
+            <li><a href="#Point.String">func (p Point) String() string</a></li>
+        </ul>
+        <li><a href="#Rectangle">type Rectangle</a></li>
+        <ul>
+            <li><a href="#Rect">func Rect(x0, y0, x1, y1 int) Rectangle</a></li>
+            <li><a href="#Rectangle.Canon">func (r Rectangle) Canon() Rectangle</a></li>
+            <li><a href="#Rectangle.Dx">func (r Rectangle) Dx() int</a></li>
+            <li><a href="#Rectangle.Dy">func (r Rectangle) Dy() int</a></li>
+            <li><a href="#Rectangle.Size">func (r Rectangle) Size() Point</a></li>
+            <li><a href="#Rectangle.Empty">func (r Rectangle) Empty() bool</a></li>
+            <li><a href="#Rectangle.Eq">func (r Rectangle) Eq(s Rectangle) bool</a></li>
+            <li><a href="#Rectangle.In">func (r Rectangle) In(s Rectangle) bool</a></li>
+            <li><a href="#Rectangle.Overlaps">func (r Rectangle) Overlaps(s Rectangle) bool</a></li>
+            <li><a href="#Rectangle.Add">func (r Rectangle) Add(p Point) Rectangle</a></li>
+            <li><a href="#Rectangle.Sub">func (r Rectangle) Sub(p Point) Rectangle</a></li>
+            <li><a href="#Rectangle.Intersect">func (r Rectangle) Intersect(s Rectangle) Rectangle</a></li>
+            <li><a href="#Rectangle.Union">func (r Rectangle) Union(s Rectangle) Rectangle</a></li>
+            <li><a href="#Rectangle.Inset">func (r Rectangle) Inset(n int) Rectangle</a></li>
+            <li><a href="#Rectangle.String">func (r Rectangle) String() string</a></li>
+        </ul>
+        <li><a href="#Uniform">type Uniform</a></li>
+        <ul>
+            <li><a href="#NewUniform">func NewUniform(c color.Color) *Uniform</a></li>
+            <li><a href="#Uniform.At">func (c *Uniform) At(x, y int) color.Color</a></li>
+            <li><a href="#Uniform.Bounds">func (c *Uniform) Bounds() Rectangle</a></li>
+            <li><a href="#Uniform.ColorModel">func (c *Uniform) ColorModel() color.Model</a></li>
+            <li><a href="#Uniform.Convert">func (c *Uniform) Convert(color.Color) color.Color</a></li>
+            <li><a href="#Uniform.Opaque">func (c *Uniform) Opaque() bool</a></li>
+            <li><a href="#Uniform.RGBA">func (c *Uniform) RGBA() (r, g, b, a uint32)</a></li>
+        </ul>
+        <li><a href="#Alpha">type Alpha</a></li>
+        <ul>
+            <li><a href="#NewAlpha">func NewAlpha(r Rectangle) *Alpha</a></li>
+            <li><a href="#Alpha.At">func (p *Alpha) At(x, y int) color.Color</a></li>
+            <li><a href="#Alpha.Bounds">func (p *Alpha) Bounds() Rectangle</a></li>
+            <li><a href="#Alpha.ColorModel">func (p *Alpha) ColorModel() color.Model</a></li>
+            <li><a href="#Alpha.Opaque">func (p *Alpha) Opaque() bool</a></li>
+            <li><a href="#Alpha.PixOffset">func (p *Alpha) PixOffset(x, y int) int</a></li>
+            <li><a href="#Alpha.Set">func (p *Alpha) Set(x, y int, c color.Color)</a></li>
+            <li><a href="#Alpha.SetAlpha">func (p *Alpha) SetAlpha(x, y int, c color.Alpha)</a></li>
+            <li><a href="#Alpha.SubImage">func (p *Alpha) SubImage(r Rectangle) Image</a></li>
+        </ul>
+        <li><a href="#Alpha16">type Alpha16</a></li>
+        <ul>
+            <li><a href="#NewAlpha16">func NewAlpha16(r Rectangle) *Alpha16</a></li>
+            <li><a href="#Alpha16.At">func (p *Alpha16) At(x, y int) color.Color</a></li>
+            <li><a href="#Alpha16.Bounds">func (p *Alpha16) Bounds() Rectangle</a></li>
+            <li><a href="#Alpha16.ColorModel">func (p *Alpha16) ColorModel() color.Model</a></li>
+            <li><a href="#Alpha16.Opaque">func (p *Alpha16) Opaque() bool</a></li>
+            <li><a href="#Alpha16.PixOffset">func (p *Alpha16) PixOffset(x, y int) int</a></li>
+            <li><a href="#Alpha16.Set">func (p *Alpha16) Set(x, y int, c color.Color)</a></li>
+            <li><a href="#Alpha16.SetAlpha16">func (p *Alpha16) SetAlpha16(x, y int, c color.Alpha16)</a></li>
+            <li><a href="#Alpha16.SubImage">func (p *Alpha16) SubImage(r Rectangle) Image</a></li>
+        </ul>
+        <li><a href="#Gray">type Gray</a></li>
+        <ul>
+            <li><a href="#NewGray">func NewGray(r Rectangle) *Gray</a></li>
+            <li><a href="#Gray.At">func (p *Gray) At(x, y int) color.Color</a></li>
+            <li><a href="#Gray.Bounds">func (p *Gray) Bounds() Rectangle</a></li>
+            <li><a href="#Gray.ColorModel">func (p *Gray) ColorModel() color.Model</a></li>
+            <li><a href="#Gray.Opaque">func (p *Gray) Opaque() bool</a></li>
+            <li><a href="#Gray.PixOffset">func (p *Gray) PixOffset(x, y int) int</a></li>
+            <li><a href="#Gray.Set">func (p *Gray) Set(x, y int, c color.Color)</a></li>
+            <li><a href="#Gray.SetGray">func (p *Gray) SetGray(x, y int, c color.Gray)</a></li>
+            <li><a href="#Gray.SubImage">func (p *Gray) SubImage(r Rectangle) Image</a></li>
+        </ul>
+        <li><a href="#Gray16">type Gray16</a></li>
+        <ul>
+            <li><a href="#NewGray16">func NewGray16(r Rectangle) *Gray16</a></li>
+            <li><a href="#Gray16.At">func (p *Gray16) At(x, y int) color.Color</a></li>
+            <li><a href="#Gray16.Bounds">func (p *Gray16) Bounds() Rectangle</a></li>
+            <li><a href="#Gray16.ColorModel">func (p *Gray16) ColorModel() color.Model</a></li>
+            <li><a href="#Gray16.Opaque">func (p *Gray16) Opaque() bool</a></li>
+            <li><a href="#Gray16.PixOffset">func (p *Gray16) PixOffset(x, y int) int</a></li>
+            <li><a href="#Gray16.Set">func (p *Gray16) Set(x, y int, c color.Color)</a></li>
+            <li><a href="#Gray16.SetGray16">func (p *Gray16) SetGray16(x, y int, c color.Gray16)</a></li>
+            <li><a href="#Gray16.SubImage">func (p *Gray16) SubImage(r Rectangle) Image</a></li>
+        </ul>
+        <li><a href="#RGBA">type RGBA</a></li>
+        <ul>
+            <li><a href="#NewRGBA">func NewRGBA(r Rectangle) *RGBA</a></li>
+            <li><a href="#RGBA.At">func (p *RGBA) At(x, y int) color.Color</a></li>
+            <li><a href="#RGBA.Bounds">func (p *RGBA) Bounds() Rectangle</a></li>
+            <li><a href="#RGBA.ColorModel">func (p *RGBA) ColorModel() color.Model</a></li>
+            <li><a href="#RGBA.Opaque">func (p *RGBA) Opaque() bool</a></li>
+            <li><a href="#RGBA.PixOffset">func (p *RGBA) PixOffset(x, y int) int</a></li>
+            <li><a href="#RGBA.Set">func (p *RGBA) Set(x, y int, c color.Color)</a></li>
+            <li><a href="#RGBA.SetRGBA">func (p *RGBA) SetRGBA(x, y int, c color.RGBA)</a></li>
+            <li><a href="#RGBA.SubImage">func (p *RGBA) SubImage(r Rectangle) Image</a></li>
+        </ul>
+        <li><a href="#RGBA64">type RGBA64</a></li>
+        <ul>
+            <li><a href="#NewRGBA64">func NewRGBA64(r Rectangle) *RGBA64</a></li>
+            <li><a href="#RGBA64.At">func (p *RGBA64) At(x, y int) color.Color</a></li>
+            <li><a href="#RGBA64.Bounds">func (p *RGBA64) Bounds() Rectangle</a></li>
+            <li><a href="#RGBA64.ColorModel">func (p *RGBA64) ColorModel() color.Model</a></li>
+            <li><a href="#RGBA64.Opaque">func (p *RGBA64) Opaque() bool</a></li>
+            <li><a href="#RGBA64.PixOffset">func (p *RGBA64) PixOffset(x, y int) int</a></li>
+            <li><a href="#RGBA64.Set">func (p *RGBA64) Set(x, y int, c color.Color)</a></li>
+            <li><a href="#RGBA64.SetRGBA64">func (p *RGBA64) SetRGBA64(x, y int, c color.RGBA64)</a></li>
+            <li><a href="#RGBA64.SubImage">func (p *RGBA64) SubImage(r Rectangle) Image</a></li>
+        </ul>
+        <li><a href="#NRGBA">type NRGBA</a></li>
+        <ul>
+            <li><a href="#NewNRGBA">func NewNRGBA(r Rectangle) *NRGBA</a></li>
+            <li><a href="#NRGBA.At">func (p *NRGBA) At(x, y int) color.Color</a></li>
+            <li><a href="#NRGBA.Bounds">func (p *NRGBA) Bounds() Rectangle</a></li>
+            <li><a href="#NRGBA.ColorModel">func (p *NRGBA) ColorModel() color.Model</a></li>
+            <li><a href="#NRGBA.Opaque">func (p *NRGBA) Opaque() bool</a></li>
+            <li><a href="#NRGBA.PixOffset">func (p *NRGBA) PixOffset(x, y int) int</a></li>
+            <li><a href="#NRGBA.Set">func (p *NRGBA) Set(x, y int, c color.Color)</a></li>
+            <li><a href="#NRGBA.SetNRGBA">func (p *NRGBA) SetNRGBA(x, y int, c color.NRGBA)</a></li>
+            <li><a href="#NRGBA.SubImage">func (p *NRGBA) SubImage(r Rectangle) Image</a></li>
+        </ul>
+        <li><a href="#NRGBA64">type NRGBA64</a></li>
+        <ul>
+            <li><a href="#NewNRGBA64">func NewNRGBA64(r Rectangle) *NRGBA64</a></li>
+            <li><a href="#NRGBA64.At">func (p *NRGBA64) At(x, y int) color.Color</a></li>
+            <li><a href="#NRGBA64.Bounds">func (p *NRGBA64) Bounds() Rectangle</a></li>
+            <li><a href="#NRGBA64.ColorModel">func (p *NRGBA64) ColorModel() color.Model</a></li>
+            <li><a href="#NRGBA64.Opaque">func (p *NRGBA64) Opaque() bool</a></li>
+            <li><a href="#NRGBA64.PixOffset">func (p *NRGBA64) PixOffset(x, y int) int</a></li>
+            <li><a href="#NRGBA64.Set">func (p *NRGBA64) Set(x, y int, c color.Color)</a></li>
+            <li><a href="#NRGBA64.SetNRGBA64">func (p *NRGBA64) SetNRGBA64(x, y int, c color.NRGBA64)</a></li>
+            <li><a href="#NRGBA64.SubImage">func (p *NRGBA64) SubImage(r Rectangle) Image</a></li>
+        </ul>
+        <li><a href="#Paletted">type Paletted</a></li>
+        <ul>
+            <li><a href="#NewPaletted">func NewPaletted(r Rectangle, p color.Palette) *Paletted</a></li>
+            <li><a href="#Paletted.At">func (p *Paletted) At(x, y int) color.Color</a></li>
+            <li><a href="#Paletted.Bounds">func (p *Paletted) Bounds() Rectangle</a></li>
+            <li><a href="#Paletted.ColorIndexAt">func (p *Paletted) ColorIndexAt(x, y int) uint8</a></li>
+            <li><a href="#Paletted.ColorModel">func (p *Paletted) ColorModel() color.Model</a></li>
+            <li><a href="#Paletted.Opaque">func (p *Paletted) Opaque() bool</a></li>
+            <li><a href="#Paletted.PixOffset">func (p *Paletted) PixOffset(x, y int) int</a></li>
+            <li><a href="#Paletted.Set">func (p *Paletted) Set(x, y int, c color.Color)</a></li>
+            <li><a href="#Paletted.SetColorIndex">func (p *Paletted) SetColorIndex(x, y int, index uint8)</a></li>
+            <li><a href="#Paletted.SubImage">func (p *Paletted) SubImage(r Rectangle) Image</a></li>
+        </ul>
+        <li><a href="#YCbCrSubsampleRatio">type YCbCrSubsampleRatio</a></li>
+        <ul>
+            <li><a href="#YCbCrSubsampleRatio.String">func (s YCbCrSubsampleRatio) String() string</a></li>
+        </ul>
+        <li><a href="#YCbCr">type YCbCr</a></li>
+        <ul>
+            <li><a href="#NewYCbCr">func NewYCbCr(r Rectangle, subsampleRatio YCbCrSubsampleRatio) *YCbCr</a></li>
+            <li><a href="#YCbCr.At">func (p *YCbCr) At(x, y int) color.Color</a></li>
+            <li><a href="#YCbCr.Bounds">func (p *YCbCr) Bounds() Rectangle</a></li>
+            <li><a href="#YCbCr.COffset">func (p *YCbCr) COffset(x, y int) int</a></li>
+            <li><a href="#YCbCr.ColorModel">func (p *YCbCr) ColorModel() color.Model</a></li>
+            <li><a href="#YCbCr.Opaque">func (p *YCbCr) Opaque() bool</a></li>
+            <li><a href="#YCbCr.SubImage">func (p *YCbCr) SubImage(r Rectangle) Image</a></li>
+            <li><a href="#YCbCr.YOffset">func (p *YCbCr) YOffset(x, y int) int</a></li>
+        </ul>
+    </ul>
+    <h4 id="pkg-examples">Examples <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#example-package" onclick="$('#ex-package').addClass('in').removeClass('collapse').height('auto')">package</a></li>
+    </ul>
+    <h3 id="pkg-variables">Variables <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>var (
+    <span class="com">// Black是一个完全不透明的面积无限大的黑色图像</span>
+    <span id="Black">Black</span> = <a href="#NewUniform">NewUniform</a>(<a href="image/color.htm">color</a>.<a href="image/color.htm#Black">Black</a>)
+    <span class="com">// White是一个完全不透明的面积无限大的白色图像</span>
+    <span id="White">White</span> = <a href="#NewUniform">NewUniform</a>(<a href="image/color.htm">color</a>.<a href="image/color.htm#White">White</a>)
+    <span class="com">// Transparent是一个完全透明的面积无限大的图像</span>
+    <span id="Transparent">Transparent</span> = <a href="#NewUniform">NewUniform</a>(<a href="image/color.htm">color</a>.<a href="image/color.htm#Transparent">Transparent</a>)
+    <span class="com">// Opaque是一个完全不透明的面积无限大的图像</span>
+    <span id="Opaque">Opaque</span> = <a href="#NewUniform">NewUniform</a>(<a href="image/color.htm">color</a>.<a href="image/color.htm#Opaque">Opaque</a>)
+)</pre>
+    <pre>var <span id="ErrFormat">ErrFormat</span> = <a href="errors.htm">errors</a>.<a href="errors.htm#New">New</a>(&#34;image: unknown format&#34;)</pre>
+    <p>ErrFormat说明解码时遇到了未知的格式。</p>
+    <h3 id="Image">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/image.go?name=release#36">Image</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Image interface {
+    <span class="com">// ColorModel方法返回图像的色彩模型</span>
+    <span id="Image.ColorModel">ColorModel</span>() <a href="image/color.htm">color</a>.<a href="image/color.htm#Model">Model</a>
+    <span class="com">// Bounds方法返回图像的范围，范围不一定包括点(0, 0)</span>
+    <span id="Image.Bounds">Bounds</span>() <a href="#Rectangle">Rectangle</a>
+    <span class="com">// At方法返回(x, y)位置的色彩</span>
+    <span class="com">// At(Bounds().Min.X, Bounds().Min.Y)返回网格左上角像素的色彩</span>
+    <span class="com">// At(Bounds().Max.X-1, Bounds().Max.Y-1) 返回网格右下角像素的色彩</span>
+    <span id="Image.At">At</span>(x, y <a href="builtin.htm#int">int</a>) <a href="image/color.htm">color</a>.<a href="image/color.htm#Color">Color</a>
+}</pre>
+    <p>Image接口表示一个采用某色彩模型的颜色构成的有限矩形网格（即一幅图像）。</p>
+    <h4 id="Decode">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/format.go?name=release#78">Decode</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func Decode(r <a href="io.htm">io</a>.<a href="io.htm#Reader">Reader</a>) (<a href="#Image">Image</a>, <a href="builtin.htm#string">string</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>DecodeConfig函数解码并返回一个采用某种已注册格式编码的图像。字符串返回值是该格式注册时的名字。格式一般是在该编码格式的包的init函数中注册的。</p>
+    <h3 id="PalettedImage">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/image.go?name=release#53">PalettedImage</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type PalettedImage interface {
+    <span class="com">// ColorIndexAt方法返回(x, y)位置的像素的（调色板）索引</span>
+    <span id="PalettedImage.ColorIndexAt">ColorIndexAt</span>(x, y <a href="builtin.htm#int">int</a>) <a href="builtin.htm#uint8">uint8</a>
+    <a href="#Image">Image</a>
+}</pre>
+    <p align="left">PalettedImage接口代表一幅图像，它的像素可能来自一个有限的调色板。</p>
+    <p align="left">如果有对象m满足PalettedImage接口，且m.ColorModel()返回的color.Model接口底层为一个Palette类型值（记为p），则m.At(x, y)返回值应等于p[m.ColorIndexAt(x, y)]。如果m的色彩模型不是Palette，则ColorIndexAt的行为是不确定的。</p>
+    <h3 id="Config">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/image.go?name=release#29">Config</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Config struct {
+    <span id="Config.ColorModel">ColorModel</span>    <a href="image/color.htm">color</a>.<a href="image/color.htm#Model">Model</a>
+    <span id="Config.Width">Width</span>, <span id="Config.Height">Height</span> <a href="builtin.htm#int">int</a>
+}</pre>
+    <p>Config保管图像的色彩模型和尺寸信息。</p>
+    <h4 id="DecodeConfig">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/format.go?name=release#92">DecodeConfig</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func DecodeConfig(r <a href="io.htm">io</a>.<a href="io.htm#Reader">Reader</a>) (<a href="#Config">Config</a>, <a href="builtin.htm#string">string</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>DecodeConfig</a>函数解码并返回一个采用某种已注册格式编码的图像的色彩模型和尺寸。字符串返回值是该格式注册时的名字。格式一般是在该编码格式的包的init函数中注册的。</p>
+    <h3 id="RegisterFormat">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/format.go?name=release#32">RegisterFormat</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func RegisterFormat(name, magic <a href="builtin.htm#string">string</a>, decode func(<a href="io.htm">io</a>.<a href="io.htm#Reader">Reader</a>) (<a href="#Image">Image</a>, <a href="builtin.htm#error">error</a>), decodeConfig func(<a href="io.htm">io</a>.<a href="io.htm#Reader">Reader</a>) (<a href="#Config">Config</a>, <a href="builtin.htm#error">error</a>))</pre>
+    <p>RegisterFormat注册一个供Decode函数使用的图片格式。name是格式的名字，如"jpeg"或"png"；magic是该格式编码的魔术前缀，该字符串可以包含"?"通配符，每个通配符匹配一个字节；decode函数用于解码图片；decodeConfig函数只解码图片的配置。</p>
+    <h3 id="Point">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/geom.go?name=release#12">Point</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Point struct {
+    <span id="Point.X">X</span>, <span id="Point.Y">Y</span> <a href="builtin.htm#int">int</a>
+}</pre>
+    <p>Point是X, Y坐标对。坐标轴是向右（X）向下（Y）的。既可以表示点，也可以表示向量。</p>
+    <pre>var <span id="ZP">ZP</span> <a href="#Point">Point</a></pre>
+    <p>ZP是原点。</p>
+    <h4 id="Pt">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/geom.go?name=release#72">Pt</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func Pt(X, Y <a href="builtin.htm#int">int</a>) <a href="#Point">Point</a></pre>
+    <p>返回Point{X , Y}</p>
+    <h4 id="Point.Eq">func (Point) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/geom.go?name=release#64">Eq</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p <a href="#Point">Point</a>) Eq(q <a href="#Point">Point</a>) <a href="builtin.htm#bool">bool</a></pre>
+    <p>报告p和q是否相同。</p>
+    <h4 id="Point.Add">func (Point) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/geom.go?name=release#22">Add</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p <a href="#Point">Point</a>) Add(q <a href="#Point">Point</a>) <a href="#Point">Point</a></pre>
+    <p>返回点Point{p.X+q.X, p.Y+q.Y}</p>
+    <h4 id="Point.Sub">func (Point) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/geom.go?name=release#27">Sub</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p <a href="#Point">Point</a>) Sub(q <a href="#Point">Point</a>) <a href="#Point">Point</a></pre>
+    <p>返回点Point{p.X-q.X, p.Y-q.Y}</p>
+    <h4 id="Point.Mul">func (Point) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/geom.go?name=release#32">Mul</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p <a href="#Point">Point</a>) Mul(k <a href="builtin.htm#int">int</a>) <a href="#Point">Point</a></pre>
+    <p>返回点Point{p.X*k, p.Y*k}</p>
+    <h4 id="Point.Div">func (Point) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/geom.go?name=release#37">Div</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p <a href="#Point">Point</a>) Div(k <a href="builtin.htm#int">int</a>) <a href="#Point">Point</a></pre>
+    <p>返回点Point{p.X/k, p.Y/k }</p>
+    <h4 id="Point.In">func (Point) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/geom.go?name=release#42">In</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p <a href="#Point">Point</a>) In(r <a href="#Rectangle">Rectangle</a>) <a href="builtin.htm#bool">bool</a></pre>
+    <p>报告p是否在r范围内。</p>
+    <h4 id="Point.Mod">func (Point) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/geom.go?name=release#49">Mod</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p <a href="#Point">Point</a>) Mod(r <a href="#Rectangle">Rectangle</a>) <a href="#Point">Point</a></pre>
+    <p>返回r范围内的某点q，满足p.X-q.X是r宽度的倍数，p.Y-q.Y是r高度的倍数。</p>
+    <h4 id="Point.String">func (Point) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/geom.go?name=release#17">String</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p <a href="#Point">Point</a>) String() <a href="builtin.htm#string">string</a></pre>
+    <p>返回p的字符串表示。格式为"(3,4)"</p>
+    <h3 id="Rectangle">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/geom.go?name=release#80">Rectangle</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Rectangle struct {
+    <span id="Rectangle.Min">Min</span>, <span id="Rectangle.Max">Max</span> <a href="#Point">Point</a>
+}</pre>
+    <p>Rectangle代表一个矩形。该矩形包含所有满足Min.X &lt;= X &lt; Max.X且Min.Y &lt;= Y &lt; Max.Y的点。如果两个字段满足Min.X &lt;= Max.X且Min.Y &lt;= Max.Y，就称该实例为规范格式的。矩形的方法，当输入是规范格式时，总是返回规范格式的输出。</p>
+    <pre>var <span id="ZR">ZR</span> <a href="#Rectangle">Rectangle</a></pre>
+    <p>ZR是矩形的零值。</p>
+    <h4 id="Rect">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/geom.go?name=release#226">Rect</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func Rect(x0, y0, x1, y1 <a href="builtin.htm#int">int</a>) <a href="#Rectangle">Rectangle</a></pre>
+    <p>返回一个矩形Rectangle{Pt(x0, y0), Pt(x1, y1)}。</p>
+    <h4 id="Rectangle.Canon">func (Rectangle) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/geom.go?name=release#212">Canon</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (r <a href="#Rectangle">Rectangle</a>) Canon() <a href="#Rectangle">Rectangle</a></pre>
+    <p>返回矩形的规范版本（左上&amp;右下），方法必要时会交换坐标的最大值和最小值。</p>
+    <h4 id="Rectangle.Dx">func (Rectangle) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/geom.go?name=release#90">Dx</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (r <a href="#Rectangle">Rectangle</a>) Dx() <a href="builtin.htm#int">int</a></pre>
+    <p>返回r的宽度。</p>
+    <h4 id="Rectangle.Dy">func (Rectangle) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/geom.go?name=release#95">Dy</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (r <a href="#Rectangle">Rectangle</a>) Dy() <a href="builtin.htm#int">int</a></pre>
+    <p>返回r的高度。</p>
+    <h4 id="Rectangle.Size">func (Rectangle) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/geom.go?name=release#100">Size</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (r <a href="#Rectangle">Rectangle</a>) Size() <a href="#Point">Point</a></pre>
+    <p>返回r的宽度w和高度h构成的点Point{w, h}。</p>
+    <h4 id="Rectangle.Empty">func (Rectangle) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/geom.go?name=release#183">Empty</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (r <a href="#Rectangle">Rectangle</a>) Empty() <a href="builtin.htm#bool">bool</a></pre>
+    <p>报告矩形是否为空矩形。（即内部不包含点的矩形）</p>
+    <h4 id="Rectangle.Eq">func (Rectangle) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/geom.go?name=release#188">Eq</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (r <a href="#Rectangle">Rectangle</a>) Eq(s <a href="#Rectangle">Rectangle</a>) <a href="builtin.htm#bool">bool</a></pre>
+    <p>报告两个矩形是否相同。</p>
+    <h4 id="Rectangle.In">func (Rectangle) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/geom.go?name=release#200">In</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (r <a href="#Rectangle">Rectangle</a>) In(s <a href="#Rectangle">Rectangle</a>) <a href="builtin.htm#bool">bool</a></pre>
+    <p>如果r包含的所有点都在s内，则返回真；否则返回假。</p>
+    <h4 id="Rectangle.Overlaps">func (Rectangle) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/geom.go?name=release#194">Overlaps</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (r <a href="#Rectangle">Rectangle</a>) Overlaps(s <a href="#Rectangle">Rectangle</a>) <a href="builtin.htm#bool">bool</a></pre>
+    <p>如果r和s有非空的交集，则返回真；否则返回假。</p>
+    <h4 id="Rectangle.Add">func (Rectangle) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/geom.go?name=release#108">Add</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (r <a href="#Rectangle">Rectangle</a>) Add(p <a href="#Point">Point</a>) <a href="#Rectangle">Rectangle</a></pre>
+    <p>返回矩形按p（作为向量）平移后的新矩形。</p>
+    <h4 id="Rectangle.Sub">func (Rectangle) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/geom.go?name=release#116">Sub</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (r <a href="#Rectangle">Rectangle</a>) Sub(p <a href="#Point">Point</a>) <a href="#Rectangle">Rectangle</a></pre>
+    <p>返回矩形按p（作为向量）反向平移后的新矩形。</p>
+    <h4 id="Rectangle.Intersect">func (Rectangle) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/geom.go?name=release#146">Intersect</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (r <a href="#Rectangle">Rectangle</a>) Intersect(s <a href="#Rectangle">Rectangle</a>) <a href="#Rectangle">Rectangle</a></pre>
+    <p>返回两个矩形的交集矩形（同时被r和s包含的最大矩形）；如果r和s没有重叠会返回Rectangle零值。</p>
+    <h4 id="Rectangle.Union">func (Rectangle) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/geom.go?name=release#166">Union</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (r <a href="#Rectangle">Rectangle</a>) Union(s <a href="#Rectangle">Rectangle</a>) <a href="#Rectangle">Rectangle</a></pre>
+    <p>返回同时包含r和s的最小矩形。</p>
+    <h4 id="Rectangle.Inset">func (Rectangle) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/geom.go?name=release#126">Inset</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (r <a href="#Rectangle">Rectangle</a>) Inset(n <a href="builtin.htm#int">int</a>) <a href="#Rectangle">Rectangle</a></pre>
+    <p>返回去掉矩形四周宽度n的框的矩形，n可为负数。如果n过大将返回靠近r中心位置的空矩形。</p>
+    <h4 id="Rectangle.String">func (Rectangle) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/geom.go?name=release#85">String</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (r <a href="#Rectangle">Rectangle</a>) String() <a href="builtin.htm#string">string</a></pre>
+    <p>返回矩形的字符串表示，格式为"(3,4)-(6,5)"。</p>
+    <h3 id="Uniform">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/names.go?name=release#24">Uniform</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Uniform struct {
+    <span id="Uniform.C">C</span> <a href="image/color.htm">color</a>.<a href="image/color.htm#Color">Color</a>
+}</pre>
+    <p>Uniform类型代表一块面积无限大的具有同一色彩的图像。它实现了color.Color、color.Model和Image等接口。</p>
+    <h4 id="NewUniform">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/names.go?name=release#50">NewUniform</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func NewUniform(c <a href="image/color.htm">color</a>.<a href="image/color.htm#Color">Color</a>) *<a href="#Uniform">Uniform</a></pre>
+    <h4 id="Uniform.At">func (*Uniform) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/names.go?name=release#42">At</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *<a href="#Uniform">Uniform</a>) At(x, y <a href="builtin.htm#int">int</a>) <a href="image/color.htm">color</a>.<a href="image/color.htm#Color">Color</a></pre>
+    <h4 id="Uniform.Bounds">func (*Uniform) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/names.go?name=release#40">Bounds</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *<a href="#Uniform">Uniform</a>) Bounds() <a href="#Rectangle">Rectangle</a></pre>
+    <h4 id="Uniform.ColorModel">func (*Uniform) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/names.go?name=release#32">ColorModel</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *<a href="#Uniform">Uniform</a>) ColorModel() <a href="image/color.htm">color</a>.<a href="image/color.htm#Model">Model</a></pre>
+    <h4 id="Uniform.Convert">func (*Uniform) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/names.go?name=release#36">Convert</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *<a href="#Uniform">Uniform</a>) Convert(<a href="image/color.htm">color</a>.<a href="image/color.htm#Color">Color</a>) <a href="image/color.htm">color</a>.<a href="image/color.htm#Color">Color</a></pre>
+    <h4 id="Uniform.Opaque">func (*Uniform) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/names.go?name=release#45">Opaque</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *<a href="#Uniform">Uniform</a>) Opaque() <a href="builtin.htm#bool">bool</a></pre>
+    <p>Opaque方法扫描整个图像并报告该图像是否是完全不透明的。</p>
+    <h4 id="Uniform.RGBA">func (*Uniform) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/names.go?name=release#28">RGBA</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *<a href="#Uniform">Uniform</a>) RGBA() (r, g, b, a <a href="builtin.htm#uint32">uint32</a>)</pre>
+    <h3 id="Alpha">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/image.go?name=release#466">Alpha</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Alpha struct {
+    <span class="com">// Pix保管图像的像素，内容为alpha通道值（即透明度）。</span>
+    <span class="com">// 像素(x, y)起始位置是Pix[(y-Rect.Min.Y)*Stride + (x-Rect.Min.X)*1]</span>
+    <span id="Alpha.Pix">Pix</span> []<a href="builtin.htm#uint8">uint8</a>
+    <span class="com">// Stride是Pix中每行像素占用的字节数</span>
+    <span id="Alpha.Stride">Stride</span> <a href="builtin.htm#int">int</a>
+    <span class="com">// Rect是图像的范围</span>
+    <span id="Alpha.Rect">Rect</span> <a href="#Rectangle">Rectangle</a>
+}</pre>
+    <p>Alpha类型代表一幅内存中的图像，其At方法返回color.Alpha类型的值。</p>
+    <h4 id="NewAlpha">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/image.go?name=release#547">NewAlpha</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func NewAlpha(r <a href="#Rectangle">Rectangle</a>) *<a href="#Alpha">Alpha</a></pre>
+    <p>NewAlpha函数创建并返回一个具有指定宽度和高度的Alpha。</p>
+    <h4 id="Alpha.At">func (*Alpha) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/image.go?name=release#480">At</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#Alpha">Alpha</a>) At(x, y <a href="builtin.htm#int">int</a>) <a href="image/color.htm">color</a>.<a href="image/color.htm#Color">Color</a></pre>
+    <h4 id="Alpha.Bounds">func (*Alpha) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/image.go?name=release#478">Bounds</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#Alpha">Alpha</a>) Bounds() <a href="#Rectangle">Rectangle</a></pre>
+    <h4 id="Alpha.ColorModel">func (*Alpha) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/image.go?name=release#476">ColorModel</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#Alpha">Alpha</a>) ColorModel() <a href="image/color.htm">color</a>.<a href="image/color.htm#Model">Model</a></pre>
+    <h4 id="Alpha.Opaque">func (*Alpha) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/image.go?name=release#529">Opaque</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#Alpha">Alpha</a>) Opaque() <a href="builtin.htm#bool">bool</a></pre>
+    <p>Opaque方法扫描整个图像并报告图像是否是完全不透明的。</p>
+    <h4 id="Alpha.PixOffset">func (*Alpha) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/image.go?name=release#490">PixOffset</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#Alpha">Alpha</a>) PixOffset(x, y <a href="builtin.htm#int">int</a>) <a href="builtin.htm#int">int</a></pre>
+    <p>PixOffset方法返回像素(x, y)的数据起始位置在Pix字段的偏移量/索引。</p>
+    <h4 id="Alpha.Set">func (*Alpha) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/image.go?name=release#494">Set</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#Alpha">Alpha</a>) Set(x, y <a href="builtin.htm#int">int</a>, c <a href="image/color.htm">color</a>.<a href="image/color.htm#Color">Color</a>)</pre>
+    <h4 id="Alpha.SetAlpha">func (*Alpha) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/image.go?name=release#502">SetAlpha</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#Alpha">Alpha</a>) SetAlpha(x, y <a href="builtin.htm#int">int</a>, c <a href="image/color.htm">color</a>.<a href="image/color.htm#Alpha">Alpha</a>)</pre>
+    <h4 id="Alpha.SubImage">func (*Alpha) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/image.go?name=release#512">SubImage</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#Alpha">Alpha</a>) SubImage(r <a href="#Rectangle">Rectangle</a>) <a href="#Image">Image</a></pre>
+    <p>SubImage方法返回代表原图像一部分（r的范围）的新图像。返回值和原图像的像素数据是共用的。</p>
+    <h3 id="Alpha16">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/image.go?name=release#554">Alpha16</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Alpha16 struct {
+    <span class="com">// Pix保管图像的像素，内容为alpha通道值（即透明度，大端在前的格式）。</span>
+    <span class="com">// 像素(x, y)起始位置是Pix[(y-Rect.Min.Y)*Stride + (x-Rect.Min.X)*2]</span>
+    <span id="Alpha16.Pix">Pix</span> []<a href="builtin.htm#uint8">uint8</a>
+    <span class="com">// Stride是Pix中每行像素占用的字节数</span>
+    <span id="Alpha16.Stride">Stride</span> <a href="builtin.htm#int">int</a>
+    <span class="com">// Rect是图像的范围</span>
+    <span id="Alpha16.Rect">Rect</span> <a href="#Rectangle">Rectangle</a>
+}</pre>
+    <p>Alpha16类型代表一幅内存中的图像，其At方法返回color.Alpha16类型的值。</p>
+    <h4 id="NewAlpha16">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/image.go?name=release#638">NewAlpha16</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func NewAlpha16(r <a href="#Rectangle">Rectangle</a>) *<a href="#Alpha16">Alpha16</a></pre>
+    <p>NewAlpha16函数创建并返回一个具有指定范围的Alpha16。</p>
+    <h4 id="Alpha16.At">func (*Alpha16) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/image.go?name=release#568">At</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#Alpha16">Alpha16</a>) At(x, y <a href="builtin.htm#int">int</a>) <a href="image/color.htm">color</a>.<a href="image/color.htm#Color">Color</a></pre>
+    <h4 id="Alpha16.Bounds">func (*Alpha16) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/image.go?name=release#566">Bounds</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#Alpha16">Alpha16</a>) Bounds() <a href="#Rectangle">Rectangle</a></pre>
+    <h4 id="Alpha16.ColorModel">func (*Alpha16) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/image.go?name=release#564">ColorModel</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#Alpha16">Alpha16</a>) ColorModel() <a href="image/color.htm">color</a>.<a href="image/color.htm#Model">Model</a></pre>
+    <h4 id="Alpha16.Opaque">func (*Alpha16) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/image.go?name=release#620">Opaque</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#Alpha16">Alpha16</a>) Opaque() <a href="builtin.htm#bool">bool</a></pre>
+    <p>Opaque方法扫描整个图像并报告图像是否是完全不透明的。</p>
+    <h4 id="Alpha16.PixOffset">func (*Alpha16) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/image.go?name=release#578">PixOffset</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#Alpha16">Alpha16</a>) PixOffset(x, y <a href="builtin.htm#int">int</a>) <a href="builtin.htm#int">int</a></pre>
+    <p>PixOffset方法返回像素(x, y)的数据起始位置在Pix字段的偏移量/索引。</p>
+    <h4 id="Alpha16.Set">func (*Alpha16) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/image.go?name=release#582">Set</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#Alpha16">Alpha16</a>) Set(x, y <a href="builtin.htm#int">int</a>, c <a href="image/color.htm">color</a>.<a href="image/color.htm#Color">Color</a>)</pre>
+    <h4 id="Alpha16.SetAlpha16">func (*Alpha16) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/image.go?name=release#592">SetAlpha16</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#Alpha16">Alpha16</a>) SetAlpha16(x, y <a href="builtin.htm#int">int</a>, c <a href="image/color.htm">color</a>.<a href="image/color.htm#Alpha16">Alpha16</a>)</pre>
+    <h4 id="Alpha16.SubImage">func (*Alpha16) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/image.go?name=release#603">SubImage</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#Alpha16">Alpha16</a>) SubImage(r <a href="#Rectangle">Rectangle</a>) <a href="#Image">Image</a></pre>
+    <p>SubImage方法返回代表原图像一部分（r的范围）的新图像。返回值和原图像的像素数据是共用的。</p>
+    <h3 id="Gray">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/image.go?name=release#645">Gray</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Gray struct {
+    <span class="com">// Pix保管图像的像素，内容为灰度。</span>
+    <span class="com">// 像素(x, y)起始位置是Pix[(y-Rect.Min.Y)*Stride + (x-Rect.Min.X)*1]</span>
+    <span id="Gray.Pix">Pix</span> []<a href="builtin.htm#uint8">uint8</a>
+    <span class="com">// Stride是Pix中每行像素占用的字节数</span>
+    <span id="Gray.Stride">Stride</span> <a href="builtin.htm#int">int</a>
+    <span class="com">// Rect是图像的范围</span>
+    <span id="Gray.Rect">Rect</span> <a href="#Rectangle">Rectangle</a>
+}</pre>
+    <p>Gray类型代表一幅内存中的图像，其At方法返回color.Gray类型的值。</p>
+    <h4 id="NewGray">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/image.go?name=release#713">NewGray</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func NewGray(r <a href="#Rectangle">Rectangle</a>) *<a href="#Gray">Gray</a></pre>
+    <p>NewGray函数创建并返回一个具有指定范围的Gray。</p>
+    <h4 id="Gray.At">func (*Gray) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/image.go?name=release#659">At</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#Gray">Gray</a>) At(x, y <a href="builtin.htm#int">int</a>) <a href="image/color.htm">color</a>.<a href="image/color.htm#Color">Color</a></pre>
+    <h4 id="Gray.Bounds">func (*Gray) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/image.go?name=release#657">Bounds</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#Gray">Gray</a>) Bounds() <a href="#Rectangle">Rectangle</a></pre>
+    <h4 id="Gray.ColorModel">func (*Gray) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/image.go?name=release#655">ColorModel</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#Gray">Gray</a>) ColorModel() <a href="image/color.htm">color</a>.<a href="image/color.htm#Model">Model</a></pre>
+    <h4 id="Gray.Opaque">func (*Gray) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/image.go?name=release#708">Opaque</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#Gray">Gray</a>) Opaque() <a href="builtin.htm#bool">bool</a></pre>
+    <p>Opaque方法扫描整个图像并报告图像是否是完全不透明的。</p>
+    <h4 id="Gray.PixOffset">func (*Gray) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/image.go?name=release#669">PixOffset</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#Gray">Gray</a>) PixOffset(x, y <a href="builtin.htm#int">int</a>) <a href="builtin.htm#int">int</a></pre>
+    <p>PixOffset方法返回像素(x, y)的数据起始位置在Pix字段的偏移量/索引。</p>
+    <h4 id="Gray.Set">func (*Gray) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/image.go?name=release#673">Set</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#Gray">Gray</a>) Set(x, y <a href="builtin.htm#int">int</a>, c <a href="image/color.htm">color</a>.<a href="image/color.htm#Color">Color</a>)</pre>
+    <h4 id="Gray.SetGray">func (*Gray) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/image.go?name=release#681">SetGray</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#Gray">Gray</a>) SetGray(x, y <a href="builtin.htm#int">int</a>, c <a href="image/color.htm">color</a>.<a href="image/color.htm#Gray">Gray</a>)</pre>
+    <h4 id="Gray.SubImage">func (*Gray) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/image.go?name=release#691">SubImage</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#Gray">Gray</a>) SubImage(r <a href="#Rectangle">Rectangle</a>) <a href="#Image">Image</a></pre>
+    <p>SubImage方法返回代表原图像一部分（r的范围）的新图像。返回值和原图像的像素数据是共用的。</p>
+    <h3 id="Gray16">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/image.go?name=release#720">Gray16</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Gray16 struct {
+    <span class="com">// Pix保管图像的像素，内容为灰度（大端在前的格式）。</span>
+    <span class="com">// 像素(x, y)起始位置是Pix[(y-Rect.Min.Y)*Stride + (x-Rect.Min.X)*2]</span>
+    <span id="Gray16.Pix">Pix</span> []<a href="builtin.htm#uint8">uint8</a>
+    <span class="com">// Stride是Pix中每行像素占用的字节数</span>
+    <span id="Gray16.Stride">Stride</span> <a href="builtin.htm#int">int</a>
+    <span class="com">// Rect是图像的范围</span>
+    <span id="Gray16.Rect">Rect</span> <a href="#Rectangle">Rectangle</a>
+}</pre>
+    <p>Gray16类型代表一幅内存中的图像，其At方法返回color.Gray16类型的值。</p>
+    <h4 id="NewGray16">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/image.go?name=release#791">NewGray16</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func NewGray16(r <a href="#Rectangle">Rectangle</a>) *<a href="#Gray16">Gray16</a></pre>
+    <p>NewGray16函数创建并返回一个具有指定范围的Gray16。</p>
+    <h4 id="Gray16.At">func (*Gray16) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/image.go?name=release#734">At</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#Gray16">Gray16</a>) At(x, y <a href="builtin.htm#int">int</a>) <a href="image/color.htm">color</a>.<a href="image/color.htm#Color">Color</a></pre>
+    <h4 id="Gray16.Bounds">func (*Gray16) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/image.go?name=release#732">Bounds</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#Gray16">Gray16</a>) Bounds() <a href="#Rectangle">Rectangle</a></pre>
+    <h4 id="Gray16.ColorModel">func (*Gray16) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/image.go?name=release#730">ColorModel</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#Gray16">Gray16</a>) ColorModel() <a href="image/color.htm">color</a>.<a href="image/color.htm#Model">Model</a></pre>
+    <h4 id="Gray16.Opaque">func (*Gray16) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/image.go?name=release#786">Opaque</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#Gray16">Gray16</a>) Opaque() <a href="builtin.htm#bool">bool</a></pre>
+    <p>Opaque方法扫描整个图像并报告图像是否是完全不透明的。</p>
+    <h4 id="Gray16.PixOffset">func (*Gray16) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/image.go?name=release#744">PixOffset</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#Gray16">Gray16</a>) PixOffset(x, y <a href="builtin.htm#int">int</a>) <a href="builtin.htm#int">int</a></pre>
+    <p>PixOffset方法返回像素(x, y)的数据起始位置在Pix字段的偏移量/索引。</p>
+    <h4 id="Gray16.Set">func (*Gray16) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/image.go?name=release#748">Set</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#Gray16">Gray16</a>) Set(x, y <a href="builtin.htm#int">int</a>, c <a href="image/color.htm">color</a>.<a href="image/color.htm#Color">Color</a>)</pre>
+    <h4 id="Gray16.SetGray16">func (*Gray16) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/image.go?name=release#758">SetGray16</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#Gray16">Gray16</a>) SetGray16(x, y <a href="builtin.htm#int">int</a>, c <a href="image/color.htm">color</a>.<a href="image/color.htm#Gray16">Gray16</a>)</pre>
+    <h4 id="Gray16.SubImage">func (*Gray16) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/image.go?name=release#769">SubImage</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#Gray16">Gray16</a>) SubImage(r <a href="#Rectangle">Rectangle</a>) <a href="#Image">Image</a></pre>
+    <p>SubImage方法返回代表原图像一部分（r的范围）的新图像。返回值和原图像的像素数据是共用的。</p>
+    <h3 id="RGBA">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/image.go?name=release#60">RGBA</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type RGBA struct {
+    <span class="com">// Pix保管图像的像素色彩信息，顺序为R, G, B, A</span>
+    <span class="com">// 像素(x, y)起始位置是Pix[(y-Rect.Min.Y)*Stride + (x-Rect.Min.X)*4]</span>
+    <span id="RGBA.Pix">Pix</span> []<a href="builtin.htm#uint8">uint8</a>
+    <span class="com">// Stride是Pix中每行像素占用的字节数</span>
+    <span id="RGBA.Stride">Stride</span> <a href="builtin.htm#int">int</a>
+    <span class="com">// Rect是图像的范围</span>
+    <span id="RGBA.Rect">Rect</span> <a href="#Rectangle">Rectangle</a>
+}</pre>
+    <p>RGBA类型代表一幅内存中的图像，其At方法返回color.RGBA类型的值。</p>
+    <h4 id="NewRGBA">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/image.go?name=release#148">NewRGBA</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func NewRGBA(r <a href="#Rectangle">Rectangle</a>) *<a href="#RGBA">RGBA</a></pre>
+    <p>NewRGBA函数创建并返回一个具有指定范围的RGBA。</p>
+    <h4 id="RGBA.At">func (*RGBA) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/image.go?name=release#74">At</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#RGBA">RGBA</a>) At(x, y <a href="builtin.htm#int">int</a>) <a href="image/color.htm">color</a>.<a href="image/color.htm#Color">Color</a></pre>
+    <h4 id="RGBA.Bounds">func (*RGBA) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/image.go?name=release#72">Bounds</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#RGBA">RGBA</a>) Bounds() <a href="#Rectangle">Rectangle</a></pre>
+    <h4 id="RGBA.ColorModel">func (*RGBA) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/image.go?name=release#70">ColorModel</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#RGBA">RGBA</a>) ColorModel() <a href="image/color.htm">color</a>.<a href="image/color.htm#Model">Model</a></pre>
+    <h4 id="RGBA.Opaque">func (*RGBA) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/image.go?name=release#130">Opaque</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#RGBA">RGBA</a>) Opaque() <a href="builtin.htm#bool">bool</a></pre>
+    <p>Opaque方法扫描整个图像并报告图像是否是完全不透明的。</p>
+    <h4 id="RGBA.PixOffset">func (*RGBA) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/image.go?name=release#84">PixOffset</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#RGBA">RGBA</a>) PixOffset(x, y <a href="builtin.htm#int">int</a>) <a href="builtin.htm#int">int</a></pre>
+    <p>PixOffset方法返回像素(x, y)的数据起始位置在Pix字段的偏移量/索引。</p>
+    <h4 id="RGBA.Set">func (*RGBA) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/image.go?name=release#88">Set</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#RGBA">RGBA</a>) Set(x, y <a href="builtin.htm#int">int</a>, c <a href="image/color.htm">color</a>.<a href="image/color.htm#Color">Color</a>)</pre>
+    <h4 id="RGBA.SetRGBA">func (*RGBA) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/image.go?name=release#100">SetRGBA</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#RGBA">RGBA</a>) SetRGBA(x, y <a href="builtin.htm#int">int</a>, c <a href="image/color.htm">color</a>.<a href="image/color.htm#RGBA">RGBA</a>)</pre>
+    <h4 id="RGBA.SubImage">func (*RGBA) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/image.go?name=release#113">SubImage</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#RGBA">RGBA</a>) SubImage(r <a href="#Rectangle">Rectangle</a>) <a href="#Image">Image</a></pre>
+    <p>SubImage方法返回代表原图像一部分（r的范围）的新图像。返回值和原图像的像素数据是共用的。</p>
+    <h3 id="RGBA64">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/image.go?name=release#155">RGBA64</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type RGBA64 struct {
+    <span class="com">// Pix保管图像的像素色彩信息，顺序为R, G, B, A（每个值都是大端在前的格式）</span>
+    <span class="com">// 像素(x, y)起始位置是Pix[(y-Rect.Min.Y)*Stride + (x-Rect.Min.X)*8]</span>
+    <span id="RGBA64.Pix">Pix</span> []<a href="builtin.htm#uint8">uint8</a>
+    <span class="com">// Stride是Pix中每行像素占用的字节数</span>
+    <span id="RGBA64.Stride">Stride</span> <a href="builtin.htm#int">int</a>
+    <span class="com">// Rect是图像的范围</span>
+    <span id="RGBA64.Rect">Rect</span> <a href="#Rectangle">Rectangle</a>
+}</pre>
+    <p>RGBA64类型代表一幅内存中的图像，其At方法返回color.RGBA64类型的值</p>
+    <h4 id="NewRGBA64">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/image.go?name=release#256">NewRGBA64</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func NewRGBA64(r <a href="#Rectangle">Rectangle</a>) *<a href="#RGBA64">RGBA64</a></pre>
+    <p>NewRGBA64函数创建并返回一个具有指定范围的RGBA64</p>
+    <h4 id="RGBA64.At">func (*RGBA64) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/image.go?name=release#169">At</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#RGBA64">RGBA64</a>) At(x, y <a href="builtin.htm#int">int</a>) <a href="image/color.htm">color</a>.<a href="image/color.htm#Color">Color</a></pre>
+    <h4 id="RGBA64.Bounds">func (*RGBA64) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/image.go?name=release#167">Bounds</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#RGBA64">RGBA64</a>) Bounds() <a href="#Rectangle">Rectangle</a></pre>
+    <h4 id="RGBA64.ColorModel">func (*RGBA64) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/image.go?name=release#165">ColorModel</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#RGBA64">RGBA64</a>) ColorModel() <a href="image/color.htm">color</a>.<a href="image/color.htm#Model">Model</a></pre>
+    <h4 id="RGBA64.Opaque">func (*RGBA64) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/image.go?name=release#238">Opaque</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#RGBA64">RGBA64</a>) Opaque() <a href="builtin.htm#bool">bool</a></pre>
+    <p>Opaque方法扫描整个图像并报告图像是否是完全不透明的。</p>
+    <h4 id="RGBA64.PixOffset">func (*RGBA64) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/image.go?name=release#184">PixOffset</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#RGBA64">RGBA64</a>) PixOffset(x, y <a href="builtin.htm#int">int</a>) <a href="builtin.htm#int">int</a></pre>
+    <p>PixOffset方法返回像素(x, y)的数据起始位置在Pix字段的偏移量/索引。</p>
+    <h4 id="RGBA64.Set">func (*RGBA64) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/image.go?name=release#188">Set</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#RGBA64">RGBA64</a>) Set(x, y <a href="builtin.htm#int">int</a>, c <a href="image/color.htm">color</a>.<a href="image/color.htm#Color">Color</a>)</pre>
+    <h4 id="RGBA64.SetRGBA64">func (*RGBA64) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/image.go?name=release#204">SetRGBA64</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#RGBA64">RGBA64</a>) SetRGBA64(x, y <a href="builtin.htm#int">int</a>, c <a href="image/color.htm">color</a>.<a href="image/color.htm#RGBA64">RGBA64</a>)</pre>
+    <h4 id="RGBA64.SubImage">func (*RGBA64) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/image.go?name=release#221">SubImage</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#RGBA64">RGBA64</a>) SubImage(r <a href="#Rectangle">Rectangle</a>) <a href="#Image">Image</a></pre>
+    <p>SubImage方法返回代表原图像一部分（r的范围）的新图像。返回值和原图像的像素数据是共用的。</p>
+    <h3 id="NRGBA">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/image.go?name=release#263">NRGBA</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type NRGBA struct {
+    <span class="com">// Pix保管图像的像素色彩信息，顺序为R, G, B, A</span>
+    <span class="com">// 像素(x, y)起始位置是Pix[(y-Rect.Min.Y)*Stride + (x-Rect.Min.X)*4]</span>
+    <span id="NRGBA.Pix">Pix</span> []<a href="builtin.htm#uint8">uint8</a>
+    <span class="com">// Stride是Pix中每行像素占用的字节数</span>
+    <span id="NRGBA.Stride">Stride</span> <a href="builtin.htm#int">int</a>
+    <span class="com">// Rect是图像的范围</span>
+    <span id="NRGBA.Rect">Rect</span> <a href="#Rectangle">Rectangle</a>
+}</pre>
+    <p>NRGBA类型代表一幅内存中的图像，其At方法返回color.NRGBA类型的值。</p>
+    <h4 id="NewNRGBA">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/image.go?name=release#351">NewNRGBA</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func NewNRGBA(r <a href="#Rectangle">Rectangle</a>) *<a href="#NRGBA">NRGBA</a></pre>
+    <p>NewNRGBA函数创建并返回一个具有指定范围的NRGBA。</p>
+    <h4 id="NRGBA.At">func (*NRGBA) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/image.go?name=release#277">At</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#NRGBA">NRGBA</a>) At(x, y <a href="builtin.htm#int">int</a>) <a href="image/color.htm">color</a>.<a href="image/color.htm#Color">Color</a></pre>
+    <h4 id="NRGBA.Bounds">func (*NRGBA) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/image.go?name=release#275">Bounds</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#NRGBA">NRGBA</a>) Bounds() <a href="#Rectangle">Rectangle</a></pre>
+    <h4 id="NRGBA.ColorModel">func (*NRGBA) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/image.go?name=release#273">ColorModel</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#NRGBA">NRGBA</a>) ColorModel() <a href="image/color.htm">color</a>.<a href="image/color.htm#Model">Model</a></pre>
+    <h4 id="NRGBA.Opaque">func (*NRGBA) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/image.go?name=release#333">Opaque</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#NRGBA">NRGBA</a>) Opaque() <a href="builtin.htm#bool">bool</a></pre>
+    <p>Opaque方法扫描整个图像并报告图像是否是完全不透明的。</p>
+    <h4 id="NRGBA.PixOffset">func (*NRGBA) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/image.go?name=release#287">PixOffset</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#NRGBA">NRGBA</a>) PixOffset(x, y <a href="builtin.htm#int">int</a>) <a href="builtin.htm#int">int</a></pre>
+    <p>PixOffset方法返回像素(x, y)的数据起始位置在Pix字段的偏移量/索引。</p>
+    <h4 id="NRGBA.Set">func (*NRGBA) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/image.go?name=release#291">Set</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#NRGBA">NRGBA</a>) Set(x, y <a href="builtin.htm#int">int</a>, c <a href="image/color.htm">color</a>.<a href="image/color.htm#Color">Color</a>)</pre>
+    <h4 id="NRGBA.SetNRGBA">func (*NRGBA) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/image.go?name=release#303">SetNRGBA</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#NRGBA">NRGBA</a>) SetNRGBA(x, y <a href="builtin.htm#int">int</a>, c <a href="image/color.htm">color</a>.<a href="image/color.htm#NRGBA">NRGBA</a>)</pre>
+    <h4 id="NRGBA.SubImage">func (*NRGBA) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/image.go?name=release#316">SubImage</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#NRGBA">NRGBA</a>) SubImage(r <a href="#Rectangle">Rectangle</a>) <a href="#Image">Image</a></pre>
+    <p>SubImage方法返回代表原图像一部分（r的范围）的新图像。返回值和原图像的像素数据是共用的。</p>
+    <h3 id="NRGBA64">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/image.go?name=release#358">NRGBA64</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type NRGBA64 struct {
+    <span class="com">// Pix保管图像的像素色彩信息，顺序为R, G, B, A（每个值都是大端在前的格式）</span>
+    <span class="com">// 像素(x, y)起始位置是Pix[(y-Rect.Min.Y)*Stride + (x-Rect.Min.X)*8]</span>
+    <span id="NRGBA64.Pix">Pix</span> []<a href="builtin.htm#uint8">uint8</a>
+    <span class="com">// Stride是Pix中每行像素占用的字节数</span>
+    <span id="NRGBA64.Stride">Stride</span> <a href="builtin.htm#int">int</a>
+    <span class="com">// Rect是图像的范围</span>
+    <span id="NRGBA64.Rect">Rect</span> <a href="#Rectangle">Rectangle</a>
+}</pre>
+    <p>NRGBA64类型代表一幅内存中的图像，其At方法返回color.NRGBA64类型的值。</p>
+    <h4 id="NewNRGBA64">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/image.go?name=release#459">NewNRGBA64</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func NewNRGBA64(r <a href="#Rectangle">Rectangle</a>) *<a href="#NRGBA64">NRGBA64</a></pre>
+    <p>NewNRGBA64函数创建并返回一个具有指定范围的NRGBA64。</p>
+    <h4 id="NRGBA64.At">func (*NRGBA64) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/image.go?name=release#372">At</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#NRGBA64">NRGBA64</a>) At(x, y <a href="builtin.htm#int">int</a>) <a href="image/color.htm">color</a>.<a href="image/color.htm#Color">Color</a></pre>
+    <h4 id="NRGBA64.Bounds">func (*NRGBA64) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/image.go?name=release#370">Bounds</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#NRGBA64">NRGBA64</a>) Bounds() <a href="#Rectangle">Rectangle</a></pre>
+    <h4 id="NRGBA64.ColorModel">func (*NRGBA64) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/image.go?name=release#368">ColorModel</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#NRGBA64">NRGBA64</a>) ColorModel() <a href="image/color.htm">color</a>.<a href="image/color.htm#Model">Model</a></pre>
+    <h4 id="NRGBA64.Opaque">func (*NRGBA64) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/image.go?name=release#441">Opaque</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#NRGBA64">NRGBA64</a>) Opaque() <a href="builtin.htm#bool">bool</a></pre>
+    <p>Opaque方法扫描整个图像并报告图像是否是完全不透明的。</p>
+    <h4 id="NRGBA64.PixOffset">func (*NRGBA64) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/image.go?name=release#387">PixOffset</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#NRGBA64">NRGBA64</a>) PixOffset(x, y <a href="builtin.htm#int">int</a>) <a href="builtin.htm#int">int</a></pre>
+    <p>PixOffset方法返回像素(x, y)的数据起始位置在Pix字段的偏移量/索引。</p>
+    <h4 id="NRGBA64.Set">func (*NRGBA64) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/image.go?name=release#391">Set</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#NRGBA64">NRGBA64</a>) Set(x, y <a href="builtin.htm#int">int</a>, c <a href="image/color.htm">color</a>.<a href="image/color.htm#Color">Color</a>)</pre>
+    <h4 id="NRGBA64.SetNRGBA64">func (*NRGBA64) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/image.go?name=release#407">SetNRGBA64</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#NRGBA64">NRGBA64</a>) SetNRGBA64(x, y <a href="builtin.htm#int">int</a>, c <a href="image/color.htm">color</a>.<a href="image/color.htm#NRGBA64">NRGBA64</a>)</pre>
+    <h4 id="NRGBA64.SubImage">func (*NRGBA64) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/image.go?name=release#424">SubImage</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#NRGBA64">NRGBA64</a>) SubImage(r <a href="#Rectangle">Rectangle</a>) <a href="#Image">Image</a></pre>
+    <p>SubImage方法返回代表原图像一部分（r的范围）的新图像。返回值和原图像的像素数据是共用的。</p>
+    <h3 id="Paletted">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/image.go?name=release#798">Paletted</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Paletted struct {
+    <span class="com">// Pix保存图像的象素，内容为调色板的索引。</span>
+    <span class="com">// 像素(x, y)的位置是Pix[(y-Rect.Min.Y)*Stride + (x-Rect.Min.X)*1]</span>
+    <span id="Paletted.Pix">Pix</span> []<a href="builtin.htm#uint8">uint8</a>
+    <span class="com">// Stride是Pix中每行像素占用的字节数</span>
+    <span id="Paletted.Stride">Stride</span> <a href="builtin.htm#int">int</a>
+    <span class="com">// Rect是图像的范围</span>
+    <span id="Paletted.Rect">Rect</span> <a href="#Rectangle">Rectangle</a>
+    <span class="com">// Palette是图像的调色板</span>
+    <span id="Paletted.Palette">Palette</span> <a href="image/color.htm">color</a>.<a href="image/color.htm#Palette">Palette</a>
+}</pre>
+    <p>Paletted类型是一幅采用uint8类型索引调色板的内存中的图像。</p>
+    <h4 id="NewPaletted">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/image.go?name=release#900">NewPaletted</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func NewPaletted(r <a href="#Rectangle">Rectangle</a>, p <a href="image/color.htm">color</a>.<a href="image/color.htm#Palette">Palette</a>) *<a href="#Paletted">Paletted</a></pre>
+    <p>NewPaletted函数创建并返回一个具有指定范围、调色板的Paletted。</p>
+    <h4 id="Paletted.At">func (*Paletted) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/image.go?name=release#814">At</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#Paletted">Paletted</a>) At(x, y <a href="builtin.htm#int">int</a>) <a href="image/color.htm">color</a>.<a href="image/color.htm#Color">Color</a></pre>
+    <h4 id="Paletted.Bounds">func (*Paletted) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/image.go?name=release#812">Bounds</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#Paletted">Paletted</a>) Bounds() <a href="#Rectangle">Rectangle</a></pre>
+    <h4 id="Paletted.ColorIndexAt">func (*Paletted) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/image.go?name=release#839">ColorIndexAt</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#Paletted">Paletted</a>) ColorIndexAt(x, y <a href="builtin.htm#int">int</a>) <a href="builtin.htm#uint8">uint8</a></pre>
+    <h4 id="Paletted.ColorModel">func (*Paletted) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/image.go?name=release#810">ColorModel</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#Paletted">Paletted</a>) ColorModel() <a href="image/color.htm">color</a>.<a href="image/color.htm#Model">Model</a></pre>
+    <h4 id="Paletted.Opaque">func (*Paletted) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/image.go?name=release#877">Opaque</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#Paletted">Paletted</a>) Opaque() <a href="builtin.htm#bool">bool</a></pre>
+    <p>Opaque方法扫描整个图像并报告图像是否是完全不透明的。</p>
+    <h4 id="Paletted.PixOffset">func (*Paletted) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/image.go?name=release#827">PixOffset</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#Paletted">Paletted</a>) PixOffset(x, y <a href="builtin.htm#int">int</a>) <a href="builtin.htm#int">int</a></pre>
+    <p>PixOffset方法返回像素(x, y)的数据起始位置在Pix字段的偏移量/索引。</p>
+    <h4 id="Paletted.Set">func (*Paletted) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/image.go?name=release#831">Set</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#Paletted">Paletted</a>) Set(x, y <a href="builtin.htm#int">int</a>, c <a href="image/color.htm">color</a>.<a href="image/color.htm#Color">Color</a>)</pre>
+    <h4 id="Paletted.SetColorIndex">func (*Paletted) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/image.go?name=release#847">SetColorIndex</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#Paletted">Paletted</a>) SetColorIndex(x, y <a href="builtin.htm#int">int</a>, index <a href="builtin.htm#uint8">uint8</a>)</pre>
+    <h4 id="Paletted.SubImage">func (*Paletted) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/image.go?name=release#857">SubImage</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#Paletted">Paletted</a>) SubImage(r <a href="#Rectangle">Rectangle</a>) <a href="#Image">Image</a></pre>
+    <p>SubImage方法返回代表原图像一部分（r的范围）的新图像。返回值和原图像的像素数据是共用的。</p>
+    <h3 id="YCbCrSubsampleRatio">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/ycbcr.go?name=release#12">YCbCrSubsampleRatio</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type YCbCrSubsampleRatio <a href="builtin.htm#int">int</a></pre>
+    <p>YcbCrSubsampleRatio是YCbCr图像的色度二次采样比率。</p>
+    <pre>const (
+    <span id="YCbCrSubsampleRatio444">YCbCrSubsampleRatio444</span> <a href="#YCbCrSubsampleRatio">YCbCrSubsampleRatio</a> = <a href="builtin.htm#iota">iota</a>
+    <span id="YCbCrSubsampleRatio422">YCbCrSubsampleRatio422</span>
+    <span id="YCbCrSubsampleRatio420">YCbCrSubsampleRatio420</span>
+    <span id="YCbCrSubsampleRatio440">YCbCrSubsampleRatio440</span>
+)</pre>
+    <h4 id="YCbCrSubsampleRatio.String">func (YCbCrSubsampleRatio) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/ycbcr.go?name=release#21">String</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (s <a href="#YCbCrSubsampleRatio">YCbCrSubsampleRatio</a>) String() <a href="builtin.htm#string">string</a></pre>
+    <h3 id="YCbCr">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/ycbcr.go?name=release#46">YCbCr</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type YCbCr struct {
+    <span id="YCbCr.Y">Y</span>, <span id="YCbCr.Cb">Cb</span>, <span id="YCbCr.Cr">Cr</span>      []<a href="builtin.htm#uint8">uint8</a>
+    <span id="YCbCr.YStride">YStride</span>        <a href="builtin.htm#int">int</a>
+    <span id="YCbCr.CStride">CStride</span>        <a href="builtin.htm#int">int</a>
+    <span id="YCbCr.SubsampleRatio">SubsampleRatio</span> <a href="#YCbCrSubsampleRatio">YCbCrSubsampleRatio</a>
+    <span id="YCbCr.Rect">Rect</span>           <a href="#Rectangle">Rectangle</a>
+}</pre>
+    <p>YcbCr代表采用Y'CbCr色彩模型的一幅内存中的图像。每个像素都对应一个Y采样，但每个Cb/Cr采样对应多个像素。Ystride是两个垂直相邻的像素之间的Y组分的索引增量。CStride是两个映射到单独的色度采样的垂直相邻的像素之间的Cb/Cr组分的索引增量。虽然不作绝对要求，但Ystride字段和len(Y)一般应为8的倍数，并且：</p>
+    <pre>For 4:4:4, CStride == YStride/1 &amp;&amp; len(Cb) == len(Cr) == len(Y)/1.
+For 4:2:2, CStride == YStride/2 &amp;&amp; len(Cb) == len(Cr) == len(Y)/2.
+For 4:2:0, CStride == YStride/2 &amp;&amp; len(Cb) == len(Cr) == len(Y)/4.
+For 4:4:0, CStride == YStride/1 &amp;&amp; len(Cb) == len(Cr) == len(Y)/2.
+</pre>
+    <h4 id="NewYCbCr">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/ycbcr.go?name=release#126">NewYCbCr</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func NewYCbCr(r <a href="#Rectangle">Rectangle</a>, subsampleRatio <a href="#YCbCrSubsampleRatio">YCbCrSubsampleRatio</a>) *<a href="#YCbCr">YCbCr</a></pre>
+    <p>NewYCbCr函数创建并返回一个具有指定宽度、高度和二次采样率的YcbCr。</p>
+    <h4 id="YCbCr.At">func (*YCbCr) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/ycbcr.go?name=release#62">At</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#YCbCr">YCbCr</a>) At(x, y <a href="builtin.htm#int">int</a>) <a href="image/color.htm">color</a>.<a href="image/color.htm#Color">Color</a></pre>
+    <h4 id="YCbCr.Bounds">func (*YCbCr) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/ycbcr.go?name=release#58">Bounds</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#YCbCr">YCbCr</a>) Bounds() <a href="#Rectangle">Rectangle</a></pre>
+    <h4 id="YCbCr.ColorModel">func (*YCbCr) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/ycbcr.go?name=release#54">ColorModel</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#YCbCr">YCbCr</a>) ColorModel() <a href="image/color.htm">color</a>.<a href="image/color.htm#Model">Model</a></pre>
+    <h4 id="YCbCr.Opaque">func (*YCbCr) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/ycbcr.go?name=release#121">Opaque</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#YCbCr">YCbCr</a>) Opaque() <a href="builtin.htm#bool">bool</a></pre>
+    <h4 id="YCbCr.COffset">func (*YCbCr) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/ycbcr.go?name=release#83">COffset</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#YCbCr">YCbCr</a>) COffset(x, y <a href="builtin.htm#int">int</a>) <a href="builtin.htm#int">int</a></pre>
+    <p>像素(X, Y)的Cb或Cr（色度）组分的数据起始位置在Cb/Cr字段的偏移量/索引。</p>
+    <h4 id="YCbCr.YOffset">func (*YCbCr) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/ycbcr.go?name=release#77">YOffset</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#YCbCr">YCbCr</a>) YOffset(x, y <a href="builtin.htm#int">int</a>) <a href="builtin.htm#int">int</a></pre>
+    <p>像素(X, Y)的Y（亮度）组分的数据起始位置在Y字段的偏移量/索引。</p>
+    <h4 id="YCbCr.SubImage">func (*YCbCr) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/ycbcr.go?name=release#98">SubImage</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#YCbCr">YCbCr</a>) SubImage(r <a href="#Rectangle">Rectangle</a>) <a href="#Image">Image</a></pre>
+    <p>SubImage方法返回代表原图像一部分（r的范围）的新图像。返回值和原图像的像素数据是共用的。</p>
+</div>
+
+<div id="x-footer" class="clearfix">
+  <div class="container">
+    <a href="http://studygolang.com/">Go语言中文网</a>
+    <span class="text-muted">|</span> <a href="http://golang.org/">Go Language</a>
+    <span class="pull-right"><a href="#">Back to top</a></span>
+  </div>
+</div>
+<script src="../assets/jquery-2.0.3.min.js"></script>
+<script src="../bootstrap.min.js"></script>
+<script src="../site.js"></script>
+</body>
+</html>

@@ -1,0 +1,177 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="./site.css" rel="stylesheet">
+<title>path/filepath</title>
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package filepath</h2>
+    <p><code>import "path/filepath"</code>
+    <p>filepath包实现了兼容各操作系统的文件路径的实用操作函数。</p>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#pkg-constants">Constants</a></li>
+        <li><a href="#pkg-variables">Variables</a></li>
+        <li><a href="#IsAbs">func IsAbs(path string) bool</a></li>
+        <li><a href="#Abs">func Abs(path string) (string, error)</a></li>
+        <li><a href="#Rel">func Rel(basepath, targpath string) (string, error)</a></li>
+        <li><a href="#SplitList">func SplitList(path string) []string</a></li>
+        <li><a href="#Split">func Split(path string) (dir, file string)</a></li>
+        <li><a href="#Join">func Join(elem ...string) string</a></li>
+        <li><a href="#FromSlash">func FromSlash(path string) string</a></li>
+        <li><a href="#ToSlash">func ToSlash(path string) string</a></li>
+        <li><a href="#VolumeName">func VolumeName(path string) (v string)</a></li>
+        <li><a href="#Dir">func Dir(path string) string</a></li>
+        <li><a href="#Base">func Base(path string) string</a></li>
+        <li><a href="#Ext">func Ext(path string) string</a></li>
+        <li><a href="#Clean">func Clean(path string) string</a></li>
+        <li><a href="#EvalSymlinks">func EvalSymlinks(path string) (string, error)</a></li>
+        <li><a href="#Match">func Match(pattern, name string) (matched bool, err error)</a></li>
+        <li><a href="#Glob">func Glob(pattern string) (matches []string, err error)</a></li>
+        <li><a href="#WalkFunc">type WalkFunc</a></li>
+        <li><a href="#Walk">func Walk(root string, walkFn WalkFunc) error</a></li>
+        <li><a href="#HasPrefix">func HasPrefix(p, prefix string) bool</a></li>
+    </ul>
+    <h4 id="pkg-examples">Examples <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#example-Rel" onclick="$('#ex-Rel').addClass('in').removeClass('collapse').height('auto')">Rel</a></li>
+        <li><a href="#example-SplitList" onclick="$('#ex-SplitList').addClass('in').removeClass('collapse').height('auto')">SplitList</a></li>
+    </ul>
+    <h3 id="pkg-constants">Constants <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>const (
+    <span id="Separator">Separator</span>     = <a href="os.htm">os</a>.<a href="os.htm#PathSeparator">PathSeparator</a>
+    <span id="ListSeparator">ListSeparator</span> = <a href="os.htm">os</a>.<a href="os.htm#PathListSeparator">PathListSeparator</a>
+)</pre>
+    <h3 id="pkg-variables">Variables <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>var <span id="ErrBadPattern">ErrBadPattern</span> = <a href="errors.htm">errors</a>.<a href="errors.htm#New">New</a>(&#34;syntax error in pattern&#34;)</pre>
+    <p>ErrBadPattern表示一个glob模式匹配字符串的格式错误。</p>
+    <pre>var <span id="SkipDir">SkipDir</span> = <a href="errors.htm">errors</a>.<a href="errors.htm#New">New</a>(&#34;skip this directory&#34;)</pre>
+    <p>用作WalkFunc类型的返回值，表示该次调用的path参数指定的目录应被跳过。本错误不应被任何其他函数返回。</p>
+    <h3 id="IsAbs">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/path/filepath/path_unix.go?name=release#12">IsAbs</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func IsAbs(path <a href="builtin.htm#string">string</a>) <a href="builtin.htm#bool">bool</a></pre>
+    <p>IsAbs返回路径是否是一个绝对路径。</p>
+    <h3 id="Abs">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/path/filepath/path.go?name=release#233">Abs</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Abs(path <a href="builtin.htm#string">string</a>) (<a href="builtin.htm#string">string</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>Abs函数返回path代表的绝对路径，如果path不是绝对路径，会加入当前工作目录以使之成为绝对路径。因为硬链接的存在，不能保证返回的绝对路径是唯一指向该地址的绝对路径。</p>
+    <h3 id="Rel">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/path/filepath/path.go?name=release#251">Rel</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Rel(basepath, targpath <a href="builtin.htm#string">string</a>) (<a href="builtin.htm#string">string</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>Rel函数返回一个相对路径，将basepath和该路径用路径分隔符连起来的新路径在词法上等价于targpath。也就是说，Join(basepath, Rel(basepath, targpath))等价于targpath本身。如果成功执行，返回值总是相对于basepath的，即使basepath和targpath没有共享的路径元素。如果两个参数一个是相对路径而另一个是绝对路径，或者targpath无法表示为相对于basepath的路径，将返回错误。</p>
+    <div class="panel-group">
+        <div class="panel panel-default" id="example-Rel">
+            <div class="panel-heading" onclick="document.getElementById('ex-Rel').style.display = document.getElementById('ex-Rel').style.display=='none'?'block':'none';">Example</div>
+            <div id="ex-Rel" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre>paths := []string{
+    &#34;/a/b/c&#34;,
+    &#34;/b/c&#34;,
+    &#34;./b/c&#34;,
+}
+base := &#34;/a&#34;
+fmt.Println(&#34;On Unix:&#34;)
+for _, p := range paths {
+    rel, err := filepath.Rel(base, p)
+    fmt.Printf(&#34;%q: %q %v\n&#34;, p, rel, err)
+}</pre>
+                    <p>Output:
+                    <pre>On Unix:
+&#34;/a/b/c&#34;: &#34;b/c&#34; &lt;nil&gt;
+&#34;/b/c&#34;: &#34;../b/c&#34; &lt;nil&gt;
+&#34;./b/c&#34;: &#34;&#34; Rel: can&#39;t make b/c relative to /a
+</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    <h3 id="SplitList">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/path/filepath/path.go?name=release#178">SplitList</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func SplitList(path <a href="builtin.htm#string">string</a>) []<a href="builtin.htm#string">string</a></pre>
+    <p>将PATH或GOPATH等环境变量里的多个路径分割开（这些路径被OS特定的表分隔符连接起来）。与strings.Split函数的不同之处是：对""，SplitList返回[]string{}，而strings.Split返回[]string{""}。</p>
+    <div class="panel-group">
+        <div class="panel panel-default" id="example-SplitList">
+            <div class="panel-heading" onclick="document.getElementById('ex-SplitList').style.display = document.getElementById('ex-SplitList').style.display=='none'?'block':'none';">Example</div>
+            <div id="ex-SplitList" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre>fmt.Println(&#34;On Unix:&#34;, filepath.SplitList(&#34;/a/b/c:/usr/bin&#34;))</pre>
+                    <p>Output:
+                    <pre>On Unix: [/a/b/c /usr/bin]
+</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    <h3 id="Split">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/path/filepath/path.go?name=release#187">Split</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Split(path <a href="builtin.htm#string">string</a>) (dir, file <a href="builtin.htm#string">string</a>)</pre>
+    <p>Split函数将路径从最后一个路径分隔符后面位置分隔为两个部分（dir和file）并返回。如果路径中没有路径分隔符，函数返回值dir会设为空字符串，file会设为path。两个返回值满足path == dir+file。</p>
+    <h3 id="Join">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/path/filepath/path.go?name=release#199">Join</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Join(elem ...<a href="builtin.htm#string">string</a>) <a href="builtin.htm#string">string</a></pre>
+    <p>Join函数可以将任意数量的路径元素放入一个单一路径里，会根据需要添加路径分隔符。结果是经过简化的，所有的空字符串元素会被忽略。</p>
+    <h3 id="FromSlash">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/path/filepath/path.go?name=release#168">FromSlash</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func FromSlash(path <a href="builtin.htm#string">string</a>) <a href="builtin.htm#string">string</a></pre>
+    <p>FromSlash函数将path中的斜杠（'/'）替换为路径分隔符并返回替换结果，多个斜杠会替换为多个路径分隔符。</p>
+    <h3 id="ToSlash">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/path/filepath/path.go?name=release#158">ToSlash</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func ToSlash(path <a href="builtin.htm#string">string</a>) <a href="builtin.htm#string">string</a></pre>
+    <p>ToSlash函数将path中的路径分隔符替换为斜杠（'/'）并返回替换结果，多个路径分隔符会替换为多个斜杠。</p>
+    <h3 id="VolumeName">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/path/filepath/path.go?name=release#465">VolumeName</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func VolumeName(path <a href="builtin.htm#string">string</a>) (v <a href="builtin.htm#string">string</a>)</pre>
+    <p>VolumeName函数返回最前面的卷名。如Windows系统里提供参数"C:\foo\bar"会返回"C:"；Unix/linux系统的&#34;\\host\share\foo&#34;会返回&#34;\\host\share&#34;；其他平台会返回&#34;&#34;。</p>
+    <h3 id="Dir">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/path/filepath/path.go?name=release#444">Dir</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Dir(path <a href="builtin.htm#string">string</a>) <a href="builtin.htm#string">string</a></pre>
+    <p>Dir返回路径除去最后一个路径元素的部分，即该路径最后一个元素所在的目录。在使用Split去掉最后一个元素后，会简化路径并去掉末尾的斜杠。如果路径是空字符串，会返回"."；如果路径由1到多个路径分隔符后跟0到多个非路径分隔符字符组成，会返回单个路径分隔符；其他任何情况下都不会返回以路径分隔符结尾的路径。</p>
+    <h3 id="Base">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/path/filepath/path.go?name=release#413">Base</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Base(path <a href="builtin.htm#string">string</a>) <a href="builtin.htm#string">string</a></pre>
+    <p>Base函数返回路径的最后一个元素。在提取元素前会求掉末尾的路径分隔符。如果路径是""，会返回"."；如果路径是只有一个斜杆构成，会返回单个路径分隔符。</p>
+    <h3 id="Ext">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/path/filepath/path.go?name=release#212">Ext</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Ext(path <a href="builtin.htm#string">string</a>) <a href="builtin.htm#string">string</a></pre>
+    <p>Ext函数返回path文件扩展名。返回值是路径最后一个路径元素的最后一个'.'起始的后缀（包括'.'）。如果该元素没有'.'会返回空字符串。</p>
+    <h3 id="Clean">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/path/filepath/path.go?name=release#81">Clean</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Clean(path <a href="builtin.htm#string">string</a>) <a href="builtin.htm#string">string</a></pre>
+    <p align="left">Clean函数通过单纯的词法操作返回和path代表同一地址的最短路径。</p>
+    <p align="left">它会不断的依次应用如下的规则，直到不能再进行任何处理：</p>
+    <pre>1. 将连续的多个路径分隔符替换为单个路径分隔符
+2. 剔除每一个.路径名元素（代表当前目录）
+3. 剔除每一个路径内的..路径名元素（代表父目录）和它前面的非..路径名元素
+4. 剔除开始一个根路径的..路径名元素，即将路径开始处的"/.."替换为"/"（假设路径分隔符是'/'）
+</pre>
+    <p align="left">返回的路径只有其代表一个根地址时才以路径分隔符结尾，如Unix的"/"或Windows的`C:\`。</p>
+    <p align="left">如果处理的结果是空字符串，Clean会返回"."。参见<a href="http://plan9.bell-labs.com/sys/doc/lexnames.html">http://plan9.bell-labs.com/sys/doc/lexnames.html</a></p>
+    <h3 id="EvalSymlinks">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/path/filepath/path.go?name=release#225">EvalSymlinks</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func EvalSymlinks(path <a href="builtin.htm#string">string</a>) (<a href="builtin.htm#string">string</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>EvalSymlinks函数返回path指向的符号链接（软链接）所包含的路径。如果path和返回值都是相对路径，会相对于当前目录；除非两个路径其中一个是绝对路径。</p>
+    <h3 id="Match">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/path/filepath/match.go?name=release#44">Match</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Match(pattern, name <a href="builtin.htm#string">string</a>) (matched <a href="builtin.htm#bool">bool</a>, err <a href="builtin.htm#error">error</a>)</pre>
+    <p>Match returns true if name matches the shell file name pattern.
+        The pattern syntax is:</p>
+    <pre>pattern:
+	{ term }
+term:
+	&#39;*&#39;                                  匹配0或多个非路径分隔符的字符
+	&#39;?&#39;                                  匹配1个非路径分隔符的字符
+	&#39;[&#39; [ &#39;^&#39; ] { character-range } &#39;]&#39;  字符组（必须非空）
+	c                                    匹配字符c（c != '*', '?', '\\', '['）
+	&#39;\\&#39; c                               匹配字符c
+character-range:
+	c           匹配字符c（c != '\\', '-', ']'）
+	&#39;\\&#39; c      匹配字符c
+	lo &#39;-&#39; hi   匹配区间[lo, hi]内的字符</pre>
+    <p align="left">Match要求匹配整个name字符串，而不是它的一部分。只有pattern语法错误时，会返回ErrBadPattern。</p>
+    <p align="left">Windows系统中，不能进行转义：'\\'被视为路径分隔符。</p>
+    <h3 id="Glob">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/path/filepath/match.go?name=release#231">Glob</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Glob(pattern <a href="builtin.htm#string">string</a>) (matches []<a href="builtin.htm#string">string</a>, err <a href="builtin.htm#error">error</a>)</pre>
+    <p>Glob函数返回所有匹配模式匹配字符串pattern的文件或者nil（如果没有匹配的文件）。pattern的语法和Match函数相同。pattern可以描述多层的名字，如/usr/*/bin/ed（假设路径分隔符是'/'）。</p>
+    <h3 id="WalkFunc">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/path/filepath/path.go?name=release#337">WalkFunc</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type WalkFunc func(path <a href="builtin.htm#string">string</a>, info <a href="os.htm">os</a>.<a href="os.htm#FileInfo">FileInfo</a>, err <a href="builtin.htm#error">error</a>) <a href="builtin.htm#error">error</a></pre>
+    <p align="left">Walk函数对每一个文件/目录都会调用WalkFunc函数类型值。调用时path参数会包含Walk的root参数作为前缀；就是说，如果Walk函数的root为"dir"，该目录下有文件"a"，将会使用"dir/a"调用walkFn参数。walkFn参数被调用时的info参数是path指定的地址（文件/目录）的文件信息，类型为os.FileInfo。</p>
+    <p align="left">如果遍历path指定的文件或目录时出现了问题，传入的参数err会描述该问题，WalkFunc类型函数可以决定如何去处理该错误（Walk函数将不会深入该目录）；如果该函数返回一个错误，Walk函数的执行会中止；只有一个例外，如果Walk的walkFn返回值是SkipDir，将会跳过该目录的内容而Walk函数照常执行处理下一个文件。</p>
+    <h3 id="Walk">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/path/filepath/path.go?name=release#385">Walk</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Walk(root <a href="builtin.htm#string">string</a>, walkFn <a href="#WalkFunc">WalkFunc</a>) <a href="builtin.htm#error">error</a></pre>
+    <p>Walk函数会遍历root指定的目录下的文件树，对每一个该文件树中的目录和文件都会调用walkFn，包括root自身。所有访问文件/目录时遇到的错误都会传递给walkFn过滤。文件是按词法顺序遍历的，这让输出更漂亮，但也导致处理非常大的目录时效率会降低。Walk函数不会遍历文件树中的符号链接（快捷方式）文件包含的路径。</p>
+    <h3 id="HasPrefix">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/path/filepath/path_unix.go?name=release#23">HasPrefix</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func HasPrefix(p, prefix <a href="builtin.htm#string">string</a>) <a href="builtin.htm#bool">bool</a></pre>
+    <p>HasPrefix函数出于历史兼容问题保留，不应被使用。</p>
+</div>
+</body>
+</html>

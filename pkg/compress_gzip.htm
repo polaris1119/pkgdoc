@@ -1,0 +1,120 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="./site.css" rel="stylesheet">
+<title>compress/gzip</title>
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package gzip</h2>
+    <p><code>import "compress/gzip"</code>
+    <p>gzip包实现了gzip格式压缩文件的读写，参见<a href="http://tools.ietf.org/html/rfc1952">RFC 1952</a>。</p>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#pkg-constants">Constants</a></li>
+        <li><a href="#pkg-variables">Variables</a></li>
+        <li><a href="#Header">type Header</a></li>
+        <li><a href="#Reader">type Reader</a></li>
+        <ul>
+            <li><a href="#NewReader">func NewReader(r io.Reader) (*Reader, error)</a></li>
+            <li><a href="#Reader.Reset">func (z *Reader) Reset(r io.Reader) error</a></li>
+            <li><a href="#Reader.Read">func (z *Reader) Read(p []byte) (n int, err error)</a></li>
+            <li><a href="#Reader.Close">func (z *Reader) Close() error</a></li>
+        </ul>
+        <li><a href="#Writer">type Writer</a></li>
+        <ul>
+            <li><a href="#NewWriter">func NewWriter(w io.Writer) *Writer</a></li>
+            <li><a href="#NewWriterLevel">func NewWriterLevel(w io.Writer, level int) (*Writer, error)</a></li>
+            <li><a href="#Writer.Reset">func (z *Writer) Reset(w io.Writer)</a></li>
+            <li><a href="#Writer.Write">func (z *Writer) Write(p []byte) (int, error)</a></li>
+            <li><a href="#Writer.Flush">func (z *Writer) Flush() error</a></li>
+            <li><a href="#Writer.Close">func (z *Writer) Close() error</a></li>
+        </ul>
+    </ul>
+    <h3 id="pkg-constants">Constants <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>const (
+    <span id="NoCompression">NoCompression</span>      = <a href="compress/flate.htm">flate</a>.<a href="compress/flate.htm#NoCompression">NoCompression</a>
+    <span id="BestSpeed">BestSpeed</span>          = <a href="compress/flate.htm">flate</a>.<a href="compress/flate.htm#BestSpeed">BestSpeed</a>
+    <span id="BestCompression">BestCompression</span>    = <a href="compress/flate.htm">flate</a>.<a href="compress/flate.htm#BestCompression">BestCompression</a>
+    <span id="DefaultCompression">DefaultCompression</span> = <a href="compress/flate.htm">flate</a>.<a href="compress/flate.htm#DefaultCompression">DefaultCompression</a>
+)</pre>
+    <p>这些常量都是拷贝自flate包，因此导入"compress/gzip"后，就不必再导入"compress/flate"了。</p>
+    <h3 id="pkg-variables">Variables <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>var (
+    <span class="com">// 当读取的gzip数据的校验和错误时，会返回ErrChecksum</span>
+    <span id="ErrChecksum">ErrChecksum</span> = <a href="errors.htm">errors</a>.<a href="errors.htm#New">New</a>(&#34;gzip: invalid checksum&#34;)
+    <span class="com">// 当读取的gzip数据的头域错误时，会返回ErrHeader</span>
+    <span id="ErrHeader">ErrHeader</span> = <a href="errors.htm">errors</a>.<a href="errors.htm#New">New</a>(&#34;gzip: invalid header&#34;)
+)</pre>
+    <h3 id="Header">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/compress/gzip/gunzip.go?name=release#46">Header</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Header struct {
+    <span id="Header.Comment">Comment</span> <a href="builtin.htm#string">string</a>    <span class="com">// 注释</span>
+    <span id="Header.Extra">Extra</span>   []<a href="builtin.htm#byte">byte</a>    <span class="com">// 额外数据</span>
+    <span id="Header.ModTime">ModTime</span> <a href="time.htm">time</a>.<a href="time.htm#Time">Time</a> <span class="com">// 修改时间</span>
+    <span id="Header.Name">Name</span>    <a href="builtin.htm#string">string</a>    <span class="com">// 文件名</span>
+    <span id="Header.OS">OS</span>      <a href="builtin.htm#byte">byte</a>      <span class="com">// 操作系统类型</span>
+}</pre>
+    <p>gzip文件保存一个头域，提供关于被压缩的文件的一些元数据。该头域作为Writer和Reader类型的一个可导出字段，可以提供给调用者访问。</p>
+    <h3 id="Reader">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/compress/gzip/gunzip.go?name=release#68">Reader</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Reader struct {
+    <a href="#Header">Header</a>
+    <span class="com">// 内含隐藏或非导出字段</span>
+}</pre>
+    <p align="left">Reader类型满足io.Reader接口，可以从gzip格式压缩文件读取并解压数据。</p>
+    <p align="left">一般，一个gzip文件可以是多个gzip文件的串联，每一个都有自己的头域。从Reader读取数据会返回串联的每个文件的解压数据，但只有第一个文件的头域被记录在Reader的Header字段里。</p>
+    <p align="left">gzip文件会保存未压缩数据的长度与校验和。当读取到未压缩数据的结尾时，如果数据的长度或者校验和不正确，Reader会返回ErrCheckSum。因此，调用者应该将Read方法返回的数据视为暂定的，直到他们在数据结尾获得了一个io.EOF。</p>
+    <h4 id="NewReader">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/compress/gzip/gunzip.go?name=release#82">NewReader</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func NewReader(r <a href="io.htm">io</a>.<a href="io.htm#Reader">Reader</a>) (*<a href="#Reader">Reader</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>NewReader返回一个从r读取并解压数据的*Reader。其实现会缓冲输入流的数据，并可能从r中读取比需要的更多的数据。调用者有责任在读取完毕后调用返回值的Close方法。</p>
+    <h4 id="Reader.Reset">func (*Reader) <a title="View Source" href="https://github.com/golang/go/blob/master/src/compress/gzip/gunzip.go?name=release#95">Reset</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (z *<a href="#Reader">Reader</a>) Reset(r <a href="io.htm">io</a>.<a href="io.htm#Reader">Reader</a>) <a href="builtin.htm#error">error</a></pre>
+    <p>Reset将z重置，丢弃当前的读取状态，并将下层读取目标设为r。效果上等价于将z设为使用r重新调用NewReader返回的Reader。这让我们可以重用z而不是再申请一个新的。（因此效率更高）</p>
+    <h4 id="Reader.Read">func (*Reader) <a title="View Source" href="https://github.com/golang/go/blob/master/src/compress/gzip/gunzip.go?name=release#214">Read</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (z *<a href="#Reader">Reader</a>) Read(p []<a href="builtin.htm#byte">byte</a>) (n <a href="builtin.htm#int">int</a>, err <a href="builtin.htm#error">error</a>)</pre>
+    <h4 id="Reader.Close">func (*Reader) <a title="View Source" href="https://github.com/golang/go/blob/master/src/compress/gzip/gunzip.go?name=release#255">Close</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (z *<a href="#Reader">Reader</a>) Close() <a href="builtin.htm#error">error</a></pre>
+    <p>调用Close会关闭z，但不会关闭下层io.Reader接口。</p>
+    <h3 id="Writer">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/compress/gzip/gzip.go?name=release#27">Writer</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Writer struct {
+    <a href="#Header">Header</a>
+    <span class="com">// 内含隐藏或非导出字段</span>
+}</pre>
+    <p>Writer满足io.WriteCloser接口。它会将提供给它的数据压缩后写入下层io.Writer接口。</p>
+    <h4 id="NewWriter">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/compress/gzip/gzip.go?name=release#51">NewWriter</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func NewWriter(w <a href="io.htm">io</a>.<a href="io.htm#Writer">Writer</a>) *<a href="#Writer">Writer</a></pre>
+    <p align="left">NewWriter创建并返回一个Writer。写入返回值的数据都会在压缩后写入w。调用者有责任在结束写入后调用返回值的Close方法。因为写入的数据可能保存在缓冲中没有刷新入下层。</p>
+    <p align="left">如要设定Writer.Header字段，调用者必须在第一次调用Write方法或者Close方法之前设置。Header字段的Comment和Name字段是go的utf-8字符串，但下层格式要求为NUL中止的ISO 8859-1 (Latin-1)序列。如果这两个字段的字符串包含NUL或非Latin-1字符，将导致Write方法返回错误。</p>
+    <h4 id="NewWriterLevel">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/compress/gzip/gzip.go?name=release#62">NewWriterLevel</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func NewWriterLevel(w <a href="io.htm">io</a>.<a href="io.htm#Writer">Writer</a>, level <a href="builtin.htm#int">int</a>) (*<a href="#Writer">Writer</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p align="left">NewWriterLevel类似NewWriter但指定了压缩水平而不是采用默认的DefaultCompression。</p>
+    <p align="left">参数level可以是DefaultCompression、NoCompression或BestSpeed与BestCompression之间包括二者的任何整数。如果level合法，返回的错误值为nil。</p>
+    <h4 id="Writer.Reset">func (*Writer) <a title="View Source" href="https://github.com/golang/go/blob/master/src/compress/gzip/gzip.go?name=release#97">Reset</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (z *<a href="#Writer">Writer</a>) Reset(w <a href="io.htm">io</a>.<a href="io.htm#Writer">Writer</a>)</pre>
+    <p>Reset将z重置，丢弃当前的写入状态，并将下层输出目标设为dst。效果上等价于将w设为使用dst和w的压缩水平重新调用NewWriterLevel返回的*Writer。这让我们可以重用z而不是再申请一个新的。（因此效率更高）</p>
+    <h4 id="Writer.Write">func (*Writer) <a title="View Source" href="https://github.com/golang/go/blob/master/src/compress/gzip/gzip.go?name=release#161">Write</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (z *<a href="#Writer">Writer</a>) Write(p []<a href="builtin.htm#byte">byte</a>) (<a href="builtin.htm#int">int</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>Write将p压缩后写入下层io.Writer接口。压缩后的数据不一定会立刻刷新，除非Writer被关闭或者显式的刷新。</p>
+    <h4 id="Writer.Flush">func (*Writer) <a title="View Source" href="https://github.com/golang/go/blob/master/src/compress/gzip/gzip.go?name=release#231">Flush</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (z *<a href="#Writer">Writer</a>) Flush() <a href="builtin.htm#error">error</a></pre>
+    <p align="left">Flush将缓冲中的压缩数据刷新到下层io.Writer接口中。</p>
+    <p align="left">本方法主要用在传输压缩数据的网络连接中，以保证远端的接收者可以获得足够的数据来重构数据报。Flush会阻塞直到所有缓冲中的数据都写入下层io.Writer接口后才返回。如果下层的io.Writetr接口返回一个错误，Flush也会返回该错误。在zlib包的术语中，Flush方法等价于Z_SYNC_FLUSH。</p>
+    <h4 id="Writer.Close">func (*Writer) <a title="View Source" href="https://github.com/golang/go/blob/master/src/compress/gzip/gzip.go?name=release#250">Close</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (z *<a href="#Writer">Writer</a>) Close() <a href="builtin.htm#error">error</a></pre>
+    <p>调用Close会关闭z，但不会关闭下层io.Writer接口。</p>
+</div>
+
+<div id="x-footer" class="clearfix">
+  <div class="container">
+    <a href="http://studygolang.com/">Go语言中文网</a>
+    <span class="text-muted">|</span> <a href="http://golang.org/">Go Language</a>
+    <span class="pull-right"><a href="#">Back to top</a></span>
+  </div>
+</div>
+<script src="../assets/jquery-2.0.3.min.js"></script>
+<script src="../bootstrap.min.js"></script>
+<script src="../site.js"></script>
+</body>
+</html>

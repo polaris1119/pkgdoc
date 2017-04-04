@@ -1,0 +1,1174 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="./site.css" rel="stylesheet">
+<title>net</title>
+<meta name="private:description" content="刘志曦翻译于2014年夏，Go 1.3版本">
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package net</h2>
+    <p><code>import "net"</code>
+    <p align="left">net包提供了可移植的网络I/O接口，包括TCP/IP、UDP、域名解析和Unix域socket。</p>
+    <p align="left">虽然本包提供了对网络原语的访问，大部分使用者只需要Dial、Listen和Accept函数提供的基本接口；以及相关的Conn和Listener接口。crypto/tls包提供了相同的接口和类似的Dial和Listen函数。</p>
+    <p align="left">Dial函数和服务端建立连接：</p>
+    <pre>conn, err := net.Dial(&#34;tcp&#34;, &#34;google.com:80&#34;)
+if err != nil {
+	// handle error
+}
+fmt.Fprintf(conn, &#34;GET / HTTP/1.0\r\n\r\n&#34;)
+status, err := bufio.NewReader(conn).ReadString(&#39;\n&#39;)
+// ...
+</pre>
+    <p>Listen函数创建的服务端：</p>
+    <pre>ln, err := net.Listen(&#34;tcp&#34;, &#34;:8080&#34;)
+if err != nil {
+	// handle error
+}
+for {
+	conn, err := ln.Accept()
+	if err != nil {
+		// handle error
+		continue
+	}
+	go handleConnection(conn)
+}</pre>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#pkg-constants">Constants</a></li>
+        <li><a href="#pkg-variables">Variables</a></li>
+        <li><a href="#ParseError">type ParseError</a></li>
+        <ul>
+            <li><a href="#ParseError.Error">func (e *ParseError) Error() string</a></li>
+        </ul>
+        <li><a href="#Error">type Error</a></li>
+        <li><a href="#InvalidAddrError">type InvalidAddrError</a></li>
+        <ul>
+            <li><a href="#InvalidAddrError.Error">func (e InvalidAddrError) Error() string</a></li>
+            <li><a href="#InvalidAddrError.Temporary">func (e InvalidAddrError) Temporary() bool</a></li>
+            <li><a href="#InvalidAddrError.Timeout">func (e InvalidAddrError) Timeout() bool</a></li>
+        </ul>
+        <li><a href="#UnknownNetworkError">type UnknownNetworkError</a></li>
+        <ul>
+            <li><a href="#UnknownNetworkError.Error">func (e UnknownNetworkError) Error() string</a></li>
+            <li><a href="#UnknownNetworkError.Temporary">func (e UnknownNetworkError) Temporary() bool</a></li>
+            <li><a href="#UnknownNetworkError.Timeout">func (e UnknownNetworkError) Timeout() bool</a></li>
+        </ul>
+        <li><a href="#DNSConfigError">type DNSConfigError</a></li>
+        <ul>
+            <li><a href="#DNSConfigError.Error">func (e *DNSConfigError) Error() string</a></li>
+            <li><a href="#DNSConfigError.Temporary">func (e *DNSConfigError) Temporary() bool</a></li>
+            <li><a href="#DNSConfigError.Timeout">func (e *DNSConfigError) Timeout() bool</a></li>
+        </ul>
+        <li><a href="#DNSError">type DNSError</a></li>
+        <ul>
+            <li><a href="#DNSError.Error">func (e *DNSError) Error() string</a></li>
+            <li><a href="#DNSError.Temporary">func (e *DNSError) Temporary() bool</a></li>
+            <li><a href="#DNSError.Timeout">func (e *DNSError) Timeout() bool</a></li>
+        </ul>
+        <li><a href="#AddrError">type AddrError</a></li>
+        <ul>
+            <li><a href="#AddrError.Error">func (e *AddrError) Error() string</a></li>
+            <li><a href="#AddrError.Temporary">func (e *AddrError) Temporary() bool</a></li>
+            <li><a href="#AddrError.Timeout">func (e *AddrError) Timeout() bool</a></li>
+        </ul>
+        <li><a href="#OpError">type OpError</a></li>
+        <ul>
+            <li><a href="#OpError.Error">func (e *OpError) Error() string</a></li>
+            <li><a href="#OpError.Temporary">func (e *OpError) Temporary() bool</a></li>
+            <li><a href="#OpError.Timeout">func (e *OpError) Timeout() bool</a></li>
+        </ul>
+        <li><a href="#SplitHostPort">func SplitHostPort(hostport string) (host, port string, err error)</a></li>
+        <li><a href="#JoinHostPort">func JoinHostPort(host, port string) string</a></li>
+        <li><a href="#HardwareAddr">type HardwareAddr</a></li>
+        <ul>
+            <li><a href="#ParseMAC">func ParseMAC(s string) (hw HardwareAddr, err error)</a></li>
+            <li><a href="#HardwareAddr.String">func (a HardwareAddr) String() string</a></li>
+        </ul>
+        <li><a href="#Flags">type Flags</a></li>
+        <ul>
+            <li><a href="#Flags.String">func (f Flags) String() string</a></li>
+        </ul>
+        <li><a href="#Interface">type Interface</a></li>
+        <ul>
+            <li><a href="#InterfaceByIndex">func InterfaceByIndex(index int) (*Interface, error)</a></li>
+            <li><a href="#InterfaceByName">func InterfaceByName(name string) (*Interface, error)</a></li>
+            <li><a href="#Interface.Addrs">func (ifi *Interface) Addrs() ([]Addr, error)</a></li>
+            <li><a href="#Interface.MulticastAddrs">func (ifi *Interface) MulticastAddrs() ([]Addr, error)</a></li>
+        </ul>
+        <li><a href="#Interfaces">func Interfaces() ([]Interface, error)</a></li>
+        <li><a href="#InterfaceAddrs">func InterfaceAddrs() ([]Addr, error)</a></li>
+        <li><a href="#IP">type IP</a></li>
+        <ul>
+            <li><a href="#IPv4">func IPv4(a, b, c, d byte) IP</a></li>
+            <li><a href="#ParseIP">func ParseIP(s string) IP</a></li>
+            <li><a href="#IP.IsGlobalUnicast">func (ip IP) IsGlobalUnicast() bool</a></li>
+            <li><a href="#IP.IsLinkLocalUnicast">func (ip IP) IsLinkLocalUnicast() bool</a></li>
+            <li><a href="#IP.IsInterfaceLocalMulticast">func (ip IP) IsInterfaceLocalMulticast() bool</a></li>
+            <li><a href="#IP.IsLinkLocalMulticast">func (ip IP) IsLinkLocalMulticast() bool</a></li>
+            <li><a href="#IP.IsMulticast">func (ip IP) IsMulticast() bool</a></li>
+            <li><a href="#IP.IsLoopback">func (ip IP) IsLoopback() bool</a></li>
+            <li><a href="#IP.IsUnspecified">func (ip IP) IsUnspecified() bool</a></li>
+            <li><a href="#IP.DefaultMask">func (ip IP) DefaultMask() IPMask</a></li>
+            <li><a href="#IP.Equal">func (ip IP) Equal(x IP) bool</a></li>
+            <li><a href="#IP.To16">func (ip IP) To16() IP</a></li>
+            <li><a href="#IP.To4">func (ip IP) To4() IP</a></li>
+            <li><a href="#IP.Mask">func (ip IP) Mask(mask IPMask) IP</a></li>
+            <li><a href="#IP.String">func (ip IP) String() string</a></li>
+            <li><a href="#IP.MarshalText">func (ip IP) MarshalText() ([]byte, error)</a></li>
+            <li><a href="#IP.UnmarshalText">func (ip *IP) UnmarshalText(text []byte) error</a></li>
+        </ul>
+        <li><a href="#IPMask">type IPMask</a></li>
+        <ul>
+            <li><a href="#IPv4Mask">func IPv4Mask(a, b, c, d byte) IPMask</a></li>
+            <li><a href="#CIDRMask">func CIDRMask(ones, bits int) IPMask</a></li>
+            <li><a href="#IPMask.Size">func (m IPMask) Size() (ones, bits int)</a></li>
+            <li><a href="#IPMask.String">func (m IPMask) String() string</a></li>
+        </ul>
+        <li><a href="#IPNet">type IPNet</a></li>
+        <ul>
+            <li><a href="#ParseCIDR">func ParseCIDR(s string) (IP, *IPNet, error)</a></li>
+            <li><a href="#IPNet.Contains">func (n *IPNet) Contains(ip IP) bool</a></li>
+            <li><a href="#IPNet.Network">func (n *IPNet) Network() string</a></li>
+            <li><a href="#IPNet.String">func (n *IPNet) String() string</a></li>
+        </ul>
+        <li><a href="#Addr">type Addr</a></li>
+        <li><a href="#Conn">type Conn</a></li>
+        <ul>
+            <li><a href="#Dial">func Dial(network, address string) (Conn, error)</a></li>
+            <li><a href="#DialTimeout">func DialTimeout(network, address string, timeout time.Duration) (Conn, error)</a></li>
+            <li><a href="#Pipe">func Pipe() (Conn, Conn)</a></li>
+        </ul>
+        <li><a href="#PacketConn">type PacketConn</a></li>
+        <ul>
+            <li><a href="#ListenPacket">func ListenPacket(net, laddr string) (PacketConn, error)</a></li>
+        </ul>
+        <li><a href="#Dialer">type Dialer</a></li>
+        <ul>
+            <li><a href="#Dialer.Dial">func (d *Dialer) Dial(network, address string) (Conn, error)</a></li>
+        </ul>
+        <li><a href="#Listener">type Listener</a></li>
+        <ul>
+            <li><a href="#Listen">func Listen(net, laddr string) (Listener, error)</a></li>
+        </ul>
+        <li><a href="#IPAddr">type IPAddr</a></li>
+        <ul>
+            <li><a href="#ResolveIPAddr">func ResolveIPAddr(net, addr string) (*IPAddr, error)</a></li>
+            <li><a href="#IPAddr.Network">func (a *IPAddr) Network() string</a></li>
+            <li><a href="#IPAddr.String">func (a *IPAddr) String() string</a></li>
+        </ul>
+        <li><a href="#TCPAddr">type TCPAddr</a></li>
+        <ul>
+            <li><a href="#ResolveTCPAddr">func ResolveTCPAddr(net, addr string) (*TCPAddr, error)</a></li>
+            <li><a href="#TCPAddr.Network">func (a *TCPAddr) Network() string</a></li>
+            <li><a href="#TCPAddr.String">func (a *TCPAddr) String() string</a></li>
+        </ul>
+        <li><a href="#UDPAddr">type UDPAddr</a></li>
+        <ul>
+            <li><a href="#ResolveUDPAddr">func ResolveUDPAddr(net, addr string) (*UDPAddr, error)</a></li>
+            <li><a href="#UDPAddr.Network">func (a *UDPAddr) Network() string</a></li>
+            <li><a href="#UDPAddr.String">func (a *UDPAddr) String() string</a></li>
+        </ul>
+        <li><a href="#UnixAddr">type UnixAddr</a></li>
+        <ul>
+            <li><a href="#ResolveUnixAddr">func ResolveUnixAddr(net, addr string) (*UnixAddr, error)</a></li>
+            <li><a href="#UnixAddr.Network">func (a *UnixAddr) Network() string</a></li>
+            <li><a href="#UnixAddr.String">func (a *UnixAddr) String() string</a></li>
+        </ul>
+        <li><a href="#IPConn">type IPConn</a></li>
+        <ul>
+            <li><a href="#DialIP">func DialIP(netProto string, laddr, raddr *IPAddr) (*IPConn, error)</a></li>
+            <li><a href="#ListenIP">func ListenIP(netProto string, laddr *IPAddr) (*IPConn, error)</a></li>
+            <li><a href="#IPConn.LocalAddr">func (c *IPConn) LocalAddr() Addr</a></li>
+            <li><a href="#IPConn.RemoteAddr">func (c *IPConn) RemoteAddr() Addr</a></li>
+            <li><a href="#IPConn.SetReadBuffer">func (c *IPConn) SetReadBuffer(bytes int) error</a></li>
+            <li><a href="#IPConn.SetWriteBuffer">func (c *IPConn) SetWriteBuffer(bytes int) error</a></li>
+            <li><a href="#IPConn.SetDeadline">func (c *IPConn) SetDeadline(t time.Time) error</a></li>
+            <li><a href="#IPConn.SetReadDeadline">func (c *IPConn) SetReadDeadline(t time.Time) error</a></li>
+            <li><a href="#IPConn.SetWriteDeadline">func (c *IPConn) SetWriteDeadline(t time.Time) error</a></li>
+            <li><a href="#IPConn.Read">func (c *IPConn) Read(b []byte) (int, error)</a></li>
+            <li><a href="#IPConn.ReadFrom">func (c *IPConn) ReadFrom(b []byte) (int, Addr, error)</a></li>
+            <li><a href="#IPConn.ReadFromIP">func (c *IPConn) ReadFromIP(b []byte) (int, *IPAddr, error)</a></li>
+            <li><a href="#IPConn.ReadMsgIP">func (c *IPConn) ReadMsgIP(b, oob []byte) (n, oobn, flags int, addr *IPAddr, err error)</a></li>
+            <li><a href="#IPConn.Write">func (c *IPConn) Write(b []byte) (int, error)</a></li>
+            <li><a href="#IPConn.WriteTo">func (c *IPConn) WriteTo(b []byte, addr Addr) (int, error)</a></li>
+            <li><a href="#IPConn.WriteToIP">func (c *IPConn) WriteToIP(b []byte, addr *IPAddr) (int, error)</a></li>
+            <li><a href="#IPConn.WriteMsgIP">func (c *IPConn) WriteMsgIP(b, oob []byte, addr *IPAddr) (n, oobn int, err error)</a></li>
+            <li><a href="#IPConn.Close">func (c *IPConn) Close() error</a></li>
+            <li><a href="#IPConn.File">func (c *IPConn) File() (f *os.File, err error)</a></li>
+        </ul>
+        <li><a href="#TCPConn">type TCPConn</a></li>
+        <ul>
+            <li><a href="#DialTCP">func DialTCP(net string, laddr, raddr *TCPAddr) (*TCPConn, error)</a></li>
+            <li><a href="#TCPConn.LocalAddr">func (c *TCPConn) LocalAddr() Addr</a></li>
+            <li><a href="#TCPConn.RemoteAddr">func (c *TCPConn) RemoteAddr() Addr</a></li>
+            <li><a href="#TCPConn.SetReadBuffer">func (c *TCPConn) SetReadBuffer(bytes int) error</a></li>
+            <li><a href="#TCPConn.SetWriteBuffer">func (c *TCPConn) SetWriteBuffer(bytes int) error</a></li>
+            <li><a href="#TCPConn.SetDeadline">func (c *TCPConn) SetDeadline(t time.Time) error</a></li>
+            <li><a href="#TCPConn.SetReadDeadline">func (c *TCPConn) SetReadDeadline(t time.Time) error</a></li>
+            <li><a href="#TCPConn.SetWriteDeadline">func (c *TCPConn) SetWriteDeadline(t time.Time) error</a></li>
+            <li><a href="#TCPConn.SetKeepAlive">func (c *TCPConn) SetKeepAlive(keepalive bool) error</a></li>
+            <li><a href="#TCPConn.SetKeepAlivePeriod">func (c *TCPConn) SetKeepAlivePeriod(d time.Duration) error</a></li>
+            <li><a href="#TCPConn.SetLinger">func (c *TCPConn) SetLinger(sec int) error</a></li>
+            <li><a href="#TCPConn.SetNoDelay">func (c *TCPConn) SetNoDelay(noDelay bool) error</a></li>
+            <li><a href="#TCPConn.Read">func (c *TCPConn) Read(b []byte) (int, error)</a></li>
+            <li><a href="#TCPConn.ReadFrom">func (c *TCPConn) ReadFrom(r io.Reader) (int64, error)</a></li>
+            <li><a href="#TCPConn.Write">func (c *TCPConn) Write(b []byte) (int, error)</a></li>
+            <li><a href="#TCPConn.Close">func (c *TCPConn) Close() error</a></li>
+            <li><a href="#TCPConn.CloseRead">func (c *TCPConn) CloseRead() error</a></li>
+            <li><a href="#TCPConn.CloseWrite">func (c *TCPConn) CloseWrite() error</a></li>
+            <li><a href="#TCPConn.File">func (c *TCPConn) File() (f *os.File, err error)</a></li>
+        </ul>
+        <li><a href="#UDPConn">type UDPConn</a></li>
+        <ul>
+            <li><a href="#DialUDP">func DialUDP(net string, laddr, raddr *UDPAddr) (*UDPConn, error)</a></li>
+            <li><a href="#ListenMulticastUDP">func ListenMulticastUDP(net string, ifi *Interface, gaddr *UDPAddr) (*UDPConn, error)</a></li>
+            <li><a href="#ListenUDP">func ListenUDP(net string, laddr *UDPAddr) (*UDPConn, error)</a></li>
+            <li><a href="#UDPConn.LocalAddr">func (c *UDPConn) LocalAddr() Addr</a></li>
+            <li><a href="#UDPConn.RemoteAddr">func (c *UDPConn) RemoteAddr() Addr</a></li>
+            <li><a href="#UDPConn.SetReadBuffer">func (c *UDPConn) SetReadBuffer(bytes int) error</a></li>
+            <li><a href="#UDPConn.SetWriteBuffer">func (c *UDPConn) SetWriteBuffer(bytes int) error</a></li>
+            <li><a href="#UDPConn.SetDeadline">func (c *UDPConn) SetDeadline(t time.Time) error</a></li>
+            <li><a href="#UDPConn.SetReadDeadline">func (c *UDPConn) SetReadDeadline(t time.Time) error</a></li>
+            <li><a href="#UDPConn.SetWriteDeadline">func (c *UDPConn) SetWriteDeadline(t time.Time) error</a></li>
+            <li><a href="#UDPConn.Read">func (c *UDPConn) Read(b []byte) (int, error)</a></li>
+            <li><a href="#UDPConn.ReadFrom">func (c *UDPConn) ReadFrom(b []byte) (int, Addr, error)</a></li>
+            <li><a href="#UDPConn.ReadFromUDP">func (c *UDPConn) ReadFromUDP(b []byte) (n int, addr *UDPAddr, err error)</a></li>
+            <li><a href="#UDPConn.ReadMsgUDP">func (c *UDPConn) ReadMsgUDP(b, oob []byte) (n, oobn, flags int, addr *UDPAddr, err error)</a></li>
+            <li><a href="#UDPConn.Write">func (c *UDPConn) Write(b []byte) (int, error)</a></li>
+            <li><a href="#UDPConn.WriteTo">func (c *UDPConn) WriteTo(b []byte, addr Addr) (int, error)</a></li>
+            <li><a href="#UDPConn.WriteToUDP">func (c *UDPConn) WriteToUDP(b []byte, addr *UDPAddr) (int, error)</a></li>
+            <li><a href="#UDPConn.WriteMsgUDP">func (c *UDPConn) WriteMsgUDP(b, oob []byte, addr *UDPAddr) (n, oobn int, err error)</a></li>
+            <li><a href="#UDPConn.Close">func (c *UDPConn) Close() error</a></li>
+            <li><a href="#UDPConn.File">func (c *UDPConn) File() (f *os.File, err error)</a></li>
+        </ul>
+        <li><a href="#UnixConn">type UnixConn</a></li>
+        <ul>
+            <li><a href="#DialUnix">func DialUnix(net string, laddr, raddr *UnixAddr) (*UnixConn, error)</a></li>
+            <li><a href="#ListenUnixgram">func ListenUnixgram(net string, laddr *UnixAddr) (*UnixConn, error)</a></li>
+            <li><a href="#UnixConn.LocalAddr">func (c *UnixConn) LocalAddr() Addr</a></li>
+            <li><a href="#UnixConn.RemoteAddr">func (c *UnixConn) RemoteAddr() Addr</a></li>
+            <li><a href="#UnixConn.SetReadBuffer">func (c *UnixConn) SetReadBuffer(bytes int) error</a></li>
+            <li><a href="#UnixConn.SetWriteBuffer">func (c *UnixConn) SetWriteBuffer(bytes int) error</a></li>
+            <li><a href="#UnixConn.SetDeadline">func (c *UnixConn) SetDeadline(t time.Time) error</a></li>
+            <li><a href="#UnixConn.SetReadDeadline">func (c *UnixConn) SetReadDeadline(t time.Time) error</a></li>
+            <li><a href="#UnixConn.SetWriteDeadline">func (c *UnixConn) SetWriteDeadline(t time.Time) error</a></li>
+            <li><a href="#UnixConn.Read">func (c *UnixConn) Read(b []byte) (int, error)</a></li>
+            <li><a href="#UnixConn.ReadFrom">func (c *UnixConn) ReadFrom(b []byte) (int, Addr, error)</a></li>
+            <li><a href="#UnixConn.ReadFromUnix">func (c *UnixConn) ReadFromUnix(b []byte) (n int, addr *UnixAddr, err error)</a></li>
+            <li><a href="#UnixConn.ReadMsgUnix">func (c *UnixConn) ReadMsgUnix(b, oob []byte) (n, oobn, flags int, addr *UnixAddr, err error)</a></li>
+            <li><a href="#UnixConn.Write">func (c *UnixConn) Write(b []byte) (int, error)</a></li>
+            <li><a href="#UnixConn.WriteTo">func (c *UnixConn) WriteTo(b []byte, addr Addr) (n int, err error)</a></li>
+            <li><a href="#UnixConn.WriteToUnix">func (c *UnixConn) WriteToUnix(b []byte, addr *UnixAddr) (n int, err error)</a></li>
+            <li><a href="#UnixConn.WriteMsgUnix">func (c *UnixConn) WriteMsgUnix(b, oob []byte, addr *UnixAddr) (n, oobn int, err error)</a></li>
+            <li><a href="#UnixConn.Close">func (c *UnixConn) Close() error</a></li>
+            <li><a href="#UnixConn.CloseRead">func (c *UnixConn) CloseRead() error</a></li>
+            <li><a href="#UnixConn.CloseWrite">func (c *UnixConn) CloseWrite() error</a></li>
+            <li><a href="#UnixConn.File">func (c *UnixConn) File() (f *os.File, err error)</a></li>
+        </ul>
+        <li><a href="#TCPListener">type TCPListener</a></li>
+        <ul>
+            <li><a href="#ListenTCP">func ListenTCP(net string, laddr *TCPAddr) (*TCPListener, error)</a></li>
+            <li><a href="#TCPListener.Addr">func (l *TCPListener) Addr() Addr</a></li>
+            <li><a href="#TCPListener.SetDeadline">func (l *TCPListener) SetDeadline(t time.Time) error</a></li>
+            <li><a href="#TCPListener.Accept">func (l *TCPListener) Accept() (Conn, error)</a></li>
+            <li><a href="#TCPListener.AcceptTCP">func (l *TCPListener) AcceptTCP() (*TCPConn, error)</a></li>
+            <li><a href="#TCPListener.Close">func (l *TCPListener) Close() error</a></li>
+            <li><a href="#TCPListener.File">func (l *TCPListener) File() (f *os.File, err error)</a></li>
+        </ul>
+        <li><a href="#UnixListener">type UnixListener</a></li>
+        <ul>
+            <li><a href="#ListenUnix">func ListenUnix(net string, laddr *UnixAddr) (*UnixListener, error)</a></li>
+            <li><a href="#UnixListener.Addr">func (l *UnixListener) Addr() Addr</a></li>
+            <li><a href="#UnixListener.SetDeadline">func (l *UnixListener) SetDeadline(t time.Time) (err error)</a></li>
+            <li><a href="#UnixListener.Accept">func (l *UnixListener) Accept() (c Conn, err error)</a></li>
+            <li><a href="#UnixListener.AcceptUnix">func (l *UnixListener) AcceptUnix() (*UnixConn, error)</a></li>
+            <li><a href="#UnixListener.Close">func (l *UnixListener) Close() error</a></li>
+            <li><a href="#UnixListener.File">func (l *UnixListener) File() (f *os.File, err error)</a></li>
+        </ul>
+        <li><a href="#FileConn">func FileConn(f *os.File) (c Conn, err error)</a></li>
+        <li><a href="#FilePacketConn">func FilePacketConn(f *os.File) (c PacketConn, err error)</a></li>
+        <li><a href="#FileListener">func FileListener(f *os.File) (l Listener, err error)</a></li>
+        <li><a href="#MX">type MX</a></li>
+        <li><a href="#NS">type NS</a></li>
+        <li><a href="#SRV">type SRV</a></li>
+        <li><a href="#LookupPort">func LookupPort(network, service string) (port int, err error)</a></li>
+        <li><a href="#LookupCNAME">func LookupCNAME(name string) (cname string, err error)</a></li>
+        <li><a href="#LookupHost">func LookupHost(host string) (addrs []string, err error)</a></li>
+        <li><a href="#LookupIP">func LookupIP(host string) (addrs []IP, err error)</a></li>
+        <li><a href="#LookupAddr">func LookupAddr(addr string) (name []string, err error)</a></li>
+        <li><a href="#LookupMX">func LookupMX(name string) (mx []*MX, err error)</a></li>
+        <li><a href="#LookupNS">func LookupNS(name string) (ns []*NS, err error)</a></li>
+        <li><a href="#LookupSRV">func LookupSRV(service, proto, name string) (cname string, addrs []*SRV, err error)</a></li>
+        <li><a href="#LookupTXT">func LookupTXT(name string) (txt []string, err error)</a></li>
+    </ul>
+    <h4 id="pkg-examples">Examples <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#example-Listener" onclick="$('#ex-Listener').addClass('in').removeClass('collapse').height('auto')">Listener</a></li>
+    </ul>
+    <pre>const (
+    <span id="IPv4len">IPv4len</span> = 4
+    <span id="IPv6len">IPv6len</span> = 16
+)</pre>
+    <p>IP address lengths (bytes).</p>
+    <h3 id="pkg-variables">Variables <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>var (
+    <span id="IPv4bcast">IPv4bcast</span>     = <a href="#IPv4">IPv4</a>(255, 255, 255, 255) <span class="com">// 广播地址</span>
+    <span id="IPv4allsys">IPv4allsys</span>    = <a href="#IPv4">IPv4</a>(224, 0, 0, 1)       <span class="com">// 所有主机和路由器</span>
+    <span id="IPv4allrouter">IPv4allrouter</span> = <a href="#IPv4">IPv4</a>(224, 0, 0, 2)       <span class="com">// 所有路由器</span>
+    <span id="IPv4zero">IPv4zero</span>      = <a href="#IPv4">IPv4</a>(0, 0, 0, 0)         <span class="com">// 本地地址，只能作为源地址（曾用作广播地址）</span>
+)</pre>
+    <p>常用的IPv4地址。</p>
+    <pre>var (
+    <span id="IPv6zero">IPv6zero</span>                   = <a href="#IP">IP</a>{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+    <span id="IPv6unspecified">IPv6unspecified</span>            = <a href="#IP">IP</a>{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+    <span id="IPv6loopback">IPv6loopback</span>               = <a href="#IP">IP</a>{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}
+    <span id="IPv6interfacelocalallnodes">IPv6interfacelocalallnodes</span> = <a href="#IP">IP</a>{0xff, 0x01, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0x01}
+    <span id="IPv6linklocalallnodes">IPv6linklocalallnodes</span>      = <a href="#IP">IP</a>{0xff, 0x02, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0x01}
+    <span id="IPv6linklocalallrouters">IPv6linklocalallrouters</span>    = <a href="#IP">IP</a>{0xff, 0x02, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0x02}
+)</pre>
+    <p>常用的IPv6地址。</p>
+    <pre>var (
+    <span id="ErrWriteToConnected">ErrWriteToConnected</span> = <a href="http://godoc.org/errors">errors</a>.<a href="http://godoc.org/errors#New">New</a>(&#34;use of WriteTo with pre-connected connection&#34;)
+)</pre>
+    <p>很多OpError类型的错误会包含本错误。</p>
+    <h3 id="ParseError">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/ip.go?name=release#634">ParseError</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type ParseError struct {
+    <span id="ParseError.Type">Type</span> <a href="http://godoc.org/builtin#string">string</a>
+    <span id="ParseError.Text">Text</span> <a href="http://godoc.org/builtin#string">string</a>
+}</pre>
+    <p>ParseError代表一个格式错误的字符串，Type为期望的格式。</p>
+    <h4 id="ParseError.Error">func (*ParseError) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/ip.go?name=release#639">Error</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (e *<a href="#ParseError">ParseError</a>) Error() <a href="http://godoc.org/builtin#string">string</a></pre>
+    <h3 id="Error">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/net.go?name=release#209">Error</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Error interface {
+    <a href="http://godoc.org/builtin#error">error</a>
+    <span id="Error.Timeout">Timeout</span>() <a href="http://godoc.org/builtin#bool">bool</a>   <span class="com">// 错误是否为超时？</span>
+    <span id="Error.Temporary">Temporary</span>() <a href="http://godoc.org/builtin#bool">bool</a> <span class="com">// 错误是否是临时的？</span>
+}</pre>
+    <p>Error代表一个网络错误。</p>
+    <h3 id="UnknownNetworkError">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/net.go?name=release#373">UnknownNetworkError</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type UnknownNetworkError <a href="http://godoc.org/builtin#string">string</a></pre>
+    <h4 id="UnknownNetworkError.Error">func (UnknownNetworkError) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/net.go?name=release#375">Error</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (e <a href="#UnknownNetworkError">UnknownNetworkError</a>) Error() <a href="http://godoc.org/builtin#string">string</a></pre>
+    <h4 id="UnknownNetworkError.Temporary">func (UnknownNetworkError) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/net.go?name=release#376">Temporary</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (e <a href="#UnknownNetworkError">UnknownNetworkError</a>) Temporary() <a href="http://godoc.org/builtin#bool">bool</a></pre>
+    <h4 id="UnknownNetworkError.Timeout">func (UnknownNetworkError) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/net.go?name=release#377">Timeout</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (e <a href="#UnknownNetworkError">UnknownNetworkError</a>) Timeout() <a href="http://godoc.org/builtin#bool">bool</a></pre>
+    <h3 id="InvalidAddrError">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/net.go?name=release#379">InvalidAddrError</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type InvalidAddrError <a href="http://godoc.org/builtin#string">string</a></pre>
+    <h4 id="InvalidAddrError.Error">func (InvalidAddrError) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/net.go?name=release#381">Error</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (e <a href="#InvalidAddrError">InvalidAddrError</a>) Error() <a href="http://godoc.org/builtin#string">string</a></pre>
+    <h4 id="InvalidAddrError.Temporary">func (InvalidAddrError) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/net.go?name=release#383">Temporary</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (e <a href="#InvalidAddrError">InvalidAddrError</a>) Temporary() <a href="http://godoc.org/builtin#bool">bool</a></pre>
+    <h4 id="InvalidAddrError.Timeout">func (InvalidAddrError) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/net.go?name=release#382">Timeout</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (e <a href="#InvalidAddrError">InvalidAddrError</a>) Timeout() <a href="http://godoc.org/builtin#bool">bool</a></pre>
+    <h3 id="DNSConfigError">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/net.go?name=release#386">DNSConfigError</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type DNSConfigError struct {
+    <span id="DNSConfigError.Err">Err</span> <a href="http://godoc.org/builtin#error">error</a>
+}</pre>
+    <p>DNSConfigError代表读取主机DNS配置时出现的错误。</p>
+    <h4 id="DNSConfigError.Error">func (*DNSConfigError) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/net.go?name=release#390">Error</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (e *<a href="#DNSConfigError">DNSConfigError</a>) Error() <a href="http://godoc.org/builtin#string">string</a></pre>
+    <h4 id="DNSConfigError.Temporary">func (*DNSConfigError) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/net.go?name=release#395">Temporary</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (e *<a href="#DNSConfigError">DNSConfigError</a>) Temporary() <a href="http://godoc.org/builtin#bool">bool</a></pre>
+    <h4 id="DNSConfigError.Timeout">func (*DNSConfigError) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/net.go?name=release#394">Timeout</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (e *<a href="#DNSConfigError">DNSConfigError</a>) Timeout() <a href="http://godoc.org/builtin#bool">bool</a></pre>
+    <h3 id="DNSError">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/dnsclient.go?name=release#13">DNSError</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type DNSError struct {
+    <span id="DNSError.Err">Err</span>       <a href="http://godoc.org/builtin#string">string</a> <span class="com">// 错误的描述</span>
+    <span id="DNSError.Name">Name</span>      <a href="http://godoc.org/builtin#string">string</a> <span class="com">// 查询的名称</span>
+    <span id="DNSError.Server">Server</span>    <a href="http://godoc.org/builtin#string">string</a> <span class="com">// 使用的服务器</span>
+    <span id="DNSError.IsTimeout">IsTimeout</span> <a href="http://godoc.org/builtin#bool">bool</a>
+}</pre>
+    <p>DNSError代表DNS查询的错误。</p>
+    <h4 id="DNSError.Error">func (*DNSError) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/dnsclient.go?name=release#20">Error</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (e *<a href="#DNSError">DNSError</a>) Error() <a href="http://godoc.org/builtin#string">string</a></pre>
+    <h4 id="DNSError.Temporary">func (*DNSError) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/dnsclient.go?name=release#33">Temporary</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (e *<a href="#DNSError">DNSError</a>) Temporary() <a href="http://godoc.org/builtin#bool">bool</a></pre>
+    <h4 id="DNSError.Timeout">func (*DNSError) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/dnsclient.go?name=release#32">Timeout</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (e *<a href="#DNSError">DNSError</a>) Timeout() <a href="http://godoc.org/builtin#bool">bool</a></pre>
+    <h3 id="AddrError">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/net.go?name=release#349">AddrError</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type AddrError struct {
+    <span id="AddrError.Err">Err</span>  <a href="http://godoc.org/builtin#string">string</a>
+    <span id="AddrError.Addr">Addr</span> <a href="http://godoc.org/builtin#string">string</a>
+}</pre>
+    <h4 id="AddrError.Error">func (*AddrError) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/net.go?name=release#354">Error</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (e *<a href="#AddrError">AddrError</a>) Error() <a href="http://godoc.org/builtin#string">string</a></pre>
+    <h4 id="AddrError.Temporary">func (*AddrError) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/net.go?name=release#365">Temporary</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (e *<a href="#AddrError">AddrError</a>) Temporary() <a href="http://godoc.org/builtin#bool">bool</a></pre>
+    <h4 id="AddrError.Timeout">func (*AddrError) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/net.go?name=release#369">Timeout</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (e *<a href="#AddrError">AddrError</a>) Timeout() <a href="http://godoc.org/builtin#bool">bool</a></pre>
+    <h3 id="OpError">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/net.go?name=release#292">OpError</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type OpError struct {
+    <span class="com">// Op是出现错误的操作，如"read"或"write"</span>
+    <span id="OpError.Op">Op</span>  <a href="http://godoc.org/builtin#string">string</a>
+    <span class="com">// Net是错误所在的网络类型，如"tcp"或"udp6"</span><span class="com"></span>
+    <span id="OpError.Net">Net</span> <a href="http://godoc.org/builtin#string">string</a>
+    <span class="com">// Addr是出现错误的网络地址</span>
+    <span id="OpError.Addr">Addr</span> <a href="#Addr">Addr</a>
+    <span class="com">// Err是操作中出现的错误</span>
+    <span id="OpError.Err">Err</span> <a href="http://godoc.org/builtin#error">error</a>
+}</pre>
+    <p>OpError是经常被net包的函数返回的错误类型。它描述了该错误的操作、网络类型和网络地址。</p>
+    <h4 id="OpError.Error">func (*OpError) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/net.go?name=release#308">Error</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (e *<a href="#OpError">OpError</a>) Error() <a href="http://godoc.org/builtin#string">string</a></pre>
+    <h4 id="OpError.Temporary">func (*OpError) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/net.go?name=release#327">Temporary</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (e *<a href="#OpError">OpError</a>) Temporary() <a href="http://godoc.org/builtin#bool">bool</a></pre>
+    <h4 id="OpError.Timeout">func (*OpError) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/net.go?name=release#338">Timeout</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (e *<a href="#OpError">OpError</a>) Timeout() <a href="http://godoc.org/builtin#bool">bool</a></pre>
+    <h3 id="SplitHostPort">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/ipsock.go?name=release#143">SplitHostPort</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func SplitHostPort(hostport <a href="http://godoc.org/builtin#string">string</a>) (host, port <a href="http://godoc.org/builtin#string">string</a>, err <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p>函数将格式为"host:port"、"[host]:port"或"[ipv6-host%zone]:port"的网络地址分割为host或ipv6-host%zone和port两个部分。Ipv6的文字地址或者主机名必须用方括号括起来，如"[::1]:80"、"[ipv6-host]:http"、"[ipv6-host%zone]:80"。</p>
+    <h3 id="JoinHostPort">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/ipsock.go?name=release#223">JoinHostPort</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func JoinHostPort(host, port <a href="http://godoc.org/builtin#string">string</a>) <a href="http://godoc.org/builtin#string">string</a></pre>
+    <p>函数将host和port合并为一个网络地址。一般格式为"host:port"；如果host含有冒号或百分号，格式为"[host]:port"。</p>
+    <h3 id="HardwareAddr">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/mac.go?name=release#14">HardwareAddr</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type HardwareAddr []<a href="http://godoc.org/builtin#byte">byte</a></pre>
+    <p>HardwareAddr类型代表一个硬件地址（MAC地址）。</p>
+    <h4 id="ParseMAC">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/mac.go?name=release#39">ParseMAC</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func ParseMAC(s <a href="http://godoc.org/builtin#string">string</a>) (hw <a href="#HardwareAddr">HardwareAddr</a>, err <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p>ParseMAC函数使用如下格式解析一个IEEE 802 MAC-48、EUI-48或EUI-64硬件地址：</p>
+    <pre>01:23:45:67:89:ab
+01:23:45:67:89:ab:cd:ef
+01-23-45-67-89-ab
+01-23-45-67-89-ab-cd-ef
+0123.4567.89ab
+0123.4567.89ab.cdef
+</pre>
+    <h4 id="HardwareAddr.String">func (HardwareAddr) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/mac.go?name=release#16">String</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (a <a href="#HardwareAddr">HardwareAddr</a>) String() <a href="http://godoc.org/builtin#string">string</a></pre>
+    <h3 id="Flags">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/interface.go?name=release#28">Flags</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Flags <a href="http://godoc.org/builtin#uint">uint</a></pre>
+    <pre>const (
+    <span id="FlagUp">FlagUp</span>           <a href="#Flags">Flags</a> = 1 &lt;&lt; <a href="http://godoc.org/builtin#iota">iota</a> <span class="com">// 接口在活动状态</span>
+    <span id="FlagBroadcast">FlagBroadcast</span>                      <span class="com">// 接口支持广播</span>
+    <span id="FlagLoopback">FlagLoopback</span>                       <span class="com">// 接口是环回的</span>
+    <span id="FlagPointToPoint">FlagPointToPoint</span>                   <span class="com">// 接口是点对点的</span>
+    <span id="FlagMulticast">FlagMulticast</span>                      <span class="com">// 接口支持组播</span>
+)</pre>
+    <h4 id="Flags.String">func (Flags) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/interface.go?name=release#46">String</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (f <a href="#Flags">Flags</a>) String() <a href="http://godoc.org/builtin#string">string</a></pre>
+    <h3 id="Interface">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/interface.go?name=release#20">Interface</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Interface struct {
+    <span id="Interface.Index">Index</span>        <a href="http://godoc.org/builtin#int">int</a>          <span class="com">// 索引，&gt;=1的整数</span>
+    <span id="Interface.MTU">MTU</span>          <a href="http://godoc.org/builtin#int">int</a>          <span class="com">// 最大传输单元</span>
+    <span id="Interface.Name">Name</span>         <a href="http://godoc.org/builtin#string">string</a>       <span class="com">// 接口名，例如&#34;en0&#34;、&#34;lo0&#34;、&#34;eth0.100&#34;</span>
+    <span id="Interface.HardwareAddr">HardwareAddr</span> <a href="#HardwareAddr">HardwareAddr</a> <span class="com">// 硬件地址，IEEE MAC-48、EUI-48或EUI-64格式</span>
+    <span id="Interface.Flags">Flags</span>        <a href="#Flags">Flags</a>        <span class="com">// 接口的属性，例如FlagUp、FlagLoopback、FlagMulticast</span>
+}</pre>
+    <p>Interface类型代表一个网络接口（系统与网络的一个接点）。包含接口索引到名字的映射，也包含接口的设备信息。</p>
+    <h4 id="InterfaceByIndex">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/interface.go?name=release#91">InterfaceByIndex</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func InterfaceByIndex(index <a href="http://godoc.org/builtin#int">int</a>) (*<a href="#Interface">Interface</a>, <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p>InterfaceByIndex返回指定索引的网络接口。</p>
+    <h4 id="InterfaceByName">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/interface.go?name=release#112">InterfaceByName</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func InterfaceByName(name <a href="http://godoc.org/builtin#string">string</a>) (*<a href="#Interface">Interface</a>, <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p>InterfaceByName返回指定名字的网络接口。</p>
+    <h4 id="Interface.Addrs">func (*Interface) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/interface.go?name=release#63">Addrs</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (ifi *<a href="#Interface">Interface</a>) Addrs() ([]<a href="#Addr">Addr</a>, <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p>Addrs方法返回网络接口ifi的一或多个接口地址。</p>
+    <h4 id="Interface.MulticastAddrs">func (*Interface) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/interface.go?name=release#72">MulticastAddrs</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (ifi *<a href="#Interface">Interface</a>) MulticastAddrs() ([]<a href="#Addr">Addr</a>, <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p>MulticastAddrs返回网络接口ifi加入的多播组地址。</p>
+    <h3 id="Interfaces">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/interface.go?name=release#80">Interfaces</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Interfaces() ([]<a href="#Interface">Interface</a>, <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p>Interfaces返回该系统的网络接口列表。</p>
+    <h3 id="InterfaceAddrs">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/interface.go?name=release#86">InterfaceAddrs</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func InterfaceAddrs() ([]<a href="#Addr">Addr</a>, <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p>InterfaceAddrs返回该系统的网络接口的地址列表。</p>
+    <h3 id="IP">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/ip.go?name=release#32">IP</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type IP []<a href="http://godoc.org/builtin#byte">byte</a></pre>
+    <p align="left">IP类型是代表单个IP地址的[]byte切片。本包的函数都可以接受4字节（IPv4）和16字节（IPv6）的切片作为输入。</p>
+    <p align="left">注意，IP地址是IPv4地址还是IPv6地址是语义上的属性，而不取决于切片的长度：16字节的切片也可以是IPv4地址。</p>
+    <h4 id="IPv4">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/ip.go?name=release#45">IPv4</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func IPv4(a, b, c, d <a href="http://godoc.org/builtin#byte">byte</a>) <a href="#IP">IP</a></pre>
+    <p>IPv4返回包含一个IPv4地址a.b.c.d的IP地址（16字节格式）。</p>
+    <h4 id="ParseIP">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/ip.go?name=release#648">ParseIP</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func ParseIP(s <a href="http://godoc.org/builtin#string">string</a>) <a href="#IP">IP</a></pre>
+    <p>ParseIP将s解析为IP地址，并返回该地址。如果s不是合法的IP地址文本表示，ParseIP会返回nil。</p>
+    <p>字符串可以是小数点分隔的IPv4格式（如"74.125.19.99"）或IPv6格式（如"2001:4860:0:2001::68"）格式。</p>
+<h4 id="IP.IsGlobalUnicast">func (IP) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/ip.go?name=release#161">IsGlobalUnicast</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (ip <a href="#IP">IP</a>) IsGlobalUnicast() <a href="http://godoc.org/builtin#bool">bool</a></pre>
+    <p>如果ip是全局单播地址，则返回真。</p>
+    <h4 id="IP.IsLinkLocalUnicast">func (IP) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/ip.go?name=release#152">IsLinkLocalUnicast</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (ip <a href="#IP">IP</a>) IsLinkLocalUnicast() <a href="http://godoc.org/builtin#bool">bool</a></pre>
+    <p>如果ip是链路本地单播地址，则返回真。</p>
+    <h4 id="IP.IsInterfaceLocalMulticast">func (IP) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/ip.go?name=release#137">IsInterfaceLocalMulticast</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (ip <a href="#IP">IP</a>) IsInterfaceLocalMulticast() <a href="http://godoc.org/builtin#bool">bool</a></pre>
+    <p>如果ip是接口本地组播地址，则返回真。</p>
+    <h4 id="IP.IsLinkLocalMulticast">func (IP) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/ip.go?name=release#143">IsLinkLocalMulticast</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (ip <a href="#IP">IP</a>) IsLinkLocalMulticast() <a href="http://godoc.org/builtin#bool">bool</a></pre>
+    <p>如果ip是链路本地组播地址，则返回真。</p>
+    <h4 id="IP.IsMulticast">func (IP) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/ip.go?name=release#128">IsMulticast</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (ip <a href="#IP">IP</a>) IsMulticast() <a href="http://godoc.org/builtin#bool">bool</a></pre>
+    <p>如果ip是组播地址，则返回真。</p>
+    <h4 id="IP.IsLoopback">func (IP) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/ip.go?name=release#120">IsLoopback</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (ip <a href="#IP">IP</a>) IsLoopback() <a href="http://godoc.org/builtin#bool">bool</a></pre>
+    <p>如果ip是环回地址，则返回真。</p>
+    <h4 id="IP.IsUnspecified">func (IP) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/ip.go?name=release#112">IsUnspecified</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (ip <a href="#IP">IP</a>) IsUnspecified() <a href="http://godoc.org/builtin#bool">bool</a></pre>
+    <p>如果ip是未指定地址，则返回真。</p>
+    <h4 id="IP.DefaultMask">func (IP) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/ip.go?name=release#215">DefaultMask</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (ip <a href="#IP">IP</a>) DefaultMask() <a href="#IPMask">IPMask</a></pre>
+    <p>函数返回IP地址ip的默认子网掩码。只有IPv4有默认子网掩码；如果ip不是合法的IPv4地址，会返回nil。</p>
+    <h4 id="IP.Equal">func (IP) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/ip.go?name=release#355">Equal</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (ip <a href="#IP">IP</a>) Equal(x <a href="#IP">IP</a>) <a href="http://godoc.org/builtin#bool">bool</a></pre>
+    <p>如果ip和x代表同一个IP地址，Equal会返回真。代表同一地址的IPv4地址和IPv6地址也被认为是相等的。</p>
+    <h4 id="IP.To16">func (IP) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/ip.go?name=release#195">To16</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (ip <a href="#IP">IP</a>) To16() <a href="#IP">IP</a></pre>
+    <p>To16将一个IP地址转换为16字节表示。如果ip不是一个IP地址（长度错误），To16会返回nil。</p>
+    <h4 id="IP.To4">func (IP) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/ip.go?name=release#180">To4</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (ip <a href="#IP">IP</a>) To4() <a href="#IP">IP</a></pre>
+    <p>To4将一个IPv4地址转换为4字节表示。如果ip不是IPv4地址，To4会返回nil。</p>
+    <h4 id="IP.Mask">func (IP) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/ip.go?name=release#239">Mask</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (ip <a href="#IP">IP</a>) Mask(mask <a href="#IPMask">IPMask</a>) <a href="#IP">IP</a></pre>
+    <p>Mask方法认为mask为ip的子网掩码，返回ip的网络地址部分的ip。（主机地址部分都置0）</p>
+    <h4 id="IP.String">func (IP) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/ip.go?name=release#261">String</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (ip <a href="#IP">IP</a>) String() <a href="http://godoc.org/builtin#string">string</a></pre>
+    <p>String返回IP地址ip的字符串表示。如果ip是IPv4地址，返回值的格式为点分隔的，如"74.125.19.99"；否则表示为IPv6格式，如"2001:4860:0:2001::68"。</p>
+    <h4 id="IP.MarshalText">func (IP) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/ip.go?name=release#326">MarshalText</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (ip <a href="#IP">IP</a>) MarshalText() ([]<a href="http://godoc.org/builtin#byte">byte</a>, <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p>MarshalText实现了encoding.TextMarshaler接口，返回值和String方法一样。</p>
+    <h4 id="IP.UnmarshalText">func (*IP) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/ip.go?name=release#338">UnmarshalText</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (ip *<a href="#IP">IP</a>) UnmarshalText(text []<a href="http://godoc.org/builtin#byte">byte</a>) <a href="http://godoc.org/builtin#error">error</a></pre>
+    <p>UnmarshalText实现了encoding.TextUnmarshaler接口。IP地址字符串应该是ParseIP函数可以接受的格式。</p>
+    <h3 id="IPMask">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/ip.go?name=release#35">IPMask</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type IPMask []<a href="http://godoc.org/builtin#byte">byte</a></pre>
+    <p>IPMask代表一个IP地址的掩码。</p>
+    <h4 id="IPv4Mask">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/ip.go?name=release#59">IPv4Mask</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func IPv4Mask(a, b, c, d <a href="http://godoc.org/builtin#byte">byte</a>) <a href="#IPMask">IPMask</a></pre>
+    <p>IPv4Mask返回一个4字节格式的IPv4掩码a.b.c.d。</p>
+    <h4 id="CIDRMask">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/ip.go?name=release#71">CIDRMask</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func CIDRMask(ones, bits <a href="http://godoc.org/builtin#int">int</a>) <a href="#IPMask">IPMask</a></pre>
+    <p>CIDRMask返回一个IPMask类型值，该返回值总共有bits个字位，其中前ones个字位都是1，其余字位都是0。</p>
+    <h4 id="IPMask.Size">func (IPMask) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/ip.go?name=release#412">Size</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (m <a href="#IPMask">IPMask</a>) Size() (ones, bits <a href="http://godoc.org/builtin#int">int</a>)</pre>
+    <p>Size返回m的前导的1字位数和总字位数。如果m不是规范的子网掩码（字位：/^1+0+$/），将返会(0, 0)。</p>
+    <h4 id="IPMask.String">func (IPMask) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/ip.go?name=release#421">String</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (m <a href="#IPMask">IPMask</a>) String() <a href="http://godoc.org/builtin#string">string</a></pre>
+    <p>String返回m的十六进制格式，没有标点。</p>
+    <h3 id="IPNet">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/ip.go?name=release#38">IPNet</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type IPNet struct {
+    <span id="IPNet.IP">IP</span>   <a href="#IP">IP</a>     <span class="com">// 网络地址</span>
+    <span id="IPNet.Mask">Mask</span> <a href="#IPMask">IPMask</a> <span class="com">// 子网掩码</span>
+}</pre>
+    <p>IPNet表示一个IP网络。</p>
+    <h4 id="ParseCIDR">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/ip.go?name=release#663">ParseCIDR</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func ParseCIDR(s <a href="http://godoc.org/builtin#string">string</a>) (<a href="#IP">IP</a>, *<a href="#IPNet">IPNet</a>, <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p align="left">ParseCIDR将s作为一个CIDR（无类型域间路由）的IP地址和掩码字符串，如"192.168.100.1/24"或"2001:DB8::/48"，解析并返回IP地址和IP网络，参见<a href="http://tools.ietf.org/html/rfc4632">RFC 4632</a>和<a href="http://tools.ietf.org/html/rfc4291">RFC 4291</a>。</p>
+    <p align="left">本函数会返回IP地址和该IP所在的网络和掩码。例如，ParseCIDR("192.168.100.1/16")会返回IP地址192.168.100.1和IP网络192.168.0.0/16。</p>
+    <h4 id="IPNet.Contains">func (*IPNet) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/ip.go?name=release#456">Contains</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (n *<a href="#IPNet">IPNet</a>) Contains(ip <a href="#IP">IP</a>) <a href="http://godoc.org/builtin#bool">bool</a></pre>
+    <p>Contains报告该网络是否包含地址ip。</p>
+    <h4 id="IPNet.Network">func (*IPNet) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/ip.go?name=release#474">Network</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (n *<a href="#IPNet">IPNet</a>) Network() <a href="http://godoc.org/builtin#string">string</a></pre>
+    <p>Network返回网络类型名："ip+net"，注意该类型名是不合法的。</p>
+    <h4 id="IPNet.String">func (*IPNet) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/ip.go?name=release#482">String</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (n *<a href="#IPNet">IPNet</a>) String() <a href="http://godoc.org/builtin#string">string</a></pre>
+    <p>String返回n的CIDR表示，如"192.168.100.1/24"或"2001:DB8::/48"，参见<a href="http://tools.ietf.org/html/rfc4632">RFC 4632</a>和<a href="http://tools.ietf.org/html/rfc4291">RFC 4291</a>。如果n的Mask字段不是规范格式，它会返回一个包含n.IP.String()、斜线、n.Mask.String()（此时表示为无标点十六进制格式）的字符串，如"192.168.100.1/c000ff00"。</p>
+    <h3 id="Addr">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/net.go?name=release#54">Addr</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Addr interface {
+    <span id="Addr.Network">Network</span>() <a href="http://godoc.org/builtin#string">string</a> <span class="com">// 网络名</span>
+    <span id="Addr.String">String</span>() <a href="http://godoc.org/builtin#string">string</a>  <span class="com">// 字符串格式的地址</span>
+}</pre>
+    <p>Addr代表一个网络终端地址。</p>
+    <h3 id="Conn">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/net.go?name=release#62">Conn</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Conn interface {
+    <span class="com">// Read从连接中读取数据</span>
+    <span class="com">// Read方法可能会在超过某个固定时间限制后超时返回错误，该错误的Timeout()方法返回真</span>
+    <span id="Conn.Read">Read</span>(b []<a href="http://godoc.org/builtin#byte">byte</a>) (n <a href="http://godoc.org/builtin#int">int</a>, err <a href="http://godoc.org/builtin#error">error</a>)
+    <span class="com">// Write从连接中写入数据</span>
+    <span class="com">// Write方法可能会在超过某个固定时间限制后超时返回错误，该错误的Timeout()方法返回真</span>
+    <span id="Conn.Write">Write</span>(b []<a href="http://godoc.org/builtin#byte">byte</a>) (n <a href="http://godoc.org/builtin#int">int</a>, err <a href="http://godoc.org/builtin#error">error</a>)
+    <span class="com">// Close方法关闭该连接</span>
+    <span class="com">// 并会导致任何阻塞中的Read或Write方法不再阻塞并返回错误</span>
+    <span id="Conn.Close">Close</span>() <a href="http://godoc.org/builtin#error">error</a>
+    <span class="com">// 返回本地网络地址</span>
+    <span id="Conn.LocalAddr">LocalAddr</span>() <a href="#Addr">Addr</a>
+    <span class="com">// 返回远端网络地址</span>
+    <span id="Conn.RemoteAddr">RemoteAddr</span>() <a href="#Addr">Addr</a>
+    <span class="com">// 设定该连接的读写deadline，等价于同时调用SetReadDeadline和SetWriteDeadline</span>
+    <span class="com">// deadline是一个绝对时间，超过该时间后I/O操作就会直接因超时失败返回而不会阻塞</span>
+    <span class="com">// deadline对之后的所有I/O操作都起效，而不仅仅是下一次的读或写操作</span><span class="com"></span>
+    <span class="com">// 参数t为零值表示不设置期限</span>
+    <span id="Conn.SetDeadline">SetDeadline</span>(t <a href="http://godoc.org/time">time</a>.<a href="http://godoc.org/time#Time">Time</a>) <a href="http://godoc.org/builtin#error">error</a>
+    <span class="com">// 设定该连接的读操作deadline，参数t为零值表示不设置期限</span>
+    <span id="Conn.SetReadDeadline">SetReadDeadline</span>(t <a href="http://godoc.org/time">time</a>.<a href="http://godoc.org/time#Time">Time</a>) <a href="http://godoc.org/builtin#error">error</a>
+    <span class="com">// 设定该连接的写操作deadline，参数t为零值表示不设置期限</span>
+    <span class="com">// 即使写入超时，返回值n也可能&gt;0，说明成功写入了部分数据</span>
+    <span id="Conn.SetWriteDeadline">SetWriteDeadline</span>(t <a href="http://godoc.org/time">time</a>.<a href="http://godoc.org/time#Time">Time</a>) <a href="http://godoc.org/builtin#error">error</a>
+}</pre>
+    <p>Conn接口代表通用的面向流的网络连接。多个线程可能会同时调用同一个Conn的方法。</p>
+    <h4 id="Dial">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/dial.go?name=release#142">Dial</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func Dial(network, address <a href="http://godoc.org/builtin#string">string</a>) (<a href="#Conn">Conn</a>, <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p align="left">在网络network上连接地址address，并返回一个Conn接口。可用的网络类型有：</p>
+    <p>"tcp"、"tcp4"、"tcp6"、"udp"、"udp4"、"udp6"、"ip"、"ip4"、"ip6"、"unix"、"unixgram"、"unixpacket"</p>
+    <p>对TCP和UDP网络，地址格式是host:port或[host]:port，参见函数JoinHostPort和SplitHostPort。</p>
+<pre>Dial(&#34;tcp&#34;, &#34;12.34.56.78:80&#34;)
+Dial(&#34;tcp&#34;, &#34;google.com:http&#34;)
+Dial(&#34;tcp&#34;, &#34;[2001:db8::1]:http&#34;)
+Dial(&#34;tcp&#34;, &#34;[fe80::1%lo0]:80&#34;)
+</pre>
+    <p>对IP网络，network必须是"ip"、"ip4"、"ip6"后跟冒号和协议号或者协议名，地址必须是IP地址字面值。</p>
+    <pre>Dial(&#34;ip4:1&#34;, &#34;127.0.0.1&#34;)
+Dial(&#34;ip6:ospf&#34;, &#34;::1&#34;)
+</pre>
+    <p>对Unix网络，地址必须是文件系统路径。</p>
+    <h4 id="DialTimeout">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/dial.go?name=release#149">DialTimeout</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func DialTimeout(network, address <a href="http://godoc.org/builtin#string">string</a>, timeout <a href="http://godoc.org/time">time</a>.<a href="http://godoc.org/time#Duration">Duration</a>) (<a href="#Conn">Conn</a>, <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p>DialTimeout类似Dial但采用了超时。timeout参数如果必要可包含名称解析。</p>
+    <h4 id="Pipe">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/pipe.go?name=release#18">Pipe</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func Pipe() (<a href="#Conn">Conn</a>, <a href="#Conn">Conn</a>)</pre>
+    <p>Pipe创建一个内存中的同步、全双工网络连接。连接的两端都实现了Conn接口。一端的读取对应另一端的写入，直接将数据在两端之间作拷贝；没有内部缓冲。</p>
+    <h3 id="PacketConn">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/net.go?name=release#218">PacketConn</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type PacketConn interface {
+    <span class="com">// ReadFrom方法从连接读取一个数据包，并将有效信息写入b</span>
+    <span class="com">// ReadFrom方法可能会在超过某个固定时间限制后超时返回错误，该错误的Timeout()方法返回真</span>
+    <span class="com">// 返回写入的字节数和该数据包的来源地址</span>
+    <span id="PacketConn.ReadFrom">ReadFrom</span>(b []<a href="http://godoc.org/builtin#byte">byte</a>) (n <a href="http://godoc.org/builtin#int">int</a>, addr <a href="#Addr">Addr</a>, err <a href="http://godoc.org/builtin#error">error</a>)
+    <span class="com">// WriteTo方法将有效数据b写入一个数据包发送给addr</span>
+    <span class="com">// WriteTo方法可能会在超过某个固定时间限制后超时返回错误，该错误的Timeout()方法返回真</span>
+    <span class="com">// 在面向数据包的连接中，写入超时非常罕见</span>
+    <span id="PacketConn.WriteTo">WriteTo</span>(b []<a href="http://godoc.org/builtin#byte">byte</a>, addr <a href="#Addr">Addr</a>) (n <a href="http://godoc.org/builtin#int">int</a>, err <a href="http://godoc.org/builtin#error">error</a>)
+    <span class="com">// Close方法关闭该连接</span>
+    <span class="com">// 会导致任何阻塞中的ReadFrom或WriteTo方法不再阻塞并返回错误</span>
+    <span id="PacketConn.Close">Close</span>() <a href="http://godoc.org/builtin#error">error</a>
+    <span class="com">// 返回本地网络地址</span>
+    <span id="PacketConn.LocalAddr">LocalAddr</span>() <a href="#Addr">Addr</a>
+    <span class="com">// 设定该连接的读写deadline</span>
+    <span id="PacketConn.SetDeadline">SetDeadline</span>(t <a href="http://godoc.org/time">time</a>.<a href="http://godoc.org/time#Time">Time</a>) <a href="http://godoc.org/builtin#error">error</a>
+    <span class="com">// 设定该连接的读操作deadline，参数t为零值表示不设置期限</span>
+    <span class="com">// 如果时间到达deadline，读操作就会直接因超时失败返回而不会阻塞</span>
+    <span id="PacketConn.SetReadDeadline">SetReadDeadline</span>(t <a href="http://godoc.org/time">time</a>.<a href="http://godoc.org/time#Time">Time</a>) <a href="http://godoc.org/builtin#error">error</a>
+    <span class="com">// 设定该连接的写操作deadline，参数t为零值表示不设置期限</span>
+    <span class="com">// 如果时间到达deadline，写操作就会直接因超时失败返回而不会阻塞</span>
+    <span class="com">// 即使写入超时，返回值n也可能&gt;0，说明成功写入了部分数据</span>
+    <span id="PacketConn.SetWriteDeadline">SetWriteDeadline</span>(t <a href="http://godoc.org/time">time</a>.<a href="http://godoc.org/time#Time">Time</a>) <a href="http://godoc.org/builtin#error">error</a>
+}</pre>
+    <p>PacketConn接口代表通用的面向数据包的网络连接。多个线程可能会同时调用同一个Conn的方法。</p>
+    <h4 id="ListenPacket">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/dial.go?name=release#285">ListenPacket</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func ListenPacket(net, laddr <a href="http://godoc.org/builtin#string">string</a>) (<a href="#PacketConn">PacketConn</a>, <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p>ListenPacket函数监听本地网络地址laddr。网络类型net必须是面向数据包的网络类型：</p>
+    <p>"ip"、"ip4"、"ip6"、"udp"、"udp4"、"udp6"、或"unixgram"。laddr的格式参见Dial函数。</p>
+    <h3 id="Dialer">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/dial.go?name=release#17">Dialer</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Dialer struct {
+    <span class="com">// Timeout是dial操作等待连接建立的最大时长，默认值代表没有超时。</span>
+    <span class="com">// 如果Deadline字段也被设置了，dial操作也可能更早失败。</span>
+    <span class="com">// 不管有没有设置超时，操作系统都可能强制执行它的超时设置。</span>
+    <span class="com">// 例如，TCP（系统）超时一般在3分钟左右。</span>
+    <span id="Dialer.Timeout">Timeout</span> <a href="http://godoc.org/time">time</a>.<a href="http://godoc.org/time#Duration">Duration</a>
+    <span class="com">// Deadline是一个具体的时间点期限，超过该期限后，dial操作就会失败。</span>
+    <span class="com">// 如果Timeout字段也被设置了，dial操作也可能更早失败。</span>
+    <span class="com">// 零值表示没有期限，即遵守操作系统的超时设置。</span>
+    <span id="Dialer.Deadline">Deadline</span> <a href="http://godoc.org/time">time</a>.<a href="http://godoc.org/time#Time">Time</a>
+    <span class="com">// LocalAddr是dial一个地址时使用的本地地址。</span>
+    <span class="com">// 该地址必须是与dial的网络相容的类型。</span>
+    <span class="com">// 如果为nil，将会自动选择一个本地地址。</span>
+    <span id="Dialer.LocalAddr">LocalAddr</span> <a href="#Addr">Addr</a>
+    <span class="com">// DualStack允许单次dial操作在网络类型为"tcp"，</span>
+    <span class="com">// 且目的地是一个主机名的DNS记录具有多个地址时，</span>
+    <span class="com">// 尝试建立多个IPv4和IPv6连接，并返回第一个建立的连接。</span>
+    <span id="Dialer.DualStack">DualStack</span> <a href="http://godoc.org/builtin#bool">bool</a>
+    <span class="com">// KeepAlive指定一个活动的网络连接的生命周期；如果为0，会禁止keep-alive。</span>
+    <span class="com">// 不支持keep-alive的网络连接会忽略本字段。</span>
+    <span id="Dialer.KeepAlive">KeepAlive</span> <a href="http://godoc.org/time">time</a>.<a href="http://godoc.org/time#Duration">Duration</a>
+}</pre>
+    <p align="left">Dialer类型包含与某个地址建立连接时的参数。</p>
+    <p align="left">每一个字段的零值都等价于没有该字段。因此调用Dialer零值的Dial方法等价于调用Dial函数。</p>
+    <h4 id="Dialer.Dial">func (*Dialer) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/dial.go?name=release#158">Dial</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (d *<a href="#Dialer">Dialer</a>) Dial(network, address <a href="http://godoc.org/builtin#string">string</a>) (<a href="#Conn">Conn</a>, <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p>Dial在指定的网络上连接指定的地址。参见Dial函数获取网络和地址参数的描述。</p>
+    <h3 id="Listener">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/net.go?name=release#266">Listener</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Listener interface {
+    <span class="com">// Addr返回该接口的网络地址</span>
+    <span id="Listener.Addr">Addr</span>() <a href="#Addr">Addr</a>
+    <span class="com">// Accept等待并返回下一个连接到该接口的连接</span>
+    <span id="Listener.Accept">Accept</span>() (c <a href="#Conn">Conn</a>, err <a href="http://godoc.org/builtin#error">error</a>)
+    <span class="com">// Close关闭该接口，并使任何阻塞的Accept操作都会不再阻塞并返回错误。</span><span class="com"></span>
+    <span id="Listener.Close">Close</span>() <a href="http://godoc.org/builtin#error">error</a>
+}</pre>
+    <p>Listener是一个用于面向流的网络协议的公用的网络监听器接口。多个线程可能会同时调用一个Listener的方法。</p>
+    <div class="panel-group">
+        <div class="panel panel-default" id="example-Listener">
+            <div class="panel-heading" onclick="document.getElementById('ex-Listener').style.display = document.getElementById('ex-Listener').style.display=='none'?'block':'none';">Example</div>
+            <div id="ex-Listener" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre>
+<span class="com">// Listen on TCP port 2000 on all interfaces.</span>
+l, err := net.Listen(&#34;tcp&#34;, &#34;:2000&#34;)
+if err != nil {
+    log.Fatal(err)
+}
+defer l.Close()
+for {
+    <span class="com">// Wait for a connection.</span>
+    conn, err := l.Accept()
+    if err != nil {
+        log.Fatal(err)
+    }
+    <span class="com">// Handle the connection in a new goroutine.</span>
+    <span class="com">// The loop then returns to accepting, so that</span>
+    <span class="com">// multiple connections may be served concurrently.</span>
+    go func(c net.Conn) {
+        <span class="com">// Echo all incoming data.</span>
+        io.Copy(c, c)
+        <span class="com">// Shut down the connection.</span>
+        c.Close()
+    }(conn)
+}
+</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    <h4 id="Listen">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/dial.go?name=release#261">Listen</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func Listen(net, laddr <a href="http://godoc.org/builtin#string">string</a>) (<a href="#Listener">Listener</a>, <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p>返回在一个本地网络地址laddr上监听的Listener。网络类型参数net必须是面向流的网络：</p>
+    <p>"tcp"、"tcp4"、"tcp6"、"unix"或"unixpacket"。参见Dial函数获取laddr的语法。</p>
+    <h3 id="IPAddr">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/iprawsock.go?name=release#8">IPAddr</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type IPAddr struct {
+    <span id="IPAddr.IP">IP</span>   <a href="#IP">IP</a>
+    <span id="IPAddr.Zone">Zone</span> <a href="http://godoc.org/builtin#string">string</a> <span class="com">// IPv6范围寻址域</span>
+}</pre>
+    <p>IPAddr代表一个IP终端的地址。</p>
+    <h4 id="ResolveIPAddr">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/iprawsock.go?name=release#36">ResolveIPAddr</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func ResolveIPAddr(net, addr <a href="http://godoc.org/builtin#string">string</a>) (*<a href="#IPAddr">IPAddr</a>, <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p>ResolveIPAddr将addr作为一个格式为"host"或"ipv6-host%zone"的IP地址来解析。 函数会在参数net指定的网络类型上解析，net必须是"ip"、"ip4"或"ip6"。</p>
+    <h4 id="IPAddr.Network">func (*IPAddr) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/iprawsock.go?name=release#14">Network</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (a *<a href="#IPAddr">IPAddr</a>) Network() <a href="http://godoc.org/builtin#string">string</a></pre>
+    <p>Network返回地址的网络类型："ip"。</p>
+    <h4 id="IPAddr.String">func (*IPAddr) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/iprawsock.go?name=release#16">String</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (a *<a href="#IPAddr">IPAddr</a>) String() <a href="http://godoc.org/builtin#string">string</a></pre>
+     <h3 id="TCPAddr">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/tcpsock.go?name=release#8">TCPAddr</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type TCPAddr struct {
+    <span id="TCPAddr.IP">IP</span>   <a href="#IP">IP</a>
+    <span id="TCPAddr.Port">Port</span> <a href="http://godoc.org/builtin#int">int</a>
+    <span id="TCPAddr.Zone">Zone</span> <a href="http://godoc.org/builtin#string">string</a> <span class="com">// IPv6范围寻址域</span>
+}</pre>
+    <p>TCPAddr代表一个TCP终端地址。</p>
+    <h4 id="ResolveTCPAddr">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/tcpsock.go?name=release#41">ResolveTCPAddr</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func ResolveTCPAddr(net, addr <a href="http://godoc.org/builtin#string">string</a>) (*<a href="#TCPAddr">TCPAddr</a>, <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p align="left">ResolveTCPAddr将addr作为TCP地址解析并返回。参数addr格式为"host:port"或"[ipv6-host%zone]:port"，解析得到网络名和端口名；net必须是"tcp"、"tcp4"或"tcp6"。</p>
+    <p align="left">IPv6地址字面值/名称必须用方括号包起来，如"[::1]:80"、"[ipv6-host]:http"或"[ipv6-host%zone]:80"。</p>
+    <h4 id="TCPAddr.Network">func (*TCPAddr) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/tcpsock.go?name=release#15">Network</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (a *<a href="#TCPAddr">TCPAddr</a>) Network() <a href="http://godoc.org/builtin#string">string</a></pre>
+    <p>返回地址的网络类型，"tcp"。</p>
+    <h4 id="TCPAddr.String">func (*TCPAddr) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/tcpsock.go?name=release#17">String</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (a *<a href="#TCPAddr">TCPAddr</a>) String() <a href="http://godoc.org/builtin#string">string</a></pre>
+    <h3 id="UDPAddr">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/udpsock.go?name=release#8">UDPAddr</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type UDPAddr struct {
+    <span id="UDPAddr.IP">IP</span>   <a href="#IP">IP</a>
+    <span id="UDPAddr.Port">Port</span> <a href="http://godoc.org/builtin#int">int</a>
+    <span id="UDPAddr.Zone">Zone</span> <a href="http://godoc.org/builtin#string">string</a> <span class="com">// IPv6范围寻址域</span>
+}</pre>
+    <p>UDPAddr代表一个UDP终端地址。</p>
+    <h4 id="ResolveUDPAddr">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/udpsock.go?name=release#41">ResolveUDPAddr</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func ResolveUDPAddr(net, addr <a href="http://godoc.org/builtin#string">string</a>) (*<a href="#UDPAddr">UDPAddr</a>, <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p align="left">ResolveTCPAddr将addr作为TCP地址解析并返回。参数addr格式为"host:port"或"[ipv6-host%zone]:port"，解析得到网络名和端口名；net必须是"udp"、"udp4"或"udp6"。</p>
+    <p align="left">IPv6地址字面值/名称必须用方括号包起来，如"[::1]:80"、"[ipv6-host]:http"或"[ipv6-host%zone]:80"。</p>
+    <h4 id="UDPAddr.Network">func (*UDPAddr) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/udpsock.go?name=release#15">Network</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (a *<a href="#UDPAddr">UDPAddr</a>) Network() <a href="http://godoc.org/builtin#string">string</a></pre>
+    <p>返回地址的网络类型，"udp"。</p>
+    <h4 id="UDPAddr.String">func (*UDPAddr) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/udpsock.go?name=release#17">String</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (a *<a href="#UDPAddr">UDPAddr</a>) String() <a href="http://godoc.org/builtin#string">string</a></pre>
+    <h3 id="UnixAddr">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/unixsock.go?name=release#8">UnixAddr</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type UnixAddr struct {
+    <span id="UnixAddr.Name">Name</span> <a href="http://godoc.org/builtin#string">string</a>
+    <span id="UnixAddr.Net">Net</span>  <a href="http://godoc.org/builtin#string">string</a>
+}</pre>
+    <p>UnixAddr代表一个Unix域socket终端地址。</p>
+    <h4 id="ResolveUnixAddr">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/unixsock.go?name=release#36">ResolveUnixAddr</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func ResolveUnixAddr(net, addr <a href="http://godoc.org/builtin#string">string</a>) (*<a href="#UnixAddr">UnixAddr</a>, <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p>ResolveUnixAddr将addr作为Unix域socket地址解析，参数net指定网络类型："unix"、"unixgram"或"unixpacket"。</p>
+    <h4 id="UnixAddr.Network">func (*UnixAddr) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/unixsock.go?name=release#15">Network</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (a *<a href="#UnixAddr">UnixAddr</a>) Network() <a href="http://godoc.org/builtin#string">string</a></pre>
+    <p>返回地址的网络类型，"unix"，"unixgram"或"unixpacket"。</p>
+    <h4 id="UnixAddr.String">func (*UnixAddr) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/unixsock.go?name=release#19">String</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (a *<a href="#UnixAddr">UnixAddr</a>) String() <a href="http://godoc.org/builtin#string">string</a></pre>
+    <h3 id="IPConn">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/iprawsock_posix.go?name=release#62">IPConn</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type IPConn struct {
+    <span class="com">// 内含隐藏或非导出字段</span>
+}</pre>
+    <p>IPConn类型代表IP网络连接，实现了Conn和PacketConn接口。</p>
+    <h4 id="DialIP">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/iprawsock_posix.go?name=release#184">DialIP</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func DialIP(netProto <a href="http://godoc.org/builtin#string">string</a>, laddr, raddr *<a href="#IPAddr">IPAddr</a>) (*<a href="#IPConn">IPConn</a>, <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p>DialIP在网络协议netProto上连接本地地址laddr和远端地址raddr，netProto必须是"ip"、"ip4"或"ip6"后跟冒号和协议名或协议号。</p>
+    <h4 id="ListenIP">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/iprawsock_posix.go?name=release#212">ListenIP</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func ListenIP(netProto <a href="http://godoc.org/builtin#string">string</a>, laddr *<a href="#IPAddr">IPAddr</a>) (*<a href="#IPConn">IPConn</a>, <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p>ListenIP创建一个接收目的地是本地地址laddr的IP数据包的网络连接，返回的*IPConn的ReadFrom和WriteTo方法可以用来发送和接收IP数据包。（每个包都可获取来源址或者设置目标地址）</p>
+    <h4 id="IPConn.LocalAddr">func (*IPConn) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/net.go?name=release#142">LocalAddr</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *IPConn) LocalAddr() <a href="#Addr">Addr</a></pre>
+    <p>LocalAddr返回本地网络地址</p>
+    <h4 id="IPConn.RemoteAddr">func (*IPConn) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/net.go?name=release#150">RemoteAddr</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *IPConn) RemoteAddr() <a href="#Addr">Addr</a></pre>
+    <p>RemoteAddr返回远端网络地址</p>
+    <h4 id="IPConn.SetReadBuffer">func (*IPConn) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/net.go?name=release#183">SetReadBuffer</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *IPConn) SetReadBuffer(bytes <a href="http://godoc.org/builtin#int">int</a>) <a href="http://godoc.org/builtin#error">error</a></pre>
+    <p>SetReadBuffer设置该连接的系统接收缓冲</p>
+    <h4 id="IPConn.SetWriteBuffer">func (*IPConn) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/net.go?name=release#192">SetWriteBuffer</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *IPConn) SetWriteBuffer(bytes <a href="http://godoc.org/builtin#int">int</a>) <a href="http://godoc.org/builtin#error">error</a></pre>
+    <p>SetWriteBuffer设置该连接的系统发送缓冲</p>
+    <h4 id="IPConn.SetDeadline">func (*IPConn) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/net.go?name=release#158">SetDeadline</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *IPConn) SetDeadline(t <a href="http://godoc.org/time">time</a>.<a href="http://godoc.org/time#Time">Time</a>) <a href="http://godoc.org/builtin#error">error</a></pre>
+    <p>SetDeadline设置读写操作绝对期限，实现了Conn接口的SetDeadline方法</p>
+    <h4 id="IPConn.SetReadDeadline">func (*IPConn) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/net.go?name=release#166">SetReadDeadline</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *IPConn) SetReadDeadline(t <a href="http://godoc.org/time">time</a>.<a href="http://godoc.org/time#Time">Time</a>) <a href="http://godoc.org/builtin#error">error</a></pre>
+    <p>SetReadDeadline设置读操作绝对期限，实现了Conn接口的SetReadDeadline方法</p>
+    <h4 id="IPConn.SetWriteDeadline">func (*IPConn) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/net.go?name=release#174">SetWriteDeadline</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *IPConn) SetWriteDeadline(t <a href="http://godoc.org/time">time</a>.<a href="http://godoc.org/time#Time">Time</a>) <a href="http://godoc.org/builtin#error">error</a></pre>
+    <p>SetWriteDeadline设置写操作绝对期限，实现了Conn接口的SetWriteDeadline方法</p>
+    <h4 id="IPConn.Read">func (*IPConn) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/net.go?name=release#118">Read</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *IPConn) Read(b []<a href="http://godoc.org/builtin#byte">byte</a>) (<a href="http://godoc.org/builtin#int">int</a>, <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p>Read实现Conn接口Read方法</p>
+    <h4 id="IPConn.ReadFrom">func (*IPConn) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/iprawsock_posix.go?name=release#98">ReadFrom</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *<a href="#IPConn">IPConn</a>) ReadFrom(b []<a href="http://godoc.org/builtin#byte">byte</a>) (<a href="http://godoc.org/builtin#int">int</a>, <a href="#Addr">Addr</a>, <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p>ReadFrom实现PacketConn接口ReadFrom方法。注意本方法有bug，应避免使用。</p>
+    <h4 id="IPConn.ReadFromIP">func (*IPConn) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/iprawsock_posix.go?name=release#75">ReadFromIP</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *<a href="#IPConn">IPConn</a>) ReadFromIP(b []<a href="http://godoc.org/builtin#byte">byte</a>) (<a href="http://godoc.org/builtin#int">int</a>, *<a href="#IPAddr">IPAddr</a>, <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p align="left">ReadFromIP从c读取一个IP数据包，将有效负载拷贝到b，返回拷贝字节数和数据包来源地址。</p>
+    <p align="left">ReadFromIP方法会在超过一个固定的时间点之后超时，并返回一个错误。注意本方法有bug，应避免使用。</p>
+    <h4 id="IPConn.ReadMsgIP">func (*IPConn) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/iprawsock_posix.go?name=release#110">ReadMsgIP</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *<a href="#IPConn">IPConn</a>) ReadMsgIP(b, oob []<a href="http://godoc.org/builtin#byte">byte</a>) (n, oobn, flags <a href="http://godoc.org/builtin#int">int</a>, addr *<a href="#IPAddr">IPAddr</a>, err <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p>ReadMsgIP从c读取一个数据包，将有效负载拷贝进b，相关的带外数据拷贝进oob，返回拷贝进b的字节数，拷贝进oob的字节数，数据包的flag，数据包来源地址和可能的错误。</p>
+    <h4 id="IPConn.Write">func (*IPConn) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/net.go?name=release#126">Write</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *IPConn) Write(b []<a href="http://godoc.org/builtin#byte">byte</a>) (<a href="http://godoc.org/builtin#int">int</a>, <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p>Write实现Conn接口Write方法</p>
+    <h4 id="IPConn.WriteTo">func (*IPConn) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/iprawsock_posix.go?name=release#150">WriteTo</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *<a href="#IPConn">IPConn</a>) WriteTo(b []<a href="http://godoc.org/builtin#byte">byte</a>, addr <a href="#Addr">Addr</a>) (<a href="http://godoc.org/builtin#int">int</a>, <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p>WriteTo实现PacketConn接口WriteTo方法</p>
+    <h4 id="IPConn.WriteToIP">func (*IPConn) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/iprawsock_posix.go?name=release#132">WriteToIP</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *<a href="#IPConn">IPConn</a>) WriteToIP(b []<a href="http://godoc.org/builtin#byte">byte</a>, addr *<a href="#IPAddr">IPAddr</a>) (<a href="http://godoc.org/builtin#int">int</a>, <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p align="left">WriteToIP通过c向地址addr发送一个数据包，b为包的有效负载，返回写入的字节。</p>
+    <p align="left">WriteToIP方法会在超过一个固定的时间点之后超时，并返回一个错误。在面向数据包的连接上，写入超时是十分罕见的。</p>
+    <h4 id="IPConn.WriteMsgIP">func (*IPConn) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/iprawsock_posix.go?name=release#164">WriteMsgIP</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *<a href="#IPConn">IPConn</a>) WriteMsgIP(b, oob []<a href="http://godoc.org/builtin#byte">byte</a>, addr *<a href="#IPAddr">IPAddr</a>) (n, oobn <a href="http://godoc.org/builtin#int">int</a>, err <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p>WriteMsgIP通过c向地址addr发送一个数据包，b和oob分别为包有效负载和对应的带外数据，返回写入的字节数（包数据、带外数据）和可能的错误。</p>
+    <h4 id="IPConn.Close">func (*IPConn) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/net.go?name=release#134">Close</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *IPConn) Close() <a href="http://godoc.org/builtin#error">error</a></pre>
+    <p>Close关闭连接</p>
+    <h4 id="IPConn.File">func (*IPConn) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/net.go?name=release#206">File</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *IPConn) File() (f *<a href="http://godoc.org/os">os</a>.<a href="http://godoc.org/os#File">File</a>, err <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p align="left">File方法设置下层的os.File为阻塞模式并返回其副本。</p>
+    <p align="left">使用者有责任在用完后关闭f。关闭c不影响f，关闭f也不影响c。返回的os.File类型文件描述符和原本的网络连接是不同的。试图使用该副本修改本体的属性可能会（也可能不会）得到期望的效果。</p>
+    <h3 id="TCPConn">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/tcpsock_posix.go?name=release#57">TCPConn</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type TCPConn struct {
+    <span class="com">// 内含隐藏或非导出字段</span>
+}</pre>
+    <p>TCPConn代表一个TCP网络连接，实现了Conn接口。</p>
+    <h4 id="DialTCP">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/tcpsock_posix.go?name=release#143">DialTCP</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func DialTCP(net <a href="http://godoc.org/builtin#string">string</a>, laddr, raddr *<a href="#TCPAddr">TCPAddr</a>) (*<a href="#TCPConn">TCPConn</a>, <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p>DialTCP在网络协议net上连接本地地址laddr和远端地址raddr。net必须是"tcp"、"tcp4"、"tcp6"；如果laddr不是nil，将使用它作为本地地址，否则自动选择一个本地地址。</p>
+    <h4 id="TCPConn.LocalAddr">func (*TCPConn) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/net.go?name=release#142">LocalAddr</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *TCPConn) LocalAddr() <a href="#Addr">Addr</a></pre>
+    <p>LocalAddr返回本地网络地址</p>
+    <h4 id="TCPConn.RemoteAddr">func (*TCPConn) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/net.go?name=release#150">RemoteAddr</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *TCPConn) RemoteAddr() <a href="#Addr">Addr</a></pre>
+    <p>RemoteAddr返回远端网络地址</p>
+    <h4 id="TCPConn.SetReadBuffer">func (*TCPConn) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/net.go?name=release#183">SetReadBuffer</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *TCPConn) SetReadBuffer(bytes <a href="http://godoc.org/builtin#int">int</a>) <a href="http://godoc.org/builtin#error">error</a></pre>
+    <p>SetReadBuffer设置该连接的系统接收缓冲</p>
+    <h4 id="TCPConn.SetWriteBuffer">func (*TCPConn) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/net.go?name=release#192">SetWriteBuffer</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *TCPConn) SetWriteBuffer(bytes <a href="http://godoc.org/builtin#int">int</a>) <a href="http://godoc.org/builtin#error">error</a></pre>
+    <p>SetWriteBuffer设置该连接的系统发送缓冲</p>
+    <h4 id="TCPConn.SetDeadline">func (*TCPConn) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/net.go?name=release#158">SetDeadline</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *TCPConn) SetDeadline(t <a href="http://godoc.org/time">time</a>.<a href="http://godoc.org/time#Time">Time</a>) <a href="http://godoc.org/builtin#error">error</a></pre>
+    <p>SetDeadline设置读写操作期限，实现了Conn接口的SetDeadline方法</p>
+    <h4 id="TCPConn.SetReadDeadline">func (*TCPConn) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/net.go?name=release#166">SetReadDeadline</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *TCPConn) SetReadDeadline(t <a href="http://godoc.org/time">time</a>.<a href="http://godoc.org/time#Time">Time</a>) <a href="http://godoc.org/builtin#error">error</a></pre>
+    <p>SetReadDeadline设置读操作期限，实现了Conn接口的SetReadDeadline方法</p>
+    <h4 id="TCPConn.SetWriteDeadline">func (*TCPConn) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/net.go?name=release#174">SetWriteDeadline</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *TCPConn) SetWriteDeadline(t <a href="http://godoc.org/time">time</a>.<a href="http://godoc.org/time#Time">Time</a>) <a href="http://godoc.org/builtin#error">error</a></pre>
+    <p>SetWriteDeadline设置写操作期限，实现了Conn接口的SetWriteDeadline方法</p>
+    <h4 id="TCPConn.SetKeepAlive">func (*TCPConn) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/tcpsock_posix.go?name=release#114">SetKeepAlive</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *<a href="#TCPConn">TCPConn</a>) SetKeepAlive(keepalive <a href="http://godoc.org/builtin#bool">bool</a>) <a href="http://godoc.org/builtin#error">error</a></pre>
+    <p>SetKeepAlive设置操作系统是否应该在该连接中发送keepalive信息</p>
+    <h4 id="TCPConn.SetKeepAlivePeriod">func (*TCPConn) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/tcpsock_posix.go?name=release#122">SetKeepAlivePeriod</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *<a href="#TCPConn">TCPConn</a>) SetKeepAlivePeriod(d <a href="http://godoc.org/time">time</a>.<a href="http://godoc.org/time#Duration">Duration</a>) <a href="http://godoc.org/builtin#error">error</a></pre>
+    <p>SetKeepAlivePeriod设置keepalive的周期，超出会断开</p>
+    <h4 id="TCPConn.SetLinger">func (*TCPConn) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/tcpsock_posix.go?name=release#105">SetLinger</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *<a href="#TCPConn">TCPConn</a>) SetLinger(sec <a href="http://godoc.org/builtin#int">int</a>) <a href="http://godoc.org/builtin#error">error</a></pre>
+    <p align="left">SetLinger设定当连接中仍有数据等待发送或接受时的Close方法的行为。</p>
+    <p align="left">如果sec &lt; 0（默认），Close方法立即返回，操作系统停止后台数据发送；如果 sec == 0，Close立刻返回，操作系统丢弃任何未发送或未接收的数据；如果sec &gt; 0，Close方法阻塞最多sec秒，等待数据发送或者接收，在一些操作系统中，在超时后，任何未发送的数据会被丢弃。</p>
+<h4 id="TCPConn.SetNoDelay">func (*TCPConn) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/tcpsock_posix.go?name=release#133">SetNoDelay</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *<a href="#TCPConn">TCPConn</a>) SetNoDelay(noDelay <a href="http://godoc.org/builtin#bool">bool</a>) <a href="http://godoc.org/builtin#error">error</a></pre>
+    <p>SetNoDelay设定操作系统是否应该延迟数据包传递，以便发送更少的数据包（Nagle's算法）。默认为真，即数据应该在Write方法后立刻发送。</p>
+    <h4 id="TCPConn.Read">func (*TCPConn) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/net.go?name=release#118">Read</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *TCPConn) Read(b []<a href="http://godoc.org/builtin#byte">byte</a>) (<a href="http://godoc.org/builtin#int">int</a>, <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p>Read实现了Conn接口Read方法</p>
+    <h4 id="TCPConn.Write">func (*TCPConn) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/net.go?name=release#126">Write</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *TCPConn) Write(b []<a href="http://godoc.org/builtin#byte">byte</a>) (<a href="http://godoc.org/builtin#int">int</a>, <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p>Write实现了Conn接口Write方法</p>
+    <h4 id="TCPConn.ReadFrom">func (*TCPConn) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/tcpsock_posix.go?name=release#68">ReadFrom</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *<a href="#TCPConn">TCPConn</a>) ReadFrom(r <a href="http://godoc.org/io">io</a>.<a href="http://godoc.org/io#Reader">Reader</a>) (<a href="http://godoc.org/builtin#int64">int64</a>, <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p>ReadFrom实现了io.ReaderFrom接口的ReadFrom方法</p>
+    <h4 id="TCPConn.Close">func (*TCPConn) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/net.go?name=release#134">Close</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *TCPConn) Close() <a href="http://godoc.org/builtin#error">error</a></pre>
+    <p>Close关闭连接</p>
+    <h4 id="TCPConn.CloseRead">func (*TCPConn) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/tcpsock_posix.go?name=release#77">CloseRead</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *<a href="#TCPConn">TCPConn</a>) CloseRead() <a href="http://godoc.org/builtin#error">error</a></pre>
+    <p>CloseRead关闭TCP连接的读取侧（以后不能读取），应尽量使用Close方法。</p>
+    <h4 id="TCPConn.CloseWrite">func (*TCPConn) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/tcpsock_posix.go?name=release#86">CloseWrite</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *<a href="#TCPConn">TCPConn</a>) CloseWrite() <a href="http://godoc.org/builtin#error">error</a></pre>
+    <p>CloseWrite关闭TCP连接的写入侧（以后不能写入），应尽量使用Close方法。</p>
+    <h4 id="TCPConn.File">func (*TCPConn) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/net.go?name=release#206">File</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *TCPConn) File() (f *<a href="http://godoc.org/os">os</a>.<a href="http://godoc.org/os#File">File</a>, err <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p align="left">File方法设置下层的os.File为阻塞模式并返回其副本。</p>
+    <p align="left">使用者有责任在用完后关闭f。关闭c不影响f，关闭f也不影响c。返回的os.File类型文件描述符和原本的网络连接是不同的。试图使用该副本修改本体的属性可能会（也可能不会）得到期望的效果。</p>
+    <h3 id="UDPConn">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/udpsock_posix.go?name=release#50">UDPConn</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type UDPConn struct {
+    <span class="com">// 内含隐藏或非导出字段</span>
+}</pre>
+    <p>UDPConn代表一个UDP网络连接，实现了Conn和PacketConn接口。</p>
+    <h4 id="DialUDP">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/udpsock_posix.go?name=release#165">DialUDP</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func DialUDP(net <a href="http://godoc.org/builtin#string">string</a>, laddr, raddr *<a href="#UDPAddr">UDPAddr</a>) (*<a href="#UDPConn">UDPConn</a>, <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p>DialTCP在网络协议net上连接本地地址laddr和远端地址raddr。net必须是"udp"、"udp4"、"udp6"；如果laddr不是nil，将使用它作为本地地址，否则自动选择一个本地地址。</p>
+    <h4 id="ListenUDP">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/udpsock_posix.go?name=release#192">ListenUDP</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func ListenUDP(net <a href="http://godoc.org/builtin#string">string</a>, laddr *<a href="#UDPAddr">UDPAddr</a>) (*<a href="#UDPConn">UDPConn</a>, <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p>ListenUDP创建一个接收目的地是本地地址laddr的UDP数据包的网络连接。net必须是"udp"、"udp4"、"udp6"；如果laddr端口为0，函数将选择一个当前可用的端口，可以用Listener的Addr方法获得该端口。返回的*UDPConn的ReadFrom和WriteTo方法可以用来发送和接收UDP数据包（每个包都可获得来源地址或设置目标地址）。</p>
+    <h4 id="ListenMulticastUDP">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/udpsock_posix.go?name=release#212">ListenMulticastUDP</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func ListenMulticastUDP(net <a href="http://godoc.org/builtin#string">string</a>, ifi *<a href="#Interface">Interface</a>, gaddr *<a href="#UDPAddr">UDPAddr</a>) (*<a href="#UDPConn">UDPConn</a>, <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p>ListenMulticastUDP接收目的地是ifi接口上的组地址gaddr的UDP数据包。它指定了使用的接口，如果ifi是nil，将使用默认接口。</p>
+    <h4 id="UDPConn.LocalAddr">func (*UDPConn) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/net.go?name=release#142">LocalAddr</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *UDPConn) LocalAddr() <a href="#Addr">Addr</a></pre>
+    <p>LocalAddr返回本地网络地址</p>
+    <h4 id="UDPConn.RemoteAddr">func (*UDPConn) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/net.go?name=release#150">RemoteAddr</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *UDPConn) RemoteAddr() <a href="#Addr">Addr</a></pre>
+    <p>RemoteAddr返回远端网络地址</p>
+    <h4 id="UDPConn.SetReadBuffer">func (*UDPConn) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/net.go?name=release#183">SetReadBuffer</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *UDPConn) SetReadBuffer(bytes <a href="http://godoc.org/builtin#int">int</a>) <a href="http://godoc.org/builtin#error">error</a></pre>
+    <p>SetReadBuffer设置该连接的系统接收缓冲</p>
+    <h4 id="UDPConn.SetWriteBuffer">func (*UDPConn) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/net.go?name=release#192">SetWriteBuffer</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *UDPConn) SetWriteBuffer(bytes <a href="http://godoc.org/builtin#int">int</a>) <a href="http://godoc.org/builtin#error">error</a></pre>
+    <p>SetWriteBuffer设置该连接的系统发送缓冲</p>
+    <h4 id="UDPConn.SetDeadline">func (*UDPConn) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/net.go?name=release#158">SetDeadline</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *UDPConn) SetDeadline(t <a href="http://godoc.org/time">time</a>.<a href="http://godoc.org/time#Time">Time</a>) <a href="http://godoc.org/builtin#error">error</a></pre>
+    <p>SetDeadline设置读写操作期限，实现了Conn接口的SetDeadline方法</p>
+    <h4 id="UDPConn.SetReadDeadline">func (*UDPConn) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/net.go?name=release#166">SetReadDeadline</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *UDPConn) SetReadDeadline(t <a href="http://godoc.org/time">time</a>.<a href="http://godoc.org/time#Time">Time</a>) <a href="http://godoc.org/builtin#error">error</a></pre>
+    <p>SetReadDeadline设置读操作期限，实现了Conn接口的SetReadDeadline方法</p>
+    <h4 id="UDPConn.SetWriteDeadline">func (*UDPConn) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/net.go?name=release#174">SetWriteDeadline</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *UDPConn) SetWriteDeadline(t <a href="http://godoc.org/time">time</a>.<a href="http://godoc.org/time#Time">Time</a>) <a href="http://godoc.org/builtin#error">error</a></pre>
+    <p>SetWriteDeadline设置写操作期限，实现了Conn接口的SetWriteDeadline方法</p>
+    <h4 id="UDPConn.Read">func (*UDPConn) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/net.go?name=release#118">Read</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *UDPConn) Read(b []<a href="http://godoc.org/builtin#byte">byte</a>) (<a href="http://godoc.org/builtin#int">int</a>, <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p>Read实现Conn接口Read方法</p>
+    <h4 id="UDPConn.ReadFrom">func (*UDPConn) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/udpsock_posix.go?name=release#78">ReadFrom</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *<a href="#UDPConn">UDPConn</a>) ReadFrom(b []<a href="http://godoc.org/builtin#byte">byte</a>) (<a href="http://godoc.org/builtin#int">int</a>, <a href="#Addr">Addr</a>, <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p>ReadFrom实现PacketConn接口ReadFrom方法</p>
+    <h4 id="UDPConn.ReadFromUDP">func (*UDPConn) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/udpsock_posix.go?name=release#63">ReadFromUDP</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *<a href="#UDPConn">UDPConn</a>) ReadFromUDP(b []<a href="http://godoc.org/builtin#byte">byte</a>) (n <a href="http://godoc.org/builtin#int">int</a>, addr *<a href="#UDPAddr">UDPAddr</a>, err <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p align="left">ReadFromUDP从c读取一个UDP数据包，将有效负载拷贝到b，返回拷贝字节数和数据包来源地址。</p>
+    <p align="left">ReadFromUDP方法会在超过一个固定的时间点之后超时，并返回一个错误。</p>
+    <h4 id="UDPConn.ReadMsgUDP">func (*UDPConn) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/udpsock_posix.go?name=release#91">ReadMsgUDP</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *<a href="#UDPConn">UDPConn</a>) ReadMsgUDP(b, oob []<a href="http://godoc.org/builtin#byte">byte</a>) (n, oobn, flags <a href="http://godoc.org/builtin#int">int</a>, addr *<a href="#UDPAddr">UDPAddr</a>, err <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p>ReadMsgUDP从c读取一个数据包，将有效负载拷贝进b，相关的带外数据拷贝进oob，返回拷贝进b的字节数，拷贝进oob的字节数，数据包的flag，数据包来源地址和可能的错误。</p>
+    <h4 id="UDPConn.Write">func (*UDPConn) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/net.go?name=release#126">Write</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *UDPConn) Write(b []<a href="http://godoc.org/builtin#byte">byte</a>) (<a href="http://godoc.org/builtin#int">int</a>, <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p>Write实现Conn接口Write方法</p>
+    <h4 id="UDPConn.WriteTo">func (*UDPConn) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/udpsock_posix.go?name=release#131">WriteTo</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *<a href="#UDPConn">UDPConn</a>) WriteTo(b []<a href="http://godoc.org/builtin#byte">byte</a>, addr <a href="#Addr">Addr</a>) (<a href="http://godoc.org/builtin#int">int</a>, <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p>WriteTo实现PacketConn接口WriteTo方法</p>
+    <h4 id="UDPConn.WriteToUDP">func (*UDPConn) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/udpsock_posix.go?name=release#113">WriteToUDP</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *<a href="#UDPConn">UDPConn</a>) WriteToUDP(b []<a href="http://godoc.org/builtin#byte">byte</a>, addr *<a href="#UDPAddr">UDPAddr</a>) (<a href="http://godoc.org/builtin#int">int</a>, <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p align="left">WriteToUDP通过c向地址addr发送一个数据包，b为包的有效负载，返回写入的字节。</p>
+    <p align="left">WriteToUDP方法会在超过一个固定的时间点之后超时，并返回一个错误。在面向数据包的连接上，写入超时是十分罕见的。</p>
+    <h4 id="UDPConn.WriteMsgUDP">func (*UDPConn) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/udpsock_posix.go?name=release#145">WriteMsgUDP</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *<a href="#UDPConn">UDPConn</a>) WriteMsgUDP(b, oob []<a href="http://godoc.org/builtin#byte">byte</a>, addr *<a href="#UDPAddr">UDPAddr</a>) (n, oobn <a href="http://godoc.org/builtin#int">int</a>, err <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p>WriteMsgUDP通过c向地址addr发送一个数据包，b和oob分别为包有效负载和对应的带外数据，返回写入的字节数（包数据、带外数据）和可能的错误。</p>
+    <h4 id="UDPConn.Close">func (*UDPConn) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/net.go?name=release#134">Close</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *UDPConn) Close() <a href="http://godoc.org/builtin#error">error</a></pre>
+    <p>Close关闭连接</p>
+    <h4 id="UDPConn.File">func (*UDPConn) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/net.go?name=release#206">File</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *UDPConn) File() (f *<a href="http://godoc.org/os">os</a>.<a href="http://godoc.org/os#File">File</a>, err <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p align="left">File方法设置下层的os.File为阻塞模式并返回其副本。</p>
+    <p align="left">使用者有责任在用完后关闭f。关闭c不影响f，关闭f也不影响c。返回的os.File类型文件描述符和原本的网络连接是不同的。试图使用该副本修改本体的属性可能会（也可能不会）得到期望的效果。</p>
+    <h3 id="UnixConn">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/unixsock_posix.go?name=release#110">UnixConn</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type UnixConn struct {
+    <span class="com">// 内含隐藏或非导出字段</span>
+}</pre>
+    <p>UnixConn代表Unix域socket连接，实现了Conn和PacketConn接口。</p>
+    <h4 id="DialUnix">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/unixsock_posix.go?name=release#240">DialUnix</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func DialUnix(net <a href="http://godoc.org/builtin#string">string</a>, laddr, raddr *<a href="#UnixAddr">UnixAddr</a>) (*<a href="#UnixConn">UnixConn</a>, <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p>DialUnix在网络协议net上连接本地地址laddr和远端地址raddr。net必须是"unix"、"unixgram"、"unixpacket"，如果laddr不是nil将使用它作为本地地址，否则自动选择一个本地地址。</p>
+    <h4 id="ListenUnixgram">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/unixsock_posix.go?name=release#359">ListenUnixgram</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func ListenUnixgram(net <a href="http://godoc.org/builtin#string">string</a>, laddr *<a href="#UnixAddr">UnixAddr</a>) (*<a href="#UnixConn">UnixConn</a>, <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p>ListenUnixgram接收目的地是本地地址laddr的Unix datagram网络连接。net必须是"unixgram"，返回的*UnixConn的ReadFrom和WriteTo方法可以用来发送和接收数据包（每个包都可获取来源址或者设置目标地址）。</p>
+    <h4 id="UnixConn.LocalAddr">func (*UnixConn) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/net.go?name=release#142">LocalAddr</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *UnixConn) LocalAddr() <a href="#Addr">Addr</a></pre>
+    <p>LocalAddr返回本地网络地址</p>
+    <h4 id="UnixConn.RemoteAddr">func (*UnixConn) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/net.go?name=release#150">RemoteAddr</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *UnixConn) RemoteAddr() <a href="#Addr">Addr</a></pre>
+    <p>RemoteAddr返回远端网络地址</p>
+    <h4 id="UnixConn.SetReadBuffer">func (*UnixConn) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/net.go?name=release#183">SetReadBuffer</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *UnixConn) SetReadBuffer(bytes <a href="http://godoc.org/builtin#int">int</a>) <a href="http://godoc.org/builtin#error">error</a></pre>
+    <p>SetReadBuffer设置该连接的系统接收缓冲</p>
+    <h4 id="UnixConn.SetWriteBuffer">func (*UnixConn) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/net.go?name=release#192">SetWriteBuffer</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *UnixConn) SetWriteBuffer(bytes <a href="http://godoc.org/builtin#int">int</a>) <a href="http://godoc.org/builtin#error">error</a></pre>
+    <p>SetWriteBuffer设置该连接的系统发送缓冲</p>
+    <h4 id="UnixConn.SetDeadline">func (*UnixConn) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/net.go?name=release#158">SetDeadline</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *UnixConn) SetDeadline(t <a href="http://godoc.org/time">time</a>.<a href="http://godoc.org/time#Time">Time</a>) <a href="http://godoc.org/builtin#error">error</a></pre>
+    <p>SetDeadline设置读写操作期限，实现了Conn接口的SetDeadline方法</p>
+    <h4 id="UnixConn.SetReadDeadline">func (*UnixConn) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/net.go?name=release#166">SetReadDeadline</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *UnixConn) SetReadDeadline(t <a href="http://godoc.org/time">time</a>.<a href="http://godoc.org/time#Time">Time</a>) <a href="http://godoc.org/builtin#error">error</a></pre>
+    <p>SetReadDeadline设置读操作期限，实现了Conn接口的SetReadDeadline方法</p>
+    <h4 id="UnixConn.SetWriteDeadline">func (*UnixConn) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/net.go?name=release#174">SetWriteDeadline</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *UnixConn) SetWriteDeadline(t <a href="http://godoc.org/time">time</a>.<a href="http://godoc.org/time#Time">Time</a>) <a href="http://godoc.org/builtin#error">error</a></pre>
+    <p>SetWriteDeadline设置写操作期限，实现了Conn接口的SetWriteDeadline方法</p>
+    <h4 id="UnixConn.Read">func (*UnixConn) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/net.go?name=release#118">Read</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *UnixConn) Read(b []<a href="http://godoc.org/builtin#byte">byte</a>) (<a href="http://godoc.org/builtin#int">int</a>, <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p>Read实现了Conn接口Read方法</p>
+    <h4 id="UnixConn.ReadFrom">func (*UnixConn) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/unixsock_posix.go?name=release#138">ReadFrom</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *<a href="#UnixConn">UnixConn</a>) ReadFrom(b []<a href="http://godoc.org/builtin#byte">byte</a>) (<a href="http://godoc.org/builtin#int">int</a>, <a href="#Addr">Addr</a>, <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p>ReadFrom实现PacketConn接口ReadFrom方法</p>
+    <h4 id="UnixConn.ReadFromUnix">func (*UnixConn) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/unixsock_posix.go?name=release#123">ReadFromUnix</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *<a href="#UnixConn">UnixConn</a>) ReadFromUnix(b []<a href="http://godoc.org/builtin#byte">byte</a>) (n <a href="http://godoc.org/builtin#int">int</a>, addr *<a href="#UnixAddr">UnixAddr</a>, err <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p align="left">ReadFromUnix从c读取一个UDP数据包，将有效负载拷贝到b，返回拷贝字节数和数据包来源地址。</p>
+    <p align="left">ReadFromUnix方法会在超过一个固定的时间点之后超时，并返回一个错误。</p>
+    <h4 id="UnixConn.ReadMsgUnix">func (*UnixConn) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/unixsock_posix.go?name=release#150">ReadMsgUnix</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *<a href="#UnixConn">UnixConn</a>) ReadMsgUnix(b, oob []<a href="http://godoc.org/builtin#byte">byte</a>) (n, oobn, flags <a href="http://godoc.org/builtin#int">int</a>, addr *<a href="#UnixAddr">UnixAddr</a>, err <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p>ReadMsgUnix从c读取一个数据包，将有效负载拷贝进b，相关的带外数据拷贝进oob，返回拷贝进b的字节数，拷贝进oob的字节数，数据包的flag，数据包来源地址和可能的错误。</p>
+    <h4 id="UnixConn.Write">func (*UnixConn) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/net.go?name=release#126">Write</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *UnixConn) Write(b []<a href="http://godoc.org/builtin#byte">byte</a>) (<a href="http://godoc.org/builtin#int">int</a>, <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p>Write实现了Conn接口Write方法</p>
+    <h4 id="UnixConn.WriteTo">func (*UnixConn) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/unixsock_posix.go?name=release#188">WriteTo</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *<a href="#UnixConn">UnixConn</a>) WriteTo(b []<a href="http://godoc.org/builtin#byte">byte</a>, addr <a href="#Addr">Addr</a>) (n <a href="http://godoc.org/builtin#int">int</a>, err <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p>WriteTo实现PacketConn接口WriteTo方法</p>
+    <h4 id="UnixConn.WriteToUnix">func (*UnixConn) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/unixsock_posix.go?name=release#170">WriteToUnix</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *<a href="#UnixConn">UnixConn</a>) WriteToUnix(b []<a href="http://godoc.org/builtin#byte">byte</a>, addr *<a href="#UnixAddr">UnixAddr</a>) (n <a href="http://godoc.org/builtin#int">int</a>, err <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p align="left">WriteToUnix通过c向地址addr发送一个数据包，b为包的有效负载，返回写入的字节。</p>
+    <p align="left">WriteToUnix方法会在超过一个固定的时间点之后超时，并返回一个错误。在面向数据包的连接上，写入超时是十分罕见的。</p>
+    <h4 id="UnixConn.WriteMsgUnix">func (*UnixConn) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/unixsock_posix.go?name=release#202">WriteMsgUnix</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *<a href="#UnixConn">UnixConn</a>) WriteMsgUnix(b, oob []<a href="http://godoc.org/builtin#byte">byte</a>, addr *<a href="#UnixAddr">UnixAddr</a>) (n, oobn <a href="http://godoc.org/builtin#int">int</a>, err <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p>WriteMsgUnix通过c向地址addr发送一个数据包，b和oob分别为包有效负载和对应的带外数据，返回写入的字节数（包数据、带外数据）和可能的错误。</p>
+    <h4 id="UnixConn.Close">func (*UnixConn) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/net.go?name=release#134">Close</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *UnixConn) Close() <a href="http://godoc.org/builtin#error">error</a></pre>
+    <p>Close关闭连接</p>
+    <h4 id="UnixConn.CloseRead">func (*UnixConn) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/unixsock_posix.go?name=release#221">CloseRead</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *<a href="#UnixConn">UnixConn</a>) CloseRead() <a href="http://godoc.org/builtin#error">error</a></pre>
+    <p>CloseRead关闭TCP连接的读取侧（以后不能读取），应尽量使用Close方法</p>
+    <h4 id="UnixConn.CloseWrite">func (*UnixConn) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/unixsock_posix.go?name=release#230">CloseWrite</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *<a href="#UnixConn">UnixConn</a>) CloseWrite() <a href="http://godoc.org/builtin#error">error</a></pre>
+    <p>CloseWrite关闭TCP连接的写入侧（以后不能写入），应尽量使用Close方法</p>
+    <h4 id="UnixConn.File">func (*UnixConn) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/net.go?name=release#206">File</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *UnixConn) File() (f *<a href="http://godoc.org/os">os</a>.<a href="http://godoc.org/os#File">File</a>, err <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p align="left">File方法设置下层的os.File为阻塞模式并返回其副本。</p>
+    <p align="left">使用者有责任在用完后关闭f。关闭c不影响f，关闭f也不影响c。返回的os.File类型文件描述符和原本的网络连接是不同的。试图使用该副本修改本体的属性可能会（也可能不会）得到期望的效果。</p>
+    <h3 id="TCPListener">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/tcpsock_posix.go?name=release#224">TCPListener</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type TCPListener struct {
+    <span class="com">// 内含隐藏或非导出字段</span>
+}</pre>
+    <p>TCPListener代表一个TCP网络的监听者。使用者应尽量使用Listener接口而不是假设（网络连接为）TCP。</p>
+    <h4 id="ListenTCP">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/tcpsock_posix.go?name=release#285">ListenTCP</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func ListenTCP(net <a href="http://godoc.org/builtin#string">string</a>, laddr *<a href="#TCPAddr">TCPAddr</a>) (*<a href="#TCPListener">TCPListener</a>, <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p>ListenTCP在本地TCP地址laddr上声明并返回一个*TCPListener，net参数必须是"tcp"、"tcp4"、"tcp6"，如果laddr的端口字段为0，函数将选择一个当前可用的端口，可以用Listener的Addr方法获得该端口。</p>
+    <h4 id="TCPListener.Addr">func (*TCPListener) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/tcpsock_posix.go?name=release#261">Addr</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (l *<a href="#TCPListener">TCPListener</a>) Addr() <a href="#Addr">Addr</a></pre>
+    <p>Addr返回l监听的的网络地址，一个*TCPAddr。</p>
+    <h4 id="TCPListener.SetDeadline">func (*TCPListener) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/tcpsock_posix.go?name=release#265">SetDeadline</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (l *<a href="#TCPListener">TCPListener</a>) SetDeadline(t <a href="http://godoc.org/time">time</a>.<a href="http://godoc.org/time#Time">Time</a>) <a href="http://godoc.org/builtin#error">error</a></pre>
+    <p>设置监听器执行的期限，t为Time零值则会关闭期限限制。</p>
+    <h4 id="TCPListener.Accept">func (*TCPListener) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/tcpsock_posix.go?name=release#243">Accept</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (l *<a href="#TCPListener">TCPListener</a>) Accept() (<a href="#Conn">Conn</a>, <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p>Accept用于实现Listener接口的Accept方法；他会等待下一个呼叫，并返回一个该呼叫的Conn接口。</p>
+    <h4 id="TCPListener.AcceptTCP">func (*TCPListener) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/tcpsock_posix.go?name=release#230">AcceptTCP</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (l *<a href="#TCPListener">TCPListener</a>) AcceptTCP() (*<a href="#TCPConn">TCPConn</a>, <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p>AcceptTCP接收下一个呼叫，并返回一个新的*TCPConn。</p>
+    <h4 id="TCPListener.Close">func (*TCPListener) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/tcpsock_posix.go?name=release#253">Close</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (l *<a href="#TCPListener">TCPListener</a>) Close() <a href="http://godoc.org/builtin#error">error</a></pre>
+    <p>Close停止监听TCP地址，已经接收的连接不受影响。</p>
+    <h4 id="TCPListener.File">func (*TCPListener) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/tcpsock_posix.go?name=release#279">File</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (l *<a href="#TCPListener">TCPListener</a>) File() (f *<a href="http://godoc.org/os">os</a>.<a href="http://godoc.org/os#File">File</a>, err <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p align="left">File方法返回下层的os.File的副本，并将该副本设置为阻塞模式。</p>
+    <p align="left">使用者有责任在用完后关闭f。关闭c不影响f，关闭f也不影响c。返回的os.File类型文件描述符和原本的网络连接是不同的。试图使用该副本修改本体的属性可能会（也可能不会）得到期望的效果。</p>
+    <h3 id="UnixListener">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/unixsock_posix.go?name=release#260">UnixListener</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type UnixListener struct {
+    <span class="com">// 内含隐藏或非导出字段</span>
+}</pre>
+    <p>UnixListener代表一个Unix域scoket的监听者。使用者应尽量使用Listener接口而不是假设（网络连接为）Unix域scoket。</p>
+    <h4 id="ListenUnix">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/unixsock_posix.go?name=release#267">ListenUnix</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func ListenUnix(net <a href="http://godoc.org/builtin#string">string</a>, laddr *<a href="#UnixAddr">UnixAddr</a>) (*<a href="#UnixListener">UnixListener</a>, <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p>ListenTCP在Unix域scoket地址laddr上声明并返回一个*UnixListener，net参数必须是"unix"或"unixpacket"。</p>
+    <h4 id="UnixListener.Addr">func (*UnixListener) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/unixsock_posix.go?name=release#335">Addr</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (l *<a href="#UnixListener">UnixListener</a>) Addr() <a href="#Addr">Addr</a></pre>
+    <p>Addr返回l的监听的Unix域socket地址</p>
+    <h4 id="UnixListener.SetDeadline">func (*UnixListener) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/unixsock_posix.go?name=release#339">SetDeadline</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (l *<a href="#UnixListener">UnixListener</a>) SetDeadline(t <a href="http://godoc.org/time">time</a>.<a href="http://godoc.org/time#Time">Time</a>) (err <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p>设置监听器执行的期限，t为Time零值则会关闭期限限制</p>
+    <h4 id="UnixListener.Accept">func (*UnixListener) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/unixsock_posix.go?name=release#303">Accept</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (l *<a href="#UnixListener">UnixListener</a>) Accept() (c <a href="#Conn">Conn</a>, err <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p>Accept用于实现Listener接口的Accept方法；他会等待下一个呼叫，并返回一个该呼叫的Conn接口。</p>
+    <h4 id="UnixListener.AcceptUnix">func (*UnixListener) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/unixsock_posix.go?name=release#285">AcceptUnix</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (l *<a href="#UnixListener">UnixListener</a>) AcceptUnix() (*<a href="#UnixConn">UnixConn</a>, <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p>AcceptUnix接收下一个呼叫，并返回一个新的*UnixConn。</p>
+    <h4 id="UnixListener.Close">func (*UnixListener) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/unixsock_posix.go?name=release#313">Close</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (l *<a href="#UnixListener">UnixListener</a>) Close() <a href="http://godoc.org/builtin#error">error</a></pre>
+    <p>Close停止监听Unix域socket地址，已经接收的连接不受影响。</p>
+    <h4 id="UnixListener.File">func (*UnixListener) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/unixsock_posix.go?name=release#353">File</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (l *<a href="#UnixListener">UnixListener</a>) File() (f *<a href="http://godoc.org/os">os</a>.<a href="http://godoc.org/os#File">File</a>, err <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p align="left">File方法返回下层的os.File的副本，并将该副本设置为阻塞模式。</p>
+    <p align="left">使用者有责任在用完后关闭f。关闭c不影响f，关闭f也不影响c。返回的os.File类型文件描述符和原本的网络连接是不同的。试图使用该副本修改本体的属性可能会（也可能不会）得到期望的效果。</p>
+    <h3 id="FileConn">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/file_unix.go?name=release#82">FileConn</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func FileConn(f *<a href="http://godoc.org/os">os</a>.<a href="http://godoc.org/os#File">File</a>) (c <a href="#Conn">Conn</a>, err <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p>FileConn返回一个下层为文件f的网络连接的拷贝。调用者有责任在结束程序前关闭f。关闭c不会影响f，关闭f也不会影响c。本函数与各种实现了Conn接口的类型的File方法是对应的。</p>
+    <h3 id="FilePacketConn">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/file_unix.go?name=release#124">FilePacketConn</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func FilePacketConn(f *<a href="http://godoc.org/os">os</a>.<a href="http://godoc.org/os#File">File</a>) (c <a href="#PacketConn">PacketConn</a>, err <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p>FilePacketConn函数返回一个下层为文件f的数据包网络连接的拷贝。调用者有责任在结束程序前关闭f。关闭c不会影响f，关闭f也不会影响c。本函数与各种实现了PacketConn接口的类型的File方法是对应的。</p>
+    <h3 id="FileListener">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/file_unix.go?name=release#105">FileListener</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func FileListener(f *<a href="http://godoc.org/os">os</a>.<a href="http://godoc.org/os#File">File</a>) (l <a href="#Listener">Listener</a>, err <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p>FileListener返回一个下层为文件f的网络监听器的拷贝。调用者有责任在使用结束后改变l。关闭l不会影响f，关闭f也不会影响l。本函数与各种实现了Listener接口的类型的File方法是对应的。</p>
+    <h3 id="MX">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/dnsclient.go?name=release#225">MX</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type MX struct {
+    <span id="MX.Host">Host</span> <a href="http://godoc.org/builtin#string">string</a>
+    <span id="MX.Pref">Pref</span> <a href="http://godoc.org/builtin#uint16">uint16</a>
+}</pre>
+    <p>MX代表一条DNS MX记录（邮件交换记录），根据收信人的地址后缀来定位邮件服务器。</p>
+    <h3 id="NS">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/dnsclient.go?name=release#249">NS</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type NS struct {
+    <span id="NS.Host">Host</span> <a href="http://godoc.org/builtin#string">string</a>
+}</pre>
+    <p>NS代表一条DNS NS记录（域名服务器记录），指定该域名由哪个DNS服务器来进行解析。</p>
+    <h3 id="SRV">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/dnsclient.go?name=release#166">SRV</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type SRV struct {
+    <span id="SRV.Target">Target</span>   <a href="http://godoc.org/builtin#string">string</a>
+    <span id="SRV.Port">Port</span>     <a href="http://godoc.org/builtin#uint16">uint16</a>
+    <span id="SRV.Priority">Priority</span> <a href="http://godoc.org/builtin#uint16">uint16</a>
+    <span id="SRV.Weight">Weight</span>   <a href="http://godoc.org/builtin#uint16">uint16</a>
+}</pre>
+    <p>SRV代表一条DNS SRV记录（资源记录），记录某个服务由哪台计算机提供。</p>
+    <h3 id="LookupPort">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/lookup.go?name=release#93">LookupPort</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func LookupPort(network, service <a href="http://godoc.org/builtin#string">string</a>) (port <a href="http://godoc.org/builtin#int">int</a>, err <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p>LookupPort函数查询指定网络和服务的（默认）端口。</p>
+    <h3 id="LookupCNAME">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/lookup.go?name=release#101">LookupCNAME</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func LookupCNAME(name <a href="http://godoc.org/builtin#string">string</a>) (cname <a href="http://godoc.org/builtin#string">string</a>, err <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p>LookupCNAME函数查询name的规范DNS名（但该域名未必可以访问）。如果调用者不关心规范名可以直接调用LookupHost或者LookupIP；这两个函数都会在查询时考虑到规范名。</p>
+    <h3 id="LookupHost">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/lookup.go?name=release#24">LookupHost</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func LookupHost(host <a href="http://godoc.org/builtin#string">string</a>) (addrs []<a href="http://godoc.org/builtin#string">string</a>, err <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p>LookupHost函数查询主机的网络地址序列。</p>
+    <h3 id="LookupIP">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/lookup.go?name=release#30">LookupIP</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func LookupIP(host <a href="http://godoc.org/builtin#string">string</a>) (addrs []<a href="#IP">IP</a>, err <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p>LookupIP函数查询主机的ipv4和ipv6地址序列。</p>
+    <h3 id="LookupAddr">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/lookup.go?name=release#135">LookupAddr</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func LookupAddr(addr <a href="http://godoc.org/builtin#string">string</a>) (name []<a href="http://godoc.org/builtin#string">string</a>, err <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p>LookupAddr查询某个地址，返回映射到该地址的主机名序列，本函数和LookupHost不互为反函数。</p>
+    <h3 id="LookupMX">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/lookup.go?name=release#119">LookupMX</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func LookupMX(name <a href="http://godoc.org/builtin#string">string</a>) (mx []*<a href="#MX">MX</a>, err <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p>LookupMX函数返回指定主机的按Pref字段排好序的DNS MX记录。</p>
+    <h3 id="LookupNS">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/lookup.go?name=release#124">LookupNS</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func LookupNS(name <a href="http://godoc.org/builtin#string">string</a>) (ns []*<a href="#NS">NS</a>, err <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p>LookupNS函数返回指定主机的DNS NS记录。</p>
+    <h3 id="LookupSRV">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/lookup.go?name=release#114">LookupSRV</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func LookupSRV(service, proto, name <a href="http://godoc.org/builtin#string">string</a>) (cname <a href="http://godoc.org/builtin#string">string</a>, addrs []*<a href="#SRV">SRV</a>, err <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p align="left">LookupSRV函数尝试执行指定服务、协议、主机的SRV查询。协议proto为"tcp" 或"udp"。返回的记录按Priority字段排序，同一优先度按Weight字段随机排序。</p>
+    <p align="left">LookupSRV函数按照<a href="http://tools.ietf.org/html/rfc2782">RFC 2782</a>的规定构建用于查询的DNS名。也就是说，它会查询_service._proto.name。为了适应将服务的SRV记录发布在非规范名下的情况，如果service和proto参数都是空字符串，函数会直接查询name。</p>
+    <h3 id="LookupTXT">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/lookup.go?name=release#129">LookupTXT</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func LookupTXT(name <a href="http://godoc.org/builtin#string">string</a>) (txt []<a href="http://godoc.org/builtin#string">string</a>, err <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p>LookupTXT函数返回指定主机的DNS TXT记录。</p>
+    <h3 id="pkg-note-bug">Bugs <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <p><a title="View Source" href="https://github.com/golang/go/blob/master/src/net/iprawsock_posix.go?name=release#14">☞</a>在任何POSIX平台上，从"ip4"网络使用ReadFrom或ReadFromIP方法读取数据时，即使有足够的空间，都可能不会返回完整的IPv4数据包，包括数据包的头域。即使Read或ReadMsgIP方法可以返回完整的数据包，也有可能出现这种情况。因为对go 1的兼容性要求，这个情况无法被修正。因此，当必须获取完整数据包时，建议你不要使用这两个方法，请使用Read或ReadMsgIP代替。
+    <p><a title="View Source" href="https://github.com/golang/go/blob/master/src/net/tcpsock_posix.go?name=release#16">☞</a>在OpenBSD系统中，在"tcp"网络监听时不会同时监听IPv4和IPv6连接。 因为该系统中IPv4通信不会导入IPv6套接字中。请使用两个独立的监听，如果有必要的话。    </div>
+</body>
+</html>

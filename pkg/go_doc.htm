@@ -1,0 +1,268 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="./site.css" rel="stylesheet">
+<title>go/doc</title>
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package doc</h2>
+    <p><code>import "go/doc"</code>
+    <p>doc包从Go的AST提取源码文档。</p>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#pkg-variables">Variables</a></li>
+        <li><a href="#Examples">func Examples(files ...*ast.File) []*Example</a></li>
+        <li><a href="#Synopsis">func Synopsis(s string) string</a></li>
+        <li><a href="#ToHTML">func ToHTML(w io.Writer, text string, words map[string]string)</a></li>
+        <li><a href="#ToText">func ToText(w io.Writer, text string, indent, preIndent string, width int)</a></li>
+        <li><a href="#Example">type Example</a></li>
+        <li><a href="#Filter">type Filter</a></li>
+        <li><a href="#Func">type Func</a></li>
+        <li><a href="#Mode">type Mode</a></li>
+        <li><a href="#Note">type Note</a></li>
+        <li><a href="#Package">type Package</a></li>
+        <ul>
+            <li><a href="#Package.New">func New(pkg *ast.Package, importPath string, mode Mode) *Package</a></li>
+            <li><a href="#Package.Filter">func (p *Package) Filter(f Filter)</a></li>
+        </ul>
+        <li><a href="#Type">type Type</a></li>
+        <li><a href="#Value">type Value</a></li>
+    </ul>
+    <h3 id="Variables">Variables<a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>var <span id="IllegalPrefixes">IllegalPrefixes</span> = []<a href="./builtin.htm#string">string</a>{
+    "copyright",
+    "all rights",
+    "author",
+}</pre>
+
+<h3 id="Examples">Examples</h3>
+    <pre>func Examples(files ...*<a href="./go_ast.htm">ast</a>.<a href="./go_ast.htm#File">File</a>) []*<a href="#Example">Example</a></pre>
+
+    <p>
+Examples returns the examples found in the files, sorted by Name field.
+The Order fields record the order in which the examples were encountered.
+</p>
+<p>
+Playable Examples must be in a package whose name ends in "_test".
+An Example is "playable" (the Play field is non-nil) in either of these
+circumstances:
+</p>
+<pre>- The example function is self-contained: the function references only
+  identifiers from other packages (or predeclared identifiers, such as
+  "int") and the test file does not include a dot import.
+- The entire test file is the example: the file contains exactly one
+  example function, zero test or benchmark functions, and at least one
+  top-level function, type, variable, or constant declaration other
+  than the example function.
+</pre>
+
+<h2 id="Synopsis">func Synopsis</h2>
+<pre>func Synopsis(s <a href="./builtin.htm#string">string</a>) <a href="./builtin.htm#string">string</a></pre>
+<p>
+Synopsis returns a cleaned version of the first sentence in s.
+That sentence ends after the first period followed by space and
+not preceded by exactly one uppercase letter. The result string
+has no \n, \r, or \t characters and uses only single spaces between
+words. If s starts with any of the IllegalPrefixes, the result
+is the empty string.
+</p>
+
+<h2 id="ToHTML">func ToHTML</h2>
+<pre>func ToHTML(w <a href="./io.htm">io</a>.<a href="./io.htm#Writer">Writer</a>, text <a href="./builtin.htm#string">string</a>, words map[<a href="./builtin.htm#string">string</a>]<a href="./builtin.htm#string">string</a>)</pre>
+<p>
+ToHTML converts comment text to formatted HTML.
+The comment was prepared by DocReader,
+so it is known not to have leading, trailing blank lines
+nor to have trailing spaces at the end of lines.
+The comment markers have already been removed.
+</p>
+<p>
+Each span of unindented non-blank lines is converted into
+a single paragraph. There is one exception to the rule: a span that
+consists of a single line, is followed by another paragraph span,
+begins with a capital letter, and contains no punctuation
+is formatted as a heading.
+</p>
+<p>
+A span of indented lines is converted into a &lt;pre&gt; block,
+with the common indent prefix removed.
+</p>
+<p>
+URLs in the comment text are converted into links; if the URL also appears
+in the words map, the link is taken from the map (if the corresponding map
+value is the empty string, the URL is not converted into a link).
+</p>
+<p>
+Go identifiers that appear in the words map are italicized; if the corresponding
+map value is not the empty string, it is considered a URL and the word is converted
+into a link.
+</p>
+
+<h2 id="ToText">func ToText</h2>
+<pre>func ToText(w <a href="./io.htm">io</a>.<a href="./io.htm#Writer">Writer</a>, text <a href="./builtin.htm#string">string</a>, indent, preIndent <a href="./builtin.htm#string">string</a>, width <a href="./builtin.htm#int">int</a>)</pre>
+<p>
+ToText prepares comment text for presentation in textual output.
+It wraps paragraphs of text to width or fewer Unicode code points
+and then prefixes each line with the indent.  In preformatted sections
+(such as program text), it prefixes each non-blank line with preIndent.
+</p>
+
+<h2 id="Example">type Example</h2>
+<pre>type Example struct {
+    Name        <a href="./builtin.htm#string">string</a> <span class="comment">// name of the item being exemplified</span>
+    Doc         <a href="./builtin.htm#string">string</a> <span class="comment">// example function doc string</span>
+    Code        <a href="./go_ast.htm">ast</a>.<a href="./go_ast.htm#Node">Node</a>
+    Play        *<a href="./go_ast.htm">ast</a>.<a href="./go_ast.htm#File">File</a> <span class="comment">// a whole program version of the example</span>
+    Comments    []*<a href="./go_ast.htm">ast</a>.<a href="./go_ast.htm#CommentGroup">CommentGroup</a>
+    Output      <a href="./builtin.htm#string">string</a> <span class="comment">// expected output</span>
+    EmptyOutput <a href="./builtin.htm#bool">bool</a>   <span class="comment">// expect empty output</span>
+    Order       <a href="./builtin.htm#int">int</a>    <span class="comment">// original source code order</span>
+}</pre>
+<p>
+An Example represents an example function found in a source files.
+</p>
+<h2 id="Filter">type Filter</h2>
+<pre>type Filter func(<a href="./builtin.htm#string">string</a>) <a href="./builtin.htm#bool">bool</a></pre>
+<h2 id="Func">type Func</h2>
+<pre>type Func struct {
+    Doc  <a href="./builtin.htm#string">string</a>
+    Name <a href="./builtin.htm#string">string</a>
+    Decl *<a href="./go_ast.htm">ast</a>.<a href="./go_ast.htm#FuncDecl">FuncDecl</a>
+
+    <span class="comment">// methods</span>
+    <span class="comment">// (for functions, these fields have the respective zero value)</span>
+    Recv  <a href="./builtin.htm#string">string</a> <span class="comment">// actual   receiver "T" or "*T"</span>
+    Orig  <a href="./builtin.htm#string">string</a> <span class="comment">// original receiver "T" or "*T"</span>
+    Level <a href="./builtin.htm#int">int</a>    <span class="comment">// embedding level; 0 means not embedded</span>
+}</pre>
+<p>
+Func is the documentation for a func declaration.
+</p>
+<h2 id="Mode">type Mode</h2>
+            <pre>type Mode <a href="./builtin.htm#int">int</a></pre>
+            <p>
+Mode values control the operation of New.
+</p>
+
+
+            
+                <pre>const (
+    <span class="comment">// extract documentation for all package-level declarations,</span>
+    <span class="comment">// not just exported ones</span>
+    <span id="AllDecls">AllDecls</span> <a href="#Mode">Mode</a> = 1 &lt;&lt; <a href="./builtin.htm#iota">iota</a>
+
+    <span class="comment">// show all embedded methods, not just the ones of</span>
+    <span class="comment">// invisible (unexported) anonymous fields</span>
+    <span id="AllMethods">AllMethods</span>
+)</pre>
+
+            
+        
+            
+            
+            <h2 id="Note">type Note</h2>
+            <pre>type Note struct {
+    Pos, End <a href="./go_token.htm">token</a>.<a href="./go_token.htm#Pos">Pos</a> <span class="comment">// position range of the comment containing the marker</span>
+    UID      <a href="./builtin.htm#string">string</a>    <span class="comment">// uid found with the marker</span>
+    Body     <a href="./builtin.htm#string">string</a>    <span class="comment">// note body text</span>
+}</pre>
+            <p>
+A Note represents a marked comment starting with &#34;MARKER(uid): note body&#34;.
+Any note with a marker of 2 or more upper case [A-Z] letters and a uid of
+at least one character is recognized. The &#34;:&#34; following the uid is optional.
+Notes are collected in the Package.Notes map indexed by the notes marker.
+</p>      
+
+            
+        
+            
+            
+            <h2 id="Package">type Package</h2>
+            <pre>type Package struct {
+    Doc        <a href="./builtin.htm#string">string</a>
+    Name       <a href="./builtin.htm#string">string</a>
+    ImportPath <a href="./builtin.htm#string">string</a>
+    Imports    []<a href="./builtin.htm#string">string</a>
+    Filenames  []<a href="./builtin.htm#string">string</a>
+    Notes      map[<a href="./builtin.htm#string">string</a>][]*<a href="#Note">Note</a>
+    <span class="comment">// DEPRECATED. For backward compatibility Bugs is still populated,</span>
+    <span class="comment">// but all new code should use Notes instead.</span>
+    Bugs []<a href="./builtin.htm#string">string</a>
+
+    <span class="comment">// declarations</span>
+    Consts []*<a href="#Value">Value</a>
+    Types  []*<a href="#Type">Type</a>
+    Vars   []*<a href="#Value">Value</a>
+    Funcs  []*<a href="#Func">Func</a>
+}</pre>
+            <p>
+Package is the documentation for an entire package.
+</p> 
+
+            
+                
+                <h3 id="Package.New">func New</h3>
+                <pre>func New(pkg *<a href="./go_ast.htm">ast</a>.<a href="./go_ast.htm#Package">Package</a>, importPath <a href="./builtin.htm#string">string</a>, mode <a href="#Mode">Mode</a>) *<a href="#Package">Package</a></pre>
+                <p>
+New computes the package documentation for the given package AST.
+New takes ownership of the AST pkg and may edit or overwrite it.
+</p>
+
+            
+                
+                <h3 id="Package.Filter">func (*Package) Filter</h3>
+                <pre>func (p *<a href="#Package">Package</a>) Filter(f <a href="#Filter">Filter</a>)</pre>
+                <p>
+Filter eliminates documentation for names that don&#39;t pass through the filter f.
+TODO(gri): Recognize &#34;Type.Method&#34; as a name.
+</p>
+
+        
+            
+            
+            <h2 id="Type">type Type</h2>
+            <pre>type Type struct {
+    Doc  <a href="./builtin.htm#string">string</a>
+    Name <a href="./builtin.htm#string">string</a>
+    Decl *<a href="./go_ast.htm">ast</a>.<a href="./go_ast.htm#GenDecl">GenDecl</a>
+
+    <span class="comment">// associated declarations</span>
+    Consts  []*<a href="#Value">Value</a> <span class="comment">// sorted list of constants of (mostly) this type</span>
+    Vars    []*<a href="#Value">Value</a> <span class="comment">// sorted list of variables of (mostly) this type</span>
+    Funcs   []*<a href="#Func">Func</a>  <span class="comment">// sorted list of functions returning this type</span>
+    Methods []*<a href="#Func">Func</a>  <span class="comment">// sorted list of methods (including embedded ones) of this type</span>
+}</pre>
+            <p>
+Type is the documentation for a type declaration.   
+            
+        
+            
+            
+            <h2 id="Value">type Value</h2>
+            <pre>type Value struct {
+    Doc   <a href="./builtin.htm#string">string</a>
+    Names []<a href="./builtin.htm#string">string</a> <span class="comment">// var or const names in declaration order</span>
+    Decl  *<a href="./go_ast.htm">ast</a>.<a href="./go_ast.htm#GenDecl">GenDecl</a>
+    <span class="comment">// contains filtered or unexported fields</span>
+}</pre>
+            <p>
+Value is the documentation for a (possibly grouped) var or const declaration.
+</p>
+</div>
+
+<div id="x-footer" class="clearfix">
+  <div class="container">
+    <a href="http://studygolang.com/">Go语言中文网</a>
+    <span class="text-muted">|</span> <a href="http://golang.org/">Go Language</a>
+    <span class="pull-right"><a href="#">Back to top</a></span>
+  </div>
+</div>
+<script src="../assets/jquery-2.0.3.min.js"></script>
+<script src="../bootstrap.min.js"></script>
+<script src="../site.js"></script>
+</body>
+</html>

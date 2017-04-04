@@ -1,0 +1,164 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="./site.css" rel="stylesheet">
+<title>expvar</title>
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package expvar</h2>
+    <p><code>import "expvar"</code>
+    <p align="left">expvar包提供了公共变量的标准接口，如服务的操作计数器。本包通过HTTP在/debug/vars位置以JSON格式导出了这些变量。</p>
+    <p align="left">对这些公共变量的读写操作都是原子级的。</p>
+    <p align="left">为了增加HTTP处理器，本包注册了如下变量：</p>
+    <pre>cmdline   os.Args
+memstats  runtime.Memstats</pre>
+    <p>有时候本包被导入只是为了获得本包注册HTTP处理器和上述变量的副作用。此时可以如下方式导入本包：</p>
+    <pre>import _ &#34;expvar&#34;</pre>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#Var">type Var</a></li>
+        <li><a href="#Int">type Int</a></li>
+        <ul>
+            <li><a href="#NewInt">func NewInt(name string) *Int</a></li>
+            <li><a href="#Int.Add">func (v *Int) Add(delta int64)</a></li>
+            <li><a href="#Int.Set">func (v *Int) Set(value int64)</a></li>
+            <li><a href="#Int.String">func (v *Int) String() string</a></li>
+        </ul>
+        <li><a href="#Float">type Float</a></li>
+        <ul>
+            <li><a href="#NewFloat">func NewFloat(name string) *Float</a></li>
+            <li><a href="#Float.Add">func (v *Float) Add(delta float64)</a></li>
+            <li><a href="#Float.Set">func (v *Float) Set(value float64)</a></li>
+            <li><a href="#Float.String">func (v *Float) String() string</a></li>
+        </ul>
+        <li><a href="#String">type String</a></li>
+        <ul>
+            <li><a href="#NewString">func NewString(name string) *String</a></li>
+            <li><a href="#String.Set">func (v *String) Set(value string)</a></li>
+            <li><a href="#String.String">func (v *String) String() string</a></li>
+        </ul>
+        <li><a href="#Func">type Func</a></li>
+        <ul>
+            <li><a href="#Func.String">func (f Func) String() string</a></li>
+        </ul>
+        <li><a href="#KeyValue">type KeyValue</a></li>
+        <li><a href="#Map">type Map</a></li>
+        <ul>
+            <li><a href="#NewMap">func NewMap(name string) *Map</a></li>
+            <li><a href="#Map.Init">func (v *Map) Init() *Map</a></li>
+            <li><a href="#Map.Get">func (v *Map) Get(key string) Var</a></li>
+            <li><a href="#Map.Set">func (v *Map) Set(key string, av Var)</a></li>
+            <li><a href="#Map.Add">func (v *Map) Add(key string, delta int64)</a></li>
+            <li><a href="#Map.AddFloat">func (v *Map) AddFloat(key string, delta float64)</a></li>
+            <li><a href="#Map.Do">func (v *Map) Do(f func(KeyValue))</a></li>
+            <li><a href="#Map.String">func (v *Map) String() string</a></li>
+        </ul>
+        <li><a href="#Get">func Get(name string) Var</a></li>
+        <li><a href="#Publish">func Publish(name string, v Var)</a></li>
+        <li><a href="#Do">func Do(f func(KeyValue))</a></li>
+    </ul>
+    <h3 id="Var">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/expvar/expvar.go?name=release#38">Var</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Var interface {
+    <span id="Var.String">String</span>() <a href="builtin.htm#string">string</a>
+}</pre>
+    <p>Var接口是所有导出变量的抽象类型。</p>
+    <h3 id="Int">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/expvar/expvar.go?name=release#43">Int</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Int struct {
+    <span class="com">// 内含隐藏或非导出字段</span>
+}</pre>
+    <p>Int代表一个64位整数变量，满足Var接口。</p>
+    <h4 id="NewInt">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/expvar/expvar.go?name=release#273">NewInt</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func NewInt(name <a href="builtin.htm#string">string</a>) *<a href="#Int">Int</a></pre>
+    <h4 id="Int.Add">func (*Int) <a title="View Source" href="https://github.com/golang/go/blob/master/src/expvar/expvar.go?name=release#54">Add</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (v *<a href="#Int">Int</a>) Add(delta <a href="builtin.htm#int64">int64</a>)</pre>
+    <h4 id="Int.Set">func (*Int) <a title="View Source" href="https://github.com/golang/go/blob/master/src/expvar/expvar.go?name=release#60">Set</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (v *<a href="#Int">Int</a>) Set(value <a href="builtin.htm#int64">int64</a>)</pre>
+    <h4 id="Int.String">func (*Int) <a title="View Source" href="https://github.com/golang/go/blob/master/src/expvar/expvar.go?name=release#48">String</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (v *<a href="#Int">Int</a>) String() <a href="builtin.htm#string">string</a></pre>
+    <h3 id="Float">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/expvar/expvar.go?name=release#67">Float</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Float struct {
+    <span class="com">// 内含隐藏或非导出字段</span>
+}</pre>
+    <p>Float代表一个64位浮点数变量，满足Var接口。</p>
+    <h4 id="NewFloat">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/expvar/expvar.go?name=release#279">NewFloat</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func NewFloat(name <a href="builtin.htm#string">string</a>) *<a href="#Float">Float</a></pre>
+    <h4 id="Float.Add">func (*Float) <a title="View Source" href="https://github.com/golang/go/blob/master/src/expvar/expvar.go?name=release#79">Add</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (v *<a href="#Float">Float</a>) Add(delta <a href="builtin.htm#float64">float64</a>)</pre>
+    <p>Add adds delta to v.</p>
+    <h4 id="Float.Set">func (*Float) <a title="View Source" href="https://github.com/golang/go/blob/master/src/expvar/expvar.go?name=release#86">Set</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (v *<a href="#Float">Float</a>) Set(value <a href="builtin.htm#float64">float64</a>)</pre>
+    <p>Set sets v to value.</p>
+    <h4 id="Float.String">func (*Float) <a title="View Source" href="https://github.com/golang/go/blob/master/src/expvar/expvar.go?name=release#72">String</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (v *<a href="#Float">Float</a>) String() <a href="builtin.htm#string">string</a></pre>
+    <h3 id="String">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/expvar/expvar.go?name=release#217">String</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type String struct {
+    <span class="com">// 内含隐藏或非导出字段</span>
+}</pre>
+    <p>String代表一个字符串变量，满足Var接口。</p>
+    <h4 id="NewString">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/expvar/expvar.go?name=release#291">NewString</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func NewString(name <a href="builtin.htm#string">string</a>) *<a href="#String">String</a></pre>
+    <h4 id="String.Set">func (*String) <a title="View Source" href="https://github.com/golang/go/blob/master/src/expvar/expvar.go?name=release#228">Set</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (v *<a href="#String">String</a>) Set(value <a href="builtin.htm#string">string</a>)</pre>
+    <h4 id="String.String">func (*String) <a title="View Source" href="https://github.com/golang/go/blob/master/src/expvar/expvar.go?name=release#222">String</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (v *<a href="#String">String</a>) String() <a href="builtin.htm#string">string</a></pre>
+    <h3 id="Func">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/expvar/expvar.go?name=release#236">Func</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Func func() interface{}</pre>
+    <p>Func通过调用函数并将结果编码为json，实现了Var接口。</p>
+    <h4 id="Func.String">func (Func) <a title="View Source" href="https://github.com/golang/go/blob/master/src/expvar/expvar.go?name=release#238">String</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (f <a href="#Func">Func</a>) String() <a href="builtin.htm#string">string</a></pre>
+    <h3 id="KeyValue">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/expvar/expvar.go?name=release#100">KeyValue</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type KeyValue struct {
+    <span id="KeyValue.Key">Key</span>   <a href="builtin.htm#string">string</a>
+    <span id="KeyValue.Value">Value</span> <a href="#Var">Var</a>
+}</pre>
+    <p>KeyValue代表Map中的一条记录。（键值对）</p>
+    <h3 id="Map">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/expvar/expvar.go?name=release#93">Map</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Map struct {
+    <span class="com">// 内含隐藏或非导出字段</span>
+}</pre>
+    <p>Map代表一个string到Var的映射变量，满足Var接口。</p>
+    <h4 id="NewMap">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/expvar/expvar.go?name=release#285">NewMap</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func NewMap(name <a href="builtin.htm#string">string</a>) *<a href="#Map">Map</a></pre>
+    <h4 id="Map.Init">func (*Map) <a title="View Source" href="https://github.com/golang/go/blob/master/src/expvar/expvar.go?name=release#122">Init</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (v *<a href="#Map">Map</a>) Init() *<a href="#Map">Map</a></pre>
+    <h4 id="Map.Get">func (*Map) <a title="View Source" href="https://github.com/golang/go/blob/master/src/expvar/expvar.go?name=release#141">Get</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (v *<a href="#Map">Map</a>) Get(key <a href="builtin.htm#string">string</a>) <a href="#Var">Var</a></pre>
+    <h4 id="Map.Set">func (*Map) <a title="View Source" href="https://github.com/golang/go/blob/master/src/expvar/expvar.go?name=release#147">Set</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (v *<a href="#Map">Map</a>) Set(key <a href="builtin.htm#string">string</a>, av <a href="#Var">Var</a>)</pre>
+    <h4 id="Map.Add">func (*Map) <a title="View Source" href="https://github.com/golang/go/blob/master/src/expvar/expvar.go?name=release#154">Add</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (v *<a href="#Map">Map</a>) Add(key <a href="builtin.htm#string">string</a>, delta <a href="builtin.htm#int64">int64</a>)</pre>
+    <h4 id="Map.AddFloat">func (*Map) <a title="View Source" href="https://github.com/golang/go/blob/master/src/expvar/expvar.go?name=release#177">AddFloat</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (v *<a href="#Map">Map</a>) AddFloat(key <a href="builtin.htm#string">string</a>, delta <a href="builtin.htm#float64">float64</a>)</pre>
+    <p>AddFloat向索引key对应的值（底层为*Float）修改为加上delta后的值。</p>
+    <h4 id="Map.Do">func (*Map) <a title="View Source" href="https://github.com/golang/go/blob/master/src/expvar/expvar.go?name=release#202">Do</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (v *<a href="#Map">Map</a>) Do(f func(<a href="#KeyValue">KeyValue</a>))</pre>
+    <p>Do对映射的每一条记录都调用f。迭代执行时会锁定该映射，但已存在的记录可以同时更新。</p>
+    <h4 id="Map.String">func (*Map) <a title="View Source" href="https://github.com/golang/go/blob/master/src/expvar/expvar.go?name=release#105">String</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (v *<a href="#Map">Map</a>) String() <a href="builtin.htm#string">string</a></pre>
+    <h3 id="Get">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/expvar/expvar.go?name=release#265">Get</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Get(name <a href="builtin.htm#string">string</a>) <a href="#Var">Var</a></pre>
+    <p>Get获取名为name的导出变量。</p>
+    <h3 id="Publish">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/expvar/expvar.go?name=release#253">Publish</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Publish(name <a href="builtin.htm#string">string</a>, v <a href="#Var">Var</a>)</pre>
+    <p>Publish声明一个导出变量。必须在init函数里调用。如果name已经被注册，会调用log.Panic。</p>
+    <h3 id="Do">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/expvar/expvar.go?name=release#300">Do</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Do(f func(<a href="#KeyValue">KeyValue</a>))</pre>
+    <p>Do对导出变量的每一条记录都调用f。迭代执行时会锁定全局变量映射，但已存在的记录可以同时更新。</p>
+</div>
+
+<div id="x-footer" class="clearfix">
+  <div class="container">
+    <a href="http://studygolang.com/">Go语言中文网</a>
+    <span class="text-muted">|</span> <a href="http://golang.org/">Go Language</a>
+    <span class="pull-right"><a href="#">Back to top</a></span>
+  </div>
+</div>
+<script src="../assets/jquery-2.0.3.min.js"></script>
+<script src="../bootstrap.min.js"></script>
+<script src="../site.js"></script>
+</body>
+</html>

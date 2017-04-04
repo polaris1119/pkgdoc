@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="../../../site.css" rel="stylesheet">
+<title>go.image/bmp</title>
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package bmp</h2>
+    <p><code>import "code.google.com/p/go.image/bmp"</code>
+    <p align="left">bmp包实现了bmp图片的编解码。参见<a href="http://www.digicamsoft.com/bmp/bmp.html">http://www.digicamsoft.com/bmp/bmp.html</a>。
+</p>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <ul class="list-unstyled">
+        <li><a href="#pkg-variables">Variables</a></li>
+        <li><a href="#Decode">func Decode(r io.Reader) (image.Image, error)</a></li>
+        <li><a href="#DecodeConfig">func DecodeConfig(r io.Reader) (config image.Config, err error)</a></li>
+        <li><a href="#Encode">func Encode(w io.Writer, m image.Image) error</a></li>
+    </ul>
+    <h3 id="pkg-variables">Variables <a class="permalink" href="#pkg-variables">&para;</a></h3>
+    <pre>var <span id="ErrUnsupported">ErrUnsupported</span> = <a href="https://godoc.org/errors">errors</a>.<a href="https://godoc.org/errors#New">New</a>(&#34;bmp: unsupported BMP image&#34;)</pre>
+    <p align="left">ErrUnsupported表示输入的bmp图片包含合法但尚不支持的属性。</p>
+    <h3 id="Decode">func <a title="View Source" href="http://code.google.com/p/go/source/browse/bmp/reader.go?repo=image#76">Decode</a> <a class="permalink" href="#Decode">&para;</a></h3>
+    <pre class="funcdecl">func Decode(r <a href="https://godoc.org/io">io</a>.<a href="https://godoc.org/io#Reader">Reader</a>) (<a href="https://godoc.org/image">image</a>.<a href="https://godoc.org/image#Image">Image</a>, <a href="https://godoc.org/builtin#error">error</a>)</pre>
+    <p align="left">Decode从r读取并解析一个bmp图像，返回该图像的image.Image接口。限制：该图像必须是每像素1或3字节。</p>
+    <h3 id="DecodeConfig">func <a title="View Source" href="http://code.google.com/p/go/source/browse/bmp/reader.go?repo=image#90">DecodeConfig</a> <a class="permalink" href="#DecodeConfig">&para;</a></h3>
+    <pre class="funcdecl">func DecodeConfig(r <a href="https://godoc.org/io">io</a>.<a href="https://godoc.org/io#Reader">Reader</a>) (config <a href="https://godoc.org/image">image</a>.<a href="https://godoc.org/image#Config">Config</a>, err <a href="https://godoc.org/builtin#error">error</a>)</pre>
+    <p align="left">DecodeConfig从r读取并返回一个bmp图像的配置信息（色彩模型和尺寸），而不会解码整个图像。限制：该图像必须是每像素1或3字节。</p>
+    <h3 id="Encode">func <a title="View Source" href="http://code.google.com/p/go/source/browse/bmp/writer.go?repo=image#90">Encode</a> <a class="permalink" href="#Encode">&para;</a></h3>
+    <pre class="funcdecl">func Encode(w <a href="https://godoc.org/io">io</a>.<a href="https://godoc.org/io#Writer">Writer</a>, m <a href="https://godoc.org/image">image</a>.<a href="https://godoc.org/image#Image">Image</a>) <a href="https://godoc.org/builtin#error">error</a></pre>
+    <p align="left">Encode将图像m以bmp格式写入w。</p>
+</div>
+</body>
+</html>

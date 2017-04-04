@@ -1,0 +1,242 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="./site.css" rel="stylesheet">
+<title>os/exec</title>
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package exec</h2>
+    <p><code>import "os/exec"</code>
+    <p>exec包执行外部命令。它包装了os.StartProcess函数以便更容易的修正输入和输出，使用管道连接I/O，以及作其它的一些调整。</p>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#pkg-variables">Variables</a></li>
+        <li><a href="#Error">type Error</a></li>
+        <ul>
+            <li><a href="#Error.Error">func (e *Error) Error() string</a></li>
+        </ul>
+        <li><a href="#ExitError">type ExitError</a></li>
+        <ul>
+            <li><a href="#ExitError.Error">func (e *ExitError) Error() string</a></li>
+        </ul>
+        <li><a href="#LookPath">func LookPath(file string) (string, error)</a></li>
+        <li><a href="#Cmd">type Cmd</a></li>
+        <ul>
+            <li><a href="#Command">func Command(name string, arg ...string) *Cmd</a></li>
+            <li><a href="#Cmd.StdinPipe">func (c *Cmd) StdinPipe() (io.WriteCloser, error)</a></li>
+            <li><a href="#Cmd.StdoutPipe">func (c *Cmd) StdoutPipe() (io.ReadCloser, error)</a></li>
+            <li><a href="#Cmd.StderrPipe">func (c *Cmd) StderrPipe() (io.ReadCloser, error)</a></li>
+            <li><a href="#Cmd.Run">func (c *Cmd) Run() error</a></li>
+            <li><a href="#Cmd.Start">func (c *Cmd) Start() error</a></li>
+            <li><a href="#Cmd.Wait">func (c *Cmd) Wait() error</a></li>
+            <li><a href="#Cmd.Output">func (c *Cmd) Output() ([]byte, error)</a></li>
+            <li><a href="#Cmd.CombinedOutput">func (c *Cmd) CombinedOutput() ([]byte, error)</a></li>
+        </ul>
+    </ul>
+    <h4 id="pkg-examples">Examples <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#example-Cmd-Output" onclick="$('#ex-Cmd-Output').addClass('in').removeClass('collapse').height('auto')">Cmd.Output</a></li>
+        <li><a href="#example-Cmd-Start" onclick="$('#ex-Cmd-Start').addClass('in').removeClass('collapse').height('auto')">Cmd.Start</a></li>
+        <li><a href="#example-Cmd-StdoutPipe" onclick="$('#ex-Cmd-StdoutPipe').addClass('in').removeClass('collapse').height('auto')">Cmd.StdoutPipe</a></li>
+        <li><a href="#example-Command" onclick="$('#ex-Command').addClass('in').removeClass('collapse').height('auto')">Command</a></li>
+        <li><a href="#example-LookPath" onclick="$('#ex-LookPath').addClass('in').removeClass('collapse').height('auto')">LookPath</a></li>
+    </ul>
+    <h3 id="pkg-variables">Variables <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>var <span id="ErrNotFound">ErrNotFound</span> = <a href="errors.htm">errors</a>.<a href="errors.htm#New">New</a>(&#34;executable file not found in $PATH&#34;)</pre>
+    <p>如果路径搜索没有找到可执行文件时，就会返回本错误。</p>
+    <h3 id="Error">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/os/exec/exec.go?name=release#25">Error</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Error struct {
+    <span id="Error.Name">Name</span> <a href="builtin.htm#string">string</a>
+    <span id="Error.Err">Err</span>  <a href="builtin.htm#error">error</a>
+}</pre>
+    <p>Error类型记录执行失败的程序名和失败的原因。</p>
+    <h4 id="Error.Error">func (*Error) <a title="View Source" href="https://github.com/golang/go/blob/master/src/os/exec/exec.go?name=release#30">Error</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (e *<a href="#Error">Error</a>) Error() <a href="builtin.htm#string">string</a></pre>
+    <h3 id="ExitError">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/os/exec/exec.go?name=release#329">ExitError</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type ExitError struct {
+    *<a href="os.htm">os</a>.<a href="os.htm#ProcessState">ProcessState</a>
+}</pre>
+    <p>ExitError报告某个命令的一次未成功的返回。</p>
+    <h4 id="ExitError.Error">func (*ExitError) <a title="View Source" href="https://github.com/golang/go/blob/master/src/os/exec/exec.go?name=release#333">Error</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (e *<a href="#ExitError">ExitError</a>) Error() <a href="builtin.htm#string">string</a></pre>
+    <h3 id="LookPath">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/os/exec/lp_unix.go?name=release#33">LookPath</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func LookPath(file <a href="builtin.htm#string">string</a>) (<a href="builtin.htm#string">string</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>在环境变量PATH指定的目录中搜索可执行文件，如file中有斜杠，则只在当前目录搜索。返回完整路径或者相对于当前目录的一个相对路径。</p>
+    <div class="panel-group">
+        <div class="panel panel-default" id="example-LookPath">
+            <div class="panel-heading" onclick="document.getElementById('ex-LookPath').style.display = document.getElementById('ex-LookPath').style.display=='none'?'block':'none';">Example</div>
+            <div id="ex-LookPath" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre>
+path, err := exec.LookPath(&#34;fortune&#34;)
+if err != nil {
+    log.Fatal(&#34;installing fortune is in your future&#34;)
+}
+fmt.Printf(&#34;fortune is available at %s\n&#34;, path)
+</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    <h3 id="Cmd">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/os/exec/exec.go?name=release#35">Cmd</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Cmd struct {
+    <span class="com">// Path是将要执行的命令的路径。</span>
+    <span class="com">//</span>
+    <span class="com">// 该字段不能为空，如为相对路径会相对于Dir字段。</span><span class="com"></span>
+    <span id="Cmd.Path">Path</span> <a href="builtin.htm#string">string</a>
+    <span class="com">// Args保管命令的参数，包括命令名作为第一个参数；如果为空切片或者nil，相当于无参数命令。</span><span class="com"></span>
+    <span class="com">//</span>
+    <span class="com">// 典型用法下，Path和Args都应被Command函数设定。</span>
+    <span id="Cmd.Args">Args</span> []<a href="builtin.htm#string">string</a>
+    <span class="com">// Env指定进程的环境，如为nil，则是在当前进程的环境下执行。</span>
+    <span id="Cmd.Env">Env</span> []<a href="builtin.htm#string">string</a>
+    <span class="com">// Dir指定命令的工作目录。如为空字符串，会在调用者的进程当前目录下执行。</span>
+    <span id="Cmd.Dir">Dir</span> <a href="builtin.htm#string">string</a>
+    <span class="com">// Stdin指定进程的标准输入，如为nil，进程会从空设备读取（os.DevNull）</span><span class="com"></span>
+    <span id="Cmd.Stdin">Stdin</span> <a href="io.htm">io</a>.<a href="io.htm#Reader">Reader</a>
+    <span class="com">// Stdout和Stderr指定进程的标准输出和标准错误输出。</span>
+    <span class="com">//</span>
+    <span class="com">// 如果任一个为nil，Run方法会将对应的文件描述符关联到空设备（os.DevNull）</span><span class="com"></span>
+    <span class="com">//</span>
+    <span class="com">// 如果两个字段相同，同一时间最多有一个线程可以写入。</span>
+    <span id="Cmd.Stdout">Stdout</span> <a href="io.htm">io</a>.<a href="io.htm#Writer">Writer</a>
+    <span id="Cmd.Stderr">Stderr</span> <a href="io.htm">io</a>.<a href="io.htm#Writer">Writer</a>
+    <span class="com">// ExtraFiles指定额外被新进程继承的已打开文件流，不包括标准输入、标准输出、标准错误输出。</span>
+    <span class="com">// 如果本字段非nil，entry i会变成文件描述符3+i。</span>
+    <span class="com">//</span>
+    <span class="com">// BUG: 在OS X 10.6系统中，子进程可能会继承不期望的文件描述符。</span>
+    <span class="com">// http://golang.org/issue/2603</span>
+    <span id="Cmd.ExtraFiles">ExtraFiles</span> []*<a href="os.htm">os</a>.<a href="os.htm#File">File</a>
+    <span class="com">// SysProcAttr保管可选的、各操作系统特定的sys执行属性。</span>
+    <span class="com">// Run方法会将它作为os.ProcAttr的Sys字段传递给os.StartProcess函数。</span>
+    <span id="Cmd.SysProcAttr">SysProcAttr</span> *<a href="syscall.htm">syscall</a>.<a href="syscall.htm#SysProcAttr">SysProcAttr</a>
+    <span class="com">// Process是底层的，只执行一次的进程。</span>
+    <span id="Cmd.Process">Process</span> *<a href="os.htm">os</a>.<a href="os.htm#Process">Process</a>
+    <span class="com">// ProcessState包含一个已经存在的进程的信息，只有在调用Wait或Run后才可用。</span>
+    <span id="Cmd.ProcessState">ProcessState</span> *<a href="os.htm">os</a>.<a href="os.htm#ProcessState">ProcessState</a>
+    <span class="com">// 内含隐藏或非导出字段</span>
+}</pre>
+    <p>Cmd代表一个正在准备或者在执行中的外部命令。</p>
+    <h4 id="Command">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/os/exec/exec.go?name=release#112">Command</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func Command(name <a href="builtin.htm#string">string</a>, arg ...<a href="builtin.htm#string">string</a>) *<a href="#Cmd">Cmd</a></pre>
+    <p align="left">函数返回一个*Cmd，用于使用给出的参数执行name指定的程序。返回值只设定了Path和Args两个参数。</p>
+    <p align="left">如果name不含路径分隔符，将使用LookPath获取完整路径；否则直接使用name。参数arg不应包含命令名。</p>
+    <div class="panel-group">
+        <div class="panel panel-default" id="example-Command">
+            <div class="panel-heading" onclick="document.getElementById('ex-Command').style.display = document.getElementById('ex-Command').style.display=='none'?'block':'none';">Example</div>
+            <div id="ex-Command" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre>
+cmd := exec.Command(&#34;tr&#34;, &#34;a-z&#34;, &#34;A-Z&#34;)
+cmd.Stdin = strings.NewReader(&#34;some input&#34;)
+var out bytes.Buffer
+cmd.Stdout = &amp;out
+err := cmd.Run()
+if err != nil {
+    log.Fatal(err)
+}
+fmt.Printf(&#34;in all caps: %q\n&#34;, out.String())
+</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    <h4 id="Cmd.StdinPipe">func (*Cmd) <a title="View Source" href="https://github.com/golang/go/blob/master/src/os/exec/exec.go?name=release#411">StdinPipe</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *<a href="#Cmd">Cmd</a>) StdinPipe() (<a href="io.htm">io</a>.<a href="io.htm#WriteCloser">WriteCloser</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>StdinPipe方法返回一个在命令Start后与命令标准输入关联的管道。Wait方法获知命令结束后会关闭这个管道。必要时调用者可以调用Close方法来强行关闭管道，例如命令在输入关闭后才会执行返回时需要显式关闭管道。</p>
+    <h4 id="Cmd.StdoutPipe">func (*Cmd) <a title="View Source" href="https://github.com/golang/go/blob/master/src/os/exec/exec.go?name=release#453">StdoutPipe</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *<a href="#Cmd">Cmd</a>) StdoutPipe() (<a href="io.htm">io</a>.<a href="io.htm#ReadCloser">ReadCloser</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>StdoutPipe方法返回一个在命令Start后与命令标准输出关联的管道。Wait方法获知命令结束后会关闭这个管道，一般不需要显式的关闭该管道。但是在从管道读取完全部数据之前调用Wait是错误的；同样使用StdoutPipe方法时调用Run函数也是错误的。参见下例：</p>
+    <div class="panel-group">
+        <div class="panel panel-default" id="example-Cmd-StdoutPipe">
+            <div class="panel-heading" onclick="document.getElementById('ex-Cmd-StdoutPipe').style.display = document.getElementById('ex-Cmd-StdoutPipe').style.display=='none'?'block':'none';">Example</div>
+            <div id="ex-Cmd-StdoutPipe" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre>
+cmd := exec.Command(&#34;echo&#34;, &#34;-n&#34;, `{&#34;Name&#34;: &#34;Bob&#34;, &#34;Age&#34;: 32}`)
+stdout, err := cmd.StdoutPipe()
+if err != nil {
+    log.Fatal(err)
+}
+if err := cmd.Start(); err != nil {
+    log.Fatal(err)
+}
+var person struct {
+    Name string
+    Age  int
+}
+if err := json.NewDecoder(stdout).Decode(&amp;person); err != nil {
+    log.Fatal(err)
+}
+if err := cmd.Wait(); err != nil {
+    log.Fatal(err)
+}
+fmt.Printf(&#34;%s is %d years old\n&#34;, person.Name, person.Age)
+</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    <h4 id="Cmd.StderrPipe">func (*Cmd) <a title="View Source" href="https://github.com/golang/go/blob/master/src/os/exec/exec.go?name=release#478">StderrPipe</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *<a href="#Cmd">Cmd</a>) StderrPipe() (<a href="io.htm">io</a>.<a href="io.htm#ReadCloser">ReadCloser</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>StderrPipe方法返回一个在命令Start后与命令标准错误输出关联的管道。Wait方法获知命令结束后会关闭这个管道，一般不需要显式的关闭该管道。但是在从管道读取完全部数据之前调用Wait是错误的；同样使用StderrPipe方法时调用Run函数也是错误的。请参照StdoutPipe的例子。</p>
+    <h4 id="Cmd.Run">func (*Cmd) <a title="View Source" href="https://github.com/golang/go/blob/master/src/os/exec/exec.go?name=release#235">Run</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *<a href="#Cmd">Cmd</a>) Run() <a href="builtin.htm#error">error</a></pre>
+    <p align="left">Run执行c包含的命令，并阻塞直到完成。</p>
+    <p align="left">如果命令成功执行，stdin、stdout、stderr的转交没有问题，并且返回状态码为0，方法的返回值为nil；如果命令没有执行或者执行失败，会返回*ExitError类型的错误；否则返回的error可能是表示I/O问题。</p>
+    <h4 id="Cmd.Start">func (*Cmd) <a title="View Source" href="https://github.com/golang/go/blob/master/src/os/exec/exec.go?name=release#272">Start</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *<a href="#Cmd">Cmd</a>) Start() <a href="builtin.htm#error">error</a></pre>
+    <p>Start开始执行c包含的命令，但并不会等待该命令完成即返回。Wait方法会返回命令的返回状态码并在命令返回后释放相关的资源。</p>
+    <div class="panel-group">
+        <div class="panel panel-default" id="example-Cmd-Start">
+            <div class="panel-heading" onclick="document.getElementById('ex-Cmd-Start').style.display = document.getElementById('ex-Cmd-Start').style.display=='none'?'block':'none';">Example</div>
+            <div id="ex-Cmd-Start" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre>
+cmd := exec.Command(&#34;sleep&#34;, &#34;5&#34;)
+err := cmd.Start()
+if err != nil {
+    log.Fatal(err)
+}
+log.Printf(&#34;Waiting for command to finish...&#34;)
+err = cmd.Wait()
+log.Printf(&#34;Command finished with error: %v&#34;, err)
+</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    <h4 id="Cmd.Wait">func (*Cmd) <a title="View Source" href="https://github.com/golang/go/blob/master/src/os/exec/exec.go?name=release#349">Wait</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *<a href="#Cmd">Cmd</a>) Wait() <a href="builtin.htm#error">error</a></pre>
+    <p align="left">Wait会阻塞直到该命令执行完成，该命令必须是被Start方法开始执行的。</p>
+    <p align="left">如果命令成功执行，stdin、stdout、stderr的转交没有问题，并且返回状态码为0，方法的返回值为nil；如果命令没有执行或者执行失败，会返回*ExitError类型的错误；否则返回的error可能是表示I/O问题。Wait方法会在命令返回后释放相关的资源。</p>
+    <h4 id="Cmd.Output">func (*Cmd) <a title="View Source" href="https://github.com/golang/go/blob/master/src/os/exec/exec.go?name=release#379">Output</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *<a href="#Cmd">Cmd</a>) Output() ([]<a href="builtin.htm#byte">byte</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>执行命令并返回标准输出的切片。</p>
+    <div class="panel-group">
+        <div class="panel panel-default" id="example-Cmd-Output">
+            <div class="panel-heading" onclick="document.getElementById('ex-Cmd-Output').style.display = document.getElementById('ex-Cmd-Output').style.display=='none'?'block':'none';">Example</div>
+            <div id="ex-Cmd-Output" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre>
+out, err := exec.Command(&#34;date&#34;).Output()
+if err != nil {
+    log.Fatal(err)
+}
+fmt.Printf(&#34;The date is %s\n&#34;, out)
+</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    <h4 id="Cmd.CombinedOutput">func (*Cmd) <a title="View Source" href="https://github.com/golang/go/blob/master/src/os/exec/exec.go?name=release#391">CombinedOutput</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *<a href="#Cmd">Cmd</a>) CombinedOutput() ([]<a href="builtin.htm#byte">byte</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>执行命令并返回标准输出和错误输出合并的切片。</p>
+</div>
+</body>
+</html>

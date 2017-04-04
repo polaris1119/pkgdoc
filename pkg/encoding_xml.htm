@@ -1,0 +1,537 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="./site.css" rel="stylesheet">
+<title>encoding/xml</title>
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package xml</h2>
+    <p><code>import "encoding/xml"</code>
+    <p>Package xml implements a simple XML 1.0 parser that
+        understands XML name spaces.</p>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#pkg-constants">Constants</a></li>
+        <li><a href="#pkg-variables">Variables</a></li>
+        <li><a href="#SyntaxError">type SyntaxError</a></li>
+        <ul>
+            <li><a href="#SyntaxError.Error">func (e *SyntaxError) Error() string</a></li>
+        </ul>
+        <li><a href="#TagPathError">type TagPathError</a></li>
+        <ul>
+            <li><a href="#TagPathError.Error">func (e *TagPathError) Error() string</a></li>
+        </ul>
+        <li><a href="#UnsupportedTypeError">type UnsupportedTypeError</a></li>
+        <ul>
+            <li><a href="#UnsupportedTypeError.Error">func (e *UnsupportedTypeError) Error() string</a></li>
+        </ul>
+        <li><a href="#UnmarshalError">type UnmarshalError</a></li>
+        <ul>
+            <li><a href="#UnmarshalError.Error">func (e UnmarshalError) Error() string</a></li>
+        </ul>
+        <li><a href="#CharData">type CharData</a></li>
+        <ul>
+            <li><a href="#CharData.Copy">func (c CharData) Copy() CharData</a></li>
+        </ul>
+        <li><a href="#Comment">type Comment</a></li>
+        <ul>
+            <li><a href="#Comment.Copy">func (c Comment) Copy() Comment</a></li>
+        </ul>
+        <li><a href="#Directive">type Directive</a></li>
+        <ul>
+            <li><a href="#Directive.Copy">func (d Directive) Copy() Directive</a></li>
+        </ul>
+        <li><a href="#ProcInst">type ProcInst</a></li>
+        <ul>
+            <li><a href="#ProcInst.Copy">func (p ProcInst) Copy() ProcInst</a></li>
+        </ul>
+        <li><a href="#Name">type Name</a></li>
+        <li><a href="#Attr">type Attr</a></li>
+        <li><a href="#StartElement">type StartElement</a></li>
+        <ul>
+            <li><a href="#StartElement.Copy">func (e StartElement) Copy() StartElement</a></li>
+            <li><a href="#StartElement.End">func (e StartElement) End() EndElement</a></li>
+        </ul>
+        <li><a href="#EndElement">type EndElement</a></li>
+        <li><a href="#Token">type Token</a></li>
+        <ul>
+            <li><a href="#CopyToken">func CopyToken(t Token) Token</a></li>
+        </ul>
+        <li><a href="#Marshaler">type Marshaler</a></li>
+        <li><a href="#Unmarshaler">type Unmarshaler</a></li>
+        <li><a href="#MarshalerAttr">type MarshalerAttr</a></li>
+        <li><a href="#UnmarshalerAttr">type UnmarshalerAttr</a></li>
+        <li><a href="#Escape">func Escape(w io.Writer, s []byte)</a></li>
+        <li><a href="#EscapeText">func EscapeText(w io.Writer, s []byte) error</a></li>
+        <li><a href="#Marshal">func Marshal(v interface{}) ([]byte, error)</a></li>
+        <li><a href="#MarshalIndent">func MarshalIndent(v interface{}, prefix, indent string) ([]byte, error)</a></li>
+        <li><a href="#Unmarshal">func Unmarshal(data []byte, v interface{}) error</a></li>
+        <li><a href="#Decoder">type Decoder</a></li>
+        <ul>
+            <li><a href="#NewDecoder">func NewDecoder(r io.Reader) *Decoder</a></li>
+            <li><a href="#Decoder.Decode">func (d *Decoder) Decode(v interface{}) error</a></li>
+            <li><a href="#Decoder.DecodeElement">func (d *Decoder) DecodeElement(v interface{}, start *StartElement) error</a></li>
+            <li><a href="#Decoder.Token">func (d *Decoder) Token() (t Token, err error)</a></li>
+            <li><a href="#Decoder.RawToken">func (d *Decoder) RawToken() (Token, error)</a></li>
+            <li><a href="#Decoder.Skip">func (d *Decoder) Skip() error</a></li>
+        </ul>
+        <li><a href="#Encoder">type Encoder</a></li>
+        <ul>
+            <li><a href="#NewEncoder">func NewEncoder(w io.Writer) *Encoder</a></li>
+            <li><a href="#Encoder.Encode">func (enc *Encoder) Encode(v interface{}) error</a></li>
+            <li><a href="#Encoder.EncodeElement">func (enc *Encoder) EncodeElement(v interface{}, start StartElement) error</a></li>
+            <li><a href="#Encoder.EncodeToken">func (enc *Encoder) EncodeToken(t Token) error</a></li>
+            <li><a href="#Encoder.Flush">func (enc *Encoder) Flush() error</a></li>
+            <li><a href="#Encoder.Indent">func (enc *Encoder) Indent(prefix, indent string)</a></li>
+        </ul>
+    </ul>
+    <h4 id="pkg-examples">Examples <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#example-Encoder" onclick="$('#ex-Encoder').addClass('in').removeClass('collapse').height('auto')">Encoder</a></li>
+        <li><a href="#example-MarshalIndent" onclick="$('#ex-MarshalIndent').addClass('in').removeClass('collapse').height('auto')">MarshalIndent</a></li>
+        <li><a href="#example-Unmarshal" onclick="$('#ex-Unmarshal').addClass('in').removeClass('collapse').height('auto')">Unmarshal</a></li>
+    </ul>
+    <h3 id="pkg-constants">Constants <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>const (
+    <span class="com">// 适用于本包Marshal输出的一般性XML header</span>
+    <span class="com">// 本常数并不会自动添加到本包的输出里，这里提供主要是出于便利的目的</span>
+    <span id="Header">Header</span> = `&lt;?xml version=&#34;1.0&#34; encoding=&#34;UTF-8&#34;?&gt;` + &#34;\n&#34;
+)</pre>
+    <h3 id="pkg-variables">Variables <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>var <span id="HTMLAutoClose">HTMLAutoClose</span> = htmlAutoClose</pre>
+    <p>HTMLAutoClose是应当考虑到自动关闭的HTML元素的集合。</p>
+    <pre>var <span id="HTMLEntity">HTMLEntity</span> = htmlEntity</pre>
+    <p>HTMLEntity是标准HTML entity字符到其翻译的映射。</p>
+    <h3 id="SyntaxError">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/xml/xml.go?name=release#29">SyntaxError</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type SyntaxError struct {
+    <span id="SyntaxError.Msg">Msg</span>  <a href="builtin.htm#string">string</a>
+    <span id="SyntaxError.Line">Line</span> <a href="builtin.htm#int">int</a>
+}</pre>
+    <p>SyntaxError代表XML输入流的格式错误。</p>
+    <h4 id="SyntaxError.Error">func (*SyntaxError) <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/xml/xml.go?name=release#34">Error</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (e *<a href="#SyntaxError">SyntaxError</a>) Error() <a href="builtin.htm#string">string</a></pre>
+    <h3 id="TagPathError">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/xml/typeinfo.go?name=release#336">TagPathError</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type TagPathError struct {
+    <span id="TagPathError.Struct">Struct</span>       <a href="reflect.htm">reflect</a>.<a href="reflect.htm#Type">Type</a>
+    <span id="TagPathError.Field1">Field1</span>, <span id="TagPathError.Tag1">Tag1</span> <a href="builtin.htm#string">string</a>
+    <span id="TagPathError.Field2">Field2</span>, <span id="TagPathError.Tag2">Tag2</span> <a href="builtin.htm#string">string</a>
+}</pre>
+    <p>反序列化时，如果字段标签的路径有冲突，就会返回TagPathError。</p>
+    <h4 id="TagPathError.Error">func (*TagPathError) <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/xml/typeinfo.go?name=release#342">Error</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (e *<a href="#TagPathError">TagPathError</a>) Error() <a href="builtin.htm#string">string</a></pre>
+    <h3 id="UnsupportedTypeError">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/xml/marshal.go?name=release#914">UnsupportedTypeError</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type UnsupportedTypeError struct {
+    <span id="UnsupportedTypeError.Type">Type</span> <a href="reflect.htm">reflect</a>.<a href="reflect.htm#Type">Type</a>
+}</pre>
+    <p>当序列化时，如果遇到不能转化为XML的类型，就会返回UnsupportedTypeError。</p>
+    <h4 id="UnsupportedTypeError.Error">func (*UnsupportedTypeError) <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/xml/marshal.go?name=release#918">Error</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (e *<a href="#UnsupportedTypeError">UnsupportedTypeError</a>) Error() <a href="builtin.htm#string">string</a></pre>
+    <h3 id="UnmarshalError">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/xml/read.go?name=release#137">UnmarshalError</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type UnmarshalError <a href="builtin.htm#string">string</a></pre>
+    <p>UnmarshalError代表反序列化时出现的错误。</p>
+    <h4 id="UnmarshalError.Error">func (UnmarshalError) <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/xml/read.go?name=release#139">Error</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (e <a href="#UnmarshalError">UnmarshalError</a>) Error() <a href="builtin.htm#string">string</a></pre>
+    <h3 id="CharData">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/xml/xml.go?name=release#83">CharData</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type CharData []<a href="builtin.htm#byte">byte</a></pre>
+    <p>CharData类型代表XML字符数据（原始文本），其中XML转义序列已经被它们所代表的字符取代。</p>
+    <h4 id="CharData.Copy">func (CharData) <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/xml/xml.go?name=release#91">Copy</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c <a href="#CharData">CharData</a>) Copy() <a href="#CharData">CharData</a></pre>
+    <h3 id="Comment">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/xml/xml.go?name=release#95">Comment</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Comment []<a href="builtin.htm#byte">byte</a></pre>
+    <p>Comment代表XML注释，格式为&lt;!--comment--&gt;，切片中不包含注释标记&lt;!—和--&gt;。</p>
+    <h4 id="Comment.Copy">func (Comment) <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/xml/xml.go?name=release#97">Copy</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c <a href="#Comment">Comment</a>) Copy() <a href="#Comment">Comment</a></pre>
+    <h3 id="Directive">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/xml/xml.go?name=release#112">Directive</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Directive []<a href="builtin.htm#byte">byte</a></pre>
+    <p>Directive代表XML指示，格式为&lt;!directive&gt;，切片中不包含标记&lt;!和&gt;。</p>
+    <h4 id="Directive.Copy">func (Directive) <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/xml/xml.go?name=release#114">Copy</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (d <a href="#Directive">Directive</a>) Copy() <a href="#Directive">Directive</a></pre>
+    <h3 id="ProcInst">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/xml/xml.go?name=release#100">ProcInst</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type ProcInst struct {
+    <span id="ProcInst.Target">Target</span> <a href="builtin.htm#string">string</a>
+    <span id="ProcInst.Inst">Inst</span>   []<a href="builtin.htm#byte">byte</a>
+}</pre>
+    <p>ProcInst代表XML处理指令，格式为&lt;?target inst?&gt;。</p>
+    <h4 id="ProcInst.Copy">func (ProcInst) <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/xml/xml.go?name=release#105">Copy</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p <a href="#ProcInst">ProcInst</a>) Copy() <a href="#ProcInst">ProcInst</a></pre>
+    <h3 id="Name">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/xml/xml.go?name=release#43">Name</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Name struct {
+    <span id="Name.Space">Space</span>, <span id="Name.Local">Local</span> <a href="builtin.htm#string">string</a>
+}</pre>
+    <p>Name代表一个XML名称（Local字段），并指定名字空间（Space）。Decoder.Token方法返回的Token中，Space标识符是典型的URL而不是被解析的文档里的短前缀。</p>
+    <h3 id="Attr">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/xml/xml.go?name=release#48">Attr</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Attr struct {
+    <span id="Attr.Name">Name</span>  <a href="#Name">Name</a>
+    <span id="Attr.Value">Value</span> <a href="builtin.htm#string">string</a>
+}</pre>
+    <p>Attr代表一个XML元素的一条属性（Name=Value）</p>
+    <h3 id="StartElement">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/xml/xml.go?name=release#58">StartElement</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type StartElement struct {
+    <span id="StartElement.Name">Name</span> <a href="#Name">Name</a>
+    <span id="StartElement.Attr">Attr</span> []<a href="#Attr">Attr</a>
+}</pre>
+    <p>StartElement代表一个XML起始元素。</p>
+    <h4 id="StartElement.Copy">func (StartElement) <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/xml/xml.go?name=release#63">Copy</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (e <a href="#StartElement">StartElement</a>) Copy() <a href="#StartElement">StartElement</a></pre>
+    <h4 id="StartElement.End">func (StartElement) <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/xml/xml.go?name=release#71">End</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (e <a href="#StartElement">StartElement</a>) End() <a href="#EndElement">EndElement</a></pre>
+    <p>返回e对应的XML结束元素。</p>
+    <h3 id="EndElement">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/xml/xml.go?name=release#76">EndElement</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type EndElement struct {
+    <span id="EndElement.Name">Name</span> <a href="#Name">Name</a>
+}</pre>
+    <p>EndElement代表一个XML结束元素。</p>
+    <h3 id="Token">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/xml/xml.go?name=release#55">Token</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Token interface{}</pre>
+    <p>Token接口用于保存token类型（CharData、Comment、Directive、ProcInst、StartElement、EndElement）的值。</p>
+    <h4 id="CopyToken">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/xml/xml.go?name=release#117">CopyToken</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func CopyToken(t <a href="#Token">Token</a>) <a href="#Token">Token</a></pre>
+    <p>CopyToken返回一个Token的拷贝。</p>
+    <h3 id="Marshaler">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/xml/marshal.go?name=release#94">Marshaler</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Marshaler interface {
+    <span id="Marshaler.MarshalXML">MarshalXML</span>(e *<a href="#Encoder">Encoder</a>, start <a href="#StartElement">StartElement</a>) <a href="builtin.htm#error">error</a>
+}</pre>
+    <p align="left">实现了Marshaler接口的类型可以将自身序列化为合法的XML元素。</p>
+    <p align="left">MarshalXML方法将自身调用者编码为零或多个XML元素。 按照惯例，数组或切片会编码为一系列元素，每个成员一条。使用start作为元素标签并不是必须的，但这么做可以帮助Unmarshal方法正确的匹配XML元素和结构体字段。一个常用的策略是在同一个层次里将每个独立的值对应到期望的XML然后使用e.EncodeElement进行编码。另一个常用的策略是重复调用e.EncodeToken来一次一个token的生成XML输出。编码后的token必须组成零或多个XML元素。</p>
+    <h3 id="Unmarshaler">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/xml/read.go?name=release#156">Unmarshaler</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Unmarshaler interface {
+    <span id="Unmarshaler.UnmarshalXML">UnmarshalXML</span>(d *<a href="#Decoder">Decoder</a>, start <a href="#StartElement">StartElement</a>) <a href="builtin.htm#error">error</a>
+}</pre>
+    <p align="left">实现了Unmarshaler接口的类型可以根据自身的XML元素描述反序列化自身。</p>
+    <p align="left">UnmarshalXML方法解码以start起始单个XML元素。如果它返回了错误，外层Unmarshal的调用将停止执行并返回该错误。UnmarshalXML方法必须正好&ldquo;消费&rdquo;一个XML元素。一个常用的策略是使用d.DecodeElement 将XML分别解码到各独立值，然后再将这些值写入UnmarshalXML的调用者。另一个常用的策略是使用d.Token一次一个token的处理XML对象。UnmarshalXML通常不使用d.RawToken。</p>
+    <h3 id="MarshalerAttr">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/xml/marshal.go?name=release#109">MarshalerAttr</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type MarshalerAttr interface {
+    <span id="MarshalerAttr.MarshalXMLAttr">MarshalXMLAttr</span>(name <a href="#Name">Name</a>) (<a href="#Attr">Attr</a>, <a href="builtin.htm#error">error</a>)
+}</pre>
+    <p align="left">实现了MarshalerAttr接口的类型可以将自身序列化为合法的XML属性。</p>
+    <p align="left">MarshalXMLAttr返回一个值为方法调用者编码后的值的XML属性。使用name作为属性的name并非必须的，但这么做可以帮助Unmarshal方法正确的匹配属性和结构体字段。如果MarshalXMLAttr返回一个零值属性Attr{}，将不会生成属性输出。MarshalXMLAttr只用于有标签且标签有"attr"选项的结构体字段。</p>
+    <h3 id="UnmarshalerAttr">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/xml/read.go?name=release#168">UnmarshalerAttr</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type UnmarshalerAttr interface {
+    <span id="UnmarshalerAttr.UnmarshalXMLAttr">UnmarshalXMLAttr</span>(attr <a href="#Attr">Attr</a>) <a href="builtin.htm#error">error</a>
+}</pre>
+    <p align="left">实现了UnmarshalerAttr接口的类型可以根据自身的XML属性形式的描述反序列化自身。</p>
+    <p align="left">UnmarshalXMLAttr解码单个的XML属性。如果它返回一个错误，外层的Umarshal调用会停止执行并返回该错误。UnmarshalXMLAttr只有在结构体字段的标签有"attr"选项时才被使用。</p>
+    <h3 id="Escape">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/xml/xml.go?name=release#1910">Escape</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Escape(w <a href="io.htm">io</a>.<a href="io.htm#Writer">Writer</a>, s []<a href="builtin.htm#byte">byte</a>)</pre>
+    <p>Escape类似EscapeText函数但会忽略返回的错误。本函数是用于保证和Go 1.0的向后兼容。应用于Go 1.1及以后版本的代码请使用EscapeText。</p>
+    <h3 id="EscapeText">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/xml/xml.go?name=release#1824">EscapeText</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func EscapeText(w <a href="io.htm">io</a>.<a href="io.htm#Writer">Writer</a>, s []<a href="builtin.htm#byte">byte</a>) <a href="builtin.htm#error">error</a></pre>
+    <p>EscapeText向w中写入经过适当转义的、有明文s具有相同意义的XML文本。</p>
+    <h3 id="Marshal">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/xml/marshal.go?name=release#70">Marshal</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Marshal(v interface{}) ([]<a href="builtin.htm#byte">byte</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p align="left">Marshal函数返回v的XML编码。</p>
+    <p align="left">Marshal处理数组或者切片时会序列化每一个元素。Marshal处理指针时，会序列化其指向的值；如果指针为nil，则啥也不输出。Marshal处理接口时，会序列化其内包含的具体类型值，如果接口值为nil，也是不输出。Marshal处理其余类型数据时，会输出一或多个包含数据的XML元素。</p>
+    <p align="left">XML元素的名字按如下优先顺序获取：</p>
+    <pre>- 如果数据是结构体，其XMLName字段的标签
+- 类型为xml.Name的XMLName字段的值
+- 数据是某结构体的字段，其标签
+- 数据是某结构体的字段，其字段名
+- 被序列化的类型的名字</pre>
+    <p>一个结构体的XML元素包含该结构体所有导出字段序列化后的元素，有如下例外：</p>
+    <pre>- XMLName字段，如上所述，会省略
+- 具有标签"-"的字段会省略
+- 具有标签"name,attr"的字段会成为该XML元素的名为name的属性
+- 具有标签",attr"的字段会成为该XML元素的名为字段名的属性
+- 具有标签",chardata"的字段会作为字符数据写入，而非XML元素
+- 具有标签",innerxml"的字段会原样写入，而不会经过正常的序列化过程
+- 具有标签",comment"的字段作为XML注释写入，而不经过正常的序列化过程，该字段内不能有"--"字符串
+- 标签中包含"omitempty"选项的字段如果为空值会省略
+  空值为false、0、nil指针、nil接口、长度为0的数组、切片、映射
+- 匿名字段（其标签无效）会被处理为其字段是外层结构体的字段</pre>
+    <p align="left">如果一个字段的标签为"a&gt;b&gt;c"，则元素c将会嵌套进其上层元素a和b中。如果该字段相邻的字段标签指定了同样的上层元素，则会放在同一个XML元素里。</p>
+    <p align="left">参见MarshalIndent的例子。如果要求Marshal序列化通道、函数或者映射会返回错误。</p>
+    <h3 id="MarshalIndent">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/xml/marshal.go?name=release#116">MarshalIndent</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func MarshalIndent(v interface{}, prefix, indent <a href="builtin.htm#string">string</a>) ([]<a href="builtin.htm#byte">byte</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>MarshalIndent功能类似Marshal。但每个XML元素会另起一行并缩进，该行以prefix起始，后跟一或多个indent的拷贝（根据嵌套层数）。</p>
+    <div class="panel-group">
+        <div class="panel panel-default" id="example-MarshalIndent">
+            <div class="panel-heading" onclick="document.getElementById('ex-MarshalIndent').style.display = document.getElementById('ex-MarshalIndent').style.display=='none'?'block':'none';">Example</div>
+            <div id="ex-MarshalIndent" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre>type Address struct {
+    City, State string
+}
+type Person struct {
+    XMLName   xml.Name `xml:&#34;person&#34;`
+    Id        int      `xml:&#34;id,attr&#34;`
+    FirstName string   `xml:&#34;name&gt;first&#34;`
+    LastName  string   `xml:&#34;name&gt;last&#34;`
+    Age       int      `xml:&#34;age&#34;`
+    Height    float32  `xml:&#34;height,omitempty&#34;`
+    Married   bool
+    Address
+    Comment string `xml:&#34;,comment&#34;`
+}
+v := &amp;Person{Id: 13, FirstName: &#34;John&#34;, LastName: &#34;Doe&#34;, Age: 42}
+v.Comment = &#34; Need more details. &#34;
+v.Address = Address{&#34;Hanga Roa&#34;, &#34;Easter Island&#34;}
+output, err := xml.MarshalIndent(v, &#34;  &#34;, &#34;    &#34;)
+if err != nil {
+    fmt.Printf(&#34;error: %v\n&#34;, err)
+}
+os.Stdout.Write(output)</pre>
+                    <p>Output:
+                    <pre>  &lt;person id=&#34;13&#34;&gt;
+      &lt;name&gt;
+          &lt;first&gt;John&lt;/first&gt;
+          &lt;last&gt;Doe&lt;/last&gt;
+      &lt;/name&gt;
+      &lt;age&gt;42&lt;/age&gt;
+      &lt;Married&gt;false&lt;/Married&gt;
+      &lt;City&gt;Hanga Roa&lt;/City&gt;
+      &lt;State&gt;Easter Island&lt;/State&gt;
+      &lt;!-- Need more details. --&gt;
+  &lt;/person&gt;
+</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    <h3 id="Unmarshal">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/xml/read.go?name=release#114">Unmarshal</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Unmarshal(data []<a href="builtin.htm#byte">byte</a>, v interface{}) <a href="builtin.htm#error">error</a></pre>
+    <p align="left">Unmarshal解析XML编码的数据并将结果存入v指向的值。v只能指向结构体、切片或者和字符串。良好格式化的数据如果不能存入v，会被丢弃。</p>
+    <p align="left">因为Unmarshal使用reflect包，它只能填写导出字段。本函数好似用大小写敏感的比较来匹配XML元素名和结构体的字段名/标签键名。</p>
+    <p align="left">Unmarshal函数使用如下规则将XML元素映射到结构体字段上。这些规则中，字段标签指的是结构体字段的标签键'xml'对应的值（参见上面的例子）：</p>
+    <pre>* 如果结构体字段的类型为字符串或者[]byte，且标签为",innerxml"，
+  Unmarshal函数直接将对应原始XML文本写入该字段，其余规则仍适用。
+* 如果结构体字段类型为xml.Name且名为XMLName，Unmarshal会将元素名写入该字段
+* 如果字段XMLName的标签的格式为"name"或"namespace-URL name"，
+  XML元素必须有给定的名字（以及可选的名字空间），否则Unmarshal会返回错误。
+* 如果XML元素的属性的名字匹配某个标签",attr"为字段的字段名，或者匹配某个标签为"name,attr"
+  的字段的标签名，Unmarshal会将该属性的值写入该字段。
+* 如果XML元素包含字符数据，该数据会存入结构体中第一个具有标签",chardata"的字段中，
+  该字段可以是字符串类型或者[]byte类型。如果没有这样的字段，字符数据会丢弃。
+* 如果XML元素包含注释，该数据会存入结构体中第一个具有标签",comment"的字段中，
+  该字段可以是字符串类型或者[]byte类型。如果没有这样的字段，字符数据会丢弃。
+* 如果XML元素包含一个子元素，其名称匹配格式为"a"或"a>b>c"的标签的前缀，反序列化会深入
+  XML结构中寻找具有指定名称的元素，并将最后端的元素映射到该标签所在的结构体字段。
+  以">"开始的标签等价于以字段名开始并紧跟着">" 的标签。
+* 如果XML元素包含一个子元素，其名称匹配某个结构体类型字段的XMLName字段的标签名，
+  且该结构体字段本身没有显式指定标签名，Unmarshal会将该元素映射到该字段。
+* 如果XML元素的包含一个子元素，其名称匹配够格结构体字段的字段名，且该字段没有任何模式选项
+  （",attr"、",chardata"等），Unmarshal会将该元素映射到该字段。
+* 如果XML元素包含的某个子元素不匹配以上任一条，而存在某个字段其标签为",any"，
+  Unmarshal会将该元素映射到该字段。
+* 匿名字段被处理为其字段好像位于外层结构体中一样。
+* 标签为"-"的结构体字段永不会被反序列化填写。
+</pre>
+    <p align="left">Unmarshal函数将XML元素写入string或[]byte时，会将该元素的字符数据串联起来作为值，目标[]byte不能是nil。</p>
+    <p align="left">Unmarshal函数将属性写入string或[]byte时，会将属性的值以字符串/切片形式写入。</p>
+    <p align="left">Unmarshal函数将XML元素写入切片时，会将切片扩展并将XML元素的子元素映射入新建的值里。</p>
+    <p align="left">Unmarshal函数将XML元素/属性写入bool值时，会将对应的字符串转化为布尔值。</p>
+    <p align="left">Unmarshal函数将XML元素/属性写入整数或浮点数类型时，会将对应的字符串解释为十进制数字。不会检查溢出。</p>
+    <p align="left">Unmarshal函数将XML元素写入xml.Name类型时，会记录元素的名称。</p>
+    <p align="left">Unmarshal函数将XML元素写入指针时，会申请一个新值并将XML元素映射入该值。</p>
+    <div class="panel-group">
+        <div class="panel panel-default" id="example-Unmarshal">
+            <div class="panel-heading" onclick="document.getElementById('ex-Unmarshal').style.display = document.getElementById('ex-Unmarshal').style.display=='none'?'block':'none';">Example</div>
+            <div id="ex-Unmarshal" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre>type Email struct {
+    Where string `xml:&#34;where,attr&#34;`
+    Addr  string
+}
+type Address struct {
+    City, State string
+}
+type Result struct {
+    XMLName xml.Name `xml:&#34;Person&#34;`
+    Name    string   `xml:&#34;FullName&#34;`
+    Phone   string
+    Email   []Email
+    Groups  []string `xml:&#34;Group&gt;Value&#34;`
+    Address
+}
+v := Result{Name: &#34;none&#34;, Phone: &#34;none&#34;}
+data := `
+		&lt;Person&gt;
+			&lt;FullName&gt;Grace R. Emlin&lt;/FullName&gt;
+			&lt;Company&gt;Example Inc.&lt;/Company&gt;
+			&lt;Email where=&#34;home&#34;&gt;
+				&lt;Addr&gt;gre@example.com&lt;/Addr&gt;
+			&lt;/Email&gt;
+			&lt;Email where=&#39;work&#39;&gt;
+				&lt;Addr&gt;gre@work.com&lt;/Addr&gt;
+			&lt;/Email&gt;
+			&lt;Group&gt;
+				&lt;Value&gt;Friends&lt;/Value&gt;
+				&lt;Value&gt;Squash&lt;/Value&gt;
+			&lt;/Group&gt;
+			&lt;City&gt;Hanga Roa&lt;/City&gt;
+			&lt;State&gt;Easter Island&lt;/State&gt;
+		&lt;/Person&gt;
+	`
+err := xml.Unmarshal([]byte(data), &amp;v)
+if err != nil {
+    fmt.Printf(&#34;error: %v&#34;, err)
+    return
+}
+fmt.Printf(&#34;XMLName: %#v\n&#34;, v.XMLName)
+fmt.Printf(&#34;Name: %q\n&#34;, v.Name)
+fmt.Printf(&#34;Phone: %q\n&#34;, v.Phone)
+fmt.Printf(&#34;Email: %v\n&#34;, v.Email)
+fmt.Printf(&#34;Groups: %v\n&#34;, v.Groups)
+fmt.Printf(&#34;Address: %v\n&#34;, v.Address)</pre>
+                    <p>Output:
+                    <pre>XMLName: xml.Name{Space:&#34;&#34;, Local:&#34;Person&#34;}
+Name: &#34;Grace R. Emlin&#34;
+Phone: &#34;none&#34;
+Email: [{home gre@example.com} {work gre@work.com}]
+Groups: [Friends Squash]
+Address: {Hanga Roa Easter Island}
+</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    <h3 id="Decoder">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/xml/xml.go?name=release#135">Decoder</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Decoder struct {
+    <span class="com">// Strict默认设为true，强制要求符合XML规范</span>
+    <span class="com">// 如果设为false，则解析器允许输入中包含常见的错误：</span>
+    <span class="com">//   * 如果元素缺少结束标签，解析器会虚构一个结束标签以保证返回值来自良好平衡的Token</span>
+    <span class="com">//   * 属性值和字符数据中，未知或畸形的字符entity（以&开始的序列）会丢在一边</span>
+    <span class="com">//</span>
+    <span class="com">// 设置：</span>
+    <span class="com">//</span>
+    <span class="com">//   d.Strict = false</span>
+    <span class="com">//   d.AutoClose = HTMLAutoClose</span>
+    <span class="com">//   d.Entity = HTMLEntity</span>
+    <span class="com">//</span>
+    <span class="com">// 可以创建一个能处理标准HTML的解析器。</span>
+    <span class="com">//</span>
+    <span class="com">// Strict模式不会强制要求XML名称空间TR，特别注意它不会拒绝使用未定义前缀的名字空间标签</span>
+    <span class="com">// 这些标签会将未知前缀作为名字空间URL来记录</span>
+    <span id="Decoder.Strict">Strict</span> <a href="builtin.htm#bool">bool</a>
+    <span class="com">// 当Strict == false时，AutoClose指定一个元素的集合：</span>
+    <span class="com">// 这些元素在开启后就立刻结束，不管有没有对应关闭标签存在</span>
+    <span id="Decoder.AutoClose">AutoClose</span> []<a href="builtin.htm#string">string</a>
+    <span class="com">// Entity字段用于将非标准的实体名映射到替换的字符串</span>
+    <span class="com">// parser的行为就好像标准实体映射存在于本字段，即使实际上本字段没有：</span>
+    <span class="com">//</span>
+    <span class="com">//	&#34;lt&#34;: &#34;&lt;&#34;,</span>
+    <span class="com">//	&#34;gt&#34;: &#34;&gt;&#34;,</span>
+    <span class="com">//	&#34;amp&#34;: &#34;&amp;&#34;,</span>
+    <span class="com">//	&#34;apos&#34;: &#34;&#39;&#34;,</span>
+    <span class="com">//	&#34;quot&#34;: `&#34;`,</span>
+    <span id="Decoder.Entity">Entity</span> map[<a href="builtin.htm#string">string</a>]<a href="builtin.htm#string">string</a>
+    <span class="com">// CharsetReader字段如果非nil，会定义一个函数来生成转换字符集的io.Reader，</span>
+    <span class="com">// 将给定的非utf-8字符集转换为utf-8字符集。如果CharsetReader字段为nil</span>
+    <span class="com">// 或者返回一个错误，解析将会停止并发挥该错误。CharsetReader的返回值不能都是nil</span>
+    <span id="Decoder.CharsetReader">CharsetReader</span> func(charset <a href="builtin.htm#string">string</a>, input <a href="io.htm">io</a>.<a href="io.htm#Reader">Reader</a>) (<a href="io.htm">io</a>.<a href="io.htm#Reader">Reader</a>, <a href="builtin.htm#error">error</a>)
+    <span class="com">// DefaultSpace设置未修饰标签的默认名字空间，就好像整个XML流都包装进有个具有属性</span>
+    <span class="com">// xmlns="DefaultSpace"的元素内</span>
+    <span id="Decoder.DefaultSpace">DefaultSpace</span> <a href="builtin.htm#string">string</a>
+    <span class="com">// 内含隐藏或非导出字段</span>
+}</pre>
+    <p>Decoder代表一个XML解析器，可以读取输入流的部分数据，该解析器假定输入是utf-8编码的。</p>
+    <h4 id="NewDecoder">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/xml/xml.go?name=release#205">NewDecoder</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func NewDecoder(r <a href="io.htm">io</a>.<a href="io.htm#Reader">Reader</a>) *<a href="#Decoder">Decoder</a></pre>
+    <p>创建一个从r读取XML数据的解析器。如果r未实现io.ByteReader接口，NewDecoder会为其添加缓存。</p>
+    <h4 id="Decoder.Decode">func (*Decoder) <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/xml/read.go?name=release#120">Decode</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (d *<a href="#Decoder">Decoder</a>) Decode(v interface{}) <a href="builtin.htm#error">error</a></pre>
+    <p>Decode方法功能类似xml.Unmarshal函数，但会从底层读取XML数据并查找StartElement。</p>
+    <h4 id="Decoder.DecodeElement">func (*Decoder) <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/xml/read.go?name=release#128">DecodeElement</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (d *<a href="#Decoder">Decoder</a>) DecodeElement(v interface{}, start *<a href="#StartElement">StartElement</a>) <a href="builtin.htm#error">error</a></pre>
+    <p>DecodeElement方法的功能类似xml.Unmarshal函数，但它会启出一个指向XML起始标签后将解析结果写入v。当客户端自己读取了一些原始XML token但仍想defer调用Unmarshal处理一些元素时很有用。</p>
+    <h4 id="Decoder.Token">func (*Decoder) <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/xml/xml.go?name=release#238">Token</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (d *<a href="#Decoder">Decoder</a>) Token() (t <a href="#Token">Token</a>, err <a href="builtin.htm#error">error</a>)</pre>
+    <p align="left">Token返回输入流里的下一个XML token。在输入流的结尾处，会返回(nil, io.EOF)</p>
+    <p align="left">返回的token数据里的[]byte数据引用自解析器内部的缓存，只在下一次调用Token之前有效。如要获取切片的拷贝，调用CopyToken函数或者token的Copy方法。</p>
+    <p align="left">成功调用的Token方法会将自我闭合的元素（如&lt;br/&gt;）扩展为分离的起始和结束标签。</p>
+    <p align="left">Token方法会保证它返回的StartElement和EndElement两种token正确的嵌套和匹配：如果本方法遇到了不正确的结束标签，会返回一个错误。</p>
+    <p align="left">Token方法实现了XML名字空间，细节参见<a href="http://www.w3.org/TR/REC-xml-names/">http://www.w3.org/TR/REC-xml-names/</a>。每一个包含在Token里的Name结构体，都会将Space字段设为URL标识（如果可知的话）。如果Token遇到未知的名字空间前缀，它会使用该前缀作为名字空间，而不是报错。</p>
+    <h4 id="Decoder.RawToken">func (*Decoder) <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/xml/xml.go?name=release#492">RawToken</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (d *<a href="#Decoder">Decoder</a>) RawToken() (<a href="#Token">Token</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>RawToken方法Token方法，但不会验证起始和结束标签，也不将名字空间前缀翻译为它们相应的URL。</p>
+    <h4 id="Decoder.Skip">func (*Decoder) <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/xml/read.go?name=release#677">Skip</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (d *<a href="#Decoder">Decoder</a>) Skip() <a href="builtin.htm#error">error</a></pre>
+    <p>Skip从底层读取token，直到读取到最近一次读取到的起始标签对应的结束标签。如果读取中遇到别的起始标签会进行迭代，因此可以跳过嵌套结构。如果本方法找到了对应起始标签的结束标签，会返回nil；否则返回一个描述该问题的错误。</p>
+    <h3 id="Encoder">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/xml/marshal.go?name=release#127">Encoder</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Encoder struct {
+    <span class="com">// 内含隐藏或非导出字段</span>
+}</pre>
+    <p>Encoder向输出流中写入XML数据。</p>
+    <div class="panel-group">
+        <div class="panel panel-default" id="example-Encoder">
+            <div class="panel-heading" onclick="document.getElementById('ex-Encoder').style.display = document.getElementById('ex-Encoder').style.display=='none'?'block':'none';">Example</div>
+            <div id="ex-Encoder" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre>type Address struct {
+    City, State string
+}
+type Person struct {
+    XMLName   xml.Name `xml:&#34;person&#34;`
+    Id        int      `xml:&#34;id,attr&#34;`
+    FirstName string   `xml:&#34;name&gt;first&#34;`
+    LastName  string   `xml:&#34;name&gt;last&#34;`
+    Age       int      `xml:&#34;age&#34;`
+    Height    float32  `xml:&#34;height,omitempty&#34;`
+    Married   bool
+    Address
+    Comment string `xml:&#34;,comment&#34;`
+}
+v := &amp;Person{Id: 13, FirstName: &#34;John&#34;, LastName: &#34;Doe&#34;, Age: 42}
+v.Comment = &#34; Need more details. &#34;
+v.Address = Address{&#34;Hanga Roa&#34;, &#34;Easter Island&#34;}
+enc := xml.NewEncoder(os.Stdout)
+enc.Indent(&#34;  &#34;, &#34;    &#34;)
+if err := enc.Encode(v); err != nil {
+    fmt.Printf(&#34;error: %v\n&#34;, err)
+}</pre>
+                    <p>Output:
+                    <pre>  &lt;person id=&#34;13&#34;&gt;
+      &lt;name&gt;
+          &lt;first&gt;John&lt;/first&gt;
+          &lt;last&gt;Doe&lt;/last&gt;
+      &lt;/name&gt;
+      &lt;age&gt;42&lt;/age&gt;
+      &lt;Married&gt;false&lt;/Married&gt;
+      &lt;City&gt;Hanga Roa&lt;/City&gt;
+      &lt;State&gt;Easter Island&lt;/State&gt;
+      &lt;!-- Need more details. --&gt;
+  &lt;/person&gt;
+</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    <h4 id="NewEncoder">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/xml/marshal.go?name=release#132">NewEncoder</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func NewEncoder(w <a href="io.htm">io</a>.<a href="io.htm#Writer">Writer</a>) *<a href="#Encoder">Encoder</a></pre>
+    <p>NewEncoder创建一个写入w的*Encoder。</p>
+    <h4 id="Encoder.Encode">func (*Encoder) <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/xml/marshal.go?name=release#152">Encode</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (enc *<a href="#Encoder">Encoder</a>) Encode(v interface{}) <a href="builtin.htm#error">error</a></pre>
+    <p>Encode将v编码为XML后写入底层。参见Marshal函数获取go到XML转换的细节。在返回前enc会调用Flush。</p>
+    <h4 id="Encoder.EncodeElement">func (*Encoder) <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/xml/marshal.go?name=release#167">EncodeElement</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (enc *<a href="#Encoder">Encoder</a>) EncodeElement(v interface{}, start <a href="#StartElement">StartElement</a>) <a href="builtin.htm#error">error</a></pre>
+    <p>EncodeElement将v的XML编码写入底层， 并使用start作为编码的最外层。参见Marshal函数获取go到XML转换的细节。在返回前enc会调用Flush方法。</p>
+    <h4 id="Encoder.EncodeToken">func (*Encoder) <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/xml/marshal.go?name=release#193">EncodeToken</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (enc *<a href="#Encoder">Encoder</a>) EncodeToken(t <a href="#Token">Token</a>) <a href="builtin.htm#error">error</a></pre>
+    <p align="left">EncodeToken向底层写入一个token。如果StartElement和EndElement的匹配不正确，本方法会返回错误。</p>
+    <p align="left">EncodeToken 方法不会调用Flush，因为它通常是更大型操作如Encode或EncodeElement方法的一部分（或者用户自定义的Marshaler接口MarshalXML 方法里调用本方法），这些方法会在结束前Flush。调用者创建一个Encoder并直接使用本方法而不使用Encode或EncodeElement方法的话，必须在结束时调用Flush以保证XML数据写入底层的io.Writer接口。</p>
+    <p align="left">EncodeToken写入ProcInst类型Token时，只允许在底层流最开始写入目标是"xml"的ProcInst。</p>
+    <h4 id="Encoder.Flush">func (*Encoder) <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/xml/marshal.go?name=release#246">Flush</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (enc *<a href="#Encoder">Encoder</a>) Flush() <a href="builtin.htm#error">error</a></pre>
+    <p>Flush方法会将缓存中的XML数据写入底层。参见EncodeToken函数获取细节信息。</p>
+    <h4 id="Encoder.Indent">func (*Encoder) <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/xml/marshal.go?name=release#141">Indent</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (enc *<a href="#Encoder">Encoder</a>) Indent(prefix, indent <a href="builtin.htm#string">string</a>)</pre>
+    <p>Indent函数设定编码器生成XML数据时的格式化缩进信息。细节请参见MarshalIndent函数。</p>
+    <h3 id="pkg-note-bug">Bugs <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <p><a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/xml/read.go?name=release#17">☞</a> XML元素和数据结构体的映射有天生的缺陷：XML元素是依赖顺序的匿名值的集合，而结构体是不依赖顺序的命名值的集合。参见json包获取更适用于数据结构体的文本表示。    </div>
+
+<div id="x-footer" class="clearfix">
+  <div class="container">
+    <a href="http://studygolang.com/">Go语言中文网</a>
+    <span class="text-muted">|</span> <a href="http://golang.org/">Go Language</a>
+    <span class="pull-right"><a href="#">Back to top</a></span>
+  </div>
+</div>
+<script src="../assets/jquery-2.0.3.min.js"></script>
+<script src="../bootstrap.min.js"></script>
+<script src="../site.js"></script>
+</body>
+</html>

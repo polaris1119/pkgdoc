@@ -1,0 +1,91 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="../../../site.css" rel="stylesheet">
+<title>go.net/proxy</title>
+<meta name="private:description" content="刘志曦翻译于2014年夏，Go 1.3版本">
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package proxy</h2>
+    <p><code>import "code.google.com/p/go.net/proxy"</code>
+    <p>proxy包提供了多种代理网络的协议。</p>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <ul class="list-unstyled">
+        <li><a href="#pkg-variables">Variables</a></li>
+        <li><a href="#Auth">type Auth</a></li>
+        <li><a href="#Dialer">type Dialer</a></li>
+        <ul>
+            <li><a href="#FromEnvironment">func FromEnvironment() Dialer</a></li>
+            <li><a href="#FromURL">func FromURL(u *url.URL, forward Dialer) (Dialer, error)</a></li>
+            <li><a href="#SOCKS5">func SOCKS5(network, addr string, auth *Auth, forward Dialer) (Dialer, error)</a></li>
+        </ul>
+        <li><a href="#PerHost">type PerHost</a></li>
+        <ul>
+            <li><a href="#NewPerHost">func NewPerHost(defaultDialer, bypass Dialer) *PerHost</a></li>
+            <li><a href="#PerHost.AddIP">func (p *PerHost) AddIP(ip net.IP)</a></li>
+            <li><a href="#PerHost.AddNetwork">func (p *PerHost) AddNetwork(net *net.IPNet)</a></li>
+            <li><a href="#PerHost.AddHost">func (p *PerHost) AddHost(host string)</a></li>
+            <li><a href="#PerHost.AddZone">func (p *PerHost) AddZone(zone string)</a></li>
+            <li><a href="#PerHost.AddFromString">func (p *PerHost) AddFromString(s string)</a></li>
+            <li><a href="#PerHost.Dial">func (p *PerHost) Dial(network, addr string) (c net.Conn, err error)</a></li>
+        </ul>
+        <li><a href="#RegisterDialerType">func RegisterDialerType(scheme string, f func(*url.URL, Dialer) (Dialer, error))</a></li>
+    </ul>
+    <h3 id="pkg-variables">Variables <a class="permalink" href="#pkg-variables">&para;</a></h3>
+    <pre>var <span id="Direct">Direct</span> = direct{}</pre>
+    <p>Direct是一个直接的代理：它直接建立网络连接。</p>
+    <h3 id="Auth">type <a title="View Source" href="http://code.google.com/p/go/source/browse/proxy/proxy.go?repo=net#23">Auth</a> <a class="permalink" href="#Auth">&para;</a></h3>
+    <pre>type Auth struct {
+    <span id="Auth.User">User</span>, <span id="Auth.Password">Password</span> <a href="https://godoc.org/builtin#string">string</a>
+}</pre>
+    <p>Auth包含认证的参数，特定的Dialer可能会需要这些参数。</p>
+    <h3 id="Dialer">type <a title="View Source" href="http://code.google.com/p/go/source/browse/proxy/proxy.go?repo=net#17">Dialer</a> <a class="permalink" href="#Dialer">&para;</a></h3>
+    <pre>type Dialer interface {
+    <span class="com">// Dial方法通过代理与指定地址建立连接</span>
+    <span id="Dialer.Dial">Dial</span>(network, addr <a href="https://godoc.org/builtin#string">string</a>) (c <a href="https://godoc.org/net">net</a>.<a href="https://godoc.org/net#Conn">Conn</a>, err <a href="https://godoc.org/builtin#error">error</a>)
+}</pre>
+    <p>Dialer代表一个创建连接的途径。</p>
+    <h4 id="FromEnvironment">func <a title="View Source" href="http://code.google.com/p/go/source/browse/proxy/proxy.go?repo=net#29">FromEnvironment</a> <a class="permalink" href="#FromEnvironment">&para;</a></h4>
+    <pre class="funcdecl">func FromEnvironment() <a href="#Dialer">Dialer</a></pre>
+    <p>FromEnvironment返回一个由与代理相关的环境变量指定的Dialer。</p>
+    <h4 id="FromURL">func <a title="View Source" href="http://code.google.com/p/go/source/browse/proxy/proxy.go?repo=net#70">FromURL</a> <a class="permalink" href="#FromURL">&para;</a></h4>
+    <pre class="funcdecl">func FromURL(u *<a href="https://godoc.org/net/url">url</a>.<a href="https://godoc.org/net/url#URL">URL</a>, forward <a href="#Dialer">Dialer</a>) (<a href="#Dialer">Dialer</a>, <a href="https://godoc.org/builtin#error">error</a>)</pre>
+    <p>FromURL返回一个使用指定的网址和下层Dialer创建网络连接的Dialer。</p>
+    <h4 id="SOCKS5">func <a title="View Source" href="http://code.google.com/p/go/source/browse/proxy/socks5.go?repo=net#16">SOCKS5</a> <a class="permalink" href="#SOCKS5">&para;</a></h4>
+    <pre class="funcdecl">func SOCKS5(network, addr <a href="https://godoc.org/builtin#string">string</a>, auth *<a href="#Auth">Auth</a>, forward <a href="#Dialer">Dialer</a>) (<a href="#Dialer">Dialer</a>, <a href="https://godoc.org/builtin#error">error</a>)</pre>
+    <p align="left">SOCKS5返回一个使用下层Dialer、可选的用户名和密码、与指定地址建立Socks5连接的Dialer，参见<a href="http://tools.ietf.org/html/rfc1928">RFC 1928</a>。</p>
+    <h3 id="PerHost">type <a title="View Source" href="http://code.google.com/p/go/source/browse/proxy/per_host.go?repo=net#14">PerHost</a> <a class="permalink" href="#PerHost">&para;</a></h3>
+    <pre>type PerHost struct {
+    <span class="com">// 内含隐藏或非导出字段</span>
+}</pre>
+    <p>PerHost定向连接到一个默认的Dialer，除非请求的域名匹配一系列例外。</p>
+    <h4 id="NewPerHost">func <a title="View Source" href="http://code.google.com/p/go/source/browse/proxy/per_host.go?repo=net#26">NewPerHost</a> <a class="permalink" href="#NewPerHost">&para;</a></h4>
+    <pre class="funcdecl">func NewPerHost(defaultDialer, bypass <a href="#Dialer">Dialer</a>) *<a href="#PerHost">PerHost</a></pre>
+    <p>NewPerHost返回一个PerHost，该PerHost根据连接是否匹配配置的规则的某一条，将连接重定向到defaultDialer或bypass。</p>
+    <h4 id="PerHost.AddIP">func (*PerHost) <a title="View Source" href="http://code.google.com/p/go/source/browse/proxy/per_host.go?repo=net#111">AddIP</a> <a class="permalink" href="#PerHost.AddIP">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#PerHost">PerHost</a>) AddIP(ip <a href="https://godoc.org/net">net</a>.<a href="https://godoc.org/net#IP">IP</a>)</pre>
+    <p>AddIP指定一个会使用bypass的IP地址。注意只有呼叫一个字面的IP地址时，该规则才生效。采用命名域名的连接，永远不会匹配IP。</p>
+    <h4 id="PerHost.AddNetwork">func (*PerHost) <a title="View Source" href="http://code.google.com/p/go/source/browse/proxy/per_host.go?repo=net#118">AddNetwork</a> <a class="permalink" href="#PerHost.AddNetwork">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#PerHost">PerHost</a>) AddNetwork(net *<a href="https://godoc.org/net">net</a>.<a href="https://godoc.org/net#IPNet">IPNet</a>)</pre>
+    <p>AddNetwork指定一个会使用bypass的IP范围（IP子网）。 注意只有呼叫一个字面的IP地址时，该规则才生效。采用命名域名的连接，永远不会匹配IP。</p>
+    <h4 id="PerHost.AddHost">func (*PerHost) <a title="View Source" href="http://code.google.com/p/go/source/browse/proxy/per_host.go?repo=net#135">AddHost</a> <a class="permalink" href="#PerHost.AddHost">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#PerHost">PerHost</a>) AddHost(host <a href="https://godoc.org/builtin#string">string</a>)</pre>
+    <p>AddHost指定一个会使用bypass的域名。</p>
+    <h4 id="PerHost.AddZone">func (*PerHost) <a title="View Source" href="http://code.google.com/p/go/source/browse/proxy/per_host.go?repo=net#124">AddZone</a> <a class="permalink" href="#PerHost.AddZone">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#PerHost">PerHost</a>) AddZone(zone <a href="https://godoc.org/builtin#string">string</a>)</pre>
+    <p>AddZone指定一个会使用bypass的DNS后缀。zone为&#34;example.com&#34; 会匹配&#34;example.com&#34; 及其所有子域名。</p>
+    <h4 id="PerHost.AddFromString">func (*PerHost) <a title="View Source" href="http://code.google.com/p/go/source/browse/proxy/per_host.go?repo=net#82">AddFromString</a> <a class="permalink" href="#PerHost.AddFromString">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#PerHost">PerHost</a>) AddFromString(s <a href="https://godoc.org/builtin#string">string</a>)</pre>
+    <p>AddFromString解析一个包含逗号分隔的值、指定将使用bypass代理的域名的字符串。每个值可以是IP地址、CIDR范围、DNS后缀(*.example.com)或者域名(localhost)。</p>
+    <h4 id="PerHost.Dial">func (*PerHost) <a title="View Source" href="http://code.google.com/p/go/source/browse/proxy/per_host.go?repo=net#35">Dial</a> <a class="permalink" href="#PerHost.Dial">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#PerHost">PerHost</a>) Dial(network, addr <a href="https://godoc.org/builtin#string">string</a>) (c <a href="https://godoc.org/net">net</a>.<a href="https://godoc.org/net#Conn">Conn</a>, err <a href="https://godoc.org/builtin#error">error</a>)</pre>
+    <p>Dial在指定的网络network上通过defaultDialer或者bypass连接地址addr。</p>
+    <h3 id="RegisterDialerType">func <a title="View Source" href="http://code.google.com/p/go/source/browse/proxy/proxy.go?repo=net#61">RegisterDialerType</a> <a class="permalink" href="#RegisterDialerType">&para;</a></h3>
+    <pre class="funcdecl">func RegisterDialerType(scheme <a href="https://godoc.org/builtin#string">string</a>, f func(*<a href="https://godoc.org/net/url">url</a>.<a href="https://godoc.org/net/url#URL">URL</a>, <a href="#Dialer">Dialer</a>) (<a href="#Dialer">Dialer</a>, <a href="https://godoc.org/builtin#error">error</a>))</pre>
+    <p>RegisterDialerType接受一个URL协议和一个从采用该协议的URL和下层Dialer生成Dialer的函数。注册的协议会被FromURL函数使用。</p>
+</div>
+</body>
+</html>

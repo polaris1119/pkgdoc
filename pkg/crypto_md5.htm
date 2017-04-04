@@ -1,0 +1,81 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="./site.css" rel="stylesheet">
+<title>crypto/md5</title>
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package md5</h2>
+    <p><code>import "crypto/md5"</code>
+    <p>md5包实现了MD5哈希算法，参见<a href="http://tools.ietf.org/html/rfc1321">RFC 1321</a>。</p>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#pkg-constants">Constants</a></li>
+        <li><a href="#Sum">func Sum(data []byte) [Size]byte</a></li>
+        <li><a href="#New">func New() hash.Hash</a></li>
+    </ul>
+    <h4 id="pkg-examples">Examples <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#example-New" onclick="$('#ex-New').addClass('in').removeClass('collapse').height('auto')">New</a></li>
+        <li><a href="#example-Sum" onclick="$('#ex-Sum').addClass('in').removeClass('collapse').height('auto')">Sum</a></li>
+    </ul>
+    <h3 id="pkg-constants">Constants <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>const <span id="BlockSize">BlockSize</span> = 64</pre>
+    <p>MD5字节块大小。</p>
+    <pre>const <span id="Size">Size</span> = 16</pre>
+    <p>MD5校验和字节数。</p>
+    <h3 id="Sum">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/md5/md5.go?name=release#129">Sum</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Sum(data []<a href="builtin.htm#byte">byte</a>) [<a href="#Size">Size</a>]<a href="builtin.htm#byte">byte</a></pre>
+    <p>返回数据data的MD5校验和。</p>
+    <div class="panel-group">
+        <div class="panel panel-default" id="example-Sum">
+            <div class="panel-heading" onclick="document.getElementById('ex-Sum').style.display = document.getElementById('ex-Sum').style.display=='none'?'block':'none';">Example</div>
+            <div id="ex-Sum" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre>data := []byte(&#34;These pretzels are making me thirsty.&#34;)
+fmt.Printf(&#34;%x&#34;, md5.Sum(data))</pre>
+                    <p>Output:
+                    <pre>b0804ec967f48520697662a204f5fe72
+</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    <h3 id="New">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/md5/md5.go?name=release#49">New</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func New() <a href="hash.htm">hash</a>.<a href="hash.htm#Hash">Hash</a></pre>
+    <p>返回一个新的使用MD5校验的hash.Hash接口。</p>
+    <div class="panel-group">
+        <div class="panel panel-default" id="example-New">
+            <div class="panel-heading" onclick="document.getElementById('ex-New').style.display = document.getElementById('ex-New').style.display=='none'?'block':'none';">Example</div>
+            <div id="ex-New" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre>h := md5.New()
+io.WriteString(h, &#34;The fog is getting thicker!&#34;)
+io.WriteString(h, &#34;And Leon&#39;s getting laaarger!&#34;)
+fmt.Printf(&#34;%x&#34;, h.Sum(nil))</pre>
+                    <p>Output:
+                    <pre>e2c569be17396eca2a2e3c11578123ed
+</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="x-footer" class="clearfix">
+  <div class="container">
+    <a href="http://studygolang.com/">Go语言中文网</a>
+    <span class="text-muted">|</span> <a href="http://golang.org/">Go Language</a>
+    <span class="pull-right"><a href="#">Back to top</a></span>
+  </div>
+</div>
+<script src="../assets/jquery-2.0.3.min.js"></script>
+<script src="../bootstrap.min.js"></script>
+<script src="../site.js"></script>
+</body>
+</html>

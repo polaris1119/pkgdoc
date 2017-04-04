@@ -1,0 +1,142 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="./site.css" rel="stylesheet">
+<title>math/cmplx</title>
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package cmplx</h2>
+    <p><code>import "math/cmplx"</code>
+    <p>cmplx包提供了复数的常用常数和常用函数。</p>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#NaN">func NaN() complex128</a></li>
+        <li><a href="#IsNaN">func IsNaN(x complex128) bool</a></li>
+        <li><a href="#Inf">func Inf() complex128</a></li>
+        <li><a href="#IsInf">func IsInf(x complex128) bool</a></li>
+        <li><a href="#Abs">func Abs(x complex128) float64</a></li>
+        <li><a href="#Phase">func Phase(x complex128) float64</a></li>
+        <li><a href="#Polar">func Polar(x complex128) (r, θ float64)</a></li>
+        <li><a href="#Rect">func Rect(r, θ float64) complex128</a></li>
+        <li><a href="#Conj">func Conj(x complex128) complex128</a></li>
+        <li><a href="#Sqrt">func Sqrt(x complex128) complex128</a></li>
+        <li><a href="#Log">func Log(x complex128) complex128</a></li>
+        <li><a href="#Log10">func Log10(x complex128) complex128</a></li>
+        <li><a href="#Exp">func Exp(x complex128) complex128</a></li>
+        <li><a href="#Pow">func Pow(x, y complex128) complex128</a></li>
+        <li><a href="#Sin">func Sin(x complex128) complex128</a></li>
+        <li><a href="#Cos">func Cos(x complex128) complex128</a></li>
+        <li><a href="#Tan">func Tan(x complex128) complex128</a></li>
+        <li><a href="#Cot">func Cot(x complex128) complex128</a></li>
+        <li><a href="#Asin">func Asin(x complex128) complex128</a></li>
+        <li><a href="#Acos">func Acos(x complex128) complex128</a></li>
+        <li><a href="#Atan">func Atan(x complex128) complex128</a></li>
+        <li><a href="#Sinh">func Sinh(x complex128) complex128</a></li>
+        <li><a href="#Cosh">func Cosh(x complex128) complex128</a></li>
+        <li><a href="#Tanh">func Tanh(x complex128) complex128</a></li>
+        <li><a href="#Asinh">func Asinh(x complex128) complex128</a></li>
+        <li><a href="#Acosh">func Acosh(x complex128) complex128</a></li>
+        <li><a href="#Atanh">func Atanh(x complex128) complex128</a></li>
+    </ul>
+    <h3 id="NaN">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/cmplx/isnan.go?name=release#22">NaN</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func NaN() <a href="builtin.htm#complex128">complex128</a></pre>
+    <p>返回一个复数的&ldquo;Not A Number&rdquo;值。</p>
+    <h3 id="IsNaN">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/cmplx/isnan.go?name=release#11">IsNaN</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func IsNaN(x <a href="builtin.htm#complex128">complex128</a>) <a href="builtin.htm#bool">bool</a></pre>
+    <p>如果x的实部或者虚部是&ldquo;Not A Number&rdquo;值，则返回真。</p>
+    <h3 id="Inf">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/cmplx/isinf.go?name=release#18">Inf</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Inf() <a href="builtin.htm#complex128">complex128</a></pre>
+    <p>返回一个复数的无穷大，complex(+Inf, +Inf)。</p>
+    <h3 id="IsInf">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/cmplx/isinf.go?name=release#10">IsInf</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func IsInf(x <a href="builtin.htm#complex128">complex128</a>) <a href="builtin.htm#bool">bool</a></pre>
+    <p>如果x的实部或者虚部是无穷（不管正负），则返回真。</p>
+    <h3 id="Abs">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/cmplx/abs.go?name=release#12">Abs</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Abs(x <a href="builtin.htm#complex128">complex128</a>) <a href="builtin.htm#float64">float64</a></pre>
+    <p>返回x的绝对值（也被称为模）。</p>
+    <h3 id="Phase">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/cmplx/phase.go?name=release#11">Phase</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Phase(x <a href="builtin.htm#complex128">complex128</a>) <a href="builtin.htm#float64">float64</a></pre>
+    <p>返回x的相位（也被称为幅角），返回值范围[-Pi, Pi]。</p>
+    <h3 id="Polar">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/cmplx/polar.go?name=release#10">Polar</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Polar(x <a href="builtin.htm#complex128">complex128</a>) (r, θ <a href="builtin.htm#float64">float64</a>)</pre>
+    <p>将直角坐标的复数表示为极坐标(r, θ)。其中r是x的绝对值，θ是x的相位，范围[-Pi, Pi]。</p>
+    <h3 id="Rect">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/cmplx/rect.go?name=release#10">Rect</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Rect(r, θ <a href="builtin.htm#float64">float64</a>) <a href="builtin.htm#complex128">complex128</a></pre>
+    <p>返回极坐标(r, θ)表示的复数。</p>
+    <h3 id="Conj">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/cmplx/conj.go?name=release#8">Conj</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Conj(x <a href="builtin.htm#complex128">complex128</a>) <a href="builtin.htm#complex128">complex128</a></pre>
+    <p>返回x的共轭复数（实部相等，虚部相反）。</p>
+    <h3 id="Sqrt">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/cmplx/sqrt.go?name=release#58">Sqrt</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Sqrt(x <a href="builtin.htm#complex128">complex128</a>) <a href="builtin.htm#complex128">complex128</a></pre>
+    <p>返回x的平方根。返回值的实部不小于0，而虚部的正负号和x的虚部相同。</p>
+    <h3 id="Log">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/cmplx/log.go?name=release#57">Log</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Log(x <a href="builtin.htm#complex128">complex128</a>) <a href="builtin.htm#complex128">complex128</a></pre>
+    <p>返回x的自然对数。</p>
+    <h3 id="Log10">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/cmplx/log.go?name=release#62">Log10</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Log10(x <a href="builtin.htm#complex128">complex128</a>) <a href="builtin.htm#complex128">complex128</a></pre>
+    <p>返回x的常用对数。</p>
+    <h3 id="Exp">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/cmplx/exp.go?name=release#51">Exp</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Exp(x <a href="builtin.htm#complex128">complex128</a>) <a href="builtin.htm#complex128">complex128</a></pre>
+    <p>返回e**x。</p>
+    <h3 id="Pow">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/cmplx/pow.go?name=release#49">Pow</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Pow(x, y <a href="builtin.htm#complex128">complex128</a>) <a href="builtin.htm#complex128">complex128</a></pre>
+    <p>返回x**y；有如下特例：</p>
+    <pre>Pow(0, ±0)  returns 1+0i
+Pow(0, c)   如果image(c)==0，则当real(c)&lt;0时返回Inf+0i；否则返回Inf+Inf i
+</pre>
+    <h3 id="Sin">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/cmplx/sin.go?name=release#53">Sin</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Sin(x <a href="builtin.htm#complex128">complex128</a>) <a href="builtin.htm#complex128">complex128</a></pre>
+    <p>求正弦。</p>
+    <h3 id="Cos">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/cmplx/sin.go?name=release#98">Cos</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Cos(x <a href="builtin.htm#complex128">complex128</a>) <a href="builtin.htm#complex128">complex128</a></pre>
+    <p>求余弦。</p>
+    <h3 id="Tan">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/cmplx/tan.go?name=release#59">Tan</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Tan(x <a href="builtin.htm#complex128">complex128</a>) <a href="builtin.htm#complex128">complex128</a></pre>
+    <p>求正切。</p>
+    <h3 id="Cot">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/cmplx/tan.go?name=release#175">Cot</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Cot(x <a href="builtin.htm#complex128">complex128</a>) <a href="builtin.htm#complex128">complex128</a></pre>
+    <p>求余切。</p>
+    <h3 id="Asin">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/cmplx/asin.go?name=release#51">Asin</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Asin(x <a href="builtin.htm#complex128">complex128</a>) <a href="builtin.htm#complex128">complex128</a></pre>
+    <p>求反正弦。</p>
+    <h3 id="Acos">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/cmplx/asin.go?name=release#94">Acos</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Acos(x <a href="builtin.htm#complex128">complex128</a>) <a href="builtin.htm#complex128">complex128</a></pre>
+    <p>求反余弦。</p>
+    <h3 id="Atan">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/cmplx/asin.go?name=release#142">Atan</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Atan(x <a href="builtin.htm#complex128">complex128</a>) <a href="builtin.htm#complex128">complex128</a></pre>
+    <p>求反正切。</p>
+    <h3 id="Sinh">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/cmplx/sin.go?name=release#73">Sinh</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Sinh(x <a href="builtin.htm#complex128">complex128</a>) <a href="builtin.htm#complex128">complex128</a></pre>
+    <p>求双曲正弦。</p>
+    <h3 id="Cosh">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/cmplx/sin.go?name=release#117">Cosh</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Cosh(x <a href="builtin.htm#complex128">complex128</a>) <a href="builtin.htm#complex128">complex128</a></pre>
+    <p>求双曲余弦。</p>
+    <h3 id="Tanh">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/cmplx/tan.go?name=release#83">Tanh</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Tanh(x <a href="builtin.htm#complex128">complex128</a>) <a href="builtin.htm#complex128">complex128</a></pre>
+    <p>求双曲正切。</p>
+    <h3 id="Asinh">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/cmplx/asin.go?name=release#67">Asinh</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Asinh(x <a href="builtin.htm#complex128">complex128</a>) <a href="builtin.htm#complex128">complex128</a></pre>
+    <p>求反双曲正弦。</p>
+    <h3 id="Acosh">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/cmplx/asin.go?name=release#100">Acosh</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Acosh(x <a href="builtin.htm#complex128">complex128</a>) <a href="builtin.htm#complex128">complex128</a></pre>
+    <p>求反双曲余弦。</p>
+    <h3 id="Atanh">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/cmplx/asin.go?name=release#166">Atanh</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Atanh(x <a href="builtin.htm#complex128">complex128</a>) <a href="builtin.htm#complex128">complex128</a></pre>
+    <p>求反双曲正切。</p>
+</div>
+
+<div id="x-footer" class="clearfix">
+  <div class="container">
+    <a href="http://studygolang.com/">Go语言中文网</a>
+    <span class="text-muted">|</span> <a href="http://golang.org/">Go Language</a>
+    <span class="pull-right"><a href="#">Back to top</a></span>
+  </div>
+</div>
+<script src="../assets/jquery-2.0.3.min.js"></script>
+<script src="../bootstrap.min.js"></script>
+<script src="../site.js"></script>
+</body>
+</html>

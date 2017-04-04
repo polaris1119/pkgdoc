@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="../site.css" rel="stylesheet">
+<title>appengine/blobstore</title>
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package blobstore</h2>
+    <p><code>import "code.google.com/p/appengine-go/appengine/blobstore"</code>
+    <p>blobstore包提供持久大对象的存储服务。</p>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <ul class="list-unstyled">
+        <li><a href="#BlobKeyForFile">func BlobKeyForFile(c appengine.Context, filename string) (appengine.BlobKey, error)</a></li>
+        <li><a href="#Delete">func Delete(c appengine.Context, blobKey appengine.BlobKey) error</a></li>
+        <li><a href="#DeleteMulti">func DeleteMulti(c appengine.Context, blobKey []appengine.BlobKey) error</a></li>
+        <li><a href="#BlobInfo">type BlobInfo</a></li>
+        <ul>
+            <li><a href="#Stat">func Stat(c appengine.Context, blobKey appengine.BlobKey) (*BlobInfo, error)</a></li>
+        </ul>
+        <li><a href="#Reader">type Reader</a></li>
+        <ul>
+            <li><a href="#NewReader">func NewReader(c appengine.Context, blobKey appengine.BlobKey) Reader</a></li>
+        </ul>
+        <li><a href="#Writer">type Writer</a></li>
+        <ul>
+            <li><a href="#Create">func Create(c appengine.Context, mimeType string) (*Writer, error)</a></li>
+            <li><a href="#Writer.Key">func (w *Writer) Key() (appengine.BlobKey, error)</a></li>
+            <li><a href="#Writer.Write">func (w *Writer) Write(p []byte) (n int, err error)</a></li>
+            <li><a href="#Writer.Close">func (w *Writer) Close() (closeErr error)</a></li>
+        </ul>
+        <li><a href="#UploadURLOptions">type UploadURLOptions</a></li>
+        <li><a href="#UploadURL">func UploadURL(c appengine.Context, successPath string, opts *UploadURLOptions) (*url.URL, error)</a></li>
+        <li><a href="#ParseUpload">func ParseUpload(req *http.Request) (blobs map[string][]*BlobInfo, other url.Values, err error)</a></li>
+        <li><a href="#Send">func Send(response http.ResponseWriter, blobKey appengine.BlobKey)</a></li>
+    </ul>
+    <h3 id="BlobKeyForFile">func <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/blobstore/blobstore.go#489">BlobKeyForFile</a> <a class="permalink" href="#BlobKeyForFile">&para;</a></h3>
+    <pre class="funcdecl">func BlobKeyForFile(c <a href="https://godoc.org/appengine">appengine</a>.<a href="https://godoc.org/appengine#Context">Context</a>, filename <a href="https://godoc.org/builtin#string">string</a>) (<a href="https://godoc.org/appengine">appengine</a>.<a href="https://godoc.org/appengine#BlobKey">BlobKey</a>, <a href="https://godoc.org/builtin#error">error</a>)</pre>
+    <p>返回一个google存储文件的BlobKey，文件名格式为： "/gs/bucket_name/object_name"。</p>
+    <h3 id="Delete">func <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/blobstore/blobstore.go#137">Delete</a> <a class="permalink" href="#Delete">&para;</a></h3>
+    <pre class="funcdecl">func Delete(c <a href="https://godoc.org/appengine">appengine</a>.<a href="https://godoc.org/appengine#Context">Context</a>, blobKey <a href="https://godoc.org/appengine">appengine</a>.<a href="https://godoc.org/appengine#BlobKey">BlobKey</a>) <a href="https://godoc.org/builtin#error">error</a></pre>
+    <p>删除一个大对象。</p>
+    <h3 id="DeleteMulti">func <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/blobstore/blobstore.go#142">DeleteMulti</a> <a class="permalink" href="#DeleteMulti">&para;</a></h3>
+    <pre class="funcdecl">func DeleteMulti(c <a href="https://godoc.org/appengine">appengine</a>.<a href="https://godoc.org/appengine#Context">Context</a>, blobKey []<a href="https://godoc.org/appengine">appengine</a>.<a href="https://godoc.org/appengine#BlobKey">BlobKey</a>) <a href="https://godoc.org/builtin#error">error</a></pre>
+    <p>Delete的批处理版本。</p>
+    <h3 id="BlobInfo">type <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/blobstore/blobstore.go#43">BlobInfo</a> <a class="permalink" href="#BlobInfo">&para;</a></h3>
+    <pre>type BlobInfo struct {
+    <span id="BlobInfo.BlobKey">BlobKey</span>      <a href="https://godoc.org/appengine">appengine</a>.<a href="https://godoc.org/appengine#BlobKey">BlobKey</a>
+    <span id="BlobInfo.ContentType">ContentType</span>  <a href="https://godoc.org/builtin#string">string</a>    `datastore:&#34;content_type&#34;`
+    <span id="BlobInfo.CreationTime">CreationTime</span> <a href="https://godoc.org/time">time</a>.<a href="https://godoc.org/time#Time">Time</a> `datastore:&#34;creation&#34;`
+    <span id="BlobInfo.Filename">Filename</span>     <a href="https://godoc.org/builtin#string">string</a>    `datastore:&#34;filename&#34;`
+    <span id="BlobInfo.Size">Size</span>         <a href="https://godoc.org/builtin#int64">int64</a>     `datastore:&#34;size&#34;`
+    <span id="BlobInfo.MD5">MD5</span>          <a href="https://godoc.org/builtin#string">string</a>    `datastore:&#34;md5_hash&#34;`
+    <span class="com">// ObjectName是blob的google云存储名</span>
+    <span id="BlobInfo.ObjectName">ObjectName</span> <a href="https://godoc.org/builtin#string">string</a> `datastore:&#34;gs_object_name&#34;`
+}</pre>
+    <p>BlobInfo是大对象的元数据，该信息会保存在datastore里，文件名可以为空。</p>
+    <h4 id="Stat">func <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/blobstore/blobstore.go#68">Stat</a> <a class="permalink" href="#Stat">&para;</a></h4>
+    <pre class="funcdecl">func Stat(c <a href="https://godoc.org/appengine">appengine</a>.<a href="https://godoc.org/appengine#Context">Context</a>, blobKey <a href="https://godoc.org/appengine">appengine</a>.<a href="https://godoc.org/appengine#BlobKey">BlobKey</a>) (*<a href="#BlobInfo">BlobInfo</a>, <a href="https://godoc.org/builtin#error">error</a>)</pre>
+    <p>返回blobKey对应的大对象的元数据信息，如果没有对应的大对象，会返回datastore.ErrNoSuchEntity。</p>
+    <h3 id="Reader">type <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/blobstore/blobstore.go#253">Reader</a> <a class="permalink" href="#Reader">&para;</a></h3>
+    <pre>type Reader interface {
+    <a href="https://godoc.org/io">io</a>.<a href="https://godoc.org/io#Reader">Reader</a>
+    <a href="https://godoc.org/io">io</a>.<a href="https://godoc.org/io#ReaderAt">ReaderAt</a>
+    <a href="https://godoc.org/io">io</a>.<a href="https://godoc.org/io#Seeker">Seeker</a>
+}</pre>
+    <p>Reader是大对象的读接口。</p>
+    <h4 id="NewReader">func <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/blobstore/blobstore.go#261">NewReader</a> <a class="permalink" href="#NewReader">&para;</a></h4>
+    <pre class="funcdecl">func NewReader(c <a href="https://godoc.org/appengine">appengine</a>.<a href="https://godoc.org/appengine#Context">Context</a>, blobKey <a href="https://godoc.org/appengine">appengine</a>.<a href="https://godoc.org/appengine#BlobKey">BlobKey</a>) <a href="#Reader">Reader</a></pre>
+    <p>返回blobKey对应的大对象的读接口。如果不存在对应的大对象，函数返回的接口第一次调用Read时报错。</p>
+    <h3 id="Writer">type <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/blobstore/blobstore.go#270">Writer</a> <a class="permalink" href="#Writer">&para;</a></h3>
+    <pre>type Writer struct {
+    <span class="com">// 内含隐藏字段</span>
+}</pre>
+    <p>Writer用于写入大对象。只有在调用Close时才保证全部写入，之后可以获取键。</p>
+    <h4 id="Create">func <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/blobstore/blobstore.go#302">Create</a> <a class="permalink" href="#Create">&para;</a></h4>
+    <pre class="funcdecl">func Create(c <a href="https://godoc.org/appengine">appengine</a>.<a href="https://godoc.org/appengine#Context">Context</a>, mimeType <a href="https://godoc.org/builtin#string">string</a>) (*<a href="#Writer">Writer</a>, <a href="https://godoc.org/builtin#error">error</a>)</pre>
+    <p>函数创建一个大对象的写接口，mimeType如果非空会记录在大对象的元数据里保存到datastore里，否则会默认为application/octet-stream。返回的Writer指针应该在写入数据后关闭，如没有发生错误即可获取该大对象的键。</p>
+    <h4 id="Writer.Key">func (*Writer) <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/blobstore/blobstore.go#402">Key</a> <a class="permalink" href="#Writer.Key">&para;</a></h4>
+    <pre class="funcdecl">func (w *<a href="#Writer">Writer</a>) Key() (<a href="https://godoc.org/appengine">appengine</a>.<a href="https://godoc.org/appengine#BlobKey">BlobKey</a>, <a href="https://godoc.org/builtin#error">error</a>)</pre>
+    <p>返回创建的blobstore的键，必须在关闭后才能调用，未关闭前调用会导致错误。</p>
+    <h4 id="Writer.Write">func (*Writer) <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/blobstore/blobstore.go#343">Write</a> <a class="permalink" href="#Writer.Write">&para;</a></h4>
+    <pre class="funcdecl">func (w *<a href="#Writer">Writer</a>) Write(p []<a href="https://godoc.org/builtin#byte">byte</a>) (n <a href="https://godoc.org/builtin#int">int</a>, err <a href="https://godoc.org/builtin#error">error</a>)</pre>
+    <h4 id="Writer.Close">func (*Writer) <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/blobstore/blobstore.go#379">Close</a> <a class="permalink" href="#Writer.Close">&para;</a></h4>
+    <pre class="funcdecl">func (w *<a href="#Writer">Writer</a>) Close() (closeErr <a href="https://godoc.org/builtin#error">error</a>)</pre>
+    <p>清空缓存，结束blob的写入。关闭后才能获取blob键。</p>
+    <h3 id="UploadURLOptions">type <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/blobstore/blobstore.go#122">UploadURLOptions</a> <a class="permalink" href="#UploadURLOptions">&para;</a></h3>
+    <pre>type UploadURLOptions struct {
+    <span id="UploadURLOptions.MaxUploadBytes">MaxUploadBytes</span>        <a href="https://godoc.org/builtin#int64">int64</a> <span class="com">// 可选的</span>
+    <span id="UploadURLOptions.MaxUploadBytesPerBlob">MaxUploadBytesPerBlob</span> <a href="https://godoc.org/builtin#int64">int64</a> <span class="com">// 可选的</span>
+    <span class="com">// StorageBucket指定了google云存储中保存该大对象的bucket。</span>
+    <span class="com">// 如果你使用云存储代替blobstore的话，该参数就是必要的。</span>
+    <span class="com">// 你的app必须有写入该bucket的权限。</span>
+    <span class="com">// 你可以随意地用"bucket_name/path"格式指定bucket名和路径，</span>
+    <span class="com">// 在这种情况下，path将会成为上传对象的名字的前缀。</span><span class="com"></span>
+    <span id="UploadURLOptions.StorageBucket">StorageBucket</span> <a href="https://godoc.org/builtin#string">string</a>
+}</pre>
+    <p>UploadURLOptions是创建上传URL的选项。</p>
+    <h3 id="UploadURL">func <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/blobstore/blobstore.go#99">UploadURL</a> <a class="permalink" href="#UploadURL">&para;</a></h3>
+    <pre class="funcdecl">func UploadURL(c <a href="https://godoc.org/appengine">appengine</a>.<a href="https://godoc.org/appengine#Context">Context</a>, successPath <a href="https://godoc.org/builtin#string">string</a>, opts *<a href="#UploadURLOptions">UploadURLOptions</a>) (*<a href="https://godoc.org/net/url">url</a>.<a href="https://godoc.org/net/url#URL">URL</a>, <a href="https://godoc.org/builtin#error">error</a>)</pre>
+    <p>创建一个上传URL，用户填写表单后上传到这个URL，在上传成功后会重定向到successPath。该URL会过期，也不可以重用。opts参数可以是nil。</p>
+    <h3 id="ParseUpload">func <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/blobstore/blobstore.go#165">ParseUpload</a> <a class="permalink" href="#ParseUpload">&para;</a></h3>
+    <pre class="funcdecl">func ParseUpload(req *<a href="https://godoc.org/net/http">http</a>.<a href="https://godoc.org/net/http#Request">Request</a>) (blobs map[<a href="https://godoc.org/builtin#string">string</a>][]*<a href="#BlobInfo">BlobInfo</a>, other <a href="https://godoc.org/net/url">url</a>.<a href="https://godoc.org/net/url#Values">Values</a>, err <a href="https://godoc.org/builtin#error">error</a>)</pre>
+    <p>在用户成功上传大对象后，函数解析你的app从App Engine接手的POST请求，返回一个接收到的大对象的字典（键为HTML表单的元素名），以及其它非大对象POST参数。</p>
+    <h3 id="Send">func <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/blobstore/blobstore.go#83">Send</a> <a class="permalink" href="#Send">&para;</a></h3>
+    <pre class="funcdecl">func Send(response <a href="https://godoc.org/net/http">http</a>.<a href="https://godoc.org/net/http#ResponseWriter">ResponseWriter</a>, blobKey <a href="https://godoc.org/appengine">appengine</a>.<a href="https://godoc.org/appengine#BlobKey">BlobKey</a>)</pre>
+    <p>函数设置response的header并将blobKey对应的大对象的内容作为response的body。本函数比手工读取大对象和写入response要更有效率，也没有一般response大小的限制。</p>
+</div>
+</body>
+</html>

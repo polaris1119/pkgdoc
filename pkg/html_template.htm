@@ -1,0 +1,411 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="./site.css" rel="stylesheet">
+<title>html/template</title>
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package template</h2>
+    <p><code>import "html/template"</code>
+    <p align="left">template包（html/template）实现了数据驱动的模板，用于生成可对抗代码注入的安全HTML输出。本包提供了和text/template包相同的接口，无论何时当输出是HTML的时候都应使用本包。</p>
+    <p align="left">此处的文档关注本包的安全特性。至于如何使用模板，请参照text/template包。</p>
+    <h4 id="hdr-Introduction">Introduction <a class="permalink" href="#pkg-index">&para</a></h4>
+    <p>本包是对<a href="http://godoc.org/text/template">text/template</a>包的包装，两个包提供的模板API几无差别，可以安全的随意替换两包。</p>
+    <pre>tmpl, err := template.New(&#34;name&#34;).Parse(...)
+// 省略错误检测
+err = tmpl.Execute(out, data)</pre>
+    <p align="left">如果成功创建了tmpl，tmpl现在是注入安全的了。否则err将返回ErrorCode里定义的某个错误。即使成功生成了模板，执行时仍可能导致ErrorCode里定义的错误。</p>
+    <p align="left">HTML模板将数据视为明文文本，必须经过编码以便安全的嵌入HTML文档。转义操作会参考上下文，因此action可以出现在JavaScript、CSS、URI上下文环境里。</p>
+    <p align="left">本包使用的安全模型假设模板的作者是可信任的，但用于执行的数据不可信。更多细节参见下面。</p>
+    <p align="left">示例：</p>
+    <pre>import &#34;text/template&#34;
+...
+t, err := template.New(&#34;foo&#34;).Parse(`{{define &#34;T&#34;}}Hello, {{.}}!{{end}}`)
+err = t.ExecuteTemplate(out, &#34;T&#34;, &#34;&lt;script&gt;alert(&#39;you have been pwned&#39;)&lt;/script&gt;&#34;)
+</pre>
+    <p>生成：</p>
+    <pre>Hello, &lt;script&gt;alert(&#39;you have been pwned&#39;)&lt;/script&gt;!
+</pre>
+    <p>但在html/template包里会根据上下文自动转义：</p>
+    <pre>import &#34;html/template&#34;
+...
+t, err := template.New(&#34;foo&#34;).Parse(`{{define &#34;T&#34;}}Hello, {{.}}!{{end}}`)
+err = t.ExecuteTemplate(out, &#34;T&#34;, &#34;&lt;script&gt;alert(&#39;you have been pwned&#39;)&lt;/script&gt;&#34;)
+</pre>
+    <p>生成安全的转义后HTML输出：</p>
+    <pre>Hello, &amp;lt;script&amp;gt;alert(&amp;#39;you have been pwned&amp;#39;)&amp;lt;/script&amp;gt;!
+</pre>
+    <h4 id="hdr-Contexts">Contexts <a class="permalink" href="#pkg-index">&para</a></h4>
+    <p>本包可以理解HTML、CSS、JavaScript和URI。它会给每一个简单的action pipeline都添加处理函数，如下例：</p>
+    <pre>&lt;a href=&#34;/search?q={{.}}&#34;&gt;{{.}}&lt;/a&gt;
+</pre>
+    <p>在解析时每个{{.}}都会在必要时重写添加转义函数，此例中会修改为：</p>
+    <pre>&lt;a href=&#34;/search?q={{. | urlquery}}&#34;&gt;{{. | html}}&lt;/a&gt;
+</pre>
+    <h4 id="hdr-Errors">Errors <a class="permalink" href="#pkg-index">&para</a></h4>
+    <p>细节请参见ErrorCode类型的文档。</p>
+    <h4 id="hdr-A_fuller_picture">A fuller picture <a class="permalink" href="#pkg-index">&para</a></h4>
+    <p>本包剩余部分的注释第一次阅读时可以跳过；这些部分包括理解转码文本和错误信息的必要细节。多数使用者无需理解这些细节。</p>
+    <h4 id="hdr-Contexts">Contexts <a class="permalink" href="#pkg-index">&para</a></h4>
+    <p>假设{{.}}是`O'Reilly: How are &lt;i&gt;you&lt;/i&gt;?`，下表展示了{{.}}用于左侧模板时的输出：</p>
+    <pre>Context                          {{.}} After
+{{.}}                            O&#39;Reilly: How are &amp;lt;i&amp;gt;you&amp;lt;/i&amp;gt;?
+&lt;a title=&#39;{{.}}&#39;&gt;                O&amp;#39;Reilly: How are you?
+&lt;a href=&#34;/{{.}}&#34;&gt;                O&amp;#39;Reilly: How are %3ci%3eyou%3c/i%3e?
+&lt;a href=&#34;?q={{.}}&#34;&gt;              O&amp;#39;Reilly%3a%20How%20are%3ci%3e...%3f
+&lt;a onx=&#39;f(&#34;{{.}}&#34;)&#39;&gt;             O\x27Reilly: How are \x3ci\x3eyou...?
+&lt;a onx=&#39;f({{.}})&#39;&gt;               &#34;O\x27Reilly: How are \x3ci\x3eyou...?&#34;
+&lt;a onx=&#39;pattern = /{{.}}/;&#39;&gt;     O\x27Reilly: How are \x3ci\x3eyou...\x3f
+</pre>
+    <p>如果用在不安全的上下文里，值就可能被过滤掉：</p>
+    <pre>Context                          {{.}} After
+&lt;a href=&#34;{{.}}&#34;&gt;                 #ZgotmplZ
+</pre>
+    <p align="left">因为"O'Reilly:"不是一个可以接受的协议名，如"http:"。</p>
+    <p align="left">如果{{.}}是一个无害的词汇，如`left`，那么它就可以出现在更多地方。</p>
+    <pre>Context                              {{.}} After
+{{.}}                                left
+&lt;a title=&#39;{{.}}&#39;&gt;                    left
+&lt;a href=&#39;{{.}}&#39;&gt;                     left
+&lt;a href=&#39;/{{.}}&#39;&gt;                    left
+&lt;a href=&#39;?dir={{.}}&#39;&gt;                left
+&lt;a style=&#34;border-{{.}}: 4px&#34;&gt;        left
+&lt;a style=&#34;align: {{.}}&#34;&gt;             left
+&lt;a style=&#34;background: &#39;{{.}}&#39;&gt;       left
+&lt;a style=&#34;background: url(&#39;{{.}}&#39;)&gt;  left
+&lt;style&gt;p.{{.}} {color:red}&lt;/style&gt;   left
+</pre>
+    <p>如果{{.}}是非字符串类型的值，可以用于JavaScript上下文环境里：</p>
+    <pre>struct{A,B string}{ &#34;foo&#34;, &#34;bar&#34; }
+</pre>
+    <p>将该值应用在在转义后的模板里：</p>
+    <pre>&lt;script&gt;var pair = {{.}};&lt;/script&gt;
+</pre>
+    <p>模板输出为：</p>
+    <pre>&lt;script&gt;var pair = {&#34;A&#34;: &#34;foo&#34;, &#34;B&#34;: &#34;bar&#34;};&lt;/script&gt;
+</pre>
+    <p>请参见json包来理解非字符串内容是如何序列化并嵌入JavaScript里的。</p>
+    <h4 id="hdr-Typed_Strings">Typed Strings <a class="permalink" href="#pkg-index">&para</a></h4>
+    <p align="left">本包默认所有的pipeline都生成明文字符串，它会在必要时添加转义pipeline阶段以安全并正确的将明文字符串嵌入输出的文本里。</p>
+    <p align="left">当用于执行的数据不是明文字符串时，你可以通过显式改变数据的类型以避免其被错误的转义。</p>
+    <p align="left">类型HTML、JS、URL和其他content.go里定义的类型可以保持不被转义的安全内容。</p>
+    <p align="left">模板：</p>
+    <pre>Hello, {{.}}!
+</pre>
+    <p>可以采用如下调用：</p>
+    <pre>tmpl.Execute(out, HTML(`&lt;b&gt;World&lt;/b&gt;`))
+</pre>
+    <p>来输出：</p>
+    <pre>Hello, &lt;b&gt;World&lt;/b&gt;!
+</pre>
+    <p>而不是：</p>
+    <pre>Hello, &amp;lt;b&amp;gt;World&amp;lt;b&amp;gt;!
+</pre>
+    <p>如果{{.}}是一个内建类型字符串就会产生该输出。</p>
+    <h4 id="hdr-Security_Model">Security Model <a class="permalink" href="#pkg-index">&para</a></h4>
+    <p align="left">本包里安全的定义参加如下网页：</p>
+    <p align="left"><a href="http://js-quasis-libraries-and-repl.googlecode.com/svn/trunk/safetemplate.html#problem_definition">http://js-quasis-libraries-and-repl.googlecode.com/svn/trunk/safetemplate.html#problem_definition</a></p>
+    <p align="left">本包假设模板作者可信而执行数据不可信，目标是在保证安全性的前提下保证效率：</p>
+    <p align="left">结构保留特性：&ldquo;……当模板作者用安全的模板语言写了一个HTML标签时，不管数据的值为何浏览器都会将输出的相应部分解释为标签，该情况在其他结构里也成立，如属性边界以及JS和CSS边界。&rdquo;</p>
+    <p align="left">代码影响特性：&ldquo;……只有模板作者指定的代码能作为注入模板输出到页面的结果执行，所有模板作者指定的代码都应如此。&rdquo;</p>
+    <p align="left">最少惊讶特性：&ldquo;一个熟悉HTML、CSS、JS的开发者（或代码阅读者），应可以正确的推断出{{.}}会如何转义。&rdquo;</p>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#ErrorCode">type ErrorCode</a></li>
+        <li><a href="#Error">type Error</a></li>
+        <ul>
+            <li><a href="#Error.Error">func (e *Error) Error() string</a></li>
+        </ul>
+        <li><a href="#HTMLEscape">func HTMLEscape(w io.Writer, b []byte)</a></li>
+        <li><a href="#HTMLEscapeString">func HTMLEscapeString(s string) string</a></li>
+        <li><a href="#HTMLEscaper">func HTMLEscaper(args ...interface{}) string</a></li>
+        <li><a href="#JSEscape">func JSEscape(w io.Writer, b []byte)</a></li>
+        <li><a href="#JSEscapeString">func JSEscapeString(s string) string</a></li>
+        <li><a href="#JSEscaper">func JSEscaper(args ...interface{}) string</a></li>
+        <li><a href="#URLQueryEscaper">func URLQueryEscaper(args ...interface{}) string</a></li>
+        <li><a href="#FuncMap">type FuncMap</a></li>
+        <li><a href="#HTML">type HTML</a></li>
+        <li><a href="#HTMLAttr">type HTMLAttr</a></li>
+        <li><a href="#JS">type JS</a></li>
+        <li><a href="#JSStr">type JSStr</a></li>
+        <li><a href="#CSS">type CSS</a></li>
+        <li><a href="#URL">type URL</a></li>
+        <li><a href="#Template">type Template</a></li>
+        <ul>
+            <li><a href="#Must">func Must(t *Template, err error) *Template</a></li>
+            <li><a href="#New">func New(name string) *Template</a></li>
+            <li><a href="#ParseFiles">func ParseFiles(filenames ...string) (*Template, error)</a></li>
+            <li><a href="#ParseGlob">func ParseGlob(pattern string) (*Template, error)</a></li>
+            <li><a href="#Template.Name">func (t *Template) Name() string</a></li>
+            <li><a href="#Template.Delims">func (t *Template) Delims(left, right string) *Template</a></li>
+            <li><a href="#Template.Funcs">func (t *Template) Funcs(funcMap FuncMap) *Template</a></li>
+            <li><a href="#Template.Clone">func (t *Template) Clone() (*Template, error)</a></li>
+            <li><a href="#Template.Lookup">func (t *Template) Lookup(name string) *Template</a></li>
+            <li><a href="#Template.Templates">func (t *Template) Templates() []*Template</a></li>
+            <li><a href="#Template.New">func (t *Template) New(name string) *Template</a></li>
+            <li><a href="#Template.AddParseTree">func (t *Template) AddParseTree(name string, tree *parse.Tree) (*Template, error)</a></li>
+            <li><a href="#Template.Parse">func (t *Template) Parse(src string) (*Template, error)</a></li>
+            <li><a href="#Template.ParseFiles">func (t *Template) ParseFiles(filenames ...string) (*Template, error)</a></li>
+            <li><a href="#Template.ParseGlob">func (t *Template) ParseGlob(pattern string) (*Template, error)</a></li>
+            <li><a href="#Template.Execute">func (t *Template) Execute(wr io.Writer, data interface{}) error</a></li>
+            <li><a href="#Template.ExecuteTemplate">func (t *Template) ExecuteTemplate(wr io.Writer, name string, data interface{}) error</a></li>
+        </ul>
+    </ul>
+    <h3 id="ErrorCode">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/html/template/error.go?name=release#24">ErrorCode</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type ErrorCode <a href="builtin.htm#int">int</a></pre>
+    <p>ErrorCode是代表错误种类的错误码。</p>
+    <pre>const (
+    <span class="com">// OK表示没有出错</span>
+    <span id="OK">OK</span>  <a href="#ErrorCode">ErrorCode</a> = <a href="builtin.htm#iota">iota</a>
+    <span class="com">// 当上下文环境有歧义时导致ErrAmbigContext：</span>
+    <span class="com">// 举例：</span>
+    <span class="com">//   &lt;a href="{{if .C}}/path/{{else}}/search?q={{end}}{{.X}}"&rt;</span>
+    <span class="com">// 说明：</span>
+    <span class="com">//   {{.X}}的URL上下文环境有歧义，因为根据{{.C}}的值，</span>
+    <span class="com">//   它可以是URL的后缀，或者是查询的参数。</span>
+    <span class="com">//   将{{.X}}移动到如下情况可以消除歧义：</span>
+    <span class="com">//   &lt;a href="{{if .C}}/path/{{.X}}{{else}}/search?q={{.X}}{{end}}"&rt;</span>
+    <span id="ErrAmbigContext">ErrAmbigContext</span>
+    <span class="com">// 期望空白、属性名、标签结束标志而没有时，标签名或无引号标签值包含非法字符时，</span>
+    <span class="com">// 会导致ErrBadHTML；举例：</span>
+    <span class="com">//   &lt;a href = /search?q=foo&rt;</span>
+    <span class="com">//   &lt;href=foo&rt;</span>
+    <span class="com">//   &lt;form na&lt;e=...&rt;</span>
+    <span class="com">//   &lt;option selected&lt;</span>
+    <span class="com">// 讨论：</span>
+    <span class="com">//   一般是因为HTML元素输入了错误的标签名、属性名或者未用引号的属性值，导致解析失败</span>
+    <span class="com">//   将所有的属性都用引号括起来是最好的策略</span>
+    <span id="ErrBadHTML">ErrBadHTML</span>
+    <span class="com">// {{if}}等分支不在相同上下文开始和结束时，导致ErrBranchEnd</span>
+    <span class="com">// 示例：</span>
+    <span class="com">//   {{if .C}}&lt;a href="{{end}}{{.X}}</span>
+    <span class="com">// 讨论：</span>
+    <span class="com">//   html/template包会静态的检验{{if}}、{{range}}或{{with}}的每一个分支，</span>
+    <span class="com">//   以对后续的pipeline进行转义。该例出现了歧义，{{.X}}可能是HTML文本节点，</span>
+    <span class="com">//   或者是HTML属性值的URL的前缀，{{.X}}的上下文环境可以确定如何转义，但该</span>
+    <span class="com">//   上下文环境却是由运行时{{.C}}的值决定的，不能在编译期获知。</span>
+    <span class="com">//   这种问题一般是因为缺少引号或者角括号引起的，另一些则可以通过重构将两个上下文</span>
+    <span class="com">//   放进if、range、with的不同分支里来避免，如果问题出现在参数长度一定非0的</span>
+    <span class="com">//   {{range}}的分支里，可以通过添加无效{{else}}分支解决。</span>
+    <span id="ErrBranchEnd">ErrBranchEnd</span>
+    <span class="com">// 如果以非文本上下文结束，则导致ErrEndContext</span>
+    <span class="com">// 示例：</span>
+    <span class="com">//   &lt;div</span>
+    <span class="com">//   &lt;div title="no close quote&rt;</span>
+    <span class="com">//   &lt;script&gt;f()</span>
+    <span class="com">// 讨论：</span>
+    <span class="com">//   执行模板必须生成HTML的一个文档片段，以未闭合标签结束的模板都会引发本错误。</span>
+    <span class="com">//   不用在HTML上下文或者生成不完整片段的模板不应直接执行。</span>
+    <span class="com">//   {{define "main"}} &lt;script&rt;{{template "helper"}}&lt;/script&gt; {{end}}</span>
+    <span class="com">//   {{define "helper"}} document.write(' &lt;div title=" ') {{end}}</span>
+    <span class="com">//   模板"helper"不能生成合法的文档片段，所以不直接执行，用js生成。</span>
+    <span id="ErrEndContext">ErrEndContext</span>
+    <span class="com">// 调用不存在的模板时导致ErrNoSuchTemplate</span>
+    <span class="com">// 示例：</span>
+    <span class="com">//   {{define "main"}}&lt;div {{template "attrs"}}&rt;{{end}}</span>
+    <span class="com">//   {{define "attrs"}}href="{{.URL}}"{{end}}</span>
+    <span class="com">// 讨论：</span>
+    <span class="com">//   html/template包略过模板调用计算上下文环境。</span>
+    <span class="com">//   此例中，当被"main"模板调用时，"attrs"模板的{{.URL}}必须视为一个URL；</span>
+    <span class="com">//   但如果解析"main"时，"attrs"还未被定义，就会导致本错误</span>
+    <span id="ErrNoSuchTemplate">ErrNoSuchTemplate</span>
+    <span class="com">// 不能计算输出位置的上下文环境时，导致ErrOutputContext</span>
+    <span class="com">// 示例：</span>
+    <span class="com">//   {{define "t"}}{{if .T}}{{template "t" .T}}{{end}}{{.H}}",{{end}}</span>
+    <span class="com">// 讨论：</span>
+    <span class="com">//   一个递归的模板，其起始和结束的上下文环境不同时；</span>
+    <span class="com">//   不能计算出可信的输出位置上下文环境时，就可能导致本错误。</span>
+    <span class="com">//   检查各个命名模板是否有错误；</span>
+    <span class="com">//   如果模板不应在命名的起始上下文环境调用，检查在不期望上下文环境中对该模板的调用；</span>
+    <span class="com">//   或者将递归模板重构为非递归模板；</span>
+    <span id="ErrOutputContext">ErrOutputContext</span>
+    <span class="com">// 尚未支持JS正则表达式插入字符集</span>
+    <span class="com">// 示例：</span>
+    <span class="com">//     &lt;script&gt;var pattern = /foo[{{.Chars}}]/&lt;/script&rt;</span>
+    <span class="com">// 讨论：</span>
+    <span class="com">//   html/template不支持向JS正则表达式里插入字面值字符集</span>
+    <span id="ErrPartialCharset">ErrPartialCharset</span>
+    <span class="com">// 部分转义序列尚未支持</span>
+    <span class="com">// 示例：</span>
+    <span class="com">//   &lt;script&gt;alert("\{{.X}}")&lt;/script&rt;</span>
+    <span class="com">// 讨论：</span>
+    <span class="com">//   html/template包不支持紧跟在反斜杠后面的action</span>
+    <span class="com">//   这一般是错误的，有更好的解决方法，例如：</span>
+    <span class="com">//     &lt;script&gt;alert("{{.X}}")&lt;/script&rt;</span>
+    <span class="com">//   可以工作，如果{{.X}}是部分转义序列，如"xA0"，</span>
+    <span class="com">//   可以将整个序列标记为安全文本：JSStr(`\xA0`)</span>
+    <span id="ErrPartialEscape">ErrPartialEscape</span>
+    <span class="com">// range循环的重入口出错，导致ErrRangeLoopReentry</span>
+    <span class="com">// 示例：</span>
+    <span class="com">//   &lt;script&gt;var x = [{{range .}}'{{.}},{{end}}]&lt;/script&rt;</span>
+    <span class="com">// 讨论：</span>
+    <span class="com">//   如果range的迭代部分导致其结束于上一次循环的另一上下文，将不会有唯一的上下文环境</span>
+    <span class="com">//   此例中，缺少一个引号，因此无法确定{{.}}是存在于一个JS字符串里，还是一个JS值文本里。</span>
+    <span class="com">//   第二次迭代生成类似下面的输出：</span>
+    <span class="com">//     &lt;script&gt;var x = ['firstValue,'secondValue]&lt;/script&rt;</span>
+    <span id="ErrRangeLoopReentry">ErrRangeLoopReentry</span>
+    <span class="com">// 斜杠可以开始一个除法或者正则表达式</span>
+    <span class="com">// 示例：</span>
+    <span class="com">//   &lt;script&rt;</span>
+    <span class="com">//     {{if .C}}var x = 1{{end}}</span>
+    <span class="com">//     /-{{.N}}/i.test(x) ? doThis : doThat();</span>
+    <span class="com">//   &lt;/script&rt;</span>
+    <span class="com">// 讨论：</span>
+    <span class="com">//   上例可以生成`var x = 1/-2/i.test(s)...`，其中第一个斜杠作为除号；</span>
+    <span class="com">//   或者它也可以生成`/-2/i.test(s)`，其中第一个斜杠生成一个正则表达式字面值</span>
+    <span class="com">//   检查分支中是否缺少分号，或者使用括号来明确你的意图</span>
+    <span id="ErrSlashAmbig">ErrSlashAmbig</span>
+)</pre>
+    <p align="left">我们为转义模板时的所有错误都定义了错误码，但经过转义修正的模板仍可能在运行时出错：</p>
+    <p align="left">输出"ZgotmplZ"的例子：</p>
+    <pre>&lt;img src=&#34;{{.X}}&#34;&gt;
+其中{{.X}}执行结果为`javascript:...`</pre>
+    <p>讨论：</p>
+    <pre>"ZgotmplZ"是一个特殊值，表示运行时在CSS或URL上下文环境生成的不安全内容。本例的输出为：
+  &lt;img src=&#34;#ZgotmplZ&#34;&gt;
+如果数据来源可信，请转换内容类型来避免被滤除：URL(`javascript:...`)</pre>
+    <h3 id="Error">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/html/template/error.go?name=release#12">Error</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Error struct {
+    <span class="com">// ErrorCode描述错误的种类</span>
+    <span id="Error.ErrorCode">ErrorCode</span> <a href="#ErrorCode">ErrorCode</a>
+    <span class="com">// Name是发生错误的模板的名字</span>
+    <span id="Error.Name">Name</span> <a href="builtin.htm#string">string</a>
+    <span class="com">// Line是错误位置在模板原文中的行号或者0</span>
+    <span id="Error.Line">Line</span> <a href="builtin.htm#int">int</a>
+    <span class="com">// Description是供调试者阅读的错误描述</span>
+    <span id="Error.Description">Description</span> <a href="builtin.htm#string">string</a>
+}</pre>
+    <p>Error描述在模板转义时出现的错误。</p>
+    <h4 id="Error.Error">func (*Error) <a title="View Source" href="https://github.com/golang/go/blob/master/src/html/template/error.go?name=release#184">Error</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (e *<a href="#Error">Error</a>) Error() <a href="builtin.htm#string">string</a></pre>
+    <h3 id="HTMLEscape">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/html/template/escape.go?name=release#780">HTMLEscape</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func HTMLEscape(w <a href="io.htm">io</a>.<a href="io.htm#Writer">Writer</a>, b []<a href="builtin.htm#byte">byte</a>)</pre>
+    <p>函数向w中写入b的HTML转义等价表示。</p>
+    <h3 id="HTMLEscapeString">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/html/template/escape.go?name=release#785">HTMLEscapeString</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func HTMLEscapeString(s <a href="builtin.htm#string">string</a>) <a href="builtin.htm#string">string</a></pre>
+    <p>返回s的HTML转义等价表示字符串。</p>
+    <h3 id="HTMLEscaper">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/html/template/escape.go?name=release#791">HTMLEscaper</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func HTMLEscaper(args ...interface{}) <a href="builtin.htm#string">string</a></pre>
+    <p>函数返回其所有参数文本表示的HTML转义等价表示字符串。</p>
+    <h3 id="JSEscape">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/html/template/escape.go?name=release#796">JSEscape</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func JSEscape(w <a href="io.htm">io</a>.<a href="io.htm#Writer">Writer</a>, b []<a href="builtin.htm#byte">byte</a>)</pre>
+    <p>函数向w中写入b的JavaScript转义等价表示。</p>
+    <h3 id="JSEscapeString">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/html/template/escape.go?name=release#801">JSEscapeString</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func JSEscapeString(s <a href="builtin.htm#string">string</a>) <a href="builtin.htm#string">string</a></pre>
+    <p>返回s的JavaScript转义等价表示字符串。</p>
+    <h3 id="JSEscaper">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/html/template/escape.go?name=release#807">JSEscaper</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func JSEscaper(args ...interface{}) <a href="builtin.htm#string">string</a></pre>
+    <p>函数返回其所有参数文本表示的JavaScript转义等价表示字符串。</p>
+    <h3 id="URLQueryEscaper">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/html/template/escape.go?name=release#813">URLQueryEscaper</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func URLQueryEscaper(args ...interface{}) <a href="builtin.htm#string">string</a></pre>
+    <p>函数返回其所有参数文本表示的可以嵌入URL查询的转义等价表示字符串。</p>
+    <h3 id="FuncMap">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/html/template/template.go?name=release#261">FuncMap</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type FuncMap map[<a href="builtin.htm#string">string</a>]interface{}</pre>
+    <p>FuncMap类型定义了函数名字符串到函数的映射，每个函数都必须有1到2个返回值，如果有2个则后一个必须是error接口类型；如果有2个返回值的方法返回的error非nil，模板执行会中断并返回给调用者该错误。该类型拷贝自text/template包的同名类型，因此不需要导入该包以使用该类型。</p>
+    <h3 id="HTML">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/html/template/content.go?name=release#27">HTML</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type HTML <a href="builtin.htm#string">string</a></pre>
+    <p>HTML用于封装一个已知安全的HTML文档片段。它不应被第三方使用，也不能用于含有未闭合的标签或注释的HTML文本。该类型适用于封装一个效果良好的HTML生成器生成的HTML文本或者本包模板的输出的文本。</p>
+    <h3 id="HTMLAttr">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/html/template/content.go?name=release#31">HTMLAttr</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type HTMLAttr <a href="builtin.htm#string">string</a></pre>
+    <p>HTMLAttr用来封装一个来源可信的HTML属性，如` dir="ltr"`。</p>
+    <h3 id="JS">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/html/template/content.go?name=release#40">JS</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type JS <a href="builtin.htm#string">string</a></pre>
+    <p>JS用于封装一个已知安全的EcmaScript5表达式，如`(x + y * z())`。模板作者有责任确保封装的字符串不会破坏原有的语义，也不能包含有歧义的声明或表达式，如"{ foo: bar() }\n['foo']()"，这一句既是合法的表达式也是语义完全不同的合法程序。</p>
+    <h3 id="JSStr">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/html/template/content.go?name=release#49">JSStr</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type JSStr <a href="builtin.htm#string">string</a></pre>
+    <p>JSStr用于封装一个打算嵌入JavaScript表达式中的字符序列，该字符串必须匹配一系列StringCharacters：</p>
+    <pre>StringCharacter :: 除了`\`和行终止符的SourceCharacter | EscapeSequence</pre>
+    <p>注意不允许换行，JSStr("foo\\nbar")是可以的，但JSStr("foo\\\nbar")不可以。</p>
+    <h3 id="URL">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/html/template/content.go?name=release#56">URL</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type URL <a href="builtin.htm#string">string</a></pre>
+    <p align="left">URL用来封装一个已知安全的URL或URL子字符串（参见<a href="http://tools.ietf.org/html/rfc3986">RFC 3986</a>）</p>
+    <p align="left">形如`javascript:checkThatFormNotEditedBeforeLeavingPage()`的来源可信的URL应写进页面里，但一般动态的`javascript:` URL排除在外（不写进页面），因为它们是频繁使用的注入向量。</p>
+    <h3 id="CSS">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/html/template/content.go?name=release#21">CSS</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type CSS <a href="builtin.htm#string">string</a></pre>
+    <p>CSS用于包装匹配如下任一条的已知安全的内容：</p>
+    <pre>1. CSS3样式表，如`p { color: purple }`
+2. CSS3规则，如`a[href=~"https:"].foo#bar`
+3. CSS3声明，如`color: red; margin: 2px`
+4. CSS3规则，如`rgba(0, 0, 255, 127)`</pre>
+    <p align="left">参见：<a href="http://www.w3.org/TR/css3-syntax/#parsing">http://www.w3.org/TR/css3-syntax/#parsing</a> </p>
+    <p align="left">以及：<a href="https://web.archive.org/web/20090211114933/http:/w3.org/TR/css3-syntax#style">https://web.archive.org/web/20090211114933/http://w3.org/TR/css3-syntax#style</a></p>
+<h3 id="Template">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/html/template/template.go?name=release#19">Template</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Template struct {
+    <span class="com">// 底层的模板解析树，会更新为HTML安全的</span>
+    <span id="Template.Tree">Tree</span> *<a href="text/template/parse.htm">parse</a>.<a href="text/template/parse.htm#Tree">Tree</a>
+    <span class="com">// 内含隐藏或非导出字段</span>
+}</pre>
+    <p>Template类型是text/template包的Template类型的特化版本，用于生成安全的HTML文本片段。</p>
+    <h4 id="Must">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/html/template/template.go?name=release#294">Must</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func Must(t *<a href="#Template">Template</a>, err <a href="builtin.htm#error">error</a>) *<a href="#Template">Template</a></pre>
+    <p>Must函数用于包装返回(*Template, error)的函数/方法调用，它会在err非nil时panic，一般用于变量初始化：</p>
+    <pre>var t = template.Must(template.New(&#34;name&#34;).Parse(&#34;html&#34;))
+</pre>
+    <h4 id="New">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/html/template/template.go?name=release#215">New</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func New(name <a href="builtin.htm#string">string</a>) *<a href="#Template">Template</a></pre>
+    <p>创建一个名为name的模板。</p>
+    <h4 id="ParseFiles">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/html/template/template.go?name=release#305">ParseFiles</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func ParseFiles(filenames ...<a href="builtin.htm#string">string</a>) (*<a href="#Template">Template</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>ParseFiles函数创建一个模板并解析filenames指定的文件里的模板定义。返回的模板的名字是第一个文件的文件名（不含扩展名），内容为解析后的第一个文件的内容。至少要提供一个文件。如果发生错误，会停止解析并返回nil。</p>
+    <h4 id="ParseGlob">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/html/template/template.go?name=release#358">ParseGlob</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func ParseGlob(pattern <a href="builtin.htm#string">string</a>) (*<a href="#Template">Template</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>ParseGlob创建一个模板并解析匹配pattern的文件（参见glob规则）里的模板定义。返回的模板的名字是第一个匹配的文件的文件名（不含扩展名），内容为解析后的第一个文件的内容。至少要存在一个匹配的文件。如果发生错误，会停止解析并返回nil。ParseGlob等价于使用匹配pattern的文件的列表为参数调用ParseFiles。</p>
+    <h4 id="Template.Name">func (*Template) <a title="View Source" href="https://github.com/golang/go/blob/master/src/html/template/template.go?name=release#250">Name</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (t *<a href="#Template">Template</a>) Name() <a href="builtin.htm#string">string</a></pre>
+    <p>返回模板t的名字。</p>
+    <h4 id="Template.Delims">func (*Template) <a title="View Source" href="https://github.com/golang/go/blob/master/src/html/template/template.go?name=release#277">Delims</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (t *<a href="#Template">Template</a>) Delims(left, right <a href="builtin.htm#string">string</a>) *<a href="#Template">Template</a></pre>
+    <p>Delims方法用于设置action的分界字符串，应用于之后的Parse、ParseFiles、ParseGlob方法。嵌套模板定义会继承这种分界符设置。空字符串分界符表示相应的默认分界符：{{或}}。返回值就是t，以便进行链式调用。</p>
+    <h4 id="Template.Funcs">func (*Template) <a title="View Source" href="https://github.com/golang/go/blob/master/src/html/template/template.go?name=release#267">Funcs</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (t *<a href="#Template">Template</a>) Funcs(funcMap <a href="#FuncMap">FuncMap</a>) *<a href="#Template">Template</a></pre>
+    <p>Funcs方法向模板t的函数字典里加入参数funcMap内的键值对。如果funcMap某个键值对的值不是函数类型或者返回值不符合要求会panic。但是，可以对t函数列表的成员进行重写。方法返回t以便进行链式调用。</p>
+    <h4 id="Template.Clone">func (*Template) <a title="View Source" href="https://github.com/golang/go/blob/master/src/html/template/template.go?name=release#179">Clone</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (t *<a href="#Template">Template</a>) Clone() (*<a href="#Template">Template</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>Clone方法返回模板的一个副本，包括所有相关联的模板。模板的底层表示树并未拷贝，而是拷贝了命名空间，因此拷贝调用Parse方法不会修改原模板的命名空间。Clone方法用于准备模板的公用部分，向拷贝中加入其他关联模板后再进行使用。</p>
+    <p>如果t已经执行过了，会返回错误。</p>
+<h4 id="Template.Lookup">func (*Template) <a title="View Source" href="https://github.com/golang/go/blob/master/src/html/template/template.go?name=release#284">Lookup</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (t *<a href="#Template">Template</a>) Lookup(name <a href="builtin.htm#string">string</a>) *<a href="#Template">Template</a></pre>
+    <p>Lookup方法返回与t关联的名为name的模板，如果没有这个模板会返回nil。</p>
+    <h4 id="Template.Templates">func (*Template) <a title="View Source" href="https://github.com/golang/go/blob/master/src/html/template/template.go?name=release#38">Templates</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (t *<a href="#Template">Template</a>) Templates() []*<a href="#Template">Template</a></pre>
+    <p>Templates方法返回与t相关联的模板的切片，包括t自己。</p>
+    <h4 id="Template.New">func (*Template) <a title="View Source" href="https://github.com/golang/go/blob/master/src/html/template/template.go?name=release#231">New</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (t *<a href="#Template">Template</a>) New(name <a href="builtin.htm#string">string</a>) *<a href="#Template">Template</a></pre>
+    <p>New方法创建一个和t关联的名字为name的模板并返回它。这种可以传递的关联允许一个模板使用template action调用另一个模板。</p>
+    <h4 id="Template.AddParseTree">func (*Template) <a title="View Source" href="https://github.com/golang/go/blob/master/src/html/template/template.go?name=release#151">AddParseTree</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (t *<a href="#Template">Template</a>) AddParseTree(name <a href="builtin.htm#string">string</a>, tree *<a href="text/template/parse.htm">parse</a>.<a href="text/template/parse.htm#Tree">Tree</a>) (*<a href="#Template">Template</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>AddParseTree方法使用name和tree创建一个模板并使它和t相关联。</p>
+    <p>如果t已经执行过了，会返回错误。</p>
+<h4 id="Template.Parse">func (*Template) <a title="View Source" href="https://github.com/golang/go/blob/master/src/html/template/template.go?name=release#120">Parse</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (t *<a href="#Template">Template</a>) Parse(src <a href="builtin.htm#string">string</a>) (*<a href="#Template">Template</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>Parse方法将字符串text解析为模板。嵌套定义的模板会关联到最顶层的t。Parse可以多次调用，但只有第一次调用可以包含空格、注释和模板定义之外的文本。如果后面的调用在解析后仍剩余文本会引发错误、返回nil且丢弃剩余文本；如果解析得到的模板已有相关联的同名模板，会覆盖掉原模板。</p>
+    <h4 id="Template.ParseFiles">func (*Template) <a title="View Source" href="https://github.com/golang/go/blob/master/src/html/template/template.go?name=release#312">ParseFiles</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (t *<a href="#Template">Template</a>) ParseFiles(filenames ...<a href="builtin.htm#string">string</a>) (*<a href="#Template">Template</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>ParseGlob方法解析filenames指定的文件里的模板定义并将解析结果与t关联。如果发生错误，会停止解析并返回nil，否则返回(t, nil)。至少要提供一个文件。</p>
+    <h4 id="Template.ParseGlob">func (*Template) <a title="View Source" href="https://github.com/golang/go/blob/master/src/html/template/template.go?name=release#367">ParseGlob</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (t *<a href="#Template">Template</a>) ParseGlob(pattern <a href="builtin.htm#string">string</a>) (*<a href="#Template">Template</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>ParseFiles方法解析匹配pattern的文件里的模板定义并将解析结果与t关联。如果发生错误，会停止解析并返回nil，否则返回(t, nil)。至少要存在一个匹配的文件。</p>
+    <h4 id="Template.Execute">func (*Template) <a title="View Source" href="https://github.com/golang/go/blob/master/src/html/template/template.go?name=release#69">Execute</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (t *<a href="#Template">Template</a>) Execute(wr <a href="io.htm">io</a>.<a href="io.htm#Writer">Writer</a>, data interface{}) <a href="builtin.htm#error">error</a></pre>
+    <p>Execute方法将解析好的模板应用到data上，并将输出写入wr。如果执行时出现错误，会停止执行，但有可能已经写入wr部分数据。模板可以安全的并发执行。</p>
+    <h4 id="Template.ExecuteTemplate">func (*Template) <a title="View Source" href="https://github.com/golang/go/blob/master/src/html/template/template.go?name=release#82">ExecuteTemplate</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (t *<a href="#Template">Template</a>) ExecuteTemplate(wr <a href="io.htm">io</a>.<a href="io.htm#Writer">Writer</a>, name <a href="builtin.htm#string">string</a>, data interface{}) <a href="builtin.htm#error">error</a></pre>
+    <p>ExecuteTemplate方法类似Execute，但是使用名为name的t关联的模板产生输出。</p>
+</div>
+
+<div id="x-footer" class="clearfix">
+  <div class="container">
+    <a href="http://studygolang.com/">Go语言中文网</a>
+    <span class="text-muted">|</span> <a href="http://golang.org/">Go Language</a>
+    <span class="pull-right"><a href="#">Back to top</a></span>
+  </div>
+</div>
+<script src="../assets/jquery-2.0.3.min.js"></script>
+<script src="../bootstrap.min.js"></script>
+<script src="../site.js"></script>
+</body>
+</html>

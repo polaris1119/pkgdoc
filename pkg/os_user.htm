@@ -1,0 +1,63 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="./site.css" rel="stylesheet">
+<title>os/user</title>
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package user</h2>
+    <p><code>import "os/user"</code>
+    <p>user包允许通过名称或ID查询用户帐户。</p>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#UnknownUserError">type UnknownUserError</a></li>
+        <ul>
+            <li><a href="#UnknownUserError.Error">func (e UnknownUserError) Error() string</a></li>
+        </ul>
+        <li><a href="#UnknownUserIdError">type UnknownUserIdError</a></li>
+        <ul>
+            <li><a href="#UnknownUserIdError.Error">func (e UnknownUserIdError) Error() string</a></li>
+        </ul>
+        <li><a href="#User">type User</a></li>
+        <ul>
+            <li><a href="#Current">func Current() (*User, error)</a></li>
+            <li><a href="#Lookup">func Lookup(username string) (*User, error)</a></li>
+            <li><a href="#LookupId">func LookupId(uid string) (*User, error)</a></li>
+        </ul>
+    </ul>
+    <h3 id="UnknownUserError">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/os/user/user.go?name=release#39">UnknownUserError</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type UnknownUserError <a href="builtin.htm#string">string</a></pre>
+    <p>当找不到用户时，Lookup会返回UnknownUserError</p>
+    <h4 id="UnknownUserError.Error">func (UnknownUserError) <a title="View Source" href="https://github.com/golang/go/blob/master/src/os/user/user.go?name=release#41">Error</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (e <a href="#UnknownUserError">UnknownUserError</a>) Error() <a href="builtin.htm#string">string</a></pre>
+    <h3 id="UnknownUserIdError">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/os/user/user.go?name=release#31">UnknownUserIdError</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type UnknownUserIdError <a href="builtin.htm#int">int</a></pre>
+    <p>当找不到用户时，LookupId会返回UnknownUserIdError</p>
+    <h4 id="UnknownUserIdError.Error">func (UnknownUserIdError) <a title="View Source" href="https://github.com/golang/go/blob/master/src/os/user/user.go?name=release#33">Error</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (e <a href="#UnknownUserIdError">UnknownUserIdError</a>) Error() <a href="builtin.htm#string">string</a></pre>
+    <h3 id="User">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/os/user/user.go?name=release#21">User</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type User struct {
+    <span id="User.Uid">Uid</span>      <a href="builtin.htm#string">string</a> <span class="com">// 用户ID</span>
+    <span id="User.Gid">Gid</span>      <a href="builtin.htm#string">string</a> <span class="com">// 初级组ID</span>
+    <span id="User.Username">Username</span> <a href="builtin.htm#string">string</a>
+    <span id="User.Name">Name</span>     <a href="builtin.htm#string">string</a>
+    <span id="User.HomeDir">HomeDir</span>  <a href="builtin.htm#string">string</a>
+}</pre>
+    <p align="left">User代表一个用户帐户。</p>
+    <p align="left">在posix系统中Uid和Gid字段分别包含代表uid和gid的十进制数字。在windows系统中Uid和Gid包含字符串格式的安全标识符（SID）。在Plan 9系统中，Uid、Gid、Username和Name字段是/dev/user的内容。</p>
+    <h4 id="Current">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/os/user/lookup.go?name=release#8">Current</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func Current() (*<a href="#User">User</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>返回当前的用户帐户。</p>
+    <h4 id="Lookup">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/os/user/lookup.go?name=release#14">Lookup</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func Lookup(username <a href="builtin.htm#string">string</a>) (*<a href="#User">User</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>根据用户名查询用户。</p>
+    <h4 id="LookupId">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/os/user/lookup.go?name=release#20">LookupId</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func LookupId(uid <a href="builtin.htm#string">string</a>) (*<a href="#User">User</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>根据用户ID查询用户。</p>
+</div>
+</body>
+</html>

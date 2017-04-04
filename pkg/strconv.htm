@@ -1,0 +1,193 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="./site.css" rel="stylesheet">
+<title>strconv</title>
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package strconv</h2>
+    <p><code>import "strconv"</code>
+    <p>strconv包实现了基本数据类型和其字符串表示的相互转换。</p>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#pkg-constants">Constants</a></li>
+        <li><a href="#pkg-variables">Variables</a></li>
+        <li><a href="#NumError">type NumError</a></li>
+        <ul>
+            <li><a href="#NumError.Error">func (e *NumError) Error() string</a></li>
+        </ul>
+        <li><a href="#IsPrint">func IsPrint(r rune) bool</a></li>
+        <li><a href="#CanBackquote">func CanBackquote(s string) bool</a></li>
+        <li><a href="#Quote">func Quote(s string) string</a></li>
+        <li><a href="#QuoteToASCII">func QuoteToASCII(s string) string</a></li>
+        <li><a href="#QuoteRune">func QuoteRune(r rune) string</a></li>
+        <li><a href="#QuoteRuneToASCII">func QuoteRuneToASCII(r rune) string</a></li>
+        <li><a href="#Unquote">func Unquote(s string) (t string, err error)</a></li>
+        <li><a href="#UnquoteChar">func UnquoteChar(s string, quote byte) (value rune, multibyte bool, tail string, err error)</a></li>
+        <li><a href="#ParseBool">func ParseBool(str string) (value bool, err error)</a></li>
+        <li><a href="#ParseInt">func ParseInt(s string, base int, bitSize int) (i int64, err error)</a></li>
+        <li><a href="#ParseUint">func ParseUint(s string, base int, bitSize int) (n uint64, err error)</a></li>
+        <li><a href="#ParseFloat">func ParseFloat(s string, bitSize int) (f float64, err error)</a></li>
+        <li><a href="#FormatBool">func FormatBool(b bool) string</a></li>
+        <li><a href="#FormatInt">func FormatInt(i int64, base int) string</a></li>
+        <li><a href="#FormatUint">func FormatUint(i uint64, base int) string</a></li>
+        <li><a href="#FormatFloat">func FormatFloat(f float64, fmt byte, prec, bitSize int) string</a></li>
+        <li><a href="#Atoi">func Atoi(s string) (i int, err error)</a></li>
+        <li><a href="#Itoa">func Itoa(i int) string</a></li>
+        <li><a href="#AppendBool">func AppendBool(dst []byte, b bool) []byte</a></li>
+        <li><a href="#AppendInt">func AppendInt(dst []byte, i int64, base int) []byte</a></li>
+        <li><a href="#AppendUint">func AppendUint(dst []byte, i uint64, base int) []byte</a></li>
+        <li><a href="#AppendFloat">func AppendFloat(dst []byte, f float64, fmt byte, prec int, bitSize int) []byte</a></li>
+        <li><a href="#AppendQuote">func AppendQuote(dst []byte, s string) []byte</a></li>
+        <li><a href="#AppendQuoteToASCII">func AppendQuoteToASCII(dst []byte, s string) []byte</a></li>
+        <li><a href="#AppendQuoteRune">func AppendQuoteRune(dst []byte, r rune) []byte</a></li>
+        <li><a href="#AppendQuoteRuneToASCII">func AppendQuoteRuneToASCII(dst []byte, r rune) []byte</a></li>
+    </ul>
+    <h4 id="pkg-examples">Examples <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#example-Unquote" onclick="$('#ex-Unquote').addClass('in').removeClass('collapse').height('auto')">Unquote</a></li>
+    </ul>
+    <h3 id="pkg-constants">Constants <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>const <span id="IntSize">IntSize</span> = intSize</pre>
+    <p>IntSize是int或uint类型的字位数。</p>
+    <h3 id="pkg-variables">Variables <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>var <span id="ErrRange">ErrRange</span> = <a href="errors.htm">errors</a>.<a href="errors.htm#New">New</a>(&#34;value out of range&#34;)</pre>
+    <p>ErrRange表示超出目标类型表示范围。</p>
+    <pre>var <span id="ErrSyntax">ErrSyntax</span> = <a href="errors.htm">errors</a>.<a href="errors.htm#New">New</a>(&#34;invalid syntax&#34;)</pre>
+    <p>ErrSyntax表示不符合目标类型语法。</p>
+    <h3 id="NumError">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/strconv/atoi.go?name=release#16">NumError</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type NumError struct {
+    <span id="NumError.Func">Func</span> <a href="builtin.htm#string">string</a> <span class="com">// 失败的函数（ParseBool、ParseInt、ParseUint、ParseFloat）</span>
+    <span id="NumError.Num">Num</span>  <a href="builtin.htm#string">string</a> <span class="com">// 输入的字符串</span>
+    <span id="NumError.Err">Err</span>  <a href="builtin.htm#error">error</a>  <span class="com">// 失败的原因（ErrRange、ErrSyntax）</span>
+}</pre>
+    <p>NumError表示一次失败的转换。</p>
+    <h4 id="NumError.Error">func (*NumError) <a title="View Source" href="https://github.com/golang/go/blob/master/src/strconv/atoi.go?name=release#22">Error</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (e *<a href="#NumError">NumError</a>) Error() <a href="builtin.htm#string">string</a></pre>
+    <h3 id="IsPrint">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/strconv/quote.go?name=release#402">IsPrint</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func IsPrint(r <a href="builtin.htm#rune">rune</a>) <a href="builtin.htm#bool">bool</a></pre>
+    <p>返回一个字符是否是可打印的，和unicode.IsPrint一样，r必须是：字母（广义）、数字、标点、符号、ASCII空格。</p>
+    <h3 id="CanBackquote">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/strconv/quote.go?name=release#145">CanBackquote</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func CanBackquote(s <a href="builtin.htm#string">string</a>) <a href="builtin.htm#bool">bool</a></pre>
+    <p>返回字符串s是否可以不被修改的表示为一个单行的、没有空格和tab之外控制字符的反引号字符串。</p>
+    <h3 id="Quote">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/strconv/quote.go?name=release#90">Quote</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Quote(s <a href="builtin.htm#string">string</a>) <a href="builtin.htm#string">string</a></pre>
+    <p>返回字符串s在go语法下的双引号字面值表示，控制字符、不可打印字符会进行转义。（如\t，\n，\xFF，\u0100）</p>
+    <h3 id="QuoteToASCII">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/strconv/quote.go?name=release#103">QuoteToASCII</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func QuoteToASCII(s <a href="builtin.htm#string">string</a>) <a href="builtin.htm#string">string</a></pre>
+    <p>返回字符串s在go语法下的双引号字面值表示，控制字符和不可打印字符、非ASCII字符会进行转义。</p>
+    <h3 id="QuoteRune">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/strconv/quote.go?name=release#116">QuoteRune</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func QuoteRune(r <a href="builtin.htm#rune">rune</a>) <a href="builtin.htm#string">string</a></pre>
+    <p>返回字符r在go语法下的单引号字面值表示，控制字符、不可打印字符会进行转义。（如\t，\n，\xFF，\u0100）</p>
+    <h3 id="QuoteRuneToASCII">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/strconv/quote.go?name=release#131">QuoteRuneToASCII</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func QuoteRuneToASCII(r <a href="builtin.htm#rune">rune</a>) <a href="builtin.htm#string">string</a></pre>
+    <p>返回字符r在go语法下的单引号字面值表示，控制字符、不可打印字符、非ASCII字符会进行转义。</p>
+    <h3 id="Unquote">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/strconv/quote.go?name=release#294">Unquote</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Unquote(s <a href="builtin.htm#string">string</a>) (t <a href="builtin.htm#string">string</a>, err <a href="builtin.htm#error">error</a>)</pre>
+    <p>函数假设s是一个单引号、双引号、反引号包围的go语法字符串，解析它并返回它表示的值。（如果是单引号括起来的，函数会认为s是go字符字面值，返回一个单字符的字符串）</p>
+    <div class="panel-group">
+        <div class="panel panel-default" id="example-Unquote">
+            <div class="panel-heading" onclick="document.getElementById('ex-Unquote').style.display = document.getElementById('ex-Unquote').style.display=='none'?'block':'none';">Example</div>
+            <div id="ex-Unquote" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre>test := func(s string) {
+    t, err := strconv.Unquote(s)
+    if err != nil {
+        fmt.Printf(&#34;Unquote(%#v): %v\n&#34;, s, err)
+    } else {
+        fmt.Printf(&#34;Unquote(%#v) = %v\n&#34;, s, t)
+    }
+}
+s := `cafe\u0301`
+<span class="com">// If the string doesn&#39;t have quotes, it can&#39;t be unquoted.</span>
+test(s) <span class="com">// invalid syntax</span>
+test(&#34;`&#34; + s + &#34;`&#34;)
+test(`&#34;` + s + `&#34;`)
+test(`&#39;\u00e9&#39;`)</pre>
+                    <p>Output:
+                    <pre>Unquote(&#34;cafe\\u0301&#34;): invalid syntax
+Unquote(&#34;`cafe\\u0301`&#34;) = cafe\u0301
+Unquote(&#34;\&#34;cafe\\u0301\&#34;&#34;) = café
+Unquote(&#34;&#39;\\u00e9&#39;&#34;) = é
+</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    <h3 id="UnquoteChar">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/strconv/quote.go?name=release#182">UnquoteChar</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func UnquoteChar(s <a href="builtin.htm#string">string</a>, quote <a href="builtin.htm#byte">byte</a>) (value <a href="builtin.htm#rune">rune</a>, multibyte <a href="builtin.htm#bool">bool</a>, tail <a href="builtin.htm#string">string</a>, err <a href="builtin.htm#error">error</a>)</pre>
+    <p>函数假设s是一个表示字符的go语法字符串，解析它并返回四个值：</p>
+    <pre>1) value，表示一个rune值或者一个byte值
+2) multibyte，表示value是否是一个多字节的utf-8字符
+3) tail，表示字符串剩余的部分
+4) err，表示可能存在的语法错误
+</pre>
+    <p>quote参数为单引号时，函数认为单引号是语法字符，不接受未转义的单引号；双引号时，函数认为双引号是语法字符，不接受未转义的双引号；如果是零值，函数把单引号和双引号当成普通字符。</p>
+    <h3 id="ParseBool">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/strconv/atob.go?name=release#10">ParseBool</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func ParseBool(str <a href="builtin.htm#string">string</a>) (value <a href="builtin.htm#bool">bool</a>, err <a href="builtin.htm#error">error</a>)</pre>
+    <p>返回字符串表示的bool值。它接受1、0、t、f、T、F、true、false、True、False、TRUE、FALSE；否则返回错误。</p>
+    <h3 id="ParseInt">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/strconv/atoi.go?name=release#150">ParseInt</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func ParseInt(s <a href="builtin.htm#string">string</a>, base <a href="builtin.htm#int">int</a>, bitSize <a href="builtin.htm#int">int</a>) (i <a href="builtin.htm#int64">int64</a>, err <a href="builtin.htm#error">error</a>)</pre>
+    <p align="left">返回字符串表示的整数值，接受正负号。</p>
+    <p align="left">base指定进制（2到36），如果base为0，则会从字符串前置判断，"0x"是16进制，"0"是8进制，否则是10进制；</p>
+    <p align="left">bitSize指定结果必须能无溢出赋值的整数类型，0、8、16、32、64 分别代表 int、int8、int16、int32、int64；返回的err是*NumErr类型的，如果语法有误，err.Error = ErrSyntax；如果结果超出类型范围err.Error = ErrRange。</p>
+    <h3 id="ParseUint">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/strconv/atoi.go?name=release#48">ParseUint</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func ParseUint(s <a href="builtin.htm#string">string</a>, base <a href="builtin.htm#int">int</a>, bitSize <a href="builtin.htm#int">int</a>) (n <a href="builtin.htm#uint64">uint64</a>, err <a href="builtin.htm#error">error</a>)</pre>
+    <p>ParseUint类似ParseInt但不接受正负号，用于无符号整型。</p>
+    <h3 id="ParseFloat">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/strconv/atof.go?name=release#533">ParseFloat</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func ParseFloat(s <a href="builtin.htm#string">string</a>, bitSize <a href="builtin.htm#int">int</a>) (f <a href="builtin.htm#float64">float64</a>, err <a href="builtin.htm#error">error</a>)</pre>
+    <p align="left">解析一个表示浮点数的字符串并返回其值。</p>
+    <p align="left">如果s合乎语法规则，函数会返回最为接近s表示值的一个浮点数（使用IEEE754规范舍入）。bitSize指定了期望的接收类型，32是float32（返回值可以不改变精确值的赋值给float32），64是float64；返回值err是*NumErr类型的，语法有误的，err.Error=ErrSyntax；结果超出表示范围的，返回值f为±Inf，err.Error= ErrRange。</p>
+    <h3 id="FormatBool">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/strconv/atob.go?name=release#21">FormatBool</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func FormatBool(b <a href="builtin.htm#bool">bool</a>) <a href="builtin.htm#string">string</a></pre>
+    <p>根据b的值返回"true"或"false"。</p>
+    <h3 id="FormatInt">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/strconv/itoa.go?name=release#18">FormatInt</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func FormatInt(i <a href="builtin.htm#int64">int64</a>, base <a href="builtin.htm#int">int</a>) <a href="builtin.htm#string">string</a></pre>
+    <p>返回i的base进制的字符串表示。base 必须在2到36之间，结果中会使用小写字母'a'到'z'表示大于10的数字。</p>
+    <h3 id="FormatUint">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/strconv/itoa.go?name=release#10">FormatUint</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func FormatUint(i <a href="builtin.htm#uint64">uint64</a>, base <a href="builtin.htm#int">int</a>) <a href="builtin.htm#string">string</a></pre>
+    <p>是FormatInt的无符号整数版本。</p>
+    <h3 id="FormatFloat">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/strconv/ftoa.go?name=release#44">FormatFloat</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func FormatFloat(f <a href="builtin.htm#float64">float64</a>, fmt <a href="builtin.htm#byte">byte</a>, prec, bitSize <a href="builtin.htm#int">int</a>) <a href="builtin.htm#string">string</a></pre>
+    <p align="left">函数将浮点数表示为字符串并返回。</p>
+    <p align="left">bitSize表示f的来源类型（32：float32、64：float64），会据此进行舍入。</p>
+    <p align="left">fmt表示格式：'f'（-ddd.dddd）、'b'（-ddddp±ddd，指数为二进制）、'e'（-d.dddde±dd，十进制指数）、'E'（-d.ddddE±dd，十进制指数）、'g'（指数很大时用'e'格式，否则'f'格式）、'G'（指数很大时用'E'格式，否则'f'格式）。</p>
+    <p align="left">prec控制精度（排除指数部分）：对'f'、'e'、'E'，它表示小数点后的数字个数；对'g'、'G'，它控制总的数字个数。如果prec 为-1，则代表使用最少数量的、但又必需的数字来表示f。</p>
+    <h3 id="Atoi">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/strconv/atoi.go?name=release#195">Atoi</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Atoi(s <a href="builtin.htm#string">string</a>) (i <a href="builtin.htm#int">int</a>, err <a href="builtin.htm#error">error</a>)</pre>
+    <p>Atoi是ParseInt(s, 10, 0)的简写。</p>
+    <h3 id="Itoa">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/strconv/itoa.go?name=release#24">Itoa</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Itoa(i <a href="builtin.htm#int">int</a>) <a href="builtin.htm#string">string</a></pre>
+    <p>Itoa是FormatInt(i, 10) 的简写。</p>
+    <h3 id="AppendBool">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/strconv/atob.go?name=release#30">AppendBool</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func AppendBool(dst []<a href="builtin.htm#byte">byte</a>, b <a href="builtin.htm#bool">bool</a>) []<a href="builtin.htm#byte">byte</a></pre>
+    <p>等价于append(dst, FormatBool(b)...)</p>
+    <h3 id="AppendInt">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/strconv/itoa.go?name=release#30">AppendInt</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func AppendInt(dst []<a href="builtin.htm#byte">byte</a>, i <a href="builtin.htm#int64">int64</a>, base <a href="builtin.htm#int">int</a>) []<a href="builtin.htm#byte">byte</a></pre>
+    <p>等价于append(dst, FormatInt(I, base)...)</p>
+    <h3 id="AppendUint">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/strconv/itoa.go?name=release#37">AppendUint</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func AppendUint(dst []<a href="builtin.htm#byte">byte</a>, i <a href="builtin.htm#uint64">uint64</a>, base <a href="builtin.htm#int">int</a>) []<a href="builtin.htm#byte">byte</a></pre>
+    <p>等价于append(dst, FormatUint(I, base)...)</p>
+    <h3 id="AppendFloat">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/strconv/ftoa.go?name=release#50">AppendFloat</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func AppendFloat(dst []<a href="builtin.htm#byte">byte</a>, f <a href="builtin.htm#float64">float64</a>, fmt <a href="builtin.htm#byte">byte</a>, prec <a href="builtin.htm#int">int</a>, bitSize <a href="builtin.htm#int">int</a>) []<a href="builtin.htm#byte">byte</a></pre>
+    <p>等价于append(dst, FormatFloat(f, fmt, prec, bitSize)...)</p>
+    <h3 id="AppendQuote">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/strconv/quote.go?name=release#96">AppendQuote</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func AppendQuote(dst []<a href="builtin.htm#byte">byte</a>, s <a href="builtin.htm#string">string</a>) []<a href="builtin.htm#byte">byte</a></pre>
+    <p>等价于append(dst, Quote(s)...)</p>
+    <h3 id="AppendQuoteToASCII">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/strconv/quote.go?name=release#109">AppendQuoteToASCII</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func AppendQuoteToASCII(dst []<a href="builtin.htm#byte">byte</a>, s <a href="builtin.htm#string">string</a>) []<a href="builtin.htm#byte">byte</a></pre>
+    <p>等价于append(dst, QuoteToASCII(s)...)</p>
+    <h3 id="AppendQuoteRune">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/strconv/quote.go?name=release#123">AppendQuoteRune</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func AppendQuoteRune(dst []<a href="builtin.htm#byte">byte</a>, r <a href="builtin.htm#rune">rune</a>) []<a href="builtin.htm#byte">byte</a></pre>
+    <p>等价于append(dst, QuoteRune(r)...)</p>
+    <h3 id="AppendQuoteRuneToASCII">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/strconv/quote.go?name=release#138">AppendQuoteRuneToASCII</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func AppendQuoteRuneToASCII(dst []<a href="builtin.htm#byte">byte</a>, r <a href="builtin.htm#rune">rune</a>) []<a href="builtin.htm#byte">byte</a></pre>
+    <p>等价于append(dst, QuoteRuneToASCII(r)...)</p>
+</div>
+</body>
+</html>

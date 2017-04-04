@@ -1,0 +1,465 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="./site.css" rel="stylesheet">
+<title>encoding/json</title>
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package json</h2>
+    <p><code>import "encoding/json"</code>
+    <p align="left">json包实现了json对象的编解码，参见<a href="http://tools.ietf.org/html/rfc4627">RFC 4627</a>。Json对象和go类型的映射关系请参见Marshal和Unmarshal函数的文档。</p>
+    <p align="left">参见"JSON and Go"获取本包的一个介绍：<a href="http://golang.org/doc/articles/json_and_go.html">http://golang.org/doc/articles/json_and_go.html</a></p>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#InvalidUTF8Error">type InvalidUTF8Error</a></li>
+        <ul>
+            <li><a href="#InvalidUTF8Error.Error">func (e *InvalidUTF8Error) Error() string</a></li>
+        </ul>
+        <li><a href="#InvalidUnmarshalError">type InvalidUnmarshalError</a></li>
+        <ul>
+            <li><a href="#InvalidUnmarshalError.Error">func (e *InvalidUnmarshalError) Error() string</a></li>
+        </ul>
+        <li><a href="#SyntaxError">type SyntaxError</a></li>
+        <ul>
+            <li><a href="#SyntaxError.Error">func (e *SyntaxError) Error() string</a></li>
+        </ul>
+        <li><a href="#UnmarshalFieldError">type UnmarshalFieldError</a></li>
+        <ul>
+            <li><a href="#UnmarshalFieldError.Error">func (e *UnmarshalFieldError) Error() string</a></li>
+        </ul>
+        <li><a href="#UnmarshalTypeError">type UnmarshalTypeError</a></li>
+        <ul>
+            <li><a href="#UnmarshalTypeError.Error">func (e *UnmarshalTypeError) Error() string</a></li>
+        </ul>
+        <li><a href="#UnsupportedTypeError">type UnsupportedTypeError</a></li>
+        <ul>
+            <li><a href="#UnsupportedTypeError.Error">func (e *UnsupportedTypeError) Error() string</a></li>
+        </ul>
+        <li><a href="#UnsupportedValueError">type UnsupportedValueError</a></li>
+        <ul>
+            <li><a href="#UnsupportedValueError.Error">func (e *UnsupportedValueError) Error() string</a></li>
+        </ul>
+        <li><a href="#MarshalerError">type MarshalerError</a></li>
+        <ul>
+            <li><a href="#MarshalerError.Error">func (e *MarshalerError) Error() string</a></li>
+        </ul>
+        <li><a href="#Number">type Number</a></li>
+        <ul>
+            <li><a href="#Number.Int64">func (n Number) Int64() (int64, error)</a></li>
+            <li><a href="#Number.Float64">func (n Number) Float64() (float64, error)</a></li>
+            <li><a href="#Number.String">func (n Number) String() string</a></li>
+        </ul>
+        <li><a href="#RawMessage">type RawMessage</a></li>
+        <ul>
+            <li><a href="#RawMessage.MarshalJSON">func (m *RawMessage) MarshalJSON() ([]byte, error)</a></li>
+            <li><a href="#RawMessage.UnmarshalJSON">func (m *RawMessage) UnmarshalJSON(data []byte) error</a></li>
+        </ul>
+        <li><a href="#Marshaler">type Marshaler</a></li>
+        <li><a href="#Unmarshaler">type Unmarshaler</a></li>
+        <li><a href="#Compact">func Compact(dst *bytes.Buffer, src []byte) error</a></li>
+        <li><a href="#HTMLEscape">func HTMLEscape(dst *bytes.Buffer, src []byte)</a></li>
+        <li><a href="#Indent">func Indent(dst *bytes.Buffer, src []byte, prefix, indent string) error</a></li>
+        <li><a href="#Marshal">func Marshal(v interface{}) ([]byte, error)</a></li>
+        <li><a href="#MarshalIndent">func MarshalIndent(v interface{}, prefix, indent string) ([]byte, error)</a></li>
+        <li><a href="#Unmarshal">func Unmarshal(data []byte, v interface{}) error</a></li>
+        <li><a href="#Decoder">type Decoder</a></li>
+        <ul>
+            <li><a href="#NewDecoder">func NewDecoder(r io.Reader) *Decoder</a></li>
+            <li><a href="#Decoder.Buffered">func (dec *Decoder) Buffered() io.Reader</a></li>
+            <li><a href="#Decoder.UseNumber">func (dec *Decoder) UseNumber()</a></li>
+            <li><a href="#Decoder.Decode">func (dec *Decoder) Decode(v interface{}) error</a></li>
+        </ul>
+        <li><a href="#Encoder">type Encoder</a></li>
+        <ul>
+            <li><a href="#NewEncoder">func NewEncoder(w io.Writer) *Encoder</a></li>
+            <li><a href="#Encoder.Encode">func (enc *Encoder) Encode(v interface{}) error</a></li>
+        </ul>
+    </ul>
+    <h4 id="pkg-examples">Examples <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#example-Decoder" onclick="$('#ex-Decoder').addClass('in').removeClass('collapse').height('auto')">Decoder</a></li>
+        <li><a href="#example-Indent" onclick="$('#ex-Indent').addClass('in').removeClass('collapse').height('auto')">Indent</a></li>
+        <li><a href="#example-Marshal" onclick="$('#ex-Marshal').addClass('in').removeClass('collapse').height('auto')">Marshal</a></li>
+        <li><a href="#example-RawMessage" onclick="$('#ex-RawMessage').addClass('in').removeClass('collapse').height('auto')">RawMessage</a></li>
+        <li><a href="#example-Unmarshal" onclick="$('#ex-Unmarshal').addClass('in').removeClass('collapse').height('auto')">Unmarshal</a></li>
+    </ul>
+    <h3 id="InvalidUTF8Error">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/json/encode.go?name=release#220">InvalidUTF8Error</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type InvalidUTF8Error struct {
+    <span id="InvalidUTF8Error.S">S</span> <a href="builtin.htm#string">string</a> <span class="com">// 引发错误的完整字符串</span>
+}</pre>
+    <p>Go 1.2之前版本，当试图编码一个包含非法utf-8序列的字符串时会返回本错误。Go 1.2及之后版本，编码器会强行将非法字节替换为unicode字符U+FFFD来使字符串合法。本错误已不会再出现，但出于向后兼容考虑而保留。</p>
+    <h4 id="InvalidUTF8Error.Error">func (*InvalidUTF8Error) <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/json/encode.go?name=release#224">Error</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (e *<a href="#InvalidUTF8Error">InvalidUTF8Error</a>) Error() <a href="builtin.htm#string">string</a></pre>
+    <h3 id="InvalidUnmarshalError">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/json/decode.go?name=release#116">InvalidUnmarshalError</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type InvalidUnmarshalError struct {
+    <span id="InvalidUnmarshalError.Type">Type</span> <a href="reflect.htm">reflect</a>.<a href="reflect.htm#Type">Type</a>
+}</pre>
+    <p>InvalidUnmarshalError用于描述一个传递给解码器的非法参数。（解码器的参数必须是非nil指针）</p>
+    <h4 id="InvalidUnmarshalError.Error">func (*InvalidUnmarshalError) <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/json/decode.go?name=release#120">Error</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (e *<a href="#InvalidUnmarshalError">InvalidUnmarshalError</a>) Error() <a href="builtin.htm#string">string</a></pre>
+    <h3 id="SyntaxError">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/json/scanner.go?name=release#57">SyntaxError</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type SyntaxError struct {
+    <span id="SyntaxError.Offset">Offset</span> <a href="builtin.htm#int64">int64</a> <span class="com">// 在读取Offset个字节后出现错误</span>
+    <span class="com">// 内含隐藏或非导出字段</span>
+}</pre>
+    <p>SyntaxError表示一个json语法错误。</p>
+    <h4 id="SyntaxError.Error">func (*SyntaxError) <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/json/scanner.go?name=release#62">Error</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (e *<a href="#SyntaxError">SyntaxError</a>) Error() <a href="builtin.htm#string">string</a></pre>
+    <h3 id="UnmarshalFieldError">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/json/decode.go?name=release#104">UnmarshalFieldError</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type UnmarshalFieldError struct {
+    <span id="UnmarshalFieldError.Key">Key</span>   <a href="builtin.htm#string">string</a>
+    <span id="UnmarshalFieldError.Type">Type</span>  <a href="reflect.htm">reflect</a>.<a href="reflect.htm#Type">Type</a>
+    <span id="UnmarshalFieldError.Field">Field</span> <a href="reflect.htm">reflect</a>.<a href="reflect.htm#StructField">StructField</a>
+}</pre>
+    <p>UnmarshalFieldError表示一个json对象的键指向一个非导出字段。（因此不能写入；已不再使用，出于兼容保留）</p>
+    <h4 id="UnmarshalFieldError.Error">func (*UnmarshalFieldError) <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/json/decode.go?name=release#110">Error</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (e *<a href="#UnmarshalFieldError">UnmarshalFieldError</a>) Error() <a href="builtin.htm#string">string</a></pre>
+    <h3 id="UnmarshalTypeError">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/json/decode.go?name=release#92">UnmarshalTypeError</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type UnmarshalTypeError struct {
+    <span id="UnmarshalTypeError.Value">Value</span> <a href="builtin.htm#string">string</a>       <span class="com">// 描述json值："bool", "array", "number -5"</span>
+    <span id="UnmarshalTypeError.Type">Type</span>  <a href="reflect.htm">reflect</a>.<a href="reflect.htm#Type">Type</a> <span class="com">// 不能转化为的go类型</span>
+}</pre>
+    <p>UnmarshalTypeError表示一个json值不能转化为特定的go类型的值。</p>
+    <h4 id="UnmarshalTypeError.Error">func (*UnmarshalTypeError) <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/json/decode.go?name=release#97">Error</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (e *<a href="#UnmarshalTypeError">UnmarshalTypeError</a>) Error() <a href="builtin.htm#string">string</a></pre>
+    <h3 id="UnsupportedTypeError">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/json/encode.go?name=release#197">UnsupportedTypeError</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type UnsupportedTypeError struct {
+    <span id="UnsupportedTypeError.Type">Type</span> <a href="reflect.htm">reflect</a>.<a href="reflect.htm#Type">Type</a>
+}</pre>
+    <p>UnsupportedTypeError表示试图编码一个不支持类型的值。</p>
+    <h4 id="UnsupportedTypeError.Error">func (*UnsupportedTypeError) <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/json/encode.go?name=release#201">Error</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (e *<a href="#UnsupportedTypeError">UnsupportedTypeError</a>) Error() <a href="builtin.htm#string">string</a></pre>
+    <h3 id="UnsupportedValueError">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/json/encode.go?name=release#205">UnsupportedValueError</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type UnsupportedValueError struct {
+    <span id="UnsupportedValueError.Value">Value</span> <a href="reflect.htm">reflect</a>.<a href="reflect.htm#Value">Value</a>
+    <span id="UnsupportedValueError.Str">Str</span>   <a href="builtin.htm#string">string</a>
+}</pre>
+    <h4 id="UnsupportedValueError.Error">func (*UnsupportedValueError) <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/json/encode.go?name=release#210">Error</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (e *<a href="#UnsupportedValueError">UnsupportedValueError</a>) Error() <a href="builtin.htm#string">string</a></pre>
+    <h3 id="MarshalerError">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/json/encode.go?name=release#228">MarshalerError</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type MarshalerError struct {
+    <span id="MarshalerError.Type">Type</span> <a href="reflect.htm">reflect</a>.<a href="reflect.htm#Type">Type</a>
+    <span id="MarshalerError.Err">Err</span>  <a href="builtin.htm#error">error</a>
+}</pre>
+    <h4 id="MarshalerError.Error">func (*MarshalerError) <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/json/encode.go?name=release#233">Error</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (e *<a href="#MarshalerError">MarshalerError</a>) Error() <a href="builtin.htm#string">string</a></pre>
+    <h3 id="Number">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/json/decode.go?name=release#154">Number</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Number <a href="builtin.htm#string">string</a></pre>
+    <p>Number类型代表一个json数字字面量。</p>
+    <h4 id="Number.Int64">func (Number) <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/json/decode.go?name=release#165">Int64</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (n <a href="#Number">Number</a>) Int64() (<a href="builtin.htm#int64">int64</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>将该数字作为int64类型返回。</p>
+    <h4 id="Number.Float64">func (Number) <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/json/decode.go?name=release#160">Float64</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (n <a href="#Number">Number</a>) Float64() (<a href="builtin.htm#float64">float64</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>将该数字作为float64类型返回。</p>
+    <h4 id="Number.String">func (Number) <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/json/decode.go?name=release#157">String</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (n <a href="#Number">Number</a>) String() <a href="builtin.htm#string">string</a></pre>
+    <p>返回该数字的字面值文本表示。</p>
+    <h3 id="RawMessage">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/json/stream.go?name=release#184">RawMessage</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type RawMessage []<a href="builtin.htm#byte">byte</a></pre>
+    <p>RawMessage类型是一个保持原本编码的json对象。本类型实现了Marshaler和Unmarshaler接口，用于延迟json的解码或者预计算json的编码。</p>
+    <div class="panel-group">
+        <div class="panel panel-default" id="example-RawMessage">
+            <div class="panel-heading" onclick="document.getElementById('ex-RawMessage').style.display = document.getElementById('ex-RawMessage').style.display=='none'?'block':'none';">Example</div>
+            <div id="ex-RawMessage" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre>type Color struct {
+    Space string
+    Point json.RawMessage <span class="com">// delay parsing until we know the color space</span>
+}
+type RGB struct {
+    R   uint8
+    G   uint8
+    B   uint8
+}
+type YCbCr struct {
+    Y   uint8
+    Cb  int8
+    Cr  int8
+}
+var j = []byte(`[
+		{&#34;Space&#34;: &#34;YCbCr&#34;, &#34;Point&#34;: {&#34;Y&#34;: 255, &#34;Cb&#34;: 0, &#34;Cr&#34;: -10}},
+		{&#34;Space&#34;: &#34;RGB&#34;,   &#34;Point&#34;: {&#34;R&#34;: 98, &#34;G&#34;: 218, &#34;B&#34;: 255}}
+	]`)
+var colors []Color
+err := json.Unmarshal(j, &amp;colors)
+if err != nil {
+    log.Fatalln(&#34;error:&#34;, err)
+}
+for _, c := range colors {
+    var dst interface{}
+    switch c.Space {
+    case &#34;RGB&#34;:
+        dst = new(RGB)
+    case &#34;YCbCr&#34;:
+        dst = new(YCbCr)
+    }
+    err := json.Unmarshal(c.Point, dst)
+    if err != nil {
+        log.Fatalln(&#34;error:&#34;, err)
+    }
+    fmt.Println(c.Space, dst)
+}</pre>
+                    <p>Output:
+                    <pre>YCbCr &amp;{255 0 -10}
+RGB &amp;{98 218 255}
+</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    <h4 id="RawMessage.MarshalJSON">func (*RawMessage) <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/json/stream.go?name=release#187">MarshalJSON</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (m *<a href="#RawMessage">RawMessage</a>) MarshalJSON() ([]<a href="builtin.htm#byte">byte</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>MarshalJSON返回*m的json编码。</p>
+    <h4 id="RawMessage.UnmarshalJSON">func (*RawMessage) <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/json/stream.go?name=release#192">UnmarshalJSON</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (m *<a href="#RawMessage">RawMessage</a>) UnmarshalJSON(data []<a href="builtin.htm#byte">byte</a>) <a href="builtin.htm#error">error</a></pre>
+    <p>UnmarshalJSON将*m设为data的一个拷贝。</p>
+    <h3 id="Marshaler">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/json/encode.go?name=release#191">Marshaler</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Marshaler interface {
+    <span id="Marshaler.MarshalJSON">MarshalJSON</span>() ([]<a href="builtin.htm#byte">byte</a>, <a href="builtin.htm#error">error</a>)
+}</pre>
+    <p>实现了Marshaler接口的类型可以将自身序列化为合法的json描述。</p>
+    <h3 id="Unmarshaler">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/json/decode.go?name=release#86">Unmarshaler</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Unmarshaler interface {
+    <span id="Unmarshaler.UnmarshalJSON">UnmarshalJSON</span>([]<a href="builtin.htm#byte">byte</a>) <a href="builtin.htm#error">error</a>
+}</pre>
+    <p>实现了Unmarshaler接口的对象可以将自身的json描述反序列化。该方法可以认为输入是合法的json字符串。如果要在方法返回后保存自身的json数据，必须进行拷贝。</p>
+    <h3 id="Compact">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/json/indent.go?name=release#11">Compact</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Compact(dst *<a href="bytes.htm">bytes</a>.<a href="bytes.htm#Buffer">Buffer</a>, src []<a href="builtin.htm#byte">byte</a>) <a href="builtin.htm#error">error</a></pre>
+    <p>Compact函数将json编码的src中无用的空白字符剔除后写入dst。</p>
+    <h3 id="HTMLEscape">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/json/encode.go?name=release#160">HTMLEscape</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func HTMLEscape(dst *<a href="bytes.htm">bytes</a>.<a href="bytes.htm#Buffer">Buffer</a>, src []<a href="builtin.htm#byte">byte</a>)</pre>
+    <p>HTMLEscape 函数将json编码的src中的&lt;、&gt;、&amp;、U+2028 和U+2029字符替换为\u003c、\u003e、\u0026、\u2028、\u2029 转义字符串，以便json编码可以安全的嵌入HTML的&lt;script&gt;标签里。因为历史原因，网络浏览器不支持在&lt;script&gt;标签中使用标准HTML转义， 因此必须使用另一种json编码方案。</p>
+    <h3 id="Indent">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/json/indent.go?name=release#75">Indent</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Indent(dst *<a href="bytes.htm">bytes</a>.<a href="bytes.htm#Buffer">Buffer</a>, src []<a href="builtin.htm#byte">byte</a>, prefix, indent <a href="builtin.htm#string">string</a>) <a href="builtin.htm#error">error</a></pre>
+    <p>Indent函数将json编码的调整缩进之后写入dst。每一个json元素/数组都另起一行开始，以prefix为起始，一或多个indent缩进（数目看嵌套层数）。写入dst的数据起始没有prefix字符，也没有indent字符，最后也不换行，因此可以更好的嵌入其他格式化后的json数据里。</p>
+    <div class="panel-group">
+        <div class="panel panel-default" id="example-Indent">
+            <div class="panel-heading" onclick="document.getElementById('ex-Indent').style.display = document.getElementById('ex-Indent').style.display=='none'?'block':'none';">Example</div>
+            <div id="ex-Indent" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre>type Road struct {
+    Name   string
+    Number int
+}
+roads := []Road{
+    {&#34;Diamond Fork&#34;, 29},
+    {&#34;Sheep Creek&#34;, 51},
+}
+b, err := json.Marshal(roads)
+if err != nil {
+    log.Fatal(err)
+}
+var out bytes.Buffer
+json.Indent(&amp;out, b, &#34;=&#34;, &#34;\t&#34;)
+out.WriteTo(os.Stdout)</pre>
+                    <p>Output:
+                    <pre>[
+=	{
+=		&#34;Name&#34;: &#34;Diamond Fork&#34;,
+=		&#34;Number&#34;: 29
+=	},
+=	{
+=		&#34;Name&#34;: &#34;Sheep Creek&#34;,
+=		&#34;Number&#34;: 51
+=	}
+=]
+</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    <h3 id="Marshal">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/json/encode.go?name=release#131">Marshal</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Marshal(v interface{}) ([]<a href="builtin.htm#byte">byte</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p align="left">Marshal函数返回v的json编码。</p>
+    <p align="left">Marshal函数会递归的处理值。如果一个值实现了Marshaler接口切非nil指针，会调用其MarshalJSON方法来生成json编码。nil指针异常并不是严格必需的，但会模拟与UnmarshalJSON的行为类似的必需的异常。</p>
+    <p>否则，Marshal函数使用下面的基于类型的默认编码格式：</p>
+    <p align="left">布尔类型编码为json布尔类型。</p>
+    <p align="left">浮点数、整数和Number类型的值编码为json数字类型。</p>
+    <p align="left">字符串编码为json字符串。角括号"&lt;"和"&gt;"会转义为"\u003c"和"\u003e"以避免某些浏览器吧json输出错误理解为HTML。基于同样的原因，"&amp;"转义为"\u0026"。</p>
+    <p align="left">数组和切片类型的值编码为json数组，但[]byte编码为base64编码字符串，nil切片编码为null。</p>
+    <p align="left">结构体的值编码为json对象。每一个导出字段变成该对象的一个成员，除非：</p>
+    <pre>- 字段的标签是"-"
+- 字段是空值，而其标签指定了omitempty选项</pre>
+    <p>空值是false、0、""、nil指针、nil接口、长度为0的数组、切片、映射。对象默认键字符串是结构体的字段名，但可以在结构体字段的标签里指定。结构体标签值里的"json"键为键名，后跟可选的逗号和选项，举例如下：</p>
+    <pre>// 字段被本包忽略
+Field int `json:"-"`
+// 字段在json里的键为"myName"
+Field int `json:"myName"`
+// 字段在json里的键为"myName"且如果字段为空值将在对象中省略掉
+Field int `json:"myName,omitempty"`
+// 字段在json里的键为"Field"（默认值），但如果字段为空值会跳过；注意前导的逗号
+Field int `json:",omitempty"`
+</pre>
+    <p>"string"选项标记一个字段在编码json时应编码为字符串。它只适用于字符串、浮点数、整数类型的字段。这个额外水平的编码选项有时候会用于和javascript程序交互：</p>
+    <pre>Int64String int64 `json:&#34;,string&#34;`
+</pre>
+    <p align="left">如果键名是只含有unicode字符、数字、美元符号、百分号、连字符、下划线和斜杠的非空字符串，将使用它代替字段名。</p>
+    <p align="left">匿名的结构体字段一般序列化为他们内部的导出字段就好像位于外层结构体中一样。如果一个匿名结构体字段的标签给其提供了键名，则会使用键名代替字段名，而不视为匿名。</p>
+    <p align="left">Go结构体字段的可视性规则用于供json决定那个字段应该序列化或反序列化时是经过修正了的。如果同一层次有多个（匿名）字段且该层次是最小嵌套的（嵌套层次则使用默认go规则），会应用如下额外规则：</p>
+    <p align="left">1）json标签为"-"的匿名字段强行忽略，不作考虑；</p>
+    <p align="left">2）json标签提供了键名的匿名字段，视为非匿名字段；</p>
+    <p align="left">3）其余字段中如果只有一个匿名字段，则使用该字段；</p>
+    <p align="left">4）其余字段中如果有多个匿名字段，但压平后不会出现冲突，所有匿名字段压平；</p>
+    <p align="left">5）其余字段中如果有多个匿名字段，但压平后出现冲突，全部忽略，不产生错误。</p>
+    <p align="left">对匿名结构体字段的管理是从go1.1开始的，在之前的版本，匿名字段会直接忽略掉。</p>
+    <p align="left">映射类型的值编码为json对象。映射的键必须是字符串，对象的键直接使用映射的键。</p>
+    <p align="left">指针类型的值编码为其指向的值（的json编码）。nil指针编码为null。</p>
+    <p align="left">接口类型的值编码为接口内保持的具体类型的值（的json编码）。nil接口编码为null。</p>
+    <p align="left">通道、复数、函数类型的值不能编码进json。尝试编码它们会导致Marshal函数返回UnsupportedTypeError。</p>
+    <p align="left">Json不能表示循环的数据结构，将一个循环的结构提供给Marshal函数会导致无休止的循环。</p>
+    <div class="panel-group">
+        <div class="panel panel-default" id="example-Marshal">
+            <div class="panel-heading" onclick="document.getElementById('ex-Marshal').style.display = document.getElementById('ex-Marshal').style.display=='none'?'block':'none';">Example</div>
+            <div id="ex-Marshal" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre>type ColorGroup struct {
+    ID     int
+    Name   string
+    Colors []string
+}
+group := ColorGroup{
+    ID:     1,
+    Name:   &#34;Reds&#34;,
+    Colors: []string{&#34;Crimson&#34;, &#34;Red&#34;, &#34;Ruby&#34;, &#34;Maroon&#34;},
+}
+b, err := json.Marshal(group)
+if err != nil {
+    fmt.Println(&#34;error:&#34;, err)
+}
+os.Stdout.Write(b)</pre>
+                    <p>Output:
+                    <pre>{&#34;ID&#34;:1,&#34;Name&#34;:&#34;Reds&#34;,&#34;Colors&#34;:[&#34;Crimson&#34;,&#34;Red&#34;,&#34;Ruby&#34;,&#34;Maroon&#34;]}
+</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    <h3 id="MarshalIndent">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/json/encode.go?name=release#141">MarshalIndent</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func MarshalIndent(v interface{}, prefix, indent <a href="builtin.htm#string">string</a>) ([]<a href="builtin.htm#byte">byte</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>MarshalIndent类似Marshal但会使用缩进将输出格式化。</p>
+    <h3 id="Unmarshal">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/json/decode.go?name=release#67">Unmarshal</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Unmarshal(data []<a href="builtin.htm#byte">byte</a>, v interface{}) <a href="builtin.htm#error">error</a></pre>
+    <p align="left">Unmarshal函数解析json编码的数据并将结果存入v指向的值。</p>
+    <p align="left">Unmarshal和Marshal做相反的操作，必要时申请映射、切片或指针，有如下的附加规则：</p>
+    <p align="left">要将json数据解码写入一个指针，Unmarshal函数首先处理json数据是json字面值null的情况。此时，函数将指针设为nil；否则，函数将json数据解码写入指针指向的值；如果指针本身是nil，函数会先申请一个值并使指针指向它。</p>
+    <p align="left">要将json数据解码写入一个结构体，函数会匹配输入对象的键和Marshal使用的键（结构体字段名或者它的标签指定的键名），优先选择精确的匹配，但也接受大小写不敏感的匹配。</p>
+    <p align="left">要将json数据解码写入一个接口类型值，函数会将数据解码为如下类型写入接口：</p>
+    <pre>Bool                   对应JSON布尔类型
+float64                对应JSON数字类型
+string                 对应JSON字符串类型
+[]interface{}          对应JSON数组
+map[string]interface{} 对应JSON对象
+nil                    对应JSON的null</pre>
+    <p align="left">如果一个JSON值不匹配给出的目标类型，或者如果一个json数字写入目标类型时溢出，Unmarshal函数会跳过该字段并尽量完成其余的解码操作。如果没有出现更加严重的错误，本函数会返回一个描述第一个此类错误的详细信息的UnmarshalTypeError。</p>
+    <p align="left">JSON的null值解码为go的接口、指针、切片时会将它们设为nil，因为null在json里一般表示&ldquo;不存在&rdquo;。 解码json的null值到其他go类型时，不会造成任何改变，也不会产生错误。</p>
+    <p align="left">当解码字符串时，不合法的utf-8或utf-16代理（字符）对不视为错误，而是将非法字符替换为unicode字符U+FFFD。</p>
+    <div class="panel-group">
+        <div class="panel panel-default" id="example-Unmarshal">
+            <div class="panel-heading" onclick="document.getElementById('ex-Unmarshal').style.display = document.getElementById('ex-Unmarshal').style.display=='none'?'block':'none';">Example</div>
+            <div id="ex-Unmarshal" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre>var jsonBlob = []byte(`[
+		{&#34;Name&#34;: &#34;Platypus&#34;, &#34;Order&#34;: &#34;Monotremata&#34;},
+		{&#34;Name&#34;: &#34;Quoll&#34;,    &#34;Order&#34;: &#34;Dasyuromorphia&#34;}
+	]`)
+type Animal struct {
+    Name  string
+    Order string
+}
+var animals []Animal
+err := json.Unmarshal(jsonBlob, &amp;animals)
+if err != nil {
+    fmt.Println(&#34;error:&#34;, err)
+}
+fmt.Printf(&#34;%+v&#34;, animals)</pre>
+                    <p>Output:
+                    <pre>[{Name:Platypus Order:Monotremata} {Name:Quoll Order:Dasyuromorphia}]
+</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    <h3 id="Decoder">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/json/stream.go?name=release#14">Decoder</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Decoder struct {
+    <span class="com">// 内含隐藏或非导出字段</span>
+}</pre>
+    <p>Decoder从输入流解码json对象</p>
+    <div class="panel-group">
+        <div class="panel panel-default" id="example-Decoder">
+            <div class="panel-heading" onclick="document.getElementById('ex-Decoder').style.display = document.getElementById('ex-Decoder').style.display=='none'?'block':'none';">Example</div>
+            <div id="ex-Decoder" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre>const jsonStream = `
+		{&#34;Name&#34;: &#34;Ed&#34;, &#34;Text&#34;: &#34;Knock knock.&#34;}
+		{&#34;Name&#34;: &#34;Sam&#34;, &#34;Text&#34;: &#34;Who&#39;s there?&#34;}
+		{&#34;Name&#34;: &#34;Ed&#34;, &#34;Text&#34;: &#34;Go fmt.&#34;}
+		{&#34;Name&#34;: &#34;Sam&#34;, &#34;Text&#34;: &#34;Go fmt who?&#34;}
+		{&#34;Name&#34;: &#34;Ed&#34;, &#34;Text&#34;: &#34;Go fmt yourself!&#34;}
+	`
+type Message struct {
+    Name, Text string
+}
+dec := json.NewDecoder(strings.NewReader(jsonStream))
+for {
+    var m Message
+    if err := dec.Decode(&amp;m); err == io.EOF {
+        break
+    } else if err != nil {
+        log.Fatal(err)
+    }
+    fmt.Printf(&#34;%s: %s\n&#34;, m.Name, m.Text)
+}</pre>
+                    <p>Output:
+                    <pre>Ed: Knock knock.
+Sam: Who&#39;s there?
+Ed: Go fmt.
+Sam: Go fmt who?
+Ed: Go fmt yourself!
+</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    <h4 id="NewDecoder">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/json/stream.go?name=release#26">NewDecoder</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func NewDecoder(r <a href="io.htm">io</a>.<a href="io.htm#Reader">Reader</a>) *<a href="#Decoder">Decoder</a></pre>
+    <p>NewDecoder创建一个从r读取并解码json对象的*Decoder，解码器有自己的缓冲，并可能超前读取部分json数据。</p>
+    <h4 id="Decoder.Buffered">func (*Decoder) <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/json/stream.go?name=release#64">Buffered</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (dec *<a href="#Decoder">Decoder</a>) Buffered() <a href="io.htm">io</a>.<a href="io.htm#Reader">Reader</a></pre>
+    <p>Buffered方法返回保存在dec缓存里数据的读取器，该返回值在下次调用Decode方法之前有效。</p>
+    <h4 id="Decoder.UseNumber">func (*Decoder) <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/json/stream.go?name=release#32">UseNumber</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (dec *<a href="#Decoder">Decoder</a>) UseNumber()</pre>
+    <p>UseNumber方法将dec设置为当接收端是interface{}接口时将json数字解码为Number类型而不是float64类型</p>
+    <h4 id="Decoder.Decode">func (*Decoder) <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/json/stream.go?name=release#39">Decode</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (dec *<a href="#Decoder">Decoder</a>) Decode(v interface{}) <a href="builtin.htm#error">error</a></pre>
+    <p>Decode从输入流读取下一个json编码值并保存在v指向的值里，参见Unmarshal函数的文档获取细节信息。</p>
+    <h3 id="Encoder">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/json/stream.go?name=release#140">Encoder</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Encoder struct {
+    <span class="com">// 内含隐藏或非导出字段</span>
+}</pre>
+    <p>Encoder将json对象写入输出流。</p>
+    <h4 id="NewEncoder">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/json/stream.go?name=release#147">NewEncoder</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func NewEncoder(w <a href="io.htm">io</a>.<a href="io.htm#Writer">Writer</a>) *<a href="#Encoder">Encoder</a></pre>
+    <p>NewEncoder创建一个将数据写入w的*Encoder。</p>
+    <h4 id="Encoder.Encode">func (*Encoder) <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/json/stream.go?name=release#156">Encode</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (enc *<a href="#Encoder">Encoder</a>) Encode(v interface{}) <a href="builtin.htm#error">error</a></pre>
+    <p>Encode将v的json编码写入输出流，并会写入一个换行符，参见Marshal函数的文档获取细节信息。</p>
+</div>
+
+<div id="x-footer" class="clearfix">
+  <div class="container">
+    <a href="http://studygolang.com/">Go语言中文网</a>
+    <span class="text-muted">|</span> <a href="http://golang.org/">Go Language</a>
+    <span class="pull-right"><a href="#">Back to top</a></span>
+  </div>
+</div>
+<script src="../assets/jquery-2.0.3.min.js"></script>
+<script src="../bootstrap.min.js"></script>
+<script src="../site.js"></script>
+</body>
+</html>

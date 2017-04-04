@@ -1,0 +1,76 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="./site.css" rel="stylesheet">
+<title>encoding/hex</title>
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package hex</h2>
+    <p><code>import "encoding/hex"</code>
+    <p>hex包实现了16进制字符表示的编解码。</p>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#pkg-variables">Variables</a></li>
+        <li><a href="#InvalidByteError">type InvalidByteError</a></li>
+        <ul>
+            <li><a href="#InvalidByteError.Error">func (e InvalidByteError) Error() string</a></li>
+        </ul>
+        <li><a href="#DecodedLen">func DecodedLen(x int) int</a></li>
+        <li><a href="#Decode">func Decode(dst, src []byte) (int, error)</a></li>
+        <li><a href="#DecodeString">func DecodeString(s string) ([]byte, error)</a></li>
+        <li><a href="#EncodedLen">func EncodedLen(n int) int</a></li>
+        <li><a href="#Encode">func Encode(dst, src []byte) int</a></li>
+        <li><a href="#EncodeToString">func EncodeToString(src []byte) string</a></li>
+        <li><a href="#Dump">func Dump(data []byte) string</a></li>
+        <li><a href="#Dumper">func Dumper(w io.Writer) io.WriteCloser</a></li>
+    </ul>
+    <h3 id="pkg-variables">Variables <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>var <span id="ErrLength">ErrLength</span> = <a href="errors.htm">errors</a>.<a href="errors.htm#New">New</a>(&#34;encoding/hex: odd length hex string&#34;)</pre>
+    <p>解码一个长度为奇数的切片时，将返回此错误。</p>
+    <h3 id="InvalidByteError">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/hex/hex.go?name=release#37">InvalidByteError</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type InvalidByteError <a href="builtin.htm#byte">byte</a></pre>
+    <p>描述一个hex编码字符串中的非法字符。</p>
+    <h4 id="InvalidByteError.Error">func (InvalidByteError) <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/hex/hex.go?name=release#39">Error</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (e <a href="#InvalidByteError">InvalidByteError</a>) Error() <a href="builtin.htm#string">string</a></pre>
+    <h3 id="DecodedLen">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/hex/hex.go?name=release#43">DecodedLen</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func DecodedLen(x <a href="builtin.htm#int">int</a>) <a href="builtin.htm#int">int</a></pre>
+    <p>长度x的编码数据解码后的明文数据的长度</p>
+    <h3 id="Decode">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/hex/hex.go?name=release#49">Decode</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Decode(dst, src []<a href="builtin.htm#byte">byte</a>) (<a href="builtin.htm#int">int</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>将src解码为DecodedLen(len(src))字节，返回实际写入dst的字节数；如遇到非法字符，返回描述错误的error。</p>
+    <h3 id="DecodeString">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/hex/hex.go?name=release#91">DecodeString</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func DecodeString(s <a href="builtin.htm#string">string</a>) ([]<a href="builtin.htm#byte">byte</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>返回hex编码的字符串s代表的数据。</p>
+    <h3 id="EncodedLen">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/hex/hex.go?name=release#18">EncodedLen</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func EncodedLen(n <a href="builtin.htm#int">int</a>) <a href="builtin.htm#int">int</a></pre>
+    <p>长度x的明文数据编码后的编码数据的长度。</p>
+    <h3 id="Encode">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/hex/hex.go?name=release#24">Encode</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Encode(dst, src []<a href="builtin.htm#byte">byte</a>) <a href="builtin.htm#int">int</a></pre>
+    <p>将src的数据解码为EncodedLen(len(src))字节，返回实际写入dst的字节数：EncodedLen(len(src))。</p>
+    <h3 id="EncodeToString">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/hex/hex.go?name=release#84">EncodeToString</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func EncodeToString(src []<a href="builtin.htm#byte">byte</a>) <a href="builtin.htm#string">string</a></pre>
+    <p>将数据src编码为字符串s。</p>
+    <h3 id="Dump">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/hex/hex.go?name=release#103">Dump</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Dump(data []<a href="builtin.htm#byte">byte</a>) <a href="builtin.htm#string">string</a></pre>
+    <p>返回给定数据的hex dump格式的字符串，这个字符串与控制台下`hexdump -C`对该数据的输出是一致的。</p>
+    <h3 id="Dumper">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/hex/hex.go?name=release#114">Dumper</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Dumper(w <a href="io.htm">io</a>.<a href="io.htm#Writer">Writer</a>) <a href="io.htm">io</a>.<a href="io.htm#WriteCloser">WriteCloser</a></pre>
+    <p>返回一个io.WriteCloser接口，将写入的数据的hex dump格式写入w，具体格式为'hexdump -C'。</p>
+</div>
+
+<div id="x-footer" class="clearfix">
+  <div class="container">
+    <a href="http://studygolang.com/">Go语言中文网</a>
+    <span class="text-muted">|</span> <a href="http://golang.org/">Go Language</a>
+    <span class="pull-right"><a href="#">Back to top</a></span>
+  </div>
+</div>
+<script src="../assets/jquery-2.0.3.min.js"></script>
+<script src="../bootstrap.min.js"></script>
+<script src="../site.js"></script>
+</body>
+</html>

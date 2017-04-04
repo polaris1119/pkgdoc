@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="../site.css" rel="stylesheet">
+<title>appengine/urlfetch</title>
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package urlfetch</h2>
+    <p><code>import "code.google.com/p/appengine-go/appengine/urlfetch"</code>
+    <p>urlfetch提供了一个http.RoundTripper接口的实现，用于抓取URL页面。</p>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <ul class="list-unstyled">
+        <li><a href="#pkg-variables">Variables</a></li>
+        <li><a href="#Client">func Client(context appengine.Context) *http.Client</a></li>
+        <li><a href="#Transport">type Transport</a></li>
+        <ul>
+            <li><a href="#Transport.RoundTrip">func (t *Transport) RoundTrip(req *http.Request) (res *http.Response, err error)</a></li>
+        </ul>
+    </ul>
+    <h3 id="pkg-variables">Variables <a class="permalink" href="#pkg-variables">&para;</a></h3>
+    <pre>var <span id="ErrTruncatedBody">ErrTruncatedBody</span> = <a href="https://godoc.org/errors">errors</a>.<a href="https://godoc.org/errors#New">New</a>(&#34;urlfetch: truncated body&#34;)</pre>
+    <p>如果response的主体被App Engine代理截断，最后一次Read()就会返回本错误。</p>
+    <h3 id="Client">func <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/urlfetch/urlfetch.go#50">Client</a> <a class="permalink" href="#Client">&para;</a></h3>
+    <pre class="funcdecl">func Client(context <a href="https://godoc.org/appengine">appengine</a>.<a href="https://godoc.org/appengine#Context">Context</a>) *<a href="https://godoc.org/net/http">http</a>.<a href="https://godoc.org/net/http#Client">Client</a></pre>
+    <p>Client返回一个使用urlfetch.Transport的*http.Client，该client采用5秒deadline，并会检查SSL证书的合法性。</p>
+    <h3 id="Transport">type <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/urlfetch/urlfetch.go#31">Transport</a> <a class="permalink" href="#Transport">&para;</a></h3>
+    <pre>type Transport struct {
+    <span id="Transport.Context">Context</span>  <a href="https://godoc.org/appengine">appengine</a>.<a href="https://godoc.org/appengine#Context">Context</a>
+    <span id="Transport.Deadline">Deadline</span> <a href="https://godoc.org/time">time</a>.<a href="https://godoc.org/time#Duration">Duration</a> <span class="com">// 0表示默认的5秒</span>
+    <span class="com">// 控制app是否会检查https链接的证书合法性</span>
+    <span class="com">// 只有格式正确、有权威机构签名并与主机名匹配的证书才合法</span>
+    <span class="com">// 如设为假则只有证书合法才会发送请求，设为真不检查证书</span>
+    <span id="Transport.AllowInvalidServerCertificate">AllowInvalidServerCertificate</span> <a href="https://godoc.org/builtin#bool">bool</a>
+}</pre>
+    <p>Transport是用于App Engine的http.RoundTripper 接口实现。使用者一般避免直接使用本类型。</p>
+    <h4 id="Transport.RoundTrip">func (*Transport) <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/urlfetch/urlfetch.go#125">RoundTrip</a> <a class="permalink" href="#Transport.RoundTrip">&para;</a></h4>
+    <pre class="funcdecl">func (t *<a href="#Transport">Transport</a>) RoundTrip(req *<a href="https://godoc.org/net/http">http</a>.<a href="https://godoc.org/net/http#Request">Request</a>) (res *<a href="https://godoc.org/net/http">http</a>.<a href="https://godoc.org/net/http#Response">Response</a>, err <a href="https://godoc.org/builtin#error">error</a>)</pre>
+    <p>RoundTrip发出request并返回该请求的response。如果request不支持或者抓取失败都会返回错误。注意HTTP返回码为5xx、403、404等并非错误，错误码仍会设为nil。</p>
+</div>
+</body>
+</html>

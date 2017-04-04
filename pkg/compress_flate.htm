@@ -1,0 +1,134 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="./site.css" rel="stylesheet">
+<title>compress/flate</title>
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package flate</h2>
+    <p><code>import "compress/flate"</code>
+    <p>flate包实现了deflate压缩数据格式，参见<a href="http://tools.ietf.org/html/rfc1951">RFC 1951</a>。gzip包和zlib包实现了对基于deflate的文件格式的访问。</p>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#pkg-constants">Constants</a></li>
+        <li><a href="#CorruptInputError">type CorruptInputError</a></li>
+        <ul>
+            <li><a href="#CorruptInputError.Error">func (e CorruptInputError) Error() string</a></li>
+        </ul>
+        <li><a href="#InternalError">type InternalError</a></li>
+        <ul>
+            <li><a href="#InternalError.Error">func (e InternalError) Error() string</a></li>
+        </ul>
+        <li><a href="#ReadError">type ReadError</a></li>
+        <ul>
+            <li><a href="#ReadError.Error">func (e *ReadError) Error() string</a></li>
+        </ul>
+        <li><a href="#WriteError">type WriteError</a></li>
+        <ul>
+            <li><a href="#WriteError.Error">func (e *WriteError) Error() string</a></li>
+        </ul>
+        <li><a href="#Reader">type Reader</a></li>
+        <ul>
+            <li><a href="#NewReader">func NewReader(r io.Reader) io.ReadCloser</a></li>
+            <li><a href="#NewReaderDict">func NewReaderDict(r io.Reader, dict []byte) io.ReadCloser</a></li>
+        </ul>
+        <li><a href="#Writer">type Writer</a></li>
+        <ul>
+            <li><a href="#NewWriter">func NewWriter(w io.Writer, level int) (*Writer, error)</a></li>
+            <li><a href="#NewWriterDict">func NewWriterDict(w io.Writer, level int, dict []byte) (*Writer, error)</a></li>
+            <li><a href="#Writer.Reset">func (w *Writer) Reset(dst io.Writer)</a></li>
+            <li><a href="#Writer.Write">func (w *Writer) Write(data []byte) (n int, err error)</a></li>
+            <li><a href="#Writer.Flush">func (w *Writer) Flush() error</a></li>
+            <li><a href="#Writer.Close">func (w *Writer) Close() error</a></li>
+        </ul>
+    </ul>
+    <h3 id="pkg-constants">Constants <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>const (
+    <span id="NoCompression">NoCompression</span> = 0
+    <span id="BestSpeed">BestSpeed</span>     = 1
+    <span id="BestCompression">BestCompression</span>    = 9
+    <span id="DefaultCompression">DefaultCompression</span> = -1
+)</pre>
+    <h3 id="CorruptInputError">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/compress/flate/inflate.go?name=release#26">CorruptInputError</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type CorruptInputError <a href="builtin.htm#int64">int64</a></pre>
+    <p>CorruptInputError表示在输入的指定偏移量位置存在损坏。</p>
+    <h4 id="CorruptInputError.Error">func (CorruptInputError) <a title="View Source" href="https://github.com/golang/go/blob/master/src/compress/flate/inflate.go?name=release#28">Error</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (e <a href="#CorruptInputError">CorruptInputError</a>) Error() <a href="builtin.htm#string">string</a></pre>
+    <h3 id="InternalError">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/compress/flate/inflate.go?name=release#33">InternalError</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type InternalError <a href="builtin.htm#string">string</a></pre>
+    <p>InternalError表示flate数据自身的错误。</p>
+    <h4 id="InternalError.Error">func (InternalError) <a title="View Source" href="https://github.com/golang/go/blob/master/src/compress/flate/inflate.go?name=release#35">Error</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (e <a href="#InternalError">InternalError</a>) Error() <a href="builtin.htm#string">string</a></pre>
+    <h3 id="ReadError">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/compress/flate/inflate.go?name=release#38">ReadError</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type ReadError struct {
+    <span id="ReadError.Offset">Offset</span> <a href="builtin.htm#int64">int64</a> <span class="com">// 错误出现的位置（字节偏移量）</span>
+    <span id="ReadError.Err">Err</span>    <a href="builtin.htm#error">error</a> <span class="com">// 下层的读取操作返回的错误</span>
+}</pre>
+    <p>ReadError代表在读取输入流时遇到的错误。</p>
+    <h4 id="ReadError.Error">func (*ReadError) <a title="View Source" href="https://github.com/golang/go/blob/master/src/compress/flate/inflate.go?name=release#43">Error</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (e *<a href="#ReadError">ReadError</a>) Error() <a href="builtin.htm#string">string</a></pre>
+    <h3 id="WriteError">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/compress/flate/inflate.go?name=release#48">WriteError</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type WriteError struct {
+    <span id="WriteError.Offset">Offset</span> <a href="builtin.htm#int64">int64</a> <span class="com">// 错误出现的位置（字节偏移量）</span>
+    <span id="WriteError.Err">Err</span>    <a href="builtin.htm#error">error</a> <span class="com">// 下层的写入操作返回的错误</span>
+}</pre>
+    <p>WriteError代表在写入输出流时遇到的错误。</p>
+    <h4 id="WriteError.Error">func (*WriteError) <a title="View Source" href="https://github.com/golang/go/blob/master/src/compress/flate/inflate.go?name=release#53">Error</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (e *<a href="#WriteError">WriteError</a>) Error() <a href="builtin.htm#string">string</a></pre>
+    <h3 id="Reader">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/compress/flate/inflate.go?name=release#181">Reader</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Reader interface {
+    <a href="io.htm">io</a>.<a href="io.htm#Reader">Reader</a>
+    <a href="io.htm">io</a>.<a href="io.htm#ByteReader">ByteReader</a>
+}</pre>
+    <p>NewReader真正需要的接口。如果提供的Io.Reader没有提供ReadByte方法，NewReader函数会自行添加缓冲。</p>
+    <h4 id="NewReader">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/compress/flate/inflate.go?name=release#684">NewReader</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func NewReader(r <a href="io.htm">io</a>.<a href="io.htm#Reader">Reader</a>) <a href="io.htm">io</a>.<a href="io.htm#ReadCloser">ReadCloser</a></pre>
+    <p>NewReader返回一个从r读取并解压数据的io.ReadCloser。调用者有责任在读取完毕后调用返回值的Close方法。</p>
+    <h4 id="NewReaderDict">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/compress/flate/inflate.go?name=release#699">NewReaderDict</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func NewReaderDict(r <a href="io.htm">io</a>.<a href="io.htm#Reader">Reader</a>, dict []<a href="builtin.htm#byte">byte</a>) <a href="io.htm">io</a>.<a href="io.htm#ReadCloser">ReadCloser</a></pre>
+    <p align="left">NewReaderDict类似NewReader，但会使用预设的字典初始化返回的Reader。</p>
+    <p align="left">返回的Reader表现的好像原始未压缩的数据流以该字典起始（并已经被读取）。NewReaderDict用于读取NewWriterDict压缩的数据。</p>
+    <h3 id="Writer">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/compress/flate/deflate.go?name=release#526">Writer</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Writer struct {
+    <span class="com">// 内含隐藏或非导出字段</span>
+}</pre>
+    <p>Writer将提供给它的数据压缩后写入下层的io.Writer接口。</p>
+    <h4 id="NewWriter">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/compress/flate/deflate.go?name=release#485">NewWriter</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func NewWriter(w <a href="io.htm">io</a>.<a href="io.htm#Writer">Writer</a>, level <a href="builtin.htm#int">int</a>) (*<a href="#Writer">Writer</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p align="left">NewWriter返回一个压缩水平为level的Writer。</p>
+    <p align="left">和zlib包一样，level的范围是1（BestSpeed）到9 （BestCompression）。值越大，压缩效果越好，但也越慢；level为0表示不尝试做任何压缩，只添加必需的deflate框架；level为-1时会使用默认的压缩水平；如果level在[-1, 9]范围内，error返回值将是nil，否则将返回非nil的错误值。</p>
+    <h4 id="NewWriterDict">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/compress/flate/deflate.go?name=release#499">NewWriterDict</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func NewWriterDict(w <a href="io.htm">io</a>.<a href="io.htm#Writer">Writer</a>, level <a href="builtin.htm#int">int</a>, dict []<a href="builtin.htm#byte">byte</a>) (*<a href="#Writer">Writer</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p align="left">NewWriterDict类似NewWriter，但会使用预设的字典初始化返回的Writer。</p>
+    <p align="left">返回的Writer表现的好像已经将原始、未压缩数据dict（压缩后未产生任何数据的）写入w了，使用w压缩的数据只能被使用同样的字典初始化生成的Reader接口解压缩。（类似加解密的初始向量/密钥）</p>
+<h4 id="Writer.Reset">func (*Writer) <a title="View Source" href="https://github.com/golang/go/blob/master/src/compress/flate/deflate.go?name=release#558">Reset</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (w *<a href="#Writer">Writer</a>) Reset(dst <a href="io.htm">io</a>.<a href="io.htm#Writer">Writer</a>)</pre>
+    <p>Reset将w重置，丢弃当前的写入状态，并将下层输出目标设为dst。效果上等价于将w设为使用dst和w的压缩水平、字典重新调用NewWriter或NewWriterDict返回的*Writer。</p>
+    <h4 id="Writer.Write">func (*Writer) <a title="View Source" href="https://github.com/golang/go/blob/master/src/compress/flate/deflate.go?name=release#533">Write</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (w *<a href="#Writer">Writer</a>) Write(data []<a href="builtin.htm#byte">byte</a>) (n <a href="builtin.htm#int">int</a>, err <a href="builtin.htm#error">error</a>)</pre>
+    <p>Write向w写入数据，最终会将压缩后的数据写入下层io.Writer接口。</p>
+    <h4 id="Writer.Flush">func (*Writer) <a title="View Source" href="https://github.com/golang/go/blob/master/src/compress/flate/deflate.go?name=release#544">Flush</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (w *<a href="#Writer">Writer</a>) Flush() <a href="builtin.htm#error">error</a></pre>
+    <p align="left">Flush将缓冲中的压缩数据刷新到下层io.Writer接口中。</p>
+    <p align="left">本方法主要用在传输压缩数据的网络连接中，以保证远端的接收者可以获得足够的数据来重构数据报。Flush会阻塞直到所有缓冲中的数据都写入下层io.Writer接口后才返回。如果下层的io.Writetr接口返回一个错误，Flush也会返回该错误。在zlib包的术语中，Flush方法等价于Z_SYNC_FLUSH。</p>
+    <h4 id="Writer.Close">func (*Writer) <a title="View Source" href="https://github.com/golang/go/blob/master/src/compress/flate/deflate.go?name=release#551">Close</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (w *<a href="#Writer">Writer</a>) Close() <a href="builtin.htm#error">error</a></pre>
+    <p>Close刷新缓冲并关闭w。</p>
+</div>
+
+<div id="x-footer" class="clearfix">
+  <div class="container">
+    <a href="http://studygolang.com/">Go语言中文网</a>
+    <span class="text-muted">|</span> <a href="http://golang.org/">Go Language</a>
+    <span class="pull-right"><a href="#">Back to top</a></span>
+  </div>
+</div>
+<script src="../assets/jquery-2.0.3.min.js"></script>
+<script src="../bootstrap.min.js"></script>
+<script src="../site.js"></script>
+</body>
+</html>

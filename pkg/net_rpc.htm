@@ -1,0 +1,278 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="./site.css" rel="stylesheet">
+<title>net/rpc</title>
+<meta name="private:description" content="刘志曦翻译于2014年夏，Go 1.3版本">
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package rpc</h2>
+    <p><code>import "net/rpc"</code>
+    <p align="left">rpc包提供了通过网络或其他I/O连接对一个对象的导出方法的访问。服务端注册一个对象，使它作为一个服务被暴露，服务的名字是该对象的类型名。注册之后，对象的导出方法就可以被远程访问。服务端可以注册多个不同类型的对象（服务），但注册具有相同类型的多个对象是错误的。</p>
+    <p align="left">只有满足如下标准的方法才能用于远程访问，其余方法会被忽略：</p>
+    <pre>- 方法是导出的
+- 方法有两个参数，都是导出类型或内建类型
+- 方法的第二个参数是指针
+- 方法只有一个error接口类型的返回值</pre>
+    <p>事实上，方法必须看起来像这样：</p>
+    <pre>func (t *T) MethodName(argType T1, replyType *T2) error
+</pre>
+    <p align="left">其中T、T1和T2都能被encoding/gob包序列化。这些限制即使使用不同的编解码器也适用。（未来，对定制的编解码器可能会使用较宽松一点的限制）</p>
+    <p align="left">方法的第一个参数代表调用者提供的参数；第二个参数代表返回给调用者的参数。方法的返回值，如果非nil，将被作为字符串回传，在客户端看来就和errors.New创建的一样。如果返回了错误，回复的参数将不会被发送给客户端。</p>
+    <p align="left">服务端可能会单个连接上调用ServeConn管理请求。更典型地，它会创建一个网络监听器然后调用Accept；或者，对于HTTP监听器，调用HandleHTTP和http.Serve。</p>
+    <p align="left">想要使用服务的客户端会创建一个连接，然后用该连接调用NewClient。</p>
+    <p align="left">更方便的函数Dial（DialHTTP）会在一个原始的连接（或HTTP连接）上依次执行这两个步骤。</p>
+    <p align="left">生成的Client类型值有两个方法，Call和Go，它们的参数为要调用的服务和方法、一个包含参数的指针、一个用于接收接个的指针。</p>
+    <p align="left">Call方法会等待远端调用完成，而Go方法异步的发送调用请求并使用返回的Call结构体类型的Done通道字段传递完成信号。</p>
+    <p align="left">除非设置了显式的编解码器，本包默认使用<a href="http://godoc.org/encoding/gob">encoding/gob</a>包来传输数据。</p>
+    <p align="left">这是一个简单的例子。一个服务端想要导出Arith类型的一个对象：</p>
+    <pre>package server
+type Args struct {
+	A, B int
+}
+type Quotient struct {
+	Quo, Rem int
+}
+type Arith int
+func (t *Arith) Multiply(args *Args, reply *int) error {
+	*reply = args.A * args.B
+	return nil
+}
+func (t *Arith) Divide(args *Args, quo *Quotient) error {
+	if args.B == 0 {
+		return errors.New(&#34;divide by zero&#34;)
+	}
+	quo.Quo = args.A / args.B
+	quo.Rem = args.A % args.B
+	return nil
+}
+</pre>
+    <p>服务端会调用（用于HTTP服务）：</p>
+    <pre>arith := new(Arith)
+rpc.Register(arith)
+rpc.HandleHTTP()
+l, e := net.Listen(&#34;tcp&#34;, &#34;:1234&#34;)
+if e != nil {
+	log.Fatal(&#34;listen error:&#34;, e)
+}
+go http.Serve(l, nil)
+</pre>
+    <p>此时，客户端可看到服务"Arith"及它的方法"Arith.Multiply"、"Arith.Divide"。要调用方法，客户端首先呼叫服务端：</p>
+    <pre>client, err := rpc.DialHTTP(&#34;tcp&#34;, serverAddress + &#34;:1234&#34;)
+if err != nil {
+	log.Fatal(&#34;dialing:&#34;, err)
+}
+</pre>
+    <p>然后，客户端可以执行远程调用：</p>
+    <pre>// Synchronous call
+args := &amp;server.Args{7,8}
+var reply int
+err = client.Call(&#34;Arith.Multiply&#34;, args, &amp;reply)
+if err != nil {
+	log.Fatal(&#34;arith error:&#34;, err)
+}
+fmt.Printf(&#34;Arith: %d*%d=%d&#34;, args.A, args.B, reply)
+</pre>
+    <p>或：</p>
+    <pre>// Asynchronous call
+quotient := new(Quotient)
+divCall := client.Go(&#34;Arith.Divide&#34;, args, quotient, nil)
+replyCall := &lt;-divCall.Done	// will be equal to divCall
+// check errors, print, etc.
+</pre>
+    <p>服务端的实现应为客户端提供简单、类型安全的包装。</p>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#pkg-constants">Constants</a></li>
+        <li><a href="#pkg-variables">Variables</a></li>
+        <li><a href="#ServerError">type ServerError</a></li>
+        <ul>
+            <li><a href="#ServerError.Error">func (e ServerError) Error() string</a></li>
+        </ul>
+        <li><a href="#Request">type Request</a></li>
+        <li><a href="#Response">type Response</a></li>
+        <li><a href="#ClientCodec">type ClientCodec</a></li>
+        <li><a href="#ServerCodec">type ServerCodec</a></li>
+        <li><a href="#Call">type Call</a></li>
+        <li><a href="#Client">type Client</a></li>
+        <ul>
+            <li><a href="#NewClient">func NewClient(conn io.ReadWriteCloser) *Client</a></li>
+            <li><a href="#NewClientWithCodec">func NewClientWithCodec(codec ClientCodec) *Client</a></li>
+            <li><a href="#Dial">func Dial(network, address string) (*Client, error)</a></li>
+            <li><a href="#DialHTTP">func DialHTTP(network, address string) (*Client, error)</a></li>
+            <li><a href="#DialHTTPPath">func DialHTTPPath(network, address, path string) (*Client, error)</a></li>
+            <li><a href="#Client.Call">func (client *Client) Call(serviceMethod string, args interface{}, reply interface{}) error</a></li>
+            <li><a href="#Client.Go">func (client *Client) Go(serviceMethod string, args interface{}, reply interface{}, done chan *Call) *Call</a></li>
+            <li><a href="#Client.Close">func (client *Client) Close() error</a></li>
+        </ul>
+        <li><a href="#Server">type Server</a></li>
+        <ul>
+            <li><a href="#NewServer">func NewServer() *Server</a></li>
+            <li><a href="#Server.Register">func (server *Server) Register(rcvr interface{}) error</a></li>
+            <li><a href="#Server.RegisterName">func (server *Server) RegisterName(name string, rcvr interface{}) error</a></li>
+            <li><a href="#Server.Accept">func (server *Server) Accept(lis net.Listener)</a></li>
+            <li><a href="#Server.ServeConn">func (server *Server) ServeConn(conn io.ReadWriteCloser)</a></li>
+            <li><a href="#Server.ServeCodec">func (server *Server) ServeCodec(codec ServerCodec)</a></li>
+            <li><a href="#Server.ServeRequest">func (server *Server) ServeRequest(codec ServerCodec) error</a></li>
+            <li><a href="#Server.ServeHTTP">func (server *Server) ServeHTTP(w http.ResponseWriter, req *http.Request)</a></li>
+            <li><a href="#Server.HandleHTTP">func (server *Server) HandleHTTP(rpcPath, debugPath string)</a></li>
+        </ul>
+        <li><a href="#Register">func Register(rcvr interface{}) error</a></li>
+        <li><a href="#RegisterName">func RegisterName(name string, rcvr interface{}) error</a></li>
+        <li><a href="#Accept">func Accept(lis net.Listener)</a></li>
+        <li><a href="#ServeConn">func ServeConn(conn io.ReadWriteCloser)</a></li>
+        <li><a href="#ServeCodec">func ServeCodec(codec ServerCodec)</a></li>
+        <li><a href="#ServeRequest">func ServeRequest(codec ServerCodec) error</a></li>
+        <li><a href="#HandleHTTP">func HandleHTTP()</a></li>
+    </ul>
+    <h3 id="pkg-constants">Constants <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>const (
+    <span class="com">// HandleHTTP使用的默认值</span>
+    <span id="DefaultRPCPath">DefaultRPCPath</span>   = &#34;/_goRPC_&#34;
+    <span id="DefaultDebugPath">DefaultDebugPath</span> = &#34;/debug/rpc&#34;
+)</pre>
+    <h3 id="pkg-variables">Variables <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>var <span id="DefaultServer">DefaultServer</span> = <a href="#NewServer">NewServer</a>()</pre>
+    <p>DefaultServer是*Server的默认实例，本包和Server方法同名的函数都是对其方法的封装。</p>
+    <pre>var <span id="ErrShutdown">ErrShutdown</span> = <a href="errors.htm">errors</a>.<a href="errors.htm#New">New</a>(&#34;connection is shut down&#34;)</pre>
+    <h3 id="ServerError">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/rpc/client.go?name=release#20">ServerError</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type ServerError <a href="builtin.htm#string">string</a></pre>
+    <p>ServerError represents an error that has been returned from
+        the remote side of the RPC connection.</p>
+    <h4 id="ServerError.Error">func (ServerError) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/rpc/client.go?name=release#22">Error</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (e <a href="#ServerError">ServerError</a>) Error() <a href="builtin.htm#string">string</a></pre>
+    <h3 id="Request">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/rpc/server.go?name=release#167">Request</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Request struct {
+    <span id="Request.ServiceMethod">ServiceMethod</span> <a href="builtin.htm#string">string</a> <span class="com">// 格式：&#34;Service.Method&#34;</span>
+    <span id="Request.Seq">Seq</span>           <a href="builtin.htm#uint64">uint64</a> <span class="com">// 由客户端选择的序列号</span>
+    <span class="com">// 内含隐藏或非导出字段</span>
+}</pre>
+    <p>Request是每个RPC调用请求的头域。它是被内部使用的，这里的文档用于帮助debug，如分析网络拥堵时。</p>
+    <h3 id="Response">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/rpc/server.go?name=release#176">Response</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Response struct {
+    <span id="Response.ServiceMethod">ServiceMethod</span> <a href="builtin.htm#string">string</a> <span class="com">// 对应请求的同一字段</span>
+    <span id="Response.Seq">Seq</span>           <a href="builtin.htm#uint64">uint64</a> <span class="com">// 对应请求的同一字段</span>
+    <span id="Response.Error">Error</span>         <a href="builtin.htm#string">string</a> <span class="com">// 可能的错误</span>
+    <span class="com">// 内含隐藏或非导出字段</span>
+}</pre>
+    <p>Response是每个RPC调用回复的头域。它是被内部使用的，这里的文档用于帮助debug，如分析网络拥堵时。</p>
+    <h3 id="ClientCodec">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/rpc/client.go?name=release#62">ClientCodec</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type ClientCodec interface {
+    <span class="com">// 本方法必须能安全的被多个go程同时使用</span>
+    <span id="ClientCodec.WriteRequest">WriteRequest</span>(*<a href="#Request">Request</a>, interface{}) <a href="builtin.htm#error">error</a>
+    <span id="ClientCodec.ReadResponseHeader">ReadResponseHeader</span>(*<a href="#Response">Response</a>) <a href="builtin.htm#error">error</a>
+    <span id="ClientCodec.ReadResponseBody">ReadResponseBody</span>(interface{}) <a href="builtin.htm#error">error</a>
+    <span id="ClientCodec.Close">Close</span>() <a href="builtin.htm#error">error</a>
+}</pre>
+    <p>ClientCodec接口实现了RPC会话的客户端一侧RPC请求的写入和RPC回复的读取。客户端调用WriteRequest来写入请求到连接，然后成对调用ReadRsponseHeader和ReadResponseBody以读取回复。客户端在结束该连接的事务时调用Close方法。ReadResponseBody可以使用nil参数调用，以强制回复的主体被读取然后丢弃。</p>
+    <h3 id="ServerCodec">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/rpc/server.go?name=release#618">ServerCodec</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type ServerCodec interface {
+    <span id="ServerCodec.ReadRequestHeader">ReadRequestHeader</span>(*<a href="#Request">Request</a>) <a href="builtin.htm#error">error</a>
+    <span id="ServerCodec.ReadRequestBody">ReadRequestBody</span>(interface{}) <a href="builtin.htm#error">error</a>
+    <span class="com">// 本方法必须能安全的被多个go程同时使用</span>
+    <span id="ServerCodec.WriteResponse">WriteResponse</span>(*<a href="#Response">Response</a>, interface{}) <a href="builtin.htm#error">error</a>
+    <span id="ServerCodec.Close">Close</span>() <a href="builtin.htm#error">error</a>
+}</pre>
+    <p>ServerCodec接口实现了RPC会话的服务端一侧RPC请求的读取和RPC回复的写入。服务端通过成对调用方法ReadRequestHeader和ReadRequestBody从连接读取请求，然后调用WriteResponse来写入回复。服务端在结束该连接的事务时调用Close方法。ReadRequestBody可以使用nil参数调用，以强制请求的主体被读取然后丢弃。</p>
+    <h3 id="Call">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/rpc/client.go?name=release#29">Call</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Call struct {
+    <span id="Call.ServiceMethod">ServiceMethod</span> <a href="builtin.htm#string">string</a>      <span class="com">// 调用的服务和方法的名称</span>
+    <span id="Call.Args">Args</span>          interface{} <span class="com">// 函数的参数（下层为结构体指针）</span>
+    <span id="Call.Reply">Reply</span>         interface{} <span class="com">// 函数的回复（下层为结构体指针）</span>
+    <span id="Call.Error">Error</span>         <a href="builtin.htm#error">error</a>       <span class="com">// 在调用结束后，保管错误的状态</span>
+    <span id="Call.Done">Done</span>          chan *<a href="#Call">Call</a>  <span class="com">// 对其的接收操作会阻塞，直到远程调用结束</span>
+}</pre>
+    <p>Call类型代表一个执行中/执行完毕的RPC会话。</p>
+    <h3 id="Client">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/rpc/client.go?name=release#41">Client</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Client struct {
+    <span class="com">// 内含隐藏或非导出字段</span>
+}</pre>
+    <p>Client类型代表RPC客户端。同一个客户端可能有多个未返回的调用，也可能被多个go程同时使用。</p>
+    <h4 id="NewClient">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/rpc/client.go?name=release#188">NewClient</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func NewClient(conn <a href="io.htm">io</a>.<a href="io.htm#ReadWriteCloser">ReadWriteCloser</a>) *<a href="#Client">Client</a></pre>
+    <p>NewClient返回一个新的Client，以管理对连接另一端的服务的请求。它添加缓冲到连接的写入侧，以便将回复的头域和有效负载作为一个单元发送。</p>
+    <h4 id="NewClientWithCodec">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/rpc/client.go?name=release#196">NewClientWithCodec</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func NewClientWithCodec(codec <a href="#ClientCodec">ClientCodec</a>) *<a href="#Client">Client</a></pre>
+    <p>NewClientWithCodec类似NewClient，但使用指定的编解码器，以编码请求主体和解码回复主体。</p>
+    <h4 id="Dial">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/rpc/client.go?name=release#269">Dial</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func Dial(network, address <a href="builtin.htm#string">string</a>) (*<a href="#Client">Client</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>Dial在指定的网络和地址与RPC服务端连接。</p>
+    <h4 id="DialHTTP">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/rpc/client.go?name=release#236">DialHTTP</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func DialHTTP(network, address <a href="builtin.htm#string">string</a>) (*<a href="#Client">Client</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>DialHTTP在指定的网络和地址与在默认HTTP RPC路径监听的HTTP RPC服务端连接。</p>
+    <h4 id="DialHTTPPath">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/rpc/client.go?name=release#242">DialHTTPPath</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func DialHTTPPath(network, address, path <a href="builtin.htm#string">string</a>) (*<a href="#Client">Client</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>DialHTTPPath在指定的网络、地址和路径与HTTP RPC服务端连接。</p>
+    <h4 id="Client.Call">func (*Client) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/rpc/client.go?name=release#314">Call</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (client *<a href="#Client">Client</a>) Call(serviceMethod <a href="builtin.htm#string">string</a>, args interface{}, reply interface{}) <a href="builtin.htm#error">error</a></pre>
+    <p>Call调用指定的方法，等待调用返回，将结果写入reply，然后返回执行的错误状态。</p>
+    <h4 id="Client.Go">func (*Client) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/rpc/client.go?name=release#292">Go</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (client *<a href="#Client">Client</a>) Go(serviceMethod <a href="builtin.htm#string">string</a>, args interface{}, reply interface{}, done chan *<a href="#Call">Call</a>) *<a href="#Call">Call</a></pre>
+    <p>Go异步的调用函数。本方法Call结构体类型指针的返回值代表该次远程调用。通道类型的参数done会在本次调用完成时发出信号（通过返回本次Go方法的返回值）。如果done为nil，Go会申请一个新的通道（写入返回值的Done字段）；如果done非nil，done必须有缓冲，否则Go方法会故意崩溃。</p>
+    <h4 id="Client.Close">func (*Client) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/rpc/client.go?name=release#277">Close</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (client *<a href="#Client">Client</a>) Close() <a href="builtin.htm#error">error</a></pre>
+    <h3 id="Server">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/rpc/server.go?name=release#184">Server</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Server struct {
+    <span class="com">// 内含隐藏或非导出字段</span>
+}</pre>
+    <p>Server代表RPC服务端。</p>
+    <h4 id="NewServer">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/rpc/server.go?name=release#194">NewServer</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func NewServer() *<a href="#Server">Server</a></pre>
+    <p>NewServer创建并返回一个*Server。</p>
+    <h4 id="Server.Register">func (*Server) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/rpc/server.go?name=release#227">Register</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (server *<a href="#Server">Server</a>) Register(rcvr interface{}) <a href="builtin.htm#error">error</a></pre>
+    <p>Register在server注册并公布rcvr的方法集中满足如下要求的方法：</p>
+    <pre>- 方法是导出的
+- 方法有两个参数，都是导出类型或内建类型
+- 方法的第二个参数是指针
+- 方法只有一个error接口类型的返回值</pre>
+    <p>如果rcvr不是一个导出类型的值，或者该类型没有满足要求的方法，Register会返回错误。Register也会使用<a href="http://godoc.org/log">log</a>包将错误写入日志。客户端可以使用格式为"Type.Method"的字符串访问这些方法，其中Type是rcvr的具体类型。</p>
+    <h4 id="Server.RegisterName">func (*Server) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/rpc/server.go?name=release#233">RegisterName</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (server *<a href="#Server">Server</a>) RegisterName(name <a href="builtin.htm#string">string</a>, rcvr interface{}) <a href="builtin.htm#error">error</a></pre>
+    <p>RegisterName类似Register，但使用提供的name代替rcvr的具体类型名作为服务名。</p>
+    <h4 id="Server.Accept">func (*Server) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/rpc/server.go?name=release#592">Accept</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (server *<a href="#Server">Server</a>) Accept(lis <a href="net.htm">net</a>.<a href="net.htm#Listener">Listener</a>)</pre>
+    <p>Accept接收监听器l获取的连接，然后服务每一个连接。Accept会阻塞，调用者应另开线程："go server.Accept(l)"</p>
+    <h4 id="Server.ServeConn">func (*Server) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/rpc/server.go?name=release#427">ServeConn</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (server *<a href="#Server">Server</a>) ServeConn(conn <a href="io.htm">io</a>.<a href="io.htm#ReadWriteCloser">ReadWriteCloser</a>)</pre>
+    <p>ServeConn在单个连接上执行server。ServeConn会阻塞，服务该连接直到客户端挂起。调用者一般应另开线程调用本函数："go server.ServeConn(conn)"。ServeConn在该连接使用gob（参见encoding/gob包）有线格式。要使用其他的编解码器，可调用ServeCodec方法。</p>
+    <h4 id="Server.ServeCodec">func (*Server) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/rpc/server.go?name=release#435">ServeCodec</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (server *<a href="#Server">Server</a>) ServeCodec(codec <a href="#ServerCodec">ServerCodec</a>)</pre>
+    <p>ServeCodec类似ServeConn，但使用指定的编解码器，以编码请求主体和解码回复主体。</p>
+    <h4 id="Server.ServeRequest">func (*Server) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/rpc/server.go?name=release#460">ServeRequest</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (server *<a href="#Server">Server</a>) ServeRequest(codec <a href="#ServerCodec">ServerCodec</a>) <a href="builtin.htm#error">error</a></pre>
+    <p>ServeRequest类似ServeCodec，但异步的服务单个请求。它不会在调用结束后关闭codec。</p>
+    <h4 id="Server.ServeHTTP">func (*Server) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/rpc/server.go?name=release#657">ServeHTTP</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (server *<a href="#Server">Server</a>) ServeHTTP(w <a href="net/http.htm">http</a>.<a href="net/http.htm#ResponseWriter">ResponseWriter</a>, req *<a href="net/http.htm">http</a>.<a href="net/http.htm#Request">Request</a>)</pre>
+    <p>ServeHTTP实现了回应RPC请求的http.Handler接口。</p>
+    <h4 id="Server.HandleHTTP">func (*Server) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/rpc/server.go?name=release#676">HandleHTTP</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (server *<a href="#Server">Server</a>) HandleHTTP(rpcPath, debugPath <a href="builtin.htm#string">string</a>)</pre>
+    <p>HandleHTTP注册server的RPC信息HTTP处理器对应到rpcPath，注册server的debug信息HTTP处理器对应到debugPath。HandleHTTP会注册到http.DefaultServeMux。之后，仍需要调用http.Serve()，一般会另开线程："go http.Serve(l, nil)"</p>
+    <h3 id="Register">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/rpc/server.go?name=release#603">Register</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Register(rcvr interface{}) <a href="builtin.htm#error">error</a></pre>
+    <p>Register在DefaultServer注册并公布rcvr的方法。</p>
+    <h3 id="RegisterName">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/rpc/server.go?name=release#607">RegisterName</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func RegisterName(name <a href="builtin.htm#string">string</a>, rcvr interface{}) <a href="builtin.htm#error">error</a></pre>
+    <p>RegisterName函数类似Register函数，但使用提供的name代替rcvr的具体类型名作为服务名。</p>
+    <h3 id="Accept">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/rpc/server.go?name=release#651">Accept</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Accept(lis <a href="net.htm">net</a>.<a href="net.htm#Listener">Listener</a>)</pre>
+    <p>Accept接收监听器l获取的连接，然后将每一个连接交给DefaultServer服务。Accept会阻塞，调用者应另开线程："go server.Accept(l)"</p>
+    <h3 id="ServeConn">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/rpc/server.go?name=release#632">ServeConn</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func ServeConn(conn <a href="io.htm">io</a>.<a href="io.htm#ReadWriteCloser">ReadWriteCloser</a>)</pre>
+    <p>ServeConn在单个连接上执行DefaultServer。ServeConn会阻塞，服务该连接直到客户端挂起。调用者一般应另开线程调用本函数："go ServeConn(conn)"。ServeConn在该连接使用gob（参见encoding/gob包）有线格式。要使用其他的编解码器，可调用ServeCodec方法。</p>
+    <h3 id="ServeCodec">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/rpc/server.go?name=release#638">ServeCodec</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func ServeCodec(codec <a href="#ServerCodec">ServerCodec</a>)</pre>
+    <p>ServeCodec类似ServeConn，但使用指定的编解码器，以编码请求主体和解码回复主体。</p>
+    <h3 id="ServeRequest">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/rpc/server.go?name=release#644">ServeRequest</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func ServeRequest(codec <a href="#ServerCodec">ServerCodec</a>) <a href="builtin.htm#error">error</a></pre>
+    <p>ServeRequest类似ServeCodec，但异步的服务单个请求。它不会在调用结束后关闭codec。</p>
+    <h3 id="HandleHTTP">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/rpc/server.go?name=release#684">HandleHTTP</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func HandleHTTP()</pre>
+    <p>HandleHTTP函数注册DefaultServer的RPC信息HTTP处理器对应到DefaultRPCPath，和DefaultServer的debug处理器对应到DefaultDebugPath。HandleHTTP函数会注册到http.DefaultServeMux。之后，仍需要调用http.Serve()，一般会另开线程："go http.Serve(l, nil)"</p>
+</div>
+</body>
+</html>

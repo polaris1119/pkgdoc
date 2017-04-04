@@ -1,0 +1,63 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="./site.css" rel="stylesheet">
+<title>io/ioutil</title>
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package ioutil</h2>
+    <p><code>import "io/ioutil"</code>
+    <p>Package ioutil implements some I/O utility functions.</p>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#pkg-variables">Variables</a></li>
+        <li><a href="#NopCloser">func NopCloser(r io.Reader) io.ReadCloser</a></li>
+        <li><a href="#ReadAll">func ReadAll(r io.Reader) ([]byte, error)</a></li>
+        <li><a href="#ReadFile">func ReadFile(filename string) ([]byte, error)</a></li>
+        <li><a href="#WriteFile">func WriteFile(filename string, data []byte, perm os.FileMode) error</a></li>
+        <li><a href="#ReadDir">func ReadDir(dirname string) ([]os.FileInfo, error)</a></li>
+        <li><a href="#TempDir">func TempDir(dir, prefix string) (name string, err error)</a></li>
+        <li><a href="#TempFile">func TempFile(dir, prefix string) (f *os.File, err error)</a></li>
+    </ul>
+    <h3 id="pkg-variables">Variables <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>var <span id="Discard">Discard</span> <a href="io.htm">io</a>.<a href="io.htm#Writer">Writer</a> = devNull(0)</pre>
+    <p>Discard是一个io.Writer接口，对它的所有Write调用都会无实际操作的成功返回。</p>
+    <h3 id="NopCloser">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/io/ioutil/ioutil.go?name=release#122">NopCloser</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func NopCloser(r <a href="io.htm">io</a>.<a href="io.htm#Reader">Reader</a>) <a href="io.htm">io</a>.<a href="io.htm#ReadCloser">ReadCloser</a></pre>
+    <p>NopCloser用一个无操作的Close方法包装r返回一个ReadCloser接口。</p>
+    <h3 id="ReadAll">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/io/ioutil/ioutil.go?name=release#41">ReadAll</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func ReadAll(r <a href="io.htm">io</a>.<a href="io.htm#Reader">Reader</a>) ([]<a href="builtin.htm#byte">byte</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>ReadAll从r读取数据直到EOF或遇到error，返回读取的数据和遇到的错误。成功的调用返回的err为nil而非EOF。因为本函数定义为读取r直到EOF，它不会将读取返回的EOF视为应报告的错误。</p>
+    <h3 id="ReadFile">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/io/ioutil/ioutil.go?name=release#49">ReadFile</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func ReadFile(filename <a href="builtin.htm#string">string</a>) ([]<a href="builtin.htm#byte">byte</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>ReadFile 从filename指定的文件中读取数据并返回文件的内容。成功的调用返回的err为nil而非EOF。因为本函数定义为读取整个文件，它不会将读取返回的EOF视为应报告的错误。</p>
+    <h3 id="WriteFile">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/io/ioutil/ioutil.go?name=release#76">WriteFile</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func WriteFile(filename <a href="builtin.htm#string">string</a>, data []<a href="builtin.htm#byte">byte</a>, perm <a href="os.htm">os</a>.<a href="os.htm#FileMode">FileMode</a>) <a href="builtin.htm#error">error</a></pre>
+    <p>函数向filename指定的文件中写入数据。如果文件不存在将按给出的权限创建文件，否则在写入数据之前清空文件。</p>
+    <h3 id="ReadDir">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/io/ioutil/ioutil.go?name=release#100">ReadDir</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func ReadDir(dirname <a href="builtin.htm#string">string</a>) ([]<a href="os.htm">os</a>.<a href="os.htm#FileInfo">FileInfo</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>返回dirname指定的目录的目录信息的有序列表。</p>
+    <h3 id="TempDir">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/io/ioutil/tempfile.go?name=release#74">TempDir</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func TempDir(dir, prefix <a href="builtin.htm#string">string</a>) (name <a href="builtin.htm#string">string</a>, err <a href="builtin.htm#error">error</a>)</pre>
+    <p>在dir目录里创建一个新的、使用prfix作为前缀的临时文件夹，并返回文件夹的路径。如果dir是空字符串，TempDir使用默认用于临时文件的目录（参见os.TempDir函数）。 不同程序同时调用该函数会创建不同的临时目录，调用本函数的程序有责任在不需要临时文件夹时摧毁它。</p>
+    <h3 id="TempFile">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/io/ioutil/tempfile.go?name=release#47">TempFile</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func TempFile(dir, prefix <a href="builtin.htm#string">string</a>) (f *<a href="os.htm">os</a>.<a href="os.htm#File">File</a>, err <a href="builtin.htm#error">error</a>)</pre>
+    <p>在dir目录下创建一个新的、使用prefix为前缀的临时文件，以读写模式打开该文件并返回os.File指针。如果dir是空字符串，TempFile使用默认用于临时文件的目录（参见os.TempDir函数）。不同程序同时调用该函数会创建不同的临时文件，调用本函数的程序有责任在不需要临时文件时摧毁它。</p>
+</div>
+
+<div id="x-footer" class="clearfix">
+  <div class="container">
+    <a href="http://studygolang.com/">Go语言中文网</a>
+    <span class="text-muted">|</span> <a href="http://golang.org/">Go Language</a>
+    <span class="pull-right"><a href="#">Back to top</a></span>
+  </div>
+</div>
+<script src="../assets/jquery-2.0.3.min.js"></script>
+<script src="../bootstrap.min.js"></script>
+<script src="../site.js"></script>
+</body>
+</html>

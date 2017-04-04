@@ -1,0 +1,315 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="./site.css" rel="stylesheet">
+<title>io - GoDoc</title>
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package io</h2>
+    <p><code>import "io"</code>
+    <p align="left">io包提供了对I/O原语的基本接口。本包的基本任务是包装这些原语已有的实现（如os包里的原语），使之成为共享的公共接口，这些公共接口抽象出了泛用的函数并附加了一些相关的原语的操作。</p>
+    <p align="left">因为这些接口和原语是对底层实现完全不同的低水平操作的包装，除非得到其它方面的通知，客户端不应假设它们是并发执行安全的。</p>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#pkg-variables">Variables</a></li>
+        <li><a href="#Reader">type Reader</a></li>
+        <li><a href="#Writer">type Writer</a></li>
+        <li><a href="#Closer">type Closer</a></li>
+        <li><a href="#Seeker">type Seeker</a></li>
+        <li><a href="#ReadCloser">type ReadCloser</a></li>
+        <li><a href="#ReadSeeker">type ReadSeeker</a></li>
+        <li><a href="#WriteCloser">type WriteCloser</a></li>
+        <li><a href="#WriteSeeker">type WriteSeeker</a></li>
+        <li><a href="#ReadWriter">type ReadWriter</a></li>
+        <li><a href="#ReadWriteCloser">type ReadWriteCloser</a></li>
+        <li><a href="#ReadWriteSeeker">type ReadWriteSeeker</a></li>
+        <li><a href="#ReaderAt">type ReaderAt</a></li>
+        <li><a href="#WriterAt">type WriterAt</a></li>
+        <li><a href="#ByteReader">type ByteReader</a></li>
+        <li><a href="#ByteScanner">type ByteScanner</a></li>
+        <li><a href="#RuneReader">type RuneReader</a></li>
+        <li><a href="#RuneScanner">type RuneScanner</a></li>
+        <li><a href="#ByteWriter">type ByteWriter</a></li>
+        <li><a href="#ReaderFrom">type ReaderFrom</a></li>
+        <li><a href="#WriterTo">type WriterTo</a></li>
+        <li><a href="#LimitedReader">type LimitedReader</a></li>
+        <ul>
+            <li><a href="#LimitReader">func LimitReader(r Reader, n int64) Reader</a></li>
+            <li><a href="#LimitedReader.Read">func (l *LimitedReader) Read(p []byte) (n int, err error)</a></li>
+        </ul>
+        <li><a href="#SectionReader">type SectionReader</a></li>
+        <ul>
+            <li><a href="#NewSectionReader">func NewSectionReader(r ReaderAt, off int64, n int64) *SectionReader</a></li>
+            <li><a href="#SectionReader.Size">func (s *SectionReader) Size() int64</a></li>
+            <li><a href="#SectionReader.Read">func (s *SectionReader) Read(p []byte) (n int, err error)</a></li>
+            <li><a href="#SectionReader.ReadAt">func (s *SectionReader) ReadAt(p []byte, off int64) (n int, err error)</a></li>
+            <li><a href="#SectionReader.Seek">func (s *SectionReader) Seek(offset int64, whence int) (int64, error)</a></li>
+        </ul>
+        <li><a href="#PipeReader">type PipeReader</a></li>
+        <ul>
+            <li><a href="#Pipe">func Pipe() (*PipeReader, *PipeWriter)</a></li>
+            <li><a href="#PipeReader.Read">func (r *PipeReader) Read(data []byte) (n int, err error)</a></li>
+            <li><a href="#PipeReader.Close">func (r *PipeReader) Close() error</a></li>
+            <li><a href="#PipeReader.CloseWithError">func (r *PipeReader) CloseWithError(err error) error</a></li>
+        </ul>
+        <li><a href="#PipeWriter">type PipeWriter</a></li>
+        <ul>
+            <li><a href="#PipeWriter.Write">func (w *PipeWriter) Write(data []byte) (n int, err error)</a></li>
+            <li><a href="#PipeWriter.Close">func (w *PipeWriter) Close() error</a></li>
+            <li><a href="#PipeWriter.CloseWithError">func (w *PipeWriter) CloseWithError(err error) error</a></li>
+        </ul>
+        <li><a href="#TeeReader">func TeeReader(r Reader, w Writer) Reader</a></li>
+        <li><a href="#MultiReader">func MultiReader(readers ...Reader) Reader</a></li>
+        <li><a href="#MultiWriter">func MultiWriter(writers ...Writer) Writer</a></li>
+        <li><a href="#Copy">func Copy(dst Writer, src Reader) (written int64, err error)</a></li>
+        <li><a href="#CopyN">func CopyN(dst Writer, src Reader, n int64) (written int64, err error)</a></li>
+        <li><a href="#ReadAtLeast">func ReadAtLeast(r Reader, buf []byte, min int) (n int, err error)</a></li>
+        <li><a href="#ReadFull">func ReadFull(r Reader, buf []byte) (n int, err error)</a></li>
+        <li><a href="#WriteString">func WriteString(w Writer, s string) (n int, err error)</a></li>
+    </ul>
+    <h3 id="pkg-variables">Variables <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>var <span id="EOF">EOF</span> = <a href="errors.htm">errors</a>.<a href="errors.htm#New">New</a>(&#34;EOF&#34;)</pre>
+    <p>EOF当无法得到更多输入时，Read方法返回EOF。当函数一切正常的到达输入的结束时，就应返回EOF。如果在一个结构化数据流中EOF在不期望的位置出现了，则应返回错误ErrUnexpectedEOF或者其它给出更多细节的错误。</p>
+    <pre>var <span id="ErrClosedPipe">ErrClosedPipe</span> = <a href="errors.htm">errors</a>.<a href="errors.htm#New">New</a>(&#34;io: read/write on closed pipe&#34;)</pre>
+    <p>当从一个已关闭的Pipe读取或者写入时，会返回ErrClosedPipe。</p>
+    <pre>var <span id="ErrNoProgress">ErrNoProgress</span> = <a href="errors.htm">errors</a>.<a href="errors.htm#New">New</a>(&#34;multiple Read calls return no data or error&#34;)</pre>
+    <p>某些使用io.Reader接口的客户端如果多次调用Read都不返回数据也不返回错误时，就会返回本错误，一般来说是io.Reader的实现有问题的标志。</p>
+    <pre>var <span id="ErrShortBuffer">ErrShortBuffer</span> = <a href="errors.htm">errors</a>.<a href="errors.htm#New">New</a>(&#34;short buffer&#34;)</pre>
+    <p>ErrShortBuffer表示读取操作需要大缓冲，但提供的缓冲不够大。</p>
+    <pre>var <span id="ErrShortWrite">ErrShortWrite</span> = <a href="errors.htm">errors</a>.<a href="errors.htm#New">New</a>(&#34;short write&#34;)</pre>
+    <p>ErrShortWrite表示写入操作写入的数据比提供的少，却没有显式的返回错误。</p>
+    <pre>var <span id="ErrUnexpectedEOF">ErrUnexpectedEOF</span> = <a href="errors.htm">errors</a>.<a href="errors.htm#New">New</a>(&#34;unexpected EOF&#34;)</pre>
+    <p>ErrUnexpectedEOF表示在读取一个固定尺寸的块或者数据结构时，在读取未完全时遇到了EOF。</p>
+    <h3 id="Reader">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/io/io.go?name=release#67">Reader</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Reader interface {
+    <span id="Reader.Read">Read</span>(p []<a href="builtin.htm#byte">byte</a>) (n <a href="builtin.htm#int">int</a>, err <a href="builtin.htm#error">error</a>)
+}</pre>
+    <p align="left">Reader接口用于包装基本的读取方法。</p>
+    <p align="left">Read方法读取len(p)字节数据写入p。它返回写入的字节数和遇到的任何错误。即使Read方法返回值n &lt; len(p)，本方法在被调用时仍可能使用p的全部长度作为暂存空间。如果有部分可用数据，但不够len(p)字节，Read按惯例会返回可以读取到的数据，而不是等待更多数据。</p>
+    <p align="left">当Read在读取n &gt; 0个字节后遭遇错误或者到达文件结尾时，会返回读取的字节数。它可能会在该次调用返回一个非nil的错误，或者在下一次调用时返回0和该错误。一个常见的例子，Reader接口会在输入流的结尾返回非0的字节数，返回值err == EOF或err == nil。但不管怎样，下一次Read调用必然返回(0, EOF)。调用者应该总是先处理读取的n &gt; 0字节再处理错误值。这么做可以正确的处理发生在读取部分数据后的I/O错误，也能正确处理EOF事件。</p>
+    <p align="left">如果Read的某个实现返回0字节数和nil错误值，表示被阻碍；调用者应该将这种情况视为未进行操作。</p>
+    <h3 id="Writer">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/io/io.go?name=release#78">Writer</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Writer interface {
+    <span id="Writer.Write">Write</span>(p []<a href="builtin.htm#byte">byte</a>) (n <a href="builtin.htm#int">int</a>, err <a href="builtin.htm#error">error</a>)
+}</pre>
+    <p align="left">Writer接口用于包装基本的写入方法。</p>
+    <p align="left">Write方法len(p) 字节数据从p写入底层的数据流。它会返回写入的字节数(0 &lt;= n &lt;= len(p))和遇到的任何导致写入提取结束的错误。Write必须返回非nil的错误，如果它返回的 n &lt; len(p)。Write不能修改切片p中的数据，即使临时修改也不行。</p>
+    <h3 id="Closer">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/io/io.go?name=release#86">Closer</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Closer interface {
+    <span id="Closer.Close">Close</span>() <a href="builtin.htm#error">error</a>
+}</pre>
+    <p align="left">Closer接口用于包装基本的关闭方法。</p>
+    <p align="left">在第一次调用之后再次被调用时，Close方法的的行为是未定义的。某些实现可能会说明他们自己的行为。</p>
+    <h3 id="Seeker">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/io/io.go?name=release#101">Seeker</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Seeker interface {
+    <span id="Seeker.Seek">Seek</span>(offset <a href="builtin.htm#int64">int64</a>, whence <a href="builtin.htm#int">int</a>) (<a href="builtin.htm#int64">int64</a>, <a href="builtin.htm#error">error</a>)
+}</pre>
+    <p align="left">Seeker接口用于包装基本的移位方法。</p>
+    <p align="left">Seek方法设定下一次读写的位置：偏移量为offset，校准点由whence确定：0表示相对于文件起始；1表示相对于当前位置；2表示相对于文件结尾。Seek方法返回新的位置以及可能遇到的错误。</p>
+    <p align="left">移动到一个绝对偏移量为负数的位置会导致错误。移动到任何偏移量为正数的位置都是合法的，但其下一次I/O操作的具体行为则要看底层的实现。</p>
+    <h3 id="ReadCloser">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/io/io.go?name=release#112">ReadCloser</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type ReadCloser interface {
+    <a href="#Reader">Reader</a>
+    <a href="#Closer">Closer</a>
+}</pre>
+    <p>ReadCloser接口聚合了基本的读取和关闭操作。</p>
+    <h3 id="ReadSeeker">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/io/io.go?name=release#131">ReadSeeker</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type ReadSeeker interface {
+    <a href="#Reader">Reader</a>
+    <a href="#Seeker">Seeker</a>
+}</pre>
+    <p>ReadSeeker接口聚合了基本的读取和移位操作。</p>
+    <h3 id="WriteCloser">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/io/io.go?name=release#118">WriteCloser</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type WriteCloser interface {
+    <a href="#Writer">Writer</a>
+    <a href="#Closer">Closer</a>
+}</pre>
+    <p>WriteCloser接口聚合了基本的写入和关闭操作。</p>
+    <h3 id="WriteSeeker">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/io/io.go?name=release#137">WriteSeeker</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type WriteSeeker interface {
+    <a href="#Writer">Writer</a>
+    <a href="#Seeker">Seeker</a>
+}</pre>
+    <p>WriteSeeker接口聚合了基本的写入和移位操作。</p>
+    <h3 id="ReadWriter">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/io/io.go?name=release#106">ReadWriter</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type ReadWriter interface {
+    <a href="#Reader">Reader</a>
+    <a href="#Writer">Writer</a>
+}</pre>
+    <p>ReadWriter接口聚合了基本的读写操作。</p>
+    <h3 id="ReadWriteCloser">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/io/io.go?name=release#124">ReadWriteCloser</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type ReadWriteCloser interface {
+    <a href="#Reader">Reader</a>
+    <a href="#Writer">Writer</a>
+    <a href="#Closer">Closer</a>
+}</pre>
+    <p>ReadWriteCloser接口聚合了基本的读写和关闭操作。</p>
+    <h3 id="ReadWriteSeeker">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/io/io.go?name=release#143">ReadWriteSeeker</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type ReadWriteSeeker interface {
+    <a href="#Reader">Reader</a>
+    <a href="#Writer">Writer</a>
+    <a href="#Seeker">Seeker</a>
+}</pre>
+    <p>ReadWriteSeeker接口聚合了基本的读写和移位操作。</p>
+    <h3 id="ReaderAt">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/io/io.go?name=release#195">ReaderAt</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type ReaderAt interface {
+    <span id="ReaderAt.ReadAt">ReadAt</span>(p []<a href="builtin.htm#byte">byte</a>, off <a href="builtin.htm#int64">int64</a>) (n <a href="builtin.htm#int">int</a>, err <a href="builtin.htm#error">error</a>)
+}</pre>
+    <p align="left">ReaderAt接口包装了基本的ReadAt方法。</p>
+    <p align="left">ReadAt从底层输入流的偏移量off位置读取len(p)字节数据写入p， 它返回读取的字节数(0 &lt;= n &lt;= len(p))和遇到的任何错误。当ReadAt方法返回值n &lt; len(p)时，它会返回一个非nil的错误来说明为啥没有读取更多的字节。在这方面，ReadAt是比Read要严格的。即使ReadAt方法返回值 n &lt; len(p)，它在被调用时仍可能使用p的全部长度作为暂存空间。如果有部分可用数据，但不够len(p)字节，ReadAt会阻塞直到获取len(p)个字节数据或者遇到错误。在这方面，ReadAt和Read是不同的。如果ReadAt返回时到达输入流的结尾，而返回值n == len(p)，其返回值err既可以是EOF也可以是nil。</p>
+    <p align="left">如果ReadAt是从某个有偏移量的底层输入流（的Reader包装）读取，ReadAt方法既不应影响底层的偏移量，也不应被底层的偏移量影响。</p>
+    <p align="left">ReadAt方法的调用者可以对同一输入流执行并行的ReadAt调用。</p>
+    <h3 id="WriterAt">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/io/io.go?name=release#212">WriterAt</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type WriterAt interface {
+    <span id="WriterAt.WriteAt">WriteAt</span>(p []<a href="builtin.htm#byte">byte</a>, off <a href="builtin.htm#int64">int64</a>) (n <a href="builtin.htm#int">int</a>, err <a href="builtin.htm#error">error</a>)
+}</pre>
+    <p align="left">WriterAt接口包装了基本的WriteAt方法。</p>
+    <p align="left">WriteAt将p全部len(p)字节数据写入底层数据流的偏移量off位置。它返回写入的字节数(0 &lt;= n &lt;= len(p))和遇到的任何导致写入提前中止的错误。当其返回值n &lt; len(p)时，WriteAt必须放哪会一个非nil的错误。</p>
+    <p align="left">如果WriteAt写入的对象是某个有偏移量的底层输出流（的Writer包装），WriteAt方法既不应影响底层的偏移量，也不应被底层的偏移量影响。</p>
+    <p align="left">ReadAt方法的调用者可以对同一输入流执行并行的WriteAt调用。（前提是写入范围不重叠）</p>
+    <h3 id="ByteReader">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/io/io.go?name=release#220">ByteReader</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type ByteReader interface {
+    <span id="ByteReader.ReadByte">ReadByte</span>() (c <a href="builtin.htm#byte">byte</a>, err <a href="builtin.htm#error">error</a>)
+}</pre>
+    <p align="left">ByteReader是基本的ReadByte方法的包装。</p>
+    <p align="left">ReadByte读取输入中的单个字节并返回。如果没有字节可读取，会返回错误。</p>
+    <h3 id="ByteScanner">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/io/io.go?name=release#231">ByteScanner</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type ByteScanner interface {
+    <a href="#ByteReader">ByteReader</a>
+    <span id="ByteScanner.UnreadByte">UnreadByte</span>() <a href="builtin.htm#error">error</a>
+}</pre>
+    <p align="left">ByteScanner接口在基本的ReadByte方法之外还添加了UnreadByte方法。</p>
+    <p align="left">UnreadByte方法让下一次调用ReadByte时返回之前调用ReadByte时返回的同一个字节。连续调用两次UnreadByte方法而中间没有调用ReadByte时，可能会导致错误。</p>
+    <h3 id="RuneReader">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/io/io.go?name=release#246">RuneReader</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type RuneReader interface {
+    <span id="RuneReader.ReadRune">ReadRune</span>() (r <a href="builtin.htm#rune">rune</a>, size <a href="builtin.htm#int">int</a>, err <a href="builtin.htm#error">error</a>)
+}</pre>
+    <p align="left">RuneReader是基本的ReadRune方法的包装。</p>
+    <p align="left">ReadRune读取单个utf-8编码的字符，返回该字符和它的字节长度。如果没有有效的字符，会返回错误。</p>
+    <h3 id="RuneScanner">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/io/io.go?name=release#257">RuneScanner</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type RuneScanner interface {
+    <a href="#RuneReader">RuneReader</a>
+    <span id="RuneScanner.UnreadRune">UnreadRune</span>() <a href="builtin.htm#error">error</a>
+}</pre>
+    <p align="left">RuneScanner接口在基本的ReadRune方法之外还添加了UnreadRune方法。</p>
+    <p align="left">UnreadRune方法让下一次调用ReadRune时返回之前调用ReadRune时返回的同一个utf-8字符。连续调用两次UnreadRune方法而中间没有调用ReadRune时，可能会导致错误。</p>
+    <h3 id="ByteWriter">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/io/io.go?name=release#237">ByteWriter</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type ByteWriter interface {
+    <span id="ByteWriter.WriteByte">WriteByte</span>(c <a href="builtin.htm#byte">byte</a>) <a href="builtin.htm#error">error</a>
+}</pre>
+    <p>ByteWriter是基本的WriteByte方法的包装。</p>
+    <h3 id="ReaderFrom">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/io/io.go?name=release#156">ReaderFrom</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type ReaderFrom interface {
+    <span id="ReaderFrom.ReadFrom">ReadFrom</span>(r <a href="#Reader">Reader</a>) (n <a href="builtin.htm#int64">int64</a>, err <a href="builtin.htm#error">error</a>)
+}</pre>
+    <p align="left">ReaderFrom接口包装了基本的ReadFrom方法。</p>
+    <p align="left">ReadFrom方法从r读取数据直到EOF或者遇到错误。返回值n是读取的字节数，执行时遇到的错误（EOF除外）也会被返回。</p>
+    <h3 id="WriterTo">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/io/io.go?name=release#167">WriterTo</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type WriterTo interface {
+    <span id="WriterTo.WriteTo">WriteTo</span>(w <a href="#Writer">Writer</a>) (n <a href="builtin.htm#int64">int64</a>, err <a href="builtin.htm#error">error</a>)
+}</pre>
+    <p align="left">WriterTo接口包装了基本的WriteTo方法。</p>
+    <p align="left">WriteTo方法将数据写入w直到没有数据可以写入或者遇到错误。返回值n是写入的字节数，执行时遇到的任何错误也会被返回。</p>
+    <h3 id="LimitedReader">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/io/io.go?name=release#387">LimitedReader</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type LimitedReader struct {
+    <span id="LimitedReader.R">R</span>   <a href="#Reader">Reader</a> <span class="com">// 底层Reader接口</span>
+    <span id="LimitedReader.N">N</span>   <a href="builtin.htm#int64">int64</a>  <span class="com">// 剩余可读取字节数</span>
+}</pre>
+    <p>LimitedReader从R中读取数据，但限制可以读取的数据的量为最多N字节，每次调用Read方法都会更新N以标记剩余可以读取的字节数。</p>
+    <h4 id="LimitReader">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/io/io.go?name=release#382">LimitReader</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func LimitReader(r <a href="#Reader">Reader</a>, n <a href="builtin.htm#int64">int64</a>) <a href="#Reader">Reader</a></pre>
+    <p>返回一个Reader，它从r中读取n个字节后以EOF停止。返回值接口的底层为*LimitedReader类型。</p>
+    <h4 id="LimitedReader.Read">func (*LimitedReader) <a title="View Source" href="https://github.com/golang/go/blob/master/src/io/io.go?name=release#392">Read</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (l *<a href="#LimitedReader">LimitedReader</a>) Read(p []<a href="builtin.htm#byte">byte</a>) (n <a href="builtin.htm#int">int</a>, err <a href="builtin.htm#error">error</a>)</pre>
+    <h3 id="SectionReader">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/io/io.go?name=release#412">SectionReader</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type SectionReader struct {
+    <span class="com">// 内含隐藏或非导出字段</span>
+}</pre>
+    <p>SectionReader实现了对底层满足ReadAt接口的输入流某个片段的Read、ReadAt、Seek方法。</p>
+    <h4 id="NewSectionReader">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/io/io.go?name=release#406">NewSectionReader</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func NewSectionReader(r <a href="#ReaderAt">ReaderAt</a>, off <a href="builtin.htm#int64">int64</a>, n <a href="builtin.htm#int64">int64</a>) *<a href="#SectionReader">SectionReader</a></pre>
+    <p>返回一个从r中的偏移量off处为起始，读取n个字节后以EOF停止的SectionReader。</p>
+    <h4 id="SectionReader.Size">func (*SectionReader) <a title="View Source" href="https://github.com/golang/go/blob/master/src/io/io.go?name=release#469">Size</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (s *<a href="#SectionReader">SectionReader</a>) Size() <a href="builtin.htm#int64">int64</a></pre>
+    <p>Size返回该片段的字节数。</p>
+    <h4 id="SectionReader.Read">func (*SectionReader) <a title="View Source" href="https://github.com/golang/go/blob/master/src/io/io.go?name=release#419">Read</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (s *<a href="#SectionReader">SectionReader</a>) Read(p []<a href="builtin.htm#byte">byte</a>) (n <a href="builtin.htm#int">int</a>, err <a href="builtin.htm#error">error</a>)</pre>
+    <h4 id="SectionReader.ReadAt">func (*SectionReader) <a title="View Source" href="https://github.com/golang/go/blob/master/src/io/io.go?name=release#452">ReadAt</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (s *<a href="#SectionReader">SectionReader</a>) ReadAt(p []<a href="builtin.htm#byte">byte</a>, off <a href="builtin.htm#int64">int64</a>) (n <a href="builtin.htm#int">int</a>, err <a href="builtin.htm#error">error</a>)</pre>
+    <h4 id="SectionReader.Seek">func (*SectionReader) <a title="View Source" href="https://github.com/golang/go/blob/master/src/io/io.go?name=release#434">Seek</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (s *<a href="#SectionReader">SectionReader</a>) Seek(offset <a href="builtin.htm#int64">int64</a>, whence <a href="builtin.htm#int">int</a>) (<a href="builtin.htm#int64">int64</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <h3 id="PipeReader">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/io/pipe.go?name=release#124">PipeReader</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type PipeReader struct {
+    <span class="com">// 内含隐藏或非导出字段</span>
+}</pre>
+    <p>PipeReader是一个管道的读取端。</p>
+    <h4 id="Pipe">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/io/pipe.go?name=release#186">Pipe</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func Pipe() (*<a href="#PipeReader">PipeReader</a>, *<a href="#PipeWriter">PipeWriter</a>)</pre>
+    <p>Pipe创建一个同步的内存中的管道。它可以用于连接期望io.Reader的代码和期望io.Writer的代码。一端的读取对应另一端的写入，直接在两端拷贝数据，没有内部缓冲。可以安全的并行调用Read和Write或者Read/Write与Close方法。Close方法会在最后一次阻塞中的I/O操作结束后完成。并行调用Read或并行调用Write也是安全的：每一个独立的调用会依次进行。</p>
+    <h4 id="PipeReader.Read">func (*PipeReader) <a title="View Source" href="https://github.com/golang/go/blob/master/src/io/pipe.go?name=release#133">Read</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (r *<a href="#PipeReader">PipeReader</a>) Read(data []<a href="builtin.htm#byte">byte</a>) (n <a href="builtin.htm#int">int</a>, err <a href="builtin.htm#error">error</a>)</pre>
+    <p>Read实现了标准Reader接口：它从管道中读取数据，会阻塞直到写入端开始写入或写入端被关闭。</p>
+    <h4 id="PipeReader.Close">func (*PipeReader) <a title="View Source" href="https://github.com/golang/go/blob/master/src/io/pipe.go?name=release#139">Close</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (r *<a href="#PipeReader">PipeReader</a>) Close() <a href="builtin.htm#error">error</a></pre>
+    <p>Close关闭读取器；关闭后如果对管道的写入端进行写入操作，就会返回(0, ErrClosedPip)。</p>
+    <h4 id="PipeReader.CloseWithError">func (*PipeReader) <a title="View Source" href="https://github.com/golang/go/blob/master/src/io/pipe.go?name=release#145">CloseWithError</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (r *<a href="#PipeReader">PipeReader</a>) CloseWithError(err <a href="builtin.htm#error">error</a>) <a href="builtin.htm#error">error</a></pre>
+    <p>CloseWithError类似Close方法，但将调用Write时返回的错误改为err。</p>
+    <h3 id="PipeWriter">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/io/pipe.go?name=release#151">PipeWriter</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type PipeWriter struct {
+    <span class="com">// 内含隐藏或非导出字段</span>
+}</pre>
+    <p>PipeWriter是一个管道的写入端。</p>
+    <h4 id="PipeWriter.Write">func (*PipeWriter) <a title="View Source" href="https://github.com/golang/go/blob/master/src/io/pipe.go?name=release#160">Write</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (w *<a href="#PipeWriter">PipeWriter</a>) Write(data []<a href="builtin.htm#byte">byte</a>) (n <a href="builtin.htm#int">int</a>, err <a href="builtin.htm#error">error</a>)</pre>
+    <p>Write实现了标准Writer接口：它将数据写入到管道中，会阻塞直到读取器读完所有的数据或读取端被关闭。</p>
+    <h4 id="PipeWriter.Close">func (*PipeWriter) <a title="View Source" href="https://github.com/golang/go/blob/master/src/io/pipe.go?name=release#166">Close</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (w *<a href="#PipeWriter">PipeWriter</a>) Close() <a href="builtin.htm#error">error</a></pre>
+    <p>Close关闭写入器；关闭后如果对管道的读取端进行读取操作，就会返回(0, EOF)。</p>
+    <h4 id="PipeWriter.CloseWithError">func (*PipeWriter) <a title="View Source" href="https://github.com/golang/go/blob/master/src/io/pipe.go?name=release#172">CloseWithError</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (w *<a href="#PipeWriter">PipeWriter</a>) CloseWithError(err <a href="builtin.htm#error">error</a>) <a href="builtin.htm#error">error</a></pre>
+    <p>CloseWithError类似Close方法，但将调用Read时返回的错误改为err。</p>
+    <h3 id="TeeReader">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/io/io.go?name=release#476">TeeReader</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func TeeReader(r <a href="#Reader">Reader</a>, w <a href="#Writer">Writer</a>) <a href="#Reader">Reader</a></pre>
+    <p>TeeReader返回一个将其从r读取的数据写入w的Reader接口。所有通过该接口对r的读取都会执行对应的对w的写入。没有内部的缓冲：写入必须在读取完成前完成。写入时遇到的任何错误都会作为读取错误返回。</p>
+    <h3 id="MultiReader">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/io/multi.go?name=release#31">MultiReader</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func MultiReader(readers ...<a href="#Reader">Reader</a>) <a href="#Reader">Reader</a></pre>
+    <p>MultiReader返回一个将提供的Reader在逻辑上串联起来的Reader接口。他们依次被读取。当所有的输入流都读取完毕，Read才会返回EOF。如果readers中任一个返回了非nil非EOF的错误，Read方法会返回该错误。</p>
+    <h3 id="MultiWriter">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/io/multi.go?name=release#57">MultiWriter</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func MultiWriter(writers ...<a href="#Writer">Writer</a>) <a href="#Writer">Writer</a></pre>
+    <p>MultiWriter创建一个Writer接口，会将提供给其的数据写入所有创建时提供的Writer接口。</p>
+    <h3 id="Copy">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/io/io.go?name=release#341">Copy</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Copy(dst <a href="#Writer">Writer</a>, src <a href="#Reader">Reader</a>) (written <a href="builtin.htm#int64">int64</a>, err <a href="builtin.htm#error">error</a>)</pre>
+    <p align="left">将src的数据拷贝到dst，直到在src上到达EOF或发生错误。返回拷贝的字节数和遇到的第一个错误。</p>
+    <p align="left">对成功的调用，返回值err为nil而非EOF，因为Copy定义为从src读取直到EOF，它不会将读取到EOF视为应报告的错误。如果src实现了WriterTo接口，本函数会调用src.WriteTo(dst)进行拷贝；否则如果dst实现了ReaderFrom接口，本函数会调用dst.ReadFrom(src)进行拷贝。</p>
+    <h3 id="CopyN">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/io/io.go?name=release#317">CopyN</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func CopyN(dst <a href="#Writer">Writer</a>, src <a href="#Reader">Reader</a>, n <a href="builtin.htm#int64">int64</a>) (written <a href="builtin.htm#int64">int64</a>, err <a href="builtin.htm#error">error</a>)</pre>
+    <p align="left">从src拷贝n个字节数据到dst，直到在src上到达EOF或发生错误。返回复制的字节数和遇到的第一个错误。</p>
+    <p align="left">只有err为nil时，written才会等于n。如果dst实现了ReaderFrom接口，本函数很调用它实现拷贝。</p>
+    <h3 id="ReadAtLeast">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/io/io.go?name=release#283">ReadAtLeast</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func ReadAtLeast(r <a href="#Reader">Reader</a>, buf []<a href="builtin.htm#byte">byte</a>, min <a href="builtin.htm#int">int</a>) (n <a href="builtin.htm#int">int</a>, err <a href="builtin.htm#error">error</a>)</pre>
+    <p>ReadAtLeast从r至少读取min字节数据填充进buf。函数返回写入的字节数和错误（如果没有读取足够的字节）。只有没有读取到字节时才可能返回EOF；如果读取了有但不够的字节时遇到了EOF，函数会返回ErrUnexpectedEOF。 如果min比buf的长度还大，函数会返回ErrShortBuffer。只有返回值err为nil时，返回值n才会不小于min。</p>
+    <h3 id="ReadFull">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/io/io.go?name=release#306">ReadFull</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func ReadFull(r <a href="#Reader">Reader</a>, buf []<a href="builtin.htm#byte">byte</a>) (n <a href="builtin.htm#int">int</a>, err <a href="builtin.htm#error">error</a>)</pre>
+    <p>ReadFull从r精确地读取len(buf)字节数据填充进buf。函数返回写入的字节数和错误（如果没有读取足够的字节）。只有没有读取到字节时才可能返回EOF；如果读取了有但不够的字节时遇到了EOF，函数会返回ErrUnexpectedEOF。 只有返回值err为nil时，返回值n才会等于len(buf)。</p>
+    <h3 id="WriteString">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/io/io.go?name=release#269">WriteString</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func WriteString(w <a href="#Writer">Writer</a>, s <a href="builtin.htm#string">string</a>) (n <a href="builtin.htm#int">int</a>, err <a href="builtin.htm#error">error</a>)</pre>
+    <p>WriteString函数将字符串s的内容写入w中。如果w已经实现了WriteString方法，函数会直接调用该方法。</p>
+</div>
+
+<div id="x-footer" class="clearfix">
+  <div class="container">
+    <a href="http://studygolang.com/">Go语言中文网</a>
+    <span class="text-muted">|</span> <a href="http://golang.org/">Go Language</a>
+    <span class="pull-right"><a href="#">Back to top</a></span>
+  </div>
+</div>
+<script src="../assets/jquery-2.0.3.min.js"></script>
+<script src="../bootstrap.min.js"></script>
+<script src="../site.js"></script>
+</body>
+</html>

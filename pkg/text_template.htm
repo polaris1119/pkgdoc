@@ -1,0 +1,573 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="./site.css" rel="stylesheet">
+<title>text/template</title>
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package template</h2>
+    <p><code>import "text/template"</code>
+    <p align="left">template包实现了数据驱动的用于生成文本输出的模板。</p>
+    <p align="left">如果要生成HTML格式的输出，参见html/template包，该包提供了和本包相同的接口，但会自动将输出转化为安全的HTML格式输出，可以抵抗一些网络攻击。</p>
+    <p align="left">通过将模板应用于一个数据结构（即该数据结构作为模板的参数）来执行，来获得输出。模板中的注释引用数据接口的元素（一般如结构体的字段或者字典的键）来控制执行过程和获取需要呈现的值。模板执行时会遍历结构并将指针表示为'.'（称之为"dot"）指向运行过程中数据结构的当前位置的值。</p>
+    <p align="left">用作模板的输入文本必须是utf-8编码的文本。"Action"—数据运算和控制单位—由"{{"和"}}"界定；在Action之外的所有文本都不做修改的拷贝到输出中。Action内部不能有换行，但注释可以有换行。</p>
+    <p align="left">经解析生成模板后，一个模板可以安全的并发执行。</p>
+    <p align="left">下面是一个简单的例子，可以打印"17 of wool"。
+</p>
+    <pre>type Inventory struct {
+	Material string
+	Count    uint
+}
+sweaters := Inventory{&#34;wool&#34;, 17}
+tmpl, err := template.New(&#34;test&#34;).Parse(&#34;{{.Count}} of {{.Material}}&#34;)
+if err != nil { panic(err) }
+err = tmpl.Execute(os.Stdout, sweaters)
+if err != nil { panic(err) }</pre>
+    <p>更复杂的例子在下面。</p>
+    <h4 id="hdr-Actions">Actions <a class="permalink" href="#pkg-index">&para</a></h4>
+    <p>下面是一个action（动作）的列表。"Arguments"和"pipelines"代表数据的执行结果，细节定义在后面。</p>
+    <pre>{{/* a comment */}}
+    注释，执行时会忽略。可以多行。注释不能嵌套，并且必须紧贴分界符始止，就像这里表示的一样。
+{{pipeline}}
+    pipeline的值的默认文本表示会被拷贝到输出里。
+{{if pipeline}} T1 {{end}}
+    如果pipeline的值为empty，不产生输出，否则输出T1执行结果。不改变dot的值。
+    Empty值包括false、0、任意nil指针或者nil接口，任意长度为0的数组、切片、字典。
+{{if pipeline}} T1 {{else}} T0 {{end}}
+    如果pipeline的值为empty，输出T0执行结果，否则输出T1执行结果。不改变dot的值。
+{{if pipeline}} T1 {{else if pipeline}} T0 {{end}}
+    用于简化if-else链条，else action可以直接包含另一个if；等价于：
+        {{if pipeline}} T1 {{else}}{{if pipeline}} T0 {{end}}{{end}}
+{{range pipeline}} T1 {{end}}
+    pipeline的值必须是数组、切片、字典或者通道。
+    如果pipeline的值其长度为0，不会有任何输出；
+    否则dot依次设为数组、切片、字典或者通道的每一个成员元素并执行T1；
+    如果pipeline的值为字典，且键可排序的基本类型，元素也会按键的顺序排序。
+{{range pipeline}} T1 {{else}} T0 {{end}}
+    pipeline的值必须是数组、切片、字典或者通道。
+    如果pipeline的值其长度为0，不改变dot的值并执行T0；否则会修改dot并执行T1。
+{{template "name"}}
+    执行名为name的模板，提供给模板的参数为nil，如模板不存在输出为"<nil>"
+{{template "name" pipeline}}
+    执行名为name的模板，提供给模板的参数为pipeline的值。
+{{with pipeline}} T1 {{end}}
+    如果pipeline为empty不产生输出，否则将dot设为pipeline的值并执行T1。不修改外面的dot。
+{{with pipeline}} T1 {{else}} T0 {{end}}
+    如果pipeline为empty，不改变dot并执行T0，否则dot设为pipeline的值并执行T1。</pre>
+    <h4 id="hdr-Arguments">Arguments <a class="permalink" href="#pkg-index">&para</a></h4>
+    <p>参数代表一个简单的，由下面的某一条表示的值：</p>
+    <pre>- go语法的布尔值、字符串、字符、整数、浮点数、虚数、复数，视为无类型字面常数，字符串不能跨行
+- 关键字nil，代表一个go的无类型的nil值
+- 字符'.'（句点，用时不加单引号），代表dot的值
+- 变量名，以美元符号起始加上（可为空的）字母和数字构成的字符串，如：$piOver2和$；
+  执行结果为变量的值，变量参见下面的介绍
+- 结构体数据的字段名，以句点起始，如：.Field；
+  执行结果为字段的值，支持链式调用：.Field1.Field2；
+  字段也可以在变量上使用（包括链式调用）：$x.Field1.Field2；
+- 字典类型数据的键名；以句点起始，如：.Key；
+  执行结果是该键在字典中对应的成员元素的值；
+  键也可以和字段配合做链式调用，深度不限：.Field1.Key1.Field2.Key2；
+  虽然键也必须是字母和数字构成的标识字符串，但不需要以大写字母起始；
+  键也可以用于变量（包括链式调用）：$x.key1.key2；
+- 数据的无参数方法名，以句点为起始，如：.Method；
+  执行结果为dot调用该方法的返回值，dot.Method()；
+  该方法必须有1到2个返回值，如果有2个则后一个必须是error接口类型；
+  如果有2个返回值的方法返回的error非nil，模板执行会中断并返回给调用模板执行者该错误；
+  方法可和字段、键配合做链式调用，深度不限：.Field1.Key1.Method1.Field2.Key2.Method2；
+  方法也可以在变量上使用（包括链式调用）：$x.Method1.Field；
+- 无参数的函数名，如：fun；
+  执行结果是调用该函数的返回值fun()；对返回值的要求和方法一样；函数和函数名细节参见后面。
+- 上面某一条的实例加上括弧（用于分组）
+  执行结果可以访问其字段或者键对应的值：
+      print (.F1 arg1) (.F2 arg2)
+      (.StructValuedMethod "arg").Field
+</pre>
+    <p>Arguments可以是任何类型：如果是指针，在必要时会自动表示为指针指向的值；如果执行结果生成了一个函数类型的值，如结构体的函数类型字段，该函数不会自动调用，但可以在if等action里视为真。如果要调用它，使用call函数，参见下面。</p>
+    <p>Pipeline是一个（可能是链状的）command序列。Command可以是一个简单值（argument）或者对函数或者方法的（可以有多个参数的）调用：<br>
+</p>
+    <pre>Argument
+    执行结果是argument的执行结果
+.Method [Argument...]
+    方法可以独立调用或者位于链式调用的末端，不同于链式调用中间的方法，可以使用参数；
+    执行结果是使用给出的参数调用该方法的返回值：dot.Method(Argument1, etc.)；
+functionName [Argument...]
+    执行结果是使用给定的参数调用函数名指定的函数的返回值：function(Argument1, etc.)；</pre>
+    <h4 id="hdr-Pipelines">Pipelines <a class="permalink" href="#pkg-index">&para</a></h4>
+    <p align="left">pipeline通常是将一个command序列分割开，再使用管道符'|'连接起来（但不使用管道符的command序列也可以视为一个管道）。在一个链式的pipeline里，每个command的结果都作为下一个command的最后一个参数。pipeline最后一个command的输出作为整个管道执行的结果。</p>
+    <p align="left">command的输出可以是1到2个值，如果是2个后一个必须是error接口类型。如果error类型返回值非nil，模板执行会中止并将该错误返回给执行模板的调用者。</p>
+    <h4 id="hdr-Variables">Variables <a class="permalink" href="#pkg-index">&para</a></h4>
+    <p>Action里可以初始化一个变量来捕获管道的执行结果。初始化语法如下：</p>
+    <pre>$variable := pipeline
+</pre>
+    <p align="left">其中$variable是变量的名字。声明变量的action不会产生任何输出。</p>
+    <p align="left">如果"range" action初始化了1个变量，该变量设置为迭代器的每一个成员元素，如果初始化了逗号分隔的2个变量：</p>
+    <pre>range $index, $element := pipeline
+</pre>
+    <p align="left">这时，$index和$element分别设置为数组/切片的索引或者字典的键，以及对应的成员元素。注意这和go range从句只有一个参数时设置为索引/键不同！</p>
+    <p align="left">一个变量的作用域只到声明它的控制结构（"if"、"with"、"range"）的"end"为止，如果不是在控制结构里声明会直到模板结束为止。子模板的调用不会从调用它的位置（作用域）继承变量。</p>
+    <p align="left">模板开始执行时，$会设置为传递给Execute方法的参数，就是说，dot的初始值。</p>
+    <h4 id="hdr-Examples">Examples <a class="permalink" href="#pkg-index">&para</a></h4>
+    <p>下面是一些单行模板，展示了pipeline和变量。所有都生成加引号的单词"output"：</p>
+    <pre>{{&#34;\&#34;output\&#34;&#34;}}
+	字符串常量
+{{`&#34;output&#34;`}}
+	原始字符串常量
+{{printf &#34;%q&#34; &#34;output&#34;}}
+	函数调用
+{{&#34;output&#34; | printf &#34;%q&#34;}}
+	函数调用，最后一个参数来自前一个command的返回值
+{{printf &#34;%q&#34; (print &#34;out&#34; &#34;put&#34;)}}
+	加括号的参数
+{{&#34;put&#34; | printf &#34;%s%s&#34; &#34;out&#34; | printf &#34;%q&#34;}}
+	玩出花的管道的链式调用
+{{&#34;output&#34; | printf &#34;%s&#34; | printf &#34;%q&#34;}}
+	管道的链式调用
+{{with &#34;output&#34;}}{{printf &#34;%q&#34; .}}{{end}}
+	使用dot的with action
+{{with $x := &#34;output&#34; | printf &#34;%q&#34;}}{{$x}}{{end}}
+	创建并使用变量的with action
+{{with $x := &#34;output&#34;}}{{printf &#34;%q&#34; $x}}{{end}}
+	将变量使用在另一个action的with action
+{{with $x := &#34;output&#34;}}{{$x | printf &#34;%q&#34;}}{{end}}
+	以管道形式将变量使用在另一个action的with action  </pre>
+    <h4 id="hdr-Functions">Functions <a class="permalink" href="#pkg-index">&para</a></h4>
+    <p align="left">执行模板时，函数从两个函数字典中查找：首先是模板函数字典，然后是全局函数字典。一般不在模板内定义函数，而是使用Funcs方法添加函数到模板里。</p>
+    <p align="left">预定义的全局函数如下：</p>
+    <pre>and
+    函数返回它的第一个empty参数或者最后一个参数；
+    就是说"and x y"等价于"if x then y else x"；所有参数都会执行；
+or
+    返回第一个非empty参数或者最后一个参数；
+    亦即"or x y"等价于"if x then x else y"；所有参数都会执行；
+not
+    返回它的单个参数的布尔值的否定
+len
+    返回它的参数的整数类型长度
+index
+    执行结果为第一个参数以剩下的参数为索引/键指向的值；
+    如"index x 1 2 3"返回x[1][2][3]的值；每个被索引的主体必须是数组、切片或者字典。
+print
+    即fmt.Sprint
+printf
+    即fmt.Sprintf
+println
+    即fmt.Sprintln
+html
+    返回其参数文本表示的HTML逸码等价表示。
+urlquery
+    返回其参数文本表示的可嵌入URL查询的逸码等价表示。
+js
+    返回其参数文本表示的JavaScript逸码等价表示。
+call
+    执行结果是调用第一个参数的返回值，该参数必须是函数类型，其余参数作为调用该函数的参数；
+    如"call .X.Y 1 2"等价于go语言里的dot.X.Y(1, 2)；
+    其中Y是函数类型的字段或者字典的值，或者其他类似情况；
+    call的第一个参数的执行结果必须是函数类型的值（和预定义函数如print明显不同）；
+    该函数类型值必须有1到2个返回值，如果有2个则后一个必须是error接口类型；
+    如果有2个返回值的方法返回的error非nil，模板执行会中断并返回给调用模板执行者该错误；</pre>
+    <p align="left">布尔函数会将任何类型的零值视为假，其余视为真。</p>
+    <p align="left">下面是定义为函数的二元比较运算的集合：</p>
+    <pre>eq      如果arg1 == arg2则返回真
+ne      如果arg1 != arg2则返回真
+lt      如果arg1 < arg2则返回真
+le      如果arg1 <= arg2则返回真
+gt      如果arg1 > arg2则返回真
+ge      如果arg1 >= arg2则返回真</pre>
+    <p>为了简化多参数相等检测，eq（只有eq）可以接受2个或更多个参数，它会将第一个参数和其余参数依次比较，返回下式的结果：</p>
+    <pre>arg1==arg2 || arg1==arg3 || arg1==arg4 ...
+</pre>
+    <p align="left">（和go的||不一样，不做惰性运算，所有参数都会执行）</p>
+    <p align="left">比较函数只适用于基本类型（或重定义的基本类型，如"type Celsius float32"）。它们实现了go语言规则的值的比较，但具体的类型和大小会忽略掉，因此任意类型有符号整数值都可以互相比较；任意类型无符号整数值都可以互相比较；等等。但是，整数和浮点数不能互相比较。</p>
+    <h4 id="hdr-Associated_templates">Associated templates <a class="permalink" href="#pkg-index">&para</a></h4>
+    <p align="left">每一个模板在创建时都要用一个字符串命名。同时，每一个模板都会和0或多个模板关联，并可以使用它们的名字调用这些模板；这种关联可以传递，并形成一个模板的名字空间。</p>
+    <p align="left">一个模板可以通过模板调用实例化另一个模板；参见上面的"template" action。name必须是包含模板调用的模板相关联的模板的名字。</p>
+    <h4 id="hdr-Nested_template_definitions">Nested template definitions <a class="permalink" href="#pkg-index">&para</a></h4>
+    <p align="left">当解析模板时，可以定义另一个模板，该模板会和当前解析的模板相关联。模板必须定义在当前模板的最顶层，就像go程序里的全局变量一样。</p>
+    <p align="left">这种定义模板的语法是将每一个子模板的声明放在"define"和"end" action内部。</p>
+    <p align="left">define action使用给出的字符串常数给模板命名，举例如下：</p>
+    <pre>`{{define &#34;T1&#34;}}ONE{{end}}
+{{define &#34;T2&#34;}}TWO{{end}}
+{{define &#34;T3&#34;}}{{template &#34;T1&#34;}} {{template &#34;T2&#34;}}{{end}}
+{{template &#34;T3&#34;}}`
+</pre>
+    <p>它定义了两个模板T1和T2，第三个模板T3在执行时调用这两个模板；最后该模板调用了T3。输出结果是：</p>
+    <pre>ONE TWO
+</pre>
+    <p align="left">采用这种方法，一个模板只能从属于一个关联。如果需要让一个模板可以被多个关联查找到；模板定义必须多次解析以创建不同的*Template 值，或者必须使用Clone或AddParseTree方法进行拷贝。</p>
+    <p align="left">可能需要多次调用Parse函数以集合多个相关的模板；参见ParseFiles和ParseGlob函数和方法，它们提供了简便的途径去解析保存在文件中的存在关联的模板。</p>
+    <p align="left">一个模板可以直接调用或者通过ExecuteTemplate方法调用指定名字的相关联的模板；我们可以这样调用模板：</p>
+    <pre>err := tmpl.Execute(os.Stdout, &#34;no data needed&#34;)
+if err != nil {
+	log.Fatalf(&#34;execution failed: %s&#34;, err)
+}
+</pre>
+    <p>或显式的指定模板的名字来调用：</p>
+    <pre>err := tmpl.ExecuteTemplate(os.Stdout, &#34;T2&#34;, &#34;no data needed&#34;)
+if err != nil {
+	log.Fatalf(&#34;execution failed: %s&#34;, err)
+}</pre>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#HTMLEscape">func HTMLEscape(w io.Writer, b []byte)</a></li>
+        <li><a href="#HTMLEscapeString">func HTMLEscapeString(s string) string</a></li>
+        <li><a href="#HTMLEscaper">func HTMLEscaper(args ...interface{}) string</a></li>
+        <li><a href="#JSEscape">func JSEscape(w io.Writer, b []byte)</a></li>
+        <li><a href="#JSEscapeString">func JSEscapeString(s string) string</a></li>
+        <li><a href="#JSEscaper">func JSEscaper(args ...interface{}) string</a></li>
+        <li><a href="#URLQueryEscaper">func URLQueryEscaper(args ...interface{}) string</a></li>
+        <li><a href="#FuncMap">type FuncMap</a></li>
+        <li><a href="#Template">type Template</a></li>
+        <ul>
+            <li><a href="#Must">func Must(t *Template, err error) *Template</a></li>
+            <li><a href="#New">func New(name string) *Template</a></li>
+            <li><a href="#ParseFiles">func ParseFiles(filenames ...string) (*Template, error)</a></li>
+            <li><a href="#ParseGlob">func ParseGlob(pattern string) (*Template, error)</a></li>
+            <li><a href="#Template.Name">func (t *Template) Name() string</a></li>
+            <li><a href="#Template.Delims">func (t *Template) Delims(left, right string) *Template</a></li>
+            <li><a href="#Template.Funcs">func (t *Template) Funcs(funcMap FuncMap) *Template</a></li>
+            <li><a href="#Template.Clone">func (t *Template) Clone() (*Template, error)</a></li>
+            <li><a href="#Template.Lookup">func (t *Template) Lookup(name string) *Template</a></li>
+            <li><a href="#Template.Templates">func (t *Template) Templates() []*Template</a></li>
+            <li><a href="#Template.New">func (t *Template) New(name string) *Template</a></li>
+            <li><a href="#Template.AddParseTree">func (t *Template) AddParseTree(name string, tree *parse.Tree) (*Template, error)</a></li>
+            <li><a href="#Template.Parse">func (t *Template) Parse(text string) (*Template, error)</a></li>
+            <li><a href="#Template.ParseFiles">func (t *Template) ParseFiles(filenames ...string) (*Template, error)</a></li>
+            <li><a href="#Template.ParseGlob">func (t *Template) ParseGlob(pattern string) (*Template, error)</a></li>
+            <li><a href="#Template.Execute">func (t *Template) Execute(wr io.Writer, data interface{}) (err error)</a></li>
+            <li><a href="#Template.ExecuteTemplate">func (t *Template) ExecuteTemplate(wr io.Writer, name string, data interface{}) error</a></li>
+        </ul>
+    </ul>
+    <h4 id="pkg-examples">Examples <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#example-Template" onclick="$('#ex-Template').addClass('in').removeClass('collapse').height('auto')">Template</a></li>
+        <li><a href="#example-Template--Func" onclick="$('#ex-Template--Func').addClass('in').removeClass('collapse').height('auto')">Template (Func)</a></li>
+        <li><a href="#example-Template--Glob" onclick="$('#ex-Template--Glob').addClass('in').removeClass('collapse').height('auto')">Template (Glob)</a></li>
+        <li><a href="#example-Template--Helpers" onclick="$('#ex-Template--Helpers').addClass('in').removeClass('collapse').height('auto')">Template (Helpers)</a></li>
+        <li><a href="#example-Template--Share" onclick="$('#ex-Template--Share').addClass('in').removeClass('collapse').height('auto')">Template (Share)</a></li>
+    </ul>
+    <h3 id="HTMLEscape">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/funcs.go?name=release#425">HTMLEscape</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func HTMLEscape(w <a href="io.htm">io</a>.<a href="io.htm#Writer">Writer</a>, b []<a href="builtin.htm#byte">byte</a>)</pre>
+    <p>函数向w中写入b的HTML转义等价表示。</p>
+    <h3 id="HTMLEscapeString">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/funcs.go?name=release#451">HTMLEscapeString</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func HTMLEscapeString(s <a href="builtin.htm#string">string</a>) <a href="builtin.htm#string">string</a></pre>
+    <p>返回s的HTML转义等价表示字符串。</p>
+    <h3 id="HTMLEscaper">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/funcs.go?name=release#463">HTMLEscaper</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func HTMLEscaper(args ...interface{}) <a href="builtin.htm#string">string</a></pre>
+    <p>函数返回其所有参数文本表示的HTML转义等价表示字符串。</p>
+    <h3 id="JSEscape">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/funcs.go?name=release#481">JSEscape</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func JSEscape(w <a href="io.htm">io</a>.<a href="io.htm#Writer">Writer</a>, b []<a href="builtin.htm#byte">byte</a>)</pre>
+    <p>函数向w中写入b的JavaScript转义等价表示。</p>
+    <h3 id="JSEscapeString">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/funcs.go?name=release#528">JSEscapeString</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func JSEscapeString(s <a href="builtin.htm#string">string</a>) <a href="builtin.htm#string">string</a></pre>
+    <p>返回s的JavaScript转义等价表示字符串。</p>
+    <h3 id="JSEscaper">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/funcs.go?name=release#548">JSEscaper</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func JSEscaper(args ...interface{}) <a href="builtin.htm#string">string</a></pre>
+    <p>函数返回其所有参数文本表示的JavaScript转义等价表示字符串。</p>
+    <h3 id="URLQueryEscaper">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/funcs.go?name=release#554">URLQueryEscaper</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func URLQueryEscaper(args ...interface{}) <a href="builtin.htm#string">string</a></pre>
+    <p>函数返回其所有参数文本表示的可以嵌入URL查询的转义等价表示字符串。</p>
+    <h3 id="FuncMap">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/funcs.go?name=release#24">FuncMap</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type FuncMap map[<a href="builtin.htm#string">string</a>]interface{}</pre>
+    <p>FuncMap类型定义了函数名字符串到函数的映射，每个函数都必须有1到2个返回值，如果有2个则后一个必须是error接口类型；如果有2个返回值的方法返回的error非nil，模板执行会中断并返回给调用者该错误。</p>
+    <h3 id="Template">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/template.go?name=release#26">Template</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Template struct {
+    *<a href="text/template/parse.htm">parse</a>.<a href="text/template/parse.htm#Tree">Tree</a>
+    <span class="com">// 内含隐藏或非导出字段</span>
+}</pre>
+    <p>代表一个解析好的模板，*parse.Tree字段仅仅是暴露给html/template包使用的，因此其他人应该视字段未导出。</p>
+    <div class="panel-group">
+        <div class="panel panel-default" id="example-Template">
+            <div class="panel-heading" onclick="document.getElementById('ex-Template').style.display = document.getElementById('ex-Template').style.display=='none'?'block':'none';">Example</div>
+            <div id="ex-Template" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre><span class="com">// Define a template.</span>
+const letter = `
+Dear {{.Name}},
+{{if .Attended}}
+It was a pleasure to see you at the wedding.{{else}}
+It is a shame you couldn&#39;t make it to the wedding.{{end}}
+{{with .Gift}}Thank you for the lovely {{.}}.
+{{end}}
+Best wishes,
+Josie
+`
+<span class="com">// Prepare some data to insert into the template.</span>
+type Recipient struct {
+    Name, Gift string
+    Attended   bool
+}
+var recipients = []Recipient{
+    {&#34;Aunt Mildred&#34;, &#34;bone china tea set&#34;, true},
+    {&#34;Uncle John&#34;, &#34;moleskin pants&#34;, false},
+    {&#34;Cousin Rodney&#34;, &#34;&#34;, false},
+}
+<span class="com">// Create a new template and parse the letter into it.</span>
+t := template.Must(template.New(&#34;letter&#34;).Parse(letter))
+<span class="com">// Execute the template for each recipient.</span>
+for _, r := range recipients {
+    err := t.Execute(os.Stdout, r)
+    if err != nil {
+        log.Println(&#34;executing template:&#34;, err)
+    }
+}</pre>
+                    <p>Output:
+                    <pre>Dear Aunt Mildred,
+It was a pleasure to see you at the wedding.
+Thank you for the lovely bone china tea set.
+Best wishes,
+Josie
+Dear Uncle John,
+It is a shame you couldn&#39;t make it to the wedding.
+Thank you for the lovely moleskin pants.
+Best wishes,
+Josie
+Dear Cousin Rodney,
+It is a shame you couldn&#39;t make it to the wedding.
+Best wishes,
+Josie
+</pre>
+                </div>
+            </div>
+        </div>
+        <div class="panel panel-default" id="example-Template--Func">
+            <div class="panel-heading" onclick="document.getElementById('ex-Template--Func').style.display = document.getElementById('ex-Template--Func').style.display=='none'?'block':'none';">Example (Func)</div>
+            <div id="ex-Template--Func" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre><span class="com">// First we create a FuncMap with which to register the function.</span>
+funcMap := template.FuncMap{
+    <span class="com">// The name &#34;title&#34; is what the function will be called in the template text.</span>
+    &#34;title&#34;: strings.Title,
+}
+<span class="com">// A simple template definition to test our function.</span>
+<span class="com">// We print the input text several ways:</span>
+<span class="com">// - the original</span>
+<span class="com">// - title-cased</span>
+<span class="com">// - title-cased and then printed with %q</span>
+<span class="com">// - printed with %q and then title-cased.</span>
+const templateText = `
+Input: {{printf &#34;%q&#34; .}}
+Output 0: {{title .}}
+Output 1: {{title . | printf &#34;%q&#34;}}
+Output 2: {{printf &#34;%q&#34; . | title}}
+`
+<span class="com">// Create a template, add the function map, and parse the text.</span>
+tmpl, err := template.New(&#34;titleTest&#34;).Funcs(funcMap).Parse(templateText)
+if err != nil {
+    log.Fatalf(&#34;parsing: %s&#34;, err)
+}
+<span class="com">// Run the template to verify the output.</span>
+err = tmpl.Execute(os.Stdout, &#34;the go programming language&#34;)
+if err != nil {
+    log.Fatalf(&#34;execution: %s&#34;, err)
+}</pre>
+                    <p>Output:
+                    <pre>Input: &#34;the go programming language&#34;
+Output 0: The Go Programming Language
+Output 1: &#34;The Go Programming Language&#34;
+Output 2: &#34;The Go Programming Language&#34;
+</pre>
+                </div>
+            </div>
+        </div>
+        <div class="panel panel-default" id="example-Template--Glob">
+            <div class="panel-heading" onclick="document.getElementById('ex-Template--Glob').style.display = document.getElementById('ex-Template--Glob').style.display=='none'?'block':'none';">Example (Glob)</div>
+            <div id="ex-Template--Glob" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre><span class="com">// Here we create a temporary directory and populate it with our sample</span>
+<span class="com">// template definition files; usually the template files would already</span>
+<span class="com">// exist in some location known to the program.</span>
+dir := createTestDir([]templateFile{
+    <span class="com">// T0.tmpl is a plain template file that just invokes T1.</span>
+    {&#34;T0.tmpl&#34;, `T0 invokes T1: ({{template &#34;T1&#34;}})`},
+    <span class="com">// T1.tmpl defines a template, T1 that invokes T2.</span>
+    {&#34;T1.tmpl&#34;, `{{define &#34;T1&#34;}}T1 invokes T2: ({{template &#34;T2&#34;}}){{end}}`},
+    <span class="com">// T2.tmpl defines a template T2.</span>
+    {&#34;T2.tmpl&#34;, `{{define &#34;T2&#34;}}This is T2{{end}}`},
+})
+<span class="com">// Clean up after the test; another quirk of running as an example.</span>
+defer os.RemoveAll(dir)
+<span class="com">// pattern is the glob pattern used to find all the template files.</span>
+pattern := filepath.Join(dir, &#34;*.tmpl&#34;)
+<span class="com">// Here starts the example proper.</span>
+<span class="com">// T0.tmpl is the first name matched, so it becomes the starting template,</span>
+<span class="com">// the value returned by ParseGlob.</span>
+tmpl := template.Must(template.ParseGlob(pattern))
+err := tmpl.Execute(os.Stdout, nil)
+if err != nil {
+    log.Fatalf(&#34;template execution: %s&#34;, err)
+}</pre>
+                    <p>Output:
+                    <pre>T0 invokes T1: (T1 invokes T2: (This is T2))
+</pre>
+                </div>
+            </div>
+        </div>
+        <div class="panel panel-default" id="example-Template--Helpers">
+            <div class="panel-heading" onclick="document.getElementById('ex-Template--Helpers').style.display = document.getElementById('ex-Template--Helpers').style.display=='none'?'block':'none';">Example (Helpers)</div>
+            <div id="ex-Template--Helpers" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre><span class="com">// Here we create a temporary directory and populate it with our sample</span>
+<span class="com">// template definition files; usually the template files would already</span>
+<span class="com">// exist in some location known to the program.</span>
+dir := createTestDir([]templateFile{
+    <span class="com">// T1.tmpl defines a template, T1 that invokes T2.</span>
+    {&#34;T1.tmpl&#34;, `{{define &#34;T1&#34;}}T1 invokes T2: ({{template &#34;T2&#34;}}){{end}}`},
+    <span class="com">// T2.tmpl defines a template T2.</span>
+    {&#34;T2.tmpl&#34;, `{{define &#34;T2&#34;}}This is T2{{end}}`},
+})
+<span class="com">// Clean up after the test; another quirk of running as an example.</span>
+defer os.RemoveAll(dir)
+<span class="com">// pattern is the glob pattern used to find all the template files.</span>
+pattern := filepath.Join(dir, &#34;*.tmpl&#34;)
+<span class="com">// Here starts the example proper.</span>
+<span class="com">// Load the helpers.</span>
+templates := template.Must(template.ParseGlob(pattern))
+<span class="com">// Add one driver template to the bunch; we do this with an explicit template definition.</span>
+_, err := templates.Parse(&#34;{{define `driver1`}}Driver 1 calls T1: ({{template `T1`}})\n{{end}}&#34;)
+if err != nil {
+    log.Fatal(&#34;parsing driver1: &#34;, err)
+}
+<span class="com">// Add another driver template.</span>
+_, err = templates.Parse(&#34;{{define `driver2`}}Driver 2 calls T2: ({{template `T2`}})\n{{end}}&#34;)
+if err != nil {
+    log.Fatal(&#34;parsing driver2: &#34;, err)
+}
+<span class="com">// We load all the templates before execution. This package does not require</span>
+<span class="com">// that behavior but html/template&#39;s escaping does, so it&#39;s a good habit.</span>
+err = templates.ExecuteTemplate(os.Stdout, &#34;driver1&#34;, nil)
+if err != nil {
+    log.Fatalf(&#34;driver1 execution: %s&#34;, err)
+}
+err = templates.ExecuteTemplate(os.Stdout, &#34;driver2&#34;, nil)
+if err != nil {
+    log.Fatalf(&#34;driver2 execution: %s&#34;, err)
+}</pre>
+                    <p>Output:
+                    <pre>Driver 1 calls T1: (T1 invokes T2: (This is T2))
+Driver 2 calls T2: (This is T2)
+</pre>
+                </div>
+            </div>
+        </div>
+        <div class="panel panel-default" id="example-Template--Share">
+            <div class="panel-heading" onclick="document.getElementById('ex-Template--Share').style.display = document.getElementById('ex-Template--Share').style.display=='none'?'block':'none';">Example (Share)</div>
+            <div id="ex-Template--Share" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre><span class="com">// Here we create a temporary directory and populate it with our sample</span>
+<span class="com">// template definition files; usually the template files would already</span>
+<span class="com">// exist in some location known to the program.</span>
+dir := createTestDir([]templateFile{
+    <span class="com">// T0.tmpl is a plain template file that just invokes T1.</span>
+    {&#34;T0.tmpl&#34;, &#34;T0 ({{.}} version) invokes T1: ({{template `T1`}})\n&#34;},
+    <span class="com">// T1.tmpl defines a template, T1 that invokes T2. Note T2 is not defined</span>
+    {&#34;T1.tmpl&#34;, `{{define &#34;T1&#34;}}T1 invokes T2: ({{template &#34;T2&#34;}}){{end}}`},
+})
+<span class="com">// Clean up after the test; another quirk of running as an example.</span>
+defer os.RemoveAll(dir)
+<span class="com">// pattern is the glob pattern used to find all the template files.</span>
+pattern := filepath.Join(dir, &#34;*.tmpl&#34;)
+<span class="com">// Here starts the example proper.</span>
+<span class="com">// Load the drivers.</span>
+drivers := template.Must(template.ParseGlob(pattern))
+<span class="com">// We must define an implementation of the T2 template. First we clone</span>
+<span class="com">// the drivers, then add a definition of T2 to the template name space.</span>
+<span class="com">// 1. Clone the helper set to create a new name space from which to run them.</span>
+first, err := drivers.Clone()
+if err != nil {
+    log.Fatal(&#34;cloning helpers: &#34;, err)
+}
+<span class="com">// 2. Define T2, version A, and parse it.</span>
+_, err = first.Parse(&#34;{{define `T2`}}T2, version A{{end}}&#34;)
+if err != nil {
+    log.Fatal(&#34;parsing T2: &#34;, err)
+}
+<span class="com">// Now repeat the whole thing, using a different version of T2.</span>
+<span class="com">// 1. Clone the drivers.</span>
+second, err := drivers.Clone()
+if err != nil {
+    log.Fatal(&#34;cloning drivers: &#34;, err)
+}
+<span class="com">// 2. Define T2, version B, and parse it.</span>
+_, err = second.Parse(&#34;{{define `T2`}}T2, version B{{end}}&#34;)
+if err != nil {
+    log.Fatal(&#34;parsing T2: &#34;, err)
+}
+<span class="com">// Execute the templates in the reverse order to verify the</span>
+<span class="com">// first is unaffected by the second.</span>
+err = second.ExecuteTemplate(os.Stdout, &#34;T0.tmpl&#34;, &#34;second&#34;)
+if err != nil {
+    log.Fatalf(&#34;second execution: %s&#34;, err)
+}
+err = first.ExecuteTemplate(os.Stdout, &#34;T0.tmpl&#34;, &#34;first&#34;)
+if err != nil {
+    log.Fatalf(&#34;first: execution: %s&#34;, err)
+}</pre>
+                    <p>Output:
+                    <pre>T0 (second version) invokes T1: (T1 invokes T2: (T2, version B))
+T0 (first version) invokes T1: (T1 invokes T2: (T2, version A))
+</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    <h4 id="Must">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/helper.go?name=release#21">Must</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func Must(t *<a href="#Template">Template</a>, err <a href="builtin.htm#error">error</a>) *<a href="#Template">Template</a></pre>
+    <p>Must函数用于包装返回(*Template, error)的函数/方法调用，它会在err非nil时panic，一般用于变量初始化：</p>
+    <pre>var t = template.Must(template.New(&#34;name&#34;).Parse(&#34;text&#34;))
+</pre>
+    <h4 id="New">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/template.go?name=release#35">New</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func New(name <a href="builtin.htm#string">string</a>) *<a href="#Template">Template</a></pre>
+    <p>创建一个名为name的模板。</p>
+    <h4 id="ParseFiles">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/helper.go?name=release#32">ParseFiles</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func ParseFiles(filenames ...<a href="builtin.htm#string">string</a>) (*<a href="#Template">Template</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>ParseFiles函数创建一个模板并解析filenames指定的文件里的模板定义。返回的模板的名字是第一个文件的文件名（不含扩展名），内容为解析后的第一个文件的内容。至少要提供一个文件。如果发生错误，会停止解析并返回nil。</p>
+    <h4 id="ParseGlob">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/helper.go?name=release#85">ParseGlob</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func ParseGlob(pattern <a href="builtin.htm#string">string</a>) (*<a href="#Template">Template</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>ParseGlob创建一个模板并解析匹配pattern的文件（参见glob规则）里的模板定义。返回的模板的名字是第一个匹配的文件的文件名（不含扩展名），内容为解析后的第一个文件的内容。至少要存在一个匹配的文件。如果发生错误，会停止解析并返回nil。ParseGlob等价于使用匹配pattern的文件的列表为参数调用ParseFiles。</p>
+    <h4 id="Template.Name">func (*Template) <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/template.go?name=release#42">Name</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (t *<a href="#Template">Template</a>) Name() <a href="builtin.htm#string">string</a></pre>
+    <p>返回模板t的名字。</p>
+    <h4 id="Template.Delims">func (*Template) <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/template.go?name=release#136">Delims</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (t *<a href="#Template">Template</a>) Delims(left, right <a href="builtin.htm#string">string</a>) *<a href="#Template">Template</a></pre>
+    <p>Delims方法用于设置action的分界字符串，应用于之后的Parse、ParseFiles、ParseGlob方法。嵌套模板定义会继承这种分界符设置。空字符串分界符表示相应的默认分界符：{{或}}。返回值就是t，以便进行链式调用。</p>
+    <h4 id="Template.Funcs">func (*Template) <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/template.go?name=release#146">Funcs</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (t *<a href="#Template">Template</a>) Funcs(funcMap <a href="#FuncMap">FuncMap</a>) *<a href="#Template">Template</a></pre>
+    <p>Funcs方法向模板t的函数字典里加入参数funcMap内的键值对。如果funcMap某个键值对的值不是函数类型或者返回值不符合要求会panic。但是，可以对t函数列表的成员进行重写。方法返回t以便进行链式调用。</p>
+    <h4 id="Template.Clone">func (*Template) <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/template.go?name=release#74">Clone</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (t *<a href="#Template">Template</a>) Clone() (*<a href="#Template">Template</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>Clone方法返回模板的一个副本，包括所有相关联的模板。模板的底层表示树并未拷贝，而是拷贝了命名空间，因此拷贝调用Parse方法不会修改原模板的命名空间。Clone方法用于准备模板的公用部分，向拷贝中加入其他关联模板后再进行使用。</p>
+    <h4 id="Template.Lookup">func (*Template) <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/template.go?name=release#155">Lookup</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (t *<a href="#Template">Template</a>) Lookup(name <a href="builtin.htm#string">string</a>) *<a href="#Template">Template</a></pre>
+    <p>Lookup方法返回与t关联的名为name的模板，如果没有这个模板返回nil。</p>
+    <h4 id="Template.Templates">func (*Template) <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/template.go?name=release#119">Templates</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (t *<a href="#Template">Template</a>) Templates() []*<a href="#Template">Template</a></pre>
+    <p>Templates方法返回与t相关联的模板的切片，包括t自己。</p>
+    <h4 id="Template.New">func (*Template) <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/template.go?name=release#49">New</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (t *<a href="#Template">Template</a>) New(name <a href="builtin.htm#string">string</a>) *<a href="#Template">Template</a></pre>
+    <p>New方法创建一个和t关联的名字为name的模板并返回它。这种可以传递的关联允许一个模板使用template action调用另一个模板。</p>
+    <h4 id="Template.AddParseTree">func (*Template) <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/template.go?name=release#107">AddParseTree</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (t *<a href="#Template">Template</a>) AddParseTree(name <a href="builtin.htm#string">string</a>, tree *<a href="text/template/parse.htm">parse</a>.<a href="text/template/parse.htm#Tree">Tree</a>) (*<a href="#Template">Template</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>AddParseTree方法使用name和tree创建一个模板并使它和t相关联。</p>
+    <h4 id="Template.Parse">func (*Template) <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/template.go?name=release#169">Parse</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (t *<a href="#Template">Template</a>) Parse(text <a href="builtin.htm#string">string</a>) (*<a href="#Template">Template</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>Parse方法将字符串text解析为模板。嵌套定义的模板会关联到最顶层的t。Parse可以多次调用，但只有第一次调用可以包含空格、注释和模板定义之外的文本。如果后面的调用在解析后仍剩余文本会引发错误、返回nil且丢弃剩余文本；如果解析得到的模板已有相关联的同名模板，会覆盖掉原模板。</p>
+    <h4 id="Template.ParseFiles">func (*Template) <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/helper.go?name=release#39">ParseFiles</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (t *<a href="#Template">Template</a>) ParseFiles(filenames ...<a href="builtin.htm#string">string</a>) (*<a href="#Template">Template</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>ParseGlob方法解析filenames指定的文件里的模板定义并将解析结果与t关联。如果发生错误，会停止解析并返回nil，否则返回(t, nil)。至少要提供一个文件。</p>
+    <h4 id="Template.ParseGlob">func (*Template) <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/helper.go?name=release#94">ParseGlob</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (t *<a href="#Template">Template</a>) ParseGlob(pattern <a href="builtin.htm#string">string</a>) (*<a href="#Template">Template</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>ParseFiles方法解析匹配pattern的文件里的模板定义并将解析结果与t关联。如果发生错误，会停止解析并返回nil，否则返回(t, nil)。至少要存在一个匹配的文件。</p>
+    <h4 id="Template.Execute">func (*Template) <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/exec.go?name=release#129">Execute</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (t *<a href="#Template">Template</a>) Execute(wr <a href="io.htm">io</a>.<a href="io.htm#Writer">Writer</a>, data interface{}) (err <a href="builtin.htm#error">error</a>)</pre>
+    <p>Execute方法将解析好的模板应用到data上，并将输出写入wr。如果执行时出现错误，会停止执行，但有可能已经写入wr部分数据。模板可以安全的并发执行。</p>
+    <h4 id="Template.ExecuteTemplate">func (*Template) <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/exec.go?name=release#115">ExecuteTemplate</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (t *<a href="#Template">Template</a>) ExecuteTemplate(wr <a href="io.htm">io</a>.<a href="io.htm#Writer">Writer</a>, name <a href="builtin.htm#string">string</a>, data interface{}) <a href="builtin.htm#error">error</a></pre>
+    <p>ExecuteTemplate方法类似Execute，但是使用名为name的t关联的模板产生输出。</p>
+</div>
+</body>
+</html>

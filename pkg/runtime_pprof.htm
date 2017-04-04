@@ -1,0 +1,92 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="./site.css" rel="stylesheet">
+<title>runtime/pprof</title>
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package pprof</h2>
+    <p><code>import "runtime/pprof"</code>
+    <p align="left">pprof包以pprof可视化工具期望的格式书写运行时剖面数据。</p>
+    <p align="left">pprof的更多信息参见<a href="http://code.google.com/p/google-perftools/">http://code.google.com/p/google-perftools/</a>。</p>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#Profiles">func Profiles() []*Profile</a></li>
+        <li><a href="#StartCPUProfile">func StartCPUProfile(w io.Writer) error</a></li>
+        <li><a href="#StopCPUProfile">func StopCPUProfile()</a></li>
+        <li><a href="#WriteHeapProfile">func WriteHeapProfile(w io.Writer) error</a></li>
+        <li><a href="#Profile">type Profile</a></li>
+        <ul>
+            <li><a href="#Lookup">func Lookup(name string) *Profile</a></li>
+            <li><a href="#NewProfile">func NewProfile(name string) *Profile</a></li>
+            <li><a href="#Profile.Name">func (p *Profile) Name() string</a></li>
+            <li><a href="#Profile.Add">func (p *Profile) Add(value interface{}, skip int)</a></li>
+            <li><a href="#Profile.Count">func (p *Profile) Count() int</a></li>
+            <li><a href="#Profile.Remove">func (p *Profile) Remove(value interface{})</a></li>
+            <li><a href="#Profile.WriteTo">func (p *Profile) WriteTo(w io.Writer, debug int) error</a></li>
+        </ul>
+    </ul>
+    <h3 id="Profiles">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/runtime/pprof/pprof.go?name=release#132">Profiles</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Profiles() []*<a href="#Profile">Profile</a></pre>
+    <p>Profiles返回所有已知profile的切片，按名称排序。</p>
+    <h3 id="StartCPUProfile">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/runtime/pprof/pprof.go?name=release#565">StartCPUProfile</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func StartCPUProfile(w <a href="io.htm">io</a>.<a href="io.htm#Writer">Writer</a>) <a href="builtin.htm#error">error</a></pre>
+    <p align="left">StartCPUProfile为当前进程开启CPU profile。在分析时，分析报告会缓存并写入到w中。若分析已经开启，StartCPUProfile就会返回错误。</p>
+    <h3 id="StopCPUProfile">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/runtime/pprof/pprof.go?name=release#612">StopCPUProfile</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func StopCPUProfile()</pre>
+    <p>StopCPUProfile会停止当前的CPU profile（如果有）。StopCPUProfile 只会在所有的分析报告写入完毕后才会返回。</p>
+    <h3 id="WriteHeapProfile">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/runtime/pprof/pprof.go?name=release#369">WriteHeapProfile</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func WriteHeapProfile(w <a href="io.htm">io</a>.<a href="io.htm#Writer">Writer</a>) <a href="builtin.htm#error">error</a></pre>
+    <p>WriteHeapProfile是Lookup("heap").WriteTo(w, 0) 的简写。它是为了保持向后兼容性而存在的。</p>
+    <h3 id="Profile">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/runtime/pprof/pprof.go?name=release#48">Profile</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Profile struct {
+    <span class="com">// 内含隐藏或非导出字段</span>
+}</pre>
+    <p align="left">Profile是一个调用栈踪迹的集合，显示导致特定事件（如内存分配）的实例的调用栈序列。包可以创建并维护它们自己的profile；它一般用于跟踪必须被显式关闭的资源，例如文件或网络连接。</p>
+    <p align="left">一个Profile的方法可被多个Go程同时调用。</p>
+    <p align="left">每个Profile都有唯一的名称。有些Profile是预定义的：</p>
+    <pre>goroutine      - 当前Go所有程的调用栈踪迹
+heap           - 所有堆分配的采样
+threadcreate   - 导致新的OS线程创建的调用栈踪迹
+block          - 导致同步原语水平的阻塞的调用栈踪迹</pre>
+    <p align="left">这些预声明的Profile自我维护，如果对它们调用Add或者Remove时，将导致panic。</p>
+    <p align="left">CPU profile不能作为Profile使用。它有专门的API，即StartCPUProfile和StopCPUProfile函数，因为它在分析时是以流的形式输出到writer中的。</p>
+    <h4 id="Lookup">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/runtime/pprof/pprof.go?name=release#125">Lookup</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func Lookup(name <a href="builtin.htm#string">string</a>) *<a href="#Profile">Profile</a></pre>
+    <p>Lookup返回具有指定名字的Profile；如果没有，会返回nil。</p>
+    <h4 id="NewProfile">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/runtime/pprof/pprof.go?name=release#107">NewProfile</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func NewProfile(name <a href="builtin.htm#string">string</a>) *<a href="#Profile">Profile</a></pre>
+    <p align="left">以给定的名称创建一个新的Profile。若拥有该名称的Profile已存在，NewProfile就会panic。</p>
+    <p align="left">约定会使用'import/path.'前缀来为每个包创建单独的命名空间。</p>
+    <h4 id="Profile.Name">func (*Profile) <a title="View Source" href="https://github.com/golang/go/blob/master/src/runtime/pprof/pprof.go?name=release#152">Name</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#Profile">Profile</a>) Name() <a href="builtin.htm#string">string</a></pre>
+    <p>Name返回该Profile的名称，它可被传入Lookup来重新获取该Profile。</p>
+    <h4 id="Profile.Add">func (*Profile) <a title="View Source" href="https://github.com/golang/go/blob/master/src/runtime/pprof/pprof.go?name=release#184">Add</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#Profile">Profile</a>) Add(value interface{}, skip <a href="builtin.htm#int">int</a>)</pre>
+    <p align="left">Add 将当前的执行栈添加到该分析中，并与value关联。Add在一个内部映射中存储值，因此value必须适于用作映射键，且在对应的Remove调用之前不会被垃圾收集。</p>
+    <p align="left">若分析的映射中已经存在value键，Add就会引发panic。</p>
+    <p align="left">skip 参数与runtime.Caller的skip参数意义相同，它用于控制调用栈踪迹从哪里开始。skip=0时候会从调用Add的函数开始。例如，给出如下执行栈：</p>
+    <pre>Add
+called from rpc.NewClient
+called from mypkg.Run
+called from main.main</pre>
+    <p>当skip=0时，调用栈踪迹从rpc.NewClient对Add的调用开始；当skp=1时，堆调用踪迹从对rpc.NewClient的调用开始。</p>
+    <h4 id="Profile.Count">func (*Profile) <a title="View Source" href="https://github.com/golang/go/blob/master/src/runtime/pprof/pprof.go?name=release#157">Count</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#Profile">Profile</a>) Count() <a href="builtin.htm#int">int</a></pre>
+    <p>Count返回该Profile中当前执行栈的数量。</p>
+    <h4 id="Profile.Remove">func (*Profile) <a title="View Source" href="https://github.com/golang/go/blob/master/src/runtime/pprof/pprof.go?name=release#205">Remove</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#Profile">Profile</a>) Remove(value interface{})</pre>
+    <p>Remove从该分析中移除与值value相关联的执行栈。若值value不在此分析中，则不做操作。</p>
+    <h4 id="Profile.WriteTo">func (*Profile) <a title="View Source" href="https://github.com/golang/go/blob/master/src/runtime/pprof/pprof.go?name=release#224">WriteTo</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#Profile">Profile</a>) WriteTo(w <a href="io.htm">io</a>.<a href="io.htm#Writer">Writer</a>, debug <a href="builtin.htm#int">int</a>) <a href="builtin.htm#error">error</a></pre>
+    <p>函数将pprof格式的profile快照写入w中。若一个向w的写入返回一个错误，WriteTo就会返回该错误；否则会返回nil。</p>
+<p align="left">debug 参数用于开启附加的输出。如果debug=0，只会打印pprof所需要的十六进制地址；如果debug=1，会将地址翻译为函数名和行号并添加注释，以便让程序员无需工具阅读分析报告。</p>
+    <p align="left">预定义Profile为其它debug值赋予了含义。例如，当打印&ldquo;Go程&rdquo;的分析报告时，debug=2意为：由于不可恢复的恐慌而濒临崩溃时，使用与Go程序相同的格式打印Go程的堆栈信息。</p>
+    <h3 id="pkg-note-bug">Bugs <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <p><a title="View Source" href="https://github.com/golang/go/blob/master/src/runtime/pprof/pprof.go?name=release#23">☞ </a>NetBSD和OS X上的profile记录服务是不完整、不准确的，参见http://golang.org/issue/6047获取细节。    </div>
+</body>
+</html>

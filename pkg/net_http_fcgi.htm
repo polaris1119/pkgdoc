@@ -1,0 +1,26 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="./site.css" rel="stylesheet">
+<title>net/http/fcgi</title>
+<meta name="private:description" content="刘志曦翻译于2014年夏，Go 1.3版本">
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package fcgi</h2>
+    <p><code>import "net/http/fcgi"</code>
+    <p align="left">fcgi包实现了FastCGI协议。目前只支持响应器的角色。</p>
+    <p align="left">协议定义的地址：<a href="http://www.fastcgi.com/drupal/node/6?q=node/22">http://www.fastcgi.com/drupal/node/6?q=node/22</a></p>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#Serve">func Serve(l net.Listener, handler http.Handler) error</a></li>
+    </ul>
+    <h3 id="Serve">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/fcgi/child.go?name=release#285">Serve</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Serve(l <a href="net.htm">net</a>.<a href="net.htm#Listener">Listener</a>, handler <a href="net/http.htm">http</a>.<a href="net/http.htm#Handler">Handler</a>) <a href="builtin.htm#error">error</a></pre>
+    <p>Serve接受从监视器l传入的FastCGI连接，为每一个FastCGI连接创建一个新的go程。该go程读取请求然后调用handler回复请求。如果l是nil，Serve将从os.Stdin接受连接。如果handler是nil，将使用http.DefaultServeMux。</p>
+</div>
+</body>
+</html>

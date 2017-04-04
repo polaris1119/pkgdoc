@@ -1,0 +1,189 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="./site.css" rel="stylesheet">
+<title>log</title>
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package log</h2>
+    <p><code>import "log"</code>
+    <p>log包实现了简单的日志服务。本包定义了Logger类型，该类型提供了一些格式化输出的方法。本包也提供了一个预定义的&ldquo;标准&rdquo;Logger，可以通过辅助函数Print[f|ln]、Fatal[f|ln]和Panic[f|ln]访问，比手工创建一个Logger对象更容易使用。Logger会打印每条日志信息的日期、时间，默认输出到标准错误。Fatal系列函数会在写入日志信息后调用os.Exit(1)。Panic系列函数会在写入日志信息后panic。</p>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#pkg-constants">Constants</a></li>
+        <li><a href="#Logger">type Logger</a></li>
+        <ul>
+            <li><a href="#New">func New(out io.Writer, prefix string, flag int) *Logger</a></li>
+            <li><a href="#Logger.Flags">func (l *Logger) Flags() int</a></li>
+            <li><a href="#Logger.SetFlags">func (l *Logger) SetFlags(flag int)</a></li>
+            <li><a href="#Logger.Prefix">func (l *Logger) Prefix() string</a></li>
+            <li><a href="#Logger.SetPrefix">func (l *Logger) SetPrefix(prefix string)</a></li>
+            <li><a href="#Logger.Output">func (l *Logger) Output(calldepth int, s string) error</a></li>
+            <li><a href="#Logger.Printf">func (l *Logger) Printf(format string, v ...interface{})</a></li>
+            <li><a href="#Logger.Print">func (l *Logger) Print(v ...interface{})</a></li>
+            <li><a href="#Logger.Println">func (l *Logger) Println(v ...interface{})</a></li>
+            <li><a href="#Logger.Fatalf">func (l *Logger) Fatalf(format string, v ...interface{})</a></li>
+            <li><a href="#Logger.Fatal">func (l *Logger) Fatal(v ...interface{})</a></li>
+            <li><a href="#Logger.Fatalln">func (l *Logger) Fatalln(v ...interface{})</a></li>
+            <li><a href="#Logger.Panic">func (l *Logger) Panic(v ...interface{})</a></li>
+            <li><a href="#Logger.Panicf">func (l *Logger) Panicf(format string, v ...interface{})</a></li>
+            <li><a href="#Logger.Panicln">func (l *Logger) Panicln(v ...interface{})</a></li>
+        </ul>
+        <li><a href="#Flags">func Flags() int</a></li>
+        <li><a href="#SetFlags">func SetFlags(flag int)</a></li>
+        <li><a href="#Prefix">func Prefix() string</a></li>
+        <li><a href="#SetPrefix">func SetPrefix(prefix string)</a></li>
+        <li><a href="#SetOutput">func SetOutput(w io.Writer)</a></li>
+        <li><a href="#Printf">func Printf(format string, v ...interface{})</a></li>
+        <li><a href="#Print">func Print(v ...interface{})</a></li>
+        <li><a href="#Println">func Println(v ...interface{})</a></li>
+        <li><a href="#Fatalf">func Fatalf(format string, v ...interface{})</a></li>
+        <li><a href="#Fatal">func Fatal(v ...interface{})</a></li>
+        <li><a href="#Fatalln">func Fatalln(v ...interface{})</a></li>
+        <li><a href="#Panicf">func Panicf(format string, v ...interface{})</a></li>
+        <li><a href="#Panic">func Panic(v ...interface{})</a></li>
+        <li><a href="#Panicln">func Panicln(v ...interface{})</a></li>
+    </ul>
+    <h4 id="pkg-examples">Examples <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#example-Logger" onclick="$('#ex-Logger').addClass('in').removeClass('collapse').height('auto')">Logger</a></li>
+    </ul>
+    <h3 id="pkg-constants">Constants <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>const (
+    <span class="com">// 字位共同控制输出日志信息的细节。不能控制输出的顺序和格式。</span>
+    <span class="com">// 在所有项目后会有一个冒号：2009/01/23 01:23:23.123123 /a/b/c/d.go:23: message</span>
+    <span id="Ldate">Ldate</span>         = 1 &lt;&lt; <a href="builtin.htm#iota">iota</a>     <span class="com">// 日期：2009/01/23</span>
+    <span id="Ltime">Ltime</span>                         <span class="com">// 时间：01:23:23</span>
+    <span id="Lmicroseconds">Lmicroseconds</span>                 <span class="com">// 微秒分辨率：01:23:23.123123（用于增强Ltime位）</span>
+    <span id="Llongfile">Llongfile</span>                     <span class="com">// 文件全路径名+行号： /a/b/c/d.go:23</span>
+    <span id="Lshortfile">Lshortfile</span>                    <span class="com">// 文件无路径名+行号：d.go:23（会覆盖掉Llongfile）</span>
+    <span id="LstdFlags">LstdFlags</span>     = <a href="#Ldate">Ldate</a> | <a href="#Ltime">Ltime</a> <span class="com">// 标准logger的初始值</span>
+)</pre>
+    <p>这些选项定义Logger类型如何生成用于每条日志的前缀文本。</p>
+    <h3 id="Logger">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/log/log.go?name=release#42">Logger</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Logger struct {
+    <span class="com">// contains filtered or unexported fields</span>
+}</pre>
+    <p>Logger类型表示一个活动状态的记录日志的对象，它会生成一行行的输出写入一个io.Writer接口。每一条日志操作会调用一次io.Writer接口的Write方法。Logger类型的对象可以被多个线程安全的同时使用，它会保证对io.Writer接口的顺序访问。</p>
+    <div class="panel-group">
+        <div class="panel panel-default" id="example-Logger">
+            <div class="panel-heading" onclick="document.getElementById('ex-Logger').style.display = document.getElementById('ex-Logger').style.display=='none'?'block':'none';">Example</div>
+            <div id="ex-Logger" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre>var buf bytes.Buffer
+logger := log.New(&amp;buf, &#34;logger: &#34;, log.Lshortfile)
+logger.Print(&#34;Hello, log file!&#34;)
+fmt.Print(&amp;buf)</pre>
+                    <p>Output:
+                    <pre>logger: example_test.go:16: Hello, log file!
+</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    <h4 id="New">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/log/log.go?name=release#54">New</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func New(out <a href="io.htm">io</a>.<a href="io.htm#Writer">Writer</a>, prefix <a href="builtin.htm#string">string</a>, flag <a href="builtin.htm#int">int</a>) *<a href="#Logger">Logger</a></pre>
+    <p>New创建一个Logger。参数out设置日志信息写入的目的地。参数prefix会添加到生成的每一条日志前面。参数flag定义日志的属性（时间、文件等等）。</p>
+    <h4 id="Logger.Flags">func (*Logger) <a title="View Source" href="https://github.com/golang/go/blob/master/src/log/log.go?name=release#211">Flags</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (l *<a href="#Logger">Logger</a>) Flags() <a href="builtin.htm#int">int</a></pre>
+    <p>Flags返回logger的输出选项。</p>
+    <h4 id="Logger.SetFlags">func (*Logger) <a title="View Source" href="https://github.com/golang/go/blob/master/src/log/log.go?name=release#218">SetFlags</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (l *<a href="#Logger">Logger</a>) SetFlags(flag <a href="builtin.htm#int">int</a>)</pre>
+    <p>SetFlags设置logger的输出选项。</p>
+    <h4 id="Logger.Prefix">func (*Logger) <a title="View Source" href="https://github.com/golang/go/blob/master/src/log/log.go?name=release#225">Prefix</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (l *<a href="#Logger">Logger</a>) Prefix() <a href="builtin.htm#string">string</a></pre>
+    <p>Prefix返回logger的输出前缀。</p>
+    <h4 id="Logger.SetPrefix">func (*Logger) <a title="View Source" href="https://github.com/golang/go/blob/master/src/log/log.go?name=release#232">SetPrefix</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (l *<a href="#Logger">Logger</a>) SetPrefix(prefix <a href="builtin.htm#string">string</a>)</pre>
+    <p>SSetPrefix设置logger的输出前缀。</p>
+    <h4 id="Logger.Output">func (*Logger) <a title="View Source" href="https://github.com/golang/go/blob/master/src/log/log.go?name=release#130">Output</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (l *<a href="#Logger">Logger</a>) Output(calldepth <a href="builtin.htm#int">int</a>, s <a href="builtin.htm#string">string</a>) <a href="builtin.htm#error">error</a></pre>
+    <p>Output写入输出一次日志事件。参数s包含在Logger根据选项生成的前缀之后要打印的文本。如果s末尾没有换行会添加换行符。calldepth用于恢复PC，出于一般性而提供，但目前在所有预定义的路径上它的值都为2。</p>
+<h4 id="Logger.Printf">func (*Logger) <a title="View Source" href="https://github.com/golang/go/blob/master/src/log/log.go?name=release#159">Printf</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (l *<a href="#Logger">Logger</a>) Printf(format <a href="builtin.htm#string">string</a>, v ...interface{})</pre>
+    <p>Printf调用l.Output将生成的格式化字符串输出到logger，参数用和fmt.Printf相同的方法处理。</p>
+    <h4 id="Logger.Print">func (*Logger) <a title="View Source" href="https://github.com/golang/go/blob/master/src/log/log.go?name=release#165">Print</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (l *<a href="#Logger">Logger</a>) Print(v ...interface{})</pre>
+    <p>Print调用l.Output将生成的格式化字符串输出到logger，参数用和fmt.Print相同的方法处理。</p>
+    <h4 id="Logger.Println">func (*Logger) <a title="View Source" href="https://github.com/golang/go/blob/master/src/log/log.go?name=release#169">Println</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (l *<a href="#Logger">Logger</a>) Println(v ...interface{})</pre>
+    <p>Println调用l.Output将生成的格式化字符串输出到logger，参数用和fmt.Println相同的方法处理。</p>
+    <h4 id="Logger.Fatalf">func (*Logger) <a title="View Source" href="https://github.com/golang/go/blob/master/src/log/log.go?name=release#178">Fatalf</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (l *<a href="#Logger">Logger</a>) Fatalf(format <a href="builtin.htm#string">string</a>, v ...interface{})</pre>
+    <p>Fatalf等价于{l.Printf(v...); os.Exit(1)}</p>
+    <h4 id="Logger.Fatal">func (*Logger) <a title="View Source" href="https://github.com/golang/go/blob/master/src/log/log.go?name=release#172">Fatal</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (l *<a href="#Logger">Logger</a>) Fatal(v ...interface{})</pre>
+    <p>Fatal等价于{l.Print(v...); os.Exit(1)}</p>
+    <h4 id="Logger.Fatalln">func (*Logger) <a title="View Source" href="https://github.com/golang/go/blob/master/src/log/log.go?name=release#184">Fatalln</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (l *<a href="#Logger">Logger</a>) Fatalln(v ...interface{})</pre>
+    <p>Fatalln等价于{l.Println(v...); os.Exit(1)}</p>
+    <h4 id="Logger.Panicf">func (*Logger) <a title="View Source" href="https://github.com/golang/go/blob/master/src/log/log.go?name=release#197">Panicf</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (l *<a href="#Logger">Logger</a>) Panicf(format <a href="builtin.htm#string">string</a>, v ...interface{})</pre>
+    <p>Panicf等价于{l.Printf(v...); panic(...)}</p>
+    <h4 id="Logger.Panic">func (*Logger) <a title="View Source" href="https://github.com/golang/go/blob/master/src/log/log.go?name=release#190">Panic</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (l *<a href="#Logger">Logger</a>) Panic(v ...interface{})</pre>
+    <p>Panic等价于{l.Print(v...); panic(...)}</p>
+    <h4 id="Logger.Panicln">func (*Logger) <a title="View Source" href="https://github.com/golang/go/blob/master/src/log/log.go?name=release#204">Panicln</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (l *<a href="#Logger">Logger</a>) Panicln(v ...interface{})</pre>
+    <p>Panicln等价于{l.Println(v...); panic(...)}</p>
+<h3 id="Flags">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/log/log.go?name=release#246">Flags</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Flags() <a href="builtin.htm#int">int</a></pre>
+    <p>Flags返回标准logger的输出选项。</p>
+    <h3 id="SetFlags">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/log/log.go?name=release#251">SetFlags</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func SetFlags(flag <a href="builtin.htm#int">int</a>)</pre>
+    <p>SetFlags设置标准logger的输出选项。</p>
+    <h3 id="Prefix">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/log/log.go?name=release#256">Prefix</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Prefix() <a href="builtin.htm#string">string</a></pre>
+    <p>Prefix返回标准logger的输出前缀。</p>
+    <h3 id="SetPrefix">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/log/log.go?name=release#261">SetPrefix</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func SetPrefix(prefix <a href="builtin.htm#string">string</a>)</pre>
+    <p>SetPrefix设置标准logger的输出前缀。</p>
+    <h3 id="SetOutput">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/log/log.go?name=release#239">SetOutput</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func SetOutput(w <a href="io.htm">io</a>.<a href="io.htm#Writer">Writer</a>)</pre>
+    <p>SetOutput设置标准logger的输出目的地，默认是标准错误输出。</p>
+    <h3 id="Printf">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/log/log.go?name=release#275">Printf</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Printf(format <a href="builtin.htm#string">string</a>, v ...interface{})</pre>
+    <p>Printf调用Output将生成的格式化字符串输出到标准logger，参数用和fmt.Printf相同的方法处理。</p>
+    <h3 id="Print">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/log/log.go?name=release#269">Print</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Print(v ...interface{})</pre>
+    <p>Print调用Output将生成的格式化字符串输出到标准logger，参数用和fmt.Print相同的方法处理。</p>
+    <h3 id="Println">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/log/log.go?name=release#281">Println</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Println(v ...interface{})</pre>
+    <p>Println调用Output将生成的格式化字符串输出到标准logger，参数用和fmt.Println相同的方法处理。</p>
+    <h3 id="Fatalf">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/log/log.go?name=release#292">Fatalf</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Fatalf(format <a href="builtin.htm#string">string</a>, v ...interface{})</pre>
+    <p>Fatalf等价于{Printf(v...); os.Exit(1)}</p>
+    <h3 id="Fatal">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/log/log.go?name=release#286">Fatal</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Fatal(v ...interface{})</pre>
+    <p>Fatal等价于{Print(v...); os.Exit(1)}</p>
+    <h3 id="Fatalln">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/log/log.go?name=release#298">Fatalln</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Fatalln(v ...interface{})</pre>
+    <p>Fatalln等价于{Println(v...); os.Exit(1)}</p>
+    <h3 id="Panicf">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/log/log.go?name=release#311">Panicf</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Panicf(format <a href="builtin.htm#string">string</a>, v ...interface{})</pre>
+    <p>Panicf等价于{Printf(v...); panic(...)}</p>
+    <h3 id="Panic">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/log/log.go?name=release#304">Panic</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Panic(v ...interface{})</pre>
+    <p>Panic等价于{Print(v...); panic(...)}</p>
+    <h3 id="Panicln">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/log/log.go?name=release#318">Panicln</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Panicln(v ...interface{})</pre>
+    <p>Panicln等价于{Println(v...); panic(...)}</p>
+</div>
+
+<div id="x-footer" class="clearfix">
+  <div class="container">
+    <a href="http://studygolang.com/">Go语言中文网</a>
+    <span class="text-muted">|</span> <a href="http://golang.org/">Go Language</a>
+    <span class="pull-right"><a href="#">Back to top</a></span>
+  </div>
+</div>
+<script src="../assets/jquery-2.0.3.min.js"></script>
+<script src="../bootstrap.min.js"></script>
+<script src="../site.js"></script>
+</body>
+</html>

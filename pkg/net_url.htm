@@ -1,0 +1,213 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="./site.css" rel="stylesheet">
+<title>net/url</title>
+<meta name="private:description" content="刘志曦翻译于2014年夏，Go 1.3版本">
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package url</h2>
+    <p><code>import "net/url"</code>
+    <p>url包解析URL并实现了查询的逸码，参见<a href="http://tools.ietf.org/html/rfc3986">RFC 3986</a>。</p>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#QueryEscape">func QueryEscape(s string) string</a></li>
+        <li><a href="#QueryUnescape">func QueryUnescape(s string) (string, error)</a></li>
+        <li><a href="#Error">type Error</a></li>
+        <ul>
+            <li><a href="#Error.Error">func (e *Error) Error() string</a></li>
+        </ul>
+        <li><a href="#EscapeError">type EscapeError</a></li>
+        <ul>
+            <li><a href="#EscapeError.Error">func (e EscapeError) Error() string</a></li>
+        </ul>
+        <li><a href="#URL">type URL</a></li>
+        <ul>
+            <li><a href="#Parse">func Parse(rawurl string) (url *URL, err error)</a></li>
+            <li><a href="#ParseRequestURI">func ParseRequestURI(rawurl string) (url *URL, err error)</a></li>
+            <li><a href="#URL.IsAbs">func (u *URL) IsAbs() bool</a></li>
+            <li><a href="#URL.Query">func (u *URL) Query() Values</a></li>
+            <li><a href="#URL.RequestURI">func (u *URL) RequestURI() string</a></li>
+            <li><a href="#URL.String">func (u *URL) String() string</a></li>
+            <li><a href="#URL.Parse">func (u *URL) Parse(ref string) (*URL, error)</a></li>
+            <li><a href="#URL.ResolveReference">func (u *URL) ResolveReference(ref *URL) *URL</a></li>
+        </ul>
+        <li><a href="#Userinfo">type Userinfo</a></li>
+        <ul>
+            <li><a href="#User">func User(username string) *Userinfo</a></li>
+            <li><a href="#UserPassword">func UserPassword(username, password string) *Userinfo</a></li>
+            <li><a href="#Userinfo.Username">func (u *Userinfo) Username() string</a></li>
+            <li><a href="#Userinfo.Password">func (u *Userinfo) Password() (string, bool)</a></li>
+            <li><a href="#Userinfo.String">func (u *Userinfo) String() string</a></li>
+        </ul>
+        <li><a href="#Values">type Values</a></li>
+        <ul>
+            <li><a href="#ParseQuery">func ParseQuery(query string) (m Values, err error)</a></li>
+            <li><a href="#Values.Get">func (v Values) Get(key string) string</a></li>
+            <li><a href="#Values.Set">func (v Values) Set(key, value string)</a></li>
+            <li><a href="#Values.Add">func (v Values) Add(key, value string)</a></li>
+            <li><a href="#Values.Del">func (v Values) Del(key string)</a></li>
+            <li><a href="#Values.Encode">func (v Values) Encode() string</a></li>
+        </ul>
+    </ul>
+    <h4 id="pkg-examples">Examples <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#example-URL" onclick="$('#ex-URL').addClass('in').removeClass('collapse').height('auto')">URL</a></li>
+        <li><a href="#example-Values" onclick="$('#ex-Values').addClass('in').removeClass('collapse').height('auto')">Values</a></li>
+    </ul>
+    <h3 id="QueryEscape">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/url/url.go?name=release#173">QueryEscape</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func QueryEscape(s <a href="http://godoc.org/builtin#string">string</a>) <a href="http://godoc.org/builtin#string">string</a></pre>
+    <p>QueryEscape函数对s进行转码使之可以安全的用在URL查询里。</p>
+    <h3 id="QueryUnescape">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/url/url.go?name=release#112">QueryUnescape</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func QueryUnescape(s <a href="http://godoc.org/builtin#string">string</a>) (<a href="http://godoc.org/builtin#string">string</a>, <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p align="left">QueryUnescape函数用于将QueryEscape转码的字符串还原。它会把%AB改为字节0xAB，将'+'改为' '。如果有某个%后面未跟两个十六进制数字，本函数会返回错误。</p>
+    <h3 id="Error">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/url/url.go?name=release#18">Error</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Error struct {
+    <span id="Error.Op">Op</span>  <a href="http://godoc.org/builtin#string">string</a>
+    <span id="Error.URL">URL</span> <a href="http://godoc.org/builtin#string">string</a>
+    <span id="Error.Err">Err</span> <a href="http://godoc.org/builtin#error">error</a>
+}</pre>
+    <p>Error会报告一个错误，以及导致该错误发生的URL和操作。</p>
+    <h4 id="Error.Error">func (*Error) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/url/url.go?name=release#24">Error</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (e *<a href="#Error">Error</a>) Error() <a href="http://godoc.org/builtin#string">string</a></pre>
+    <h3 id="EscapeError">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/url/url.go?name=release#59">EscapeError</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type EscapeError <a href="http://godoc.org/builtin#string">string</a></pre>
+    <h4 id="EscapeError.Error">func (EscapeError) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/url/url.go?name=release#61">Error</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (e <a href="#EscapeError">EscapeError</a>) Error() <a href="http://godoc.org/builtin#string">string</a></pre>
+    <h3 id="URL">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/url/url.go?name=release#230">URL</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type URL struct {
+    <span id="URL.Scheme">Scheme</span>   <a href="http://godoc.org/builtin#string">string</a>
+    <span id="URL.Opaque">Opaque</span>   <a href="http://godoc.org/builtin#string">string</a>    <span class="com">// 编码后的不透明数据</span>
+    <span id="URL.User">User</span>     *<a href="#Userinfo">Userinfo</a> <span class="com">// 用户名和密码信息</span>
+    <span id="URL.Host">Host</span>     <a href="http://godoc.org/builtin#string">string</a>    <span class="com">// host或host:port</span>
+    <span id="URL.Path">Path</span>     <a href="http://godoc.org/builtin#string">string</a>
+    <span id="URL.RawQuery">RawQuery</span> <a href="http://godoc.org/builtin#string">string</a> <span class="com">// 编码后的查询字符串，没有'?'</span>
+    <span id="URL.Fragment">Fragment</span> <a href="http://godoc.org/builtin#string">string</a> <span class="com">// 引用的片段（文档位置），没有'#'</span>
+}</pre>
+    <p>URL类型代表一个解析后的URL（或者说，一个URL参照）。URL基本格式如下：</p>
+    <pre>scheme://[userinfo@]host/path[?query][#fragment]
+</pre>
+    <p>scheme后不是冒号加双斜线的URL被解释为如下格式：</p>
+    <pre>scheme:opaque[?query][#fragment]
+</pre>
+    <p>注意路径字段是以解码后的格式保存的，如/%47%6f%2f会变成/Go/。这导致我们无法确定Path字段中的斜线是来自原始URL还是解码前的%2f。除非一个客户端必须使用其他程序/函数来解析原始URL或者重构原始URL，这个区别并不重要。此时，HTTP服务端可以查询req.RequestURI，而HTTP客户端可以使用URL{Host: "example.com", Opaque: "//example.com/Go%2f"}代替{Host: "example.com", Path: "/Go/"}。</p>
+    <div class="panel-group">
+        <div class="panel panel-default" id="example-URL">
+            <div class="panel-heading" onclick="document.getElementById('ex-URL').style.display = document.getElementById('ex-URL').style.display=='none'?'block':'none';">Example</div>
+            <div id="ex-URL" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre>u, err := url.Parse(&#34;http://bing.com/search?q=dotnet&#34;)
+if err != nil {
+    log.Fatal(err)
+}
+u.Scheme = &#34;https&#34;
+u.Host = &#34;google.com&#34;
+q := u.Query()
+q.Set(&#34;q&#34;, &#34;golang&#34;)
+u.RawQuery = q.Encode()
+fmt.Println(u)</pre>
+                    <p>Output:
+                    <pre>https://google.com/search?q=golang
+</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    <h4 id="Parse">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/url/url.go?name=release#333">Parse</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func Parse(rawurl <a href="http://godoc.org/builtin#string">string</a>) (url *<a href="#URL">URL</a>, err <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p>Parse函数解析rawurl为一个URL结构体，rawurl可以是绝对地址，也可以是相对地址。</p>
+    <h4 id="ParseRequestURI">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/url/url.go?name=release#353">ParseRequestURI</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func ParseRequestURI(rawurl <a href="http://godoc.org/builtin#string">string</a>) (url *<a href="#URL">URL</a>, err <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p>ParseRequestURI函数解析rawurl为一个URL结构体，本函数会假设rawurl是在一个HTTP请求里，因此会假设该参数是一个绝对URL或者绝对路径，并会假设该URL没有#fragment后缀。（网页浏览器会在去掉该后缀后才将网址发送到网页服务器）</p>
+    <h4 id="URL.IsAbs">func (*URL) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/url/url.go?name=release#624">IsAbs</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (u *<a href="#URL">URL</a>) IsAbs() <a href="http://godoc.org/builtin#bool">bool</a></pre>
+    <p>函数在URL是绝对URL时才返回真。</p>
+    <h4 id="URL.Query">func (*URL) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/url/url.go?name=release#677">Query</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (u *<a href="#URL">URL</a>) Query() <a href="#Values">Values</a></pre>
+    <p>Query方法解析RawQuery字段并返回其表示的Values类型键值对。</p>
+    <h4 id="URL.RequestURI">func (*URL) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/url/url.go?name=release#684">RequestURI</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (u *<a href="#URL">URL</a>) RequestURI() <a href="http://godoc.org/builtin#string">string</a></pre>
+    <p>RequestURI方法返回编码好的path?query或opaque?query字符串，用在HTTP请求里。</p>
+    <h4 id="URL.String">func (*URL) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/url/url.go?name=release#443">String</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (u *<a href="#URL">URL</a>) String() <a href="http://godoc.org/builtin#string">string</a></pre>
+    <p>String将URL重构为一个合法URL字符串。</p>
+    <h4 id="URL.Parse">func (*URL) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/url/url.go?name=release#631">Parse</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (u *<a href="#URL">URL</a>) Parse(ref <a href="http://godoc.org/builtin#string">string</a>) (*<a href="#URL">URL</a>, <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p align="left">Parse方法以u为上下文来解析一个URL，ref可以是绝对或相对URL。</p>
+    <p align="left">本方法解析失败会返回nil, err；否则返回结果和ResolveReference一致。</p>
+    <h4 id="URL.ResolveReference">func (*URL) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/url/url.go?name=release#645">ResolveReference</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (u *<a href="#URL">URL</a>) ResolveReference(ref *<a href="#URL">URL</a>) *<a href="#URL">URL</a></pre>
+    <p>本方法根据一个绝对URI将一个URI补全为一个绝对URI，参见<a href="http://tools.ietf.org/html/rfc3986">RFC 3986</a> 节 5.2。参数ref可以是绝对URI或者相对URI。ResolveReference总是返回一个新的URL实例，即使该实例和u或者ref完全一样。如果ref是绝对URI，本方法会忽略参照URI并返回ref的一个拷贝。</p>
+    <h3 id="Userinfo">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/url/url.go?name=release#261">Userinfo</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Userinfo struct {
+    <span class="com">// 内含隐藏或非导出字段</span>
+}</pre>
+    <p>Userinfo类型是一个URL的用户名和密码细节的一个不可修改的封装。一个真实存在的Userinfo值必须保证有用户名（但根据 <a href="http://tools.ietf.org/html/rfc2396">RFC 2396</a>可以是空字符串）以及一个可选的密码。</p>
+    <h4 id="User">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/url/url.go?name=release#242">User</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func User(username <a href="http://godoc.org/builtin#string">string</a>) *<a href="#Userinfo">Userinfo</a></pre>
+    <p>User函数返回一个用户名设置为username的不设置密码的*Userinfo。</p>
+    <h4 id="UserPassword">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/url/url.go?name=release#253">UserPassword</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func UserPassword(username, password <a href="http://godoc.org/builtin#string">string</a>) *<a href="#Userinfo">Userinfo</a></pre>
+    <p align="left">UserPassword函数返回一个用户名设置为username、密码设置为password的*Userinfo。</p>
+    <p align="left">这个函数应该只用于老式的站点，因为风险很大，不建议使用，参见<a href="http://tools.ietf.org/html/rfc2396">RFC 2396</a>。</p>
+    <h4 id="Userinfo.Username">func (*Userinfo) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/url/url.go?name=release#268">Username</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (u *<a href="#Userinfo">Userinfo</a>) Username() <a href="http://godoc.org/builtin#string">string</a></pre>
+    <p>Username方法返回用户名。</p>
+    <h4 id="Userinfo.Password">func (*Userinfo) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/url/url.go?name=release#273">Password</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (u *<a href="#Userinfo">Userinfo</a>) Password() (<a href="http://godoc.org/builtin#string">string</a>, <a href="http://godoc.org/builtin#bool">bool</a>)</pre>
+    <p>如果设置了密码返回密码和真，否则会返回假。</p>
+    <h4 id="Userinfo.String">func (*Userinfo) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/url/url.go?name=release#282">String</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (u *<a href="#Userinfo">Userinfo</a>) String() <a href="http://godoc.org/builtin#string">string</a></pre>
+    <p>String方法返回编码后的用户信息，格式为"username[:password]"。</p>
+    <h3 id="Values">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/url/url.go?name=release#482">Values</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Values map[<a href="http://godoc.org/builtin#string">string</a>][]<a href="http://godoc.org/builtin#string">string</a></pre>
+    <p>Values将建映射到值的列表。它一般用于查询的参数和表单的属性。不同于http.Header这个字典类型，Values的键是大小写敏感的。</p>
+    <div class="panel-group">
+        <div class="panel panel-default" id="example-Values">
+            <div class="panel-heading" onclick="document.getElementById('ex-Values').style.display = document.getElementById('ex-Values').style.display=='none'?'block':'none';">Example</div>
+            <div id="ex-Values" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre>v := url.Values{}
+v.Set(&#34;name&#34;, &#34;Ava&#34;)
+v.Add(&#34;friend&#34;, &#34;Jess&#34;)
+v.Add(&#34;friend&#34;, &#34;Sarah&#34;)
+v.Add(&#34;friend&#34;, &#34;Zoe&#34;)
+<span class="com">// v.Encode() == &#34;name=Ava&amp;friend=Jess&amp;friend=Sarah&amp;friend=Zoe&#34;</span>
+fmt.Println(v.Get(&#34;name&#34;))
+fmt.Println(v.Get(&#34;friend&#34;))
+fmt.Println(v[&#34;friend&#34;])</pre>
+                    <p>Output:
+                    <pre>Ava
+Jess
+[Jess Sarah Zoe]
+</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    <h4 id="ParseQuery">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/url/url.go?name=release#521">ParseQuery</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func ParseQuery(query <a href="http://godoc.org/builtin#string">string</a>) (m <a href="#Values">Values</a>, err <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p>ParseQuery函数解析一个URL编码的查询字符串，并返回可以表示该查询的Values类型的字典。本函数总是返回一个包含了所有合法查询参数的非nil字典，err用来描述解码时遇到的（如果有）第一个错误。</p>
+    <h4 id="Values.Get">func (Values) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/url/url.go?name=release#488">Get</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (v <a href="#Values">Values</a>) Get(key <a href="http://godoc.org/builtin#string">string</a>) <a href="http://godoc.org/builtin#string">string</a></pre>
+    <p>Get会获取key对应的值集的第一个值。如果没有对应key的值集会返回空字符串。获取值集请直接用map。</p>
+    <h4 id="Values.Set">func (Values) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/url/url.go?name=release#501">Set</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (v <a href="#Values">Values</a>) Set(key, value <a href="http://godoc.org/builtin#string">string</a>)</pre>
+    <p>Set方法将key对应的值集设为只有value，它会替换掉已有的值集。</p>
+    <h4 id="Values.Add">func (Values) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/url/url.go?name=release#507">Add</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (v <a href="#Values">Values</a>) Add(key, value <a href="http://godoc.org/builtin#string">string</a>)</pre>
+    <p>Add将value添加到key关联的值集里原有的值的后面。</p>
+    <h4 id="Values.Del">func (Values) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/url/url.go?name=release#512">Del</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (v <a href="#Values">Values</a>) Del(key <a href="http://godoc.org/builtin#string">string</a>)</pre>
+    <p>Del删除key关联的值集。</p>
+    <h4 id="Values.Encode">func (Values) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/url/url.go?name=release#563">Encode</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (v <a href="#Values">Values</a>) Encode() <a href="http://godoc.org/builtin#string">string</a></pre>
+    <p>Encode方法将v编码为url编码格式("bar=baz&amp;foo=quux")，编码时会以键进行排序。</p>
+</div>
+</body>
+</html>

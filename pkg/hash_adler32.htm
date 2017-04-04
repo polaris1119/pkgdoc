@@ -1,0 +1,46 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="./site.css" rel="stylesheet">
+<title>hash/adler32</title>
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package adler32</h2>
+    <p><code>import "hash/adler32"</code>
+    <p>adler32包实现了Adler-32校验和算法，参见<a href="http://tools.ietf.org/html/rfc1950">RFC 1950</a>：</p>
+<pre>Adler-32由两个每字节累积的和组成：
+s1是所有字节的累积，s2是所有s1的累积。两个累积值都取65521的余数。s1初始为1，s2初始为0。
+Afler-32校验和保存为s2*65536 + s1。（最高有效字节在前/大端在前）</pre>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#pkg-constants">Constants</a></li>
+        <li><a href="#Checksum">func Checksum(data []byte) uint32</a></li>
+        <li><a href="#New">func New() hash.Hash32</a></li>
+    </ul>
+    <h3 id="pkg-constants">Constants <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>const <span id="Size">Size</span> = 4</pre>
+    <p>Adler-32校验和的字节数。</p>
+    <h3 id="Checksum">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/hash/adler32/adler32.go?name=release#78">Checksum</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Checksum(data []<a href="builtin.htm#byte">byte</a>) <a href="builtin.htm#uint32">uint32</a></pre>
+    <p>返回数据data的Adler-32校验和。</p>
+    <h3 id="New">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/hash/adler32/adler32.go?name=release#36">New</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func New() <a href="hash.htm">hash</a>.<a href="hash.htm#Hash32">Hash32</a></pre>
+    <p>返回一个计算Adler-32校验和的hash.Hash32接口。</p>
+</div>
+
+<div id="x-footer" class="clearfix">
+  <div class="container">
+    <a href="http://studygolang.com/">Go语言中文网</a>
+    <span class="text-muted">|</span> <a href="http://golang.org/">Go Language</a>
+    <span class="pull-right"><a href="#">Back to top</a></span>
+  </div>
+</div>
+<script src="../assets/jquery-2.0.3.min.js"></script>
+<script src="../bootstrap.min.js"></script>
+<script src="../site.js"></script>
+</body>
+</html>

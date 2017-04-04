@@ -1,0 +1,148 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="./site.css" rel="stylesheet">
+<title>net_http_httputil</title>
+<meta name="private:description" content="刘志曦翻译于2014年夏,Go 1.3版本">
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package httputil</h2>
+    <p><code>import "net/http/httputil"</code>
+    <p>httputil包提供了HTTP公用函数，是对net/http包的更常见函数的补充。</p>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#pkg-variables">Variables</a></li>
+        <li><a href="#DumpRequest">func DumpRequest(req *http.Request, body bool) (dump []byte, err error)</a></li>
+        <li><a href="#DumpRequestOut">func DumpRequestOut(req *http.Request, body bool) ([]byte, error)</a></li>
+        <li><a href="#DumpResponse">func DumpResponse(resp *http.Response, body bool) (dump []byte, err error)</a></li>
+        <li><a href="#NewChunkedReader">func NewChunkedReader(r io.Reader) io.Reader</a></li>
+        <li><a href="#NewChunkedWriter">func NewChunkedWriter(w io.Writer) io.WriteCloser</a></li>
+        <li><a href="#ClientConn">type ClientConn</a></li>
+        <ul>
+            <li><a href="#NewClientConn">func NewClientConn(c net.Conn, r *bufio.Reader) *ClientConn</a></li>
+            <li><a href="#NewProxyClientConn">func NewProxyClientConn(c net.Conn, r *bufio.Reader) *ClientConn</a></li>
+            <li><a href="#ClientConn.Pending">func (cc *ClientConn) Pending() int</a></li>
+            <li><a href="#ClientConn.Write">func (cc *ClientConn) Write(req *http.Request) (err error)</a></li>
+            <li><a href="#ClientConn.Read">func (cc *ClientConn) Read(req *http.Request) (resp *http.Response, err error)</a></li>
+            <li><a href="#ClientConn.Do">func (cc *ClientConn) Do(req *http.Request) (resp *http.Response, err error)</a></li>
+            <li><a href="#ClientConn.Hijack">func (cc *ClientConn) Hijack() (c net.Conn, r *bufio.Reader)</a></li>
+            <li><a href="#ClientConn.Close">func (cc *ClientConn) Close() error</a></li>
+        </ul>
+        <li><a href="#ServerConn">type ServerConn</a></li>
+        <ul>
+            <li><a href="#NewServerConn">func NewServerConn(c net.Conn, r *bufio.Reader) *ServerConn</a></li>
+            <li><a href="#ServerConn.Pending">func (sc *ServerConn) Pending() int</a></li>
+            <li><a href="#ServerConn.Read">func (sc *ServerConn) Read() (req *http.Request, err error)</a></li>
+            <li><a href="#ServerConn.Write">func (sc *ServerConn) Write(req *http.Request, resp *http.Response) error</a></li>
+            <li><a href="#ServerConn.Hijack">func (sc *ServerConn) Hijack() (c net.Conn, r *bufio.Reader)</a></li>
+            <li><a href="#ServerConn.Close">func (sc *ServerConn) Close() error</a></li>
+        </ul>
+        <li><a href="#ReverseProxy">type ReverseProxy</a></li>
+        <ul>
+            <li><a href="#NewSingleHostReverseProxy">func NewSingleHostReverseProxy(target *url.URL) *ReverseProxy</a></li>
+            <li><a href="#ReverseProxy.ServeHTTP">func (p *ReverseProxy) ServeHTTP(rw http.ResponseWriter, req *http.Request)</a></li>
+        </ul>
+    </ul>
+    <h3 id="pkg-variables">Variables <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>var (
+    <span id="ErrPersistEOF">ErrPersistEOF</span> = &amp;<a href="net/http.htm">http</a>.<a href="net/http.htm#ProtocolError">ProtocolError</a>{ErrorString: &#34;persistent connection closed&#34;}
+    <span id="ErrClosed">ErrClosed</span>     = &amp;<a href="net/http.htm">http</a>.<a href="net/http.htm#ProtocolError">ProtocolError</a>{ErrorString: &#34;connection closed by user&#34;}
+    <span id="ErrPipeline">ErrPipeline</span>   = &amp;<a href="net/http.htm">http</a>.<a href="net/http.htm#ProtocolError">ProtocolError</a>{ErrorString: &#34;pipeline error&#34;}
+)</pre>
+    <pre>var <span id="ErrLineTooLong">ErrLineTooLong</span> = <a href="errors.htm">errors</a>.<a href="errors.htm#New">New</a>(&#34;header line too long&#34;)</pre>
+    <h3 id="DumpRequest">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/httputil/dump.go?name=release#176">DumpRequest</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func DumpRequest(req *<a href="net/http.htm">http</a>.<a href="net/http.htm#Request">Request</a>, body <a href="builtin.htm#bool">bool</a>) (dump []<a href="builtin.htm#byte">byte</a>, err <a href="builtin.htm#error">error</a>)</pre>
+    <p>DumpRequest返回req的和被服务端接收到时一样的有线表示，可选地包括请求的主体，用于debug。本函数在语义上是无操作的，但为了转储请求主体，他会读取主体的数据到内存中，并将req.Body修改为指向内存中的拷贝。req的字段的使用细节请参见http.Request的文档。</p>
+    <h3 id="DumpRequestOut">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/httputil/dump.go?name=release#61">DumpRequestOut</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func DumpRequestOut(req *<a href="net/http.htm">http</a>.<a href="net/http.htm#Request">Request</a>, body <a href="builtin.htm#bool">bool</a>) ([]<a href="builtin.htm#byte">byte</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>DumpRequestOut类似DumpRequest，但会包括标准http.Transport类型添加的头域，如User-Agent。</p>
+    <h3 id="DumpResponse">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/httputil/dump.go?name=release#251">DumpResponse</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func DumpResponse(resp *<a href="net/http.htm">http</a>.<a href="net/http.htm#Response">Response</a>, body <a href="builtin.htm#bool">bool</a>) (dump []<a href="builtin.htm#byte">byte</a>, err <a href="builtin.htm#error">error</a>)</pre>
+    <p>DumpResponse类似DumpRequest，但转储的是一个回复。</p>
+    <h3 id="NewChunkedReader">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/httputil/httputil.go?name=release#17">NewChunkedReader</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func NewChunkedReader(r <a href="io.htm">io</a>.<a href="io.htm#Reader">Reader</a>) <a href="io.htm">io</a>.<a href="io.htm#Reader">Reader</a></pre>
+    <p align="left">NewChunkedReader返回一个io.Reader。返回值的Read方法会将从r读取的采用HTTP "chunked"传输编码的数据翻译之后返回。当读取到最后的零长chunk时，返回值的Read会返回io.EOF。</p>
+    <p align="left">NewChunkedReader在正常的应用中是不需要的，http包在读取回复主体时会自动将"chunked"编码进行解码。</p>
+    <h3 id="NewChunkedWriter">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/httputil/httputil.go?name=release#30">NewChunkedWriter</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func NewChunkedWriter(w <a href="io.htm">io</a>.<a href="io.htm#Writer">Writer</a>) <a href="io.htm">io</a>.<a href="io.htm#WriteCloser">WriteCloser</a></pre>
+    <p align="left">NewChunkedWriter返回一个io.Writer。返回值的Write方法会将写入的数据编码为HTTP "chunked"传输编码格式后再写入w。其Close方法会将最后的零长chunk写入w，标注数据流的结尾。</p>
+    <p align="left">正常的应用中不需要NewChunkedWriter，http包会在处理器未设置Content-Length头时主动进行chunked编码。在处理器内部使用本函数会导致双重chunked或者有Content-Length头的chunked，两个都是错误的。</p>
+    <h3 id="ClientConn">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/httputil/persist.go?name=release#229">ClientConn</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type ClientConn struct {
+    <span class="com">// 内含隐藏或非导出字段</span>
+}</pre>
+    <p align="left">ClientConn类型会在尊重HTTP keepalive逻辑的前提下，在下层的连接上发送请求和接收回复的头域。ClientConn类型支持通过Hijack方法劫持下层连接，取回对下层连接的控制权，按照调用者的预期处理该连接。</p>
+    <p align="left">ClientConn是旧的、低层次的。应用程序应使用net/http包的Client类型和Transport类型代替它。</p>
+    <h4 id="NewClientConn">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/httputil/persist.go?name=release#247">NewClientConn</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func NewClientConn(c <a href="net.htm">net</a>.<a href="net.htm#Conn">Conn</a>, r *<a href="bufio.htm">bufio</a>.<a href="bufio.htm#Reader">Reader</a>) *<a href="#ClientConn">ClientConn</a></pre>
+    <p>NewClientConn返回一个对c进行读写的ClientConn。如果r不是nil，它是从c读取时使用的缓冲。</p>
+    <h4 id="NewProxyClientConn">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/httputil/persist.go?name=release#264">NewProxyClientConn</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func NewProxyClientConn(c <a href="net.htm">net</a>.<a href="net.htm#Conn">Conn</a>, r *<a href="bufio.htm">bufio</a>.<a href="bufio.htm#Reader">Reader</a>) *<a href="#ClientConn">ClientConn</a></pre>
+    <p>NewProxyClientConn类似NewClientConn，但使用Request.WriteProxy方法将请求写入c。</p>
+<h4 id="ClientConn.Pending">func (*ClientConn) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/httputil/persist.go?name=release#351">Pending</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (cc *<a href="#ClientConn">ClientConn</a>) Pending() <a href="builtin.htm#int">int</a></pre>
+    <p>Pending返回该连接上已发送但还未接收到回复的请求的数量。</p>
+    <h4 id="ClientConn.Write">func (*ClientConn) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/httputil/persist.go?name=release#298">Write</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (cc *<a href="#ClientConn">ClientConn</a>) Write(req *<a href="net/http.htm">http</a>.<a href="net/http.htm#Request">Request</a>) (err <a href="builtin.htm#error">error</a>)</pre>
+    <p>Write写入一个请求。如果该连接已经在HTTP keepalive逻辑上关闭了（表示该连接不会再发送新的请求）返回ErrPersistEOF。如果req.Close设置为真，keepalive连接会在这次请求后逻辑上关闭，并通知远端的服务器。ErrUnexpectedEOF表示远端关闭了下层的TCP连接，这一般被视为优雅的（正常的）关闭。</p>
+    <h4 id="ClientConn.Read">func (*ClientConn) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/httputil/persist.go?name=release#361">Read</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (cc *<a href="#ClientConn">ClientConn</a>) Read(req *<a href="net/http.htm">http</a>.<a href="net/http.htm#Request">Request</a>) (resp *<a href="net/http.htm">http</a>.<a href="net/http.htm#Response">Response</a>, err <a href="builtin.htm#error">error</a>)</pre>
+    <p>Read读取下一个回复。合法的回复可能会和ErrPersistEOF一起返回，这表示远端要求该请求是最后一个被服务的请求。Read可以和Write同时调用，但不能和另一个Read同时调用。</p>
+    <h4 id="ClientConn.Do">func (*ClientConn) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/httputil/persist.go?name=release#423">Do</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (cc *<a href="#ClientConn">ClientConn</a>) Do(req *<a href="net/http.htm">http</a>.<a href="net/http.htm#Request">Request</a>) (resp *<a href="net/http.htm">http</a>.<a href="net/http.htm#Response">Response</a>, err <a href="builtin.htm#error">error</a>)</pre>
+    <p>Do是一个便利方法，它会写入一个请求，并读取一个回复。（能不能保证二者对应？不知道）</p>
+    <h4 id="ClientConn.Hijack">func (*ClientConn) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/httputil/persist.go?name=release#274">Hijack</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (cc *<a href="#ClientConn">ClientConn</a>) Hijack() (c <a href="net.htm">net</a>.<a href="net.htm#Conn">Conn</a>, r *<a href="bufio.htm">bufio</a>.<a href="bufio.htm#Reader">Reader</a>)</pre>
+    <p>Hijack拆开ClientConn返回下层的连接和读取侧的缓冲，其中可能有部分剩余的数据。Hijack可以在调用者自身或者其Read方法发出keepalive逻辑的终止信号之前调用。调用者不应在Write或Read执行过程中调用Hijack。</p>
+    <h4 id="ClientConn.Close">func (*ClientConn) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/httputil/persist.go?name=release#285">Close</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (cc *<a href="#ClientConn">ClientConn</a>) Close() <a href="builtin.htm#error">error</a></pre>
+    <p>Close调用Hijack，然后关闭下层的连接。</p>
+    <h3 id="ServerConn">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/httputil/persist.go?name=release#36">ServerConn</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type ServerConn struct {
+    <span class="com">// 内含隐藏或非导出字段</span>
+}</pre>
+    <p align="left">ServerConn类型在下层的连接上接收请求和发送回复，直到HTTP keepalive逻辑结束。ServerConn类型支持通过Hijack方法劫持下层连接，取回对下层连接的控制权，按照调用者的预期处理该连接。ServerConn支持管道内套，例如，请求可以不和回复的发送同步的读取（但仍按照相同的顺序）。</p>
+    <p align="left">ServerConn是旧的、低层次的。应用程序应使用net/http包的Server类型代替它。</p>
+    <h4 id="NewServerConn">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/httputil/persist.go?name=release#53">NewServerConn</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func NewServerConn(c <a href="net.htm">net</a>.<a href="net.htm#Conn">Conn</a>, r *<a href="bufio.htm">bufio</a>.<a href="bufio.htm#Reader">Reader</a>) *<a href="#ServerConn">ServerConn</a></pre>
+    <p>NewServerConn返回一个新的从c读写的ServerConn。如果r补位nil，它将作为从c读取时的缓冲。</p>
+    <h4 id="ServerConn.Pending">func (*ServerConn) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/httputil/persist.go?name=release#163">Pending</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (sc *<a href="#ServerConn">ServerConn</a>) Pending() <a href="builtin.htm#int">int</a></pre>
+    <p>Pending返回该连接上已接收到但还未回复的请求的数量。</p>
+    <h4 id="ServerConn.Read">func (*ServerConn) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/httputil/persist.go?name=release#87">Read</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (sc *<a href="#ServerConn">ServerConn</a>) Read() (req *<a href="net/http.htm">http</a>.<a href="net/http.htm#Request">Request</a>, err <a href="builtin.htm#error">error</a>)</pre>
+    <p>Read读取下一个请求。如果它优雅的决定不会再有更多的请求（例如，在HTTP/1.0连接的第一个请求之后，或者HTTP/1.1的一个具有" Connection:close "头的请求之后），会返回ErrPersistEOF。</p>
+    <h4 id="ServerConn.Write">func (*ServerConn) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/httputil/persist.go?name=release#172">Write</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (sc *<a href="#ServerConn">ServerConn</a>) Write(req *<a href="net/http.htm">http</a>.<a href="net/http.htm#Request">Request</a>, resp *<a href="net/http.htm">http</a>.<a href="net/http.htm#Response">Response</a>) <a href="builtin.htm#error">error</a></pre>
+    <p>Write写入req的回复resp。如要优雅的关闭该连接，可以设置resp.Close字段为真。Write方法应该尽量执行（以回复尽量多的请求），直到Write本身返回错误，而不应考虑读取侧返回的任何错误。</p>
+    <h4 id="ServerConn.Hijack">func (*ServerConn) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/httputil/persist.go?name=release#64">Hijack</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (sc *<a href="#ServerConn">ServerConn</a>) Hijack() (c <a href="net.htm">net</a>.<a href="net.htm#Conn">Conn</a>, r *<a href="bufio.htm">bufio</a>.<a href="bufio.htm#Reader">Reader</a>)</pre>
+    <p>Hijack拆开ServerConn返回下层的连接和读取侧的缓冲，其中可能有部分剩余的数据。Hijack可以在调用者自身或者其Read方法发出keepalive逻辑的终止信号之前调用。调用者不应在Write或Read执行过程中调用Hijack。</p>
+    <h4 id="ServerConn.Close">func (*ServerConn) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/httputil/persist.go?name=release#75">Close</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (sc *<a href="#ServerConn">ServerConn</a>) Close() <a href="builtin.htm#error">error</a></pre>
+    <p>Close调用Hijack，然后关闭下层的连接。</p>
+    <h3 id="ReverseProxy">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/httputil/reverseproxy.go?name=release#27">ReverseProxy</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type ReverseProxy struct {
+    <span class="com">// Director必须是将请求修改为新的请求的函数。</span>
+    <span class="com">// 修改后的请求会使用Transport发送，得到的回复会不经修改的返回给客户端。</span>
+    <span id="ReverseProxy.Director">Director</span> func(*<a href="net/http.htm">http</a>.<a href="net/http.htm#Request">Request</a>)
+    <span class="com">// Transport用于执行代理请求。</span>
+    <span class="com">// 如果本字段为nil，会使用http.DefaultTransport。</span>
+    <span id="ReverseProxy.Transport">Transport</span> <a href="net/http.htm">http</a>.<a href="net/http.htm#RoundTripper">RoundTripper</a>
+    <span class="com">// FlushInterval指定拷贝回复的主体时将数据刷新给客户端的时间间隔。</span>
+    <span class="com">// 如果本字段为零值，不会进行周期的刷新。（拷贝完回复主体后再刷新）</span>
+    <span id="ReverseProxy.FlushInterval">FlushInterval</span> <a href="time.htm">time</a>.<a href="time.htm#Duration">Duration</a>
+}</pre>
+    <p>ReverseProxy是一个HTTP处理器，它接收一个请求，发送给另一个服务端，将回复转发给客户端。</p>
+    <h4 id="NewSingleHostReverseProxy">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/httputil/reverseproxy.go?name=release#61">NewSingleHostReverseProxy</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func NewSingleHostReverseProxy(target *<a href="net/url.htm">url</a>.<a href="net/url.htm#URL">URL</a>) *<a href="#ReverseProxy">ReverseProxy</a></pre>
+    <p align="left">NewSingleHostReverseProxy返回一个新的ReverseProxy。返回值会将请求的URL重写为target参数提供的协议、主机和基路径。如果target参数的Path字段为"/base"，接收到的请求的URL.Path为"/dir"，修改后的请求的URL.Path将会是"/base/dir"。</p>
+<h4 id="ReverseProxy.ServeHTTP">func (*ReverseProxy) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/httputil/reverseproxy.go?name=release#97">ServeHTTP</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#ReverseProxy">ReverseProxy</a>) ServeHTTP(rw <a href="net/http.htm">http</a>.<a href="net/http.htm#ResponseWriter">ResponseWriter</a>, req *<a href="net/http.htm">http</a>.<a href="net/http.htm#Request">Request</a>)</pre>
+</div>
+</body>
+</html>

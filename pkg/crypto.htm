@@ -1,0 +1,72 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="./site.css" rel="stylesheet">
+<title>crypto</title>
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package crypto</h2>
+    <p><code>import "crypto"</code>
+    <p>crypto包搜集了常用的密码（算法）常量。</p>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#PublicKey">type PublicKey</a></li>
+        <li><a href="#PrivateKey">type PrivateKey</a></li>
+        <li><a href="#Hash">type Hash</a></li>
+        <ul>
+            <li><a href="#Hash.Available">func (h Hash) Available() bool</a></li>
+            <li><a href="#Hash.Size">func (h Hash) Size() int</a></li>
+            <li><a href="#Hash.New">func (h Hash) New() hash.Hash</a></li>
+        </ul>
+        <li><a href="#RegisterHash">func RegisterHash(h Hash, f func() hash.Hash)</a></li>
+    </ul>
+    <h3 id="PublicKey">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/crypto.go?name=release#82">PublicKey</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type PublicKey interface{}</pre>
+    <p>代表一个使用未指定算法的公钥。</p>
+    <h3 id="PrivateKey">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/crypto.go?name=release#85">PrivateKey</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type PrivateKey interface{}</pre>
+    <p>代表一个使用未指定算法的私钥。</p>
+    <h3 id="Hash">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/crypto.go?name=release#15">Hash</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Hash <a href="builtin.htm#uint">uint</a></pre>
+    <p>Hash用来识别/标识另一个包里实现的加密函数。</p>
+    <pre>const (
+    <span id="MD4">MD4</span>       <a href="#Hash">Hash</a> = 1 + <a href="builtin.htm#iota">iota</a> <span class="com">// 导入code.google.com/p/go.crypto/md4</span>
+    <span id="MD5">MD5</span>                       <span class="com">// 导入crypto/md5</span>
+    <span id="SHA1">SHA1</span>                      <span class="com">// 导入crypto/sha1</span>
+    <span id="SHA224">SHA224</span>                    <span class="com">// 导入crypto/sha256</span>
+    <span id="SHA256">SHA256</span>                    <span class="com">// 导入crypto/sha256</span>
+    <span id="SHA384">SHA384</span>                    <span class="com">// 导入crypto/sha512</span>
+    <span id="SHA512">SHA512</span>                    <span class="com">// 导入crypto/sha512</span>
+    <span id="MD5SHA1">MD5SHA1</span>                   <span class="com">// 未实现；MD5+SHA1用于TLS RSA</span>
+    <span id="RIPEMD160">RIPEMD160</span>                 <span class="com">// 导入code.google.com/p/go.crypto/ripemd160</span>
+)</pre>
+    <h4 id="Hash.Available">func (Hash) <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/crypto.go?name=release#67">Available</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (h <a href="#Hash">Hash</a>) Available() <a href="builtin.htm#bool">bool</a></pre>
+    <p>报告是否有hash函数注册到该标识值。</p>
+    <h4 id="Hash.Size">func (Hash) <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/crypto.go?name=release#45">Size</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (h <a href="#Hash">Hash</a>) Size() <a href="builtin.htm#int">int</a></pre>
+    <p>返回给定hash函数返回值的字节长度。</p>
+    <h4 id="Hash.New">func (Hash) <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/crypto.go?name=release#56">New</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (h <a href="#Hash">Hash</a>) New() <a href="hash.htm">hash</a>.<a href="hash.htm#Hash">Hash</a></pre>
+    <p>创建一个使用给定hash函数的hash.Hash接口，如果该标识值未注册hash函数，将会panic。</p>
+    <h3 id="RegisterHash">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/crypto.go?name=release#74">RegisterHash</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func RegisterHash(h <a href="#Hash">Hash</a>, f func() <a href="hash.htm">hash</a>.<a href="hash.htm#Hash">Hash</a>)</pre>
+    <p>注册一个返回给定hash接口实例的函数，并指定其标识值，该函数应在实现hash接口的包的init函数中调用。</p>
+</div>
+
+<div id="x-footer" class="clearfix">
+  <div class="container">
+    <a href="http://studygolang.com/">Go语言中文网</a>
+    <span class="text-muted">|</span> <a href="http://golang.org/">Go Language</a>
+    <span class="pull-right"><a href="#">Back to top</a></span>
+  </div>
+</div>
+<script src="../assets/jquery-2.0.3.min.js"></script>
+<script src="../bootstrap.min.js"></script>
+<script src="../site.js"></script>
+</body>
+</html>

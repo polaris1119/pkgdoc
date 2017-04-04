@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="../../../site.css" rel="stylesheet">
+<title>go.image/tiff</title>
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package tiff</h2>
+    <p><code>import "code.google.com/p/go.image/tiff"</code>
+    <p align="left">tiff包实现了tiff格式图像的编解码。参见<a href="http://partners.adobe.com/public/developer/en/tiff/TIFF6.pdf">http://partners.adobe.com/public/developer/en/tiff/TIFF6.pdf</a></p>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <ul class="list-unstyled">
+        <li><a href="#FormatError">type FormatError</a></li>
+        <ul>
+            <li><a href="#FormatError.Error">func (e FormatError) Error() string</a></li>
+        </ul>
+        <li><a href="#UnsupportedError">type UnsupportedError</a></li>
+        <ul>
+            <li><a href="#UnsupportedError.Error">func (e UnsupportedError) Error() string</a></li>
+        </ul>
+        <li><a href="#InternalError">type InternalError</a></li>
+        <ul>
+            <li><a href="#InternalError.Error">func (e InternalError) Error() string</a></li>
+        </ul>
+        <li><a href="#CompressionType">type CompressionType</a></li>
+        <li><a href="#Options">type Options</a></li>
+        <li><a href="#Decode">func Decode(r io.Reader) (img image.Image, err error)</a></li>
+        <li><a href="#DecodeConfig">func DecodeConfig(r io.Reader) (image.Config, error)</a></li>
+        <li><a href="#Encode">func Encode(w io.Writer, m image.Image, opt *Options) error</a></li>
+    </ul>
+    <h3 id="FormatError">type <a title="View Source" href="http://code.google.com/p/go/source/browse/tiff/reader.go?repo=image#23">FormatError</a> <a class="permalink" href="#FormatError">&para;</a></h3>
+    <pre>type FormatError <a href="https://godoc.org/builtin#string">string</a></pre>
+    <p align="left">FormatError表示输入不是合法的tiff图像。</p>
+    <h4 id="FormatError.Error">func (FormatError) <a title="View Source" href="http://code.google.com/p/go/source/browse/tiff/reader.go?repo=image#25">Error</a> <a class="permalink" href="#FormatError.Error">&para;</a></h4>
+    <pre class="funcdecl">func (e <a href="#FormatError">FormatError</a>) Error() <a href="https://godoc.org/builtin#string">string</a></pre>
+    <h3 id="UnsupportedError">type <a title="View Source" href="http://code.google.com/p/go/source/browse/tiff/reader.go?repo=image#31">UnsupportedError</a> <a class="permalink" href="#UnsupportedError">&para;</a></h3>
+    <pre>type UnsupportedError <a href="https://godoc.org/builtin#string">string</a></pre>
+    <p align="left">UnsupportedError表示输入采用和合法但尚不支持的属性。</p>
+    <h4 id="UnsupportedError.Error">func (UnsupportedError) <a title="View Source" href="http://code.google.com/p/go/source/browse/tiff/reader.go?repo=image#33">Error</a> <a class="permalink" href="#UnsupportedError.Error">&para;</a></h4>
+    <pre class="funcdecl">func (e <a href="#UnsupportedError">UnsupportedError</a>) Error() <a href="https://godoc.org/builtin#string">string</a></pre>
+    <h3 id="InternalError">type <a title="View Source" href="http://code.google.com/p/go/source/browse/tiff/reader.go?repo=image#38">InternalError</a> <a class="permalink" href="#InternalError">&para;</a></h3>
+    <pre>type InternalError <a href="https://godoc.org/builtin#string">string</a></pre>
+    <p align="left">InternalError表示遇到了内部错误。</p>
+    <h4 id="InternalError.Error">func (InternalError) <a title="View Source" href="http://code.google.com/p/go/source/browse/tiff/reader.go?repo=image#40">Error</a> <a class="permalink" href="#InternalError.Error">&para;</a></h4>
+    <pre class="funcdecl">func (e <a href="#InternalError">InternalError</a>) Error() <a href="https://godoc.org/builtin#string">string</a></pre>
+    <h3 id="CompressionType">type <a title="View Source" href="http://code.google.com/p/go/source/browse/tiff/consts.go?repo=image#118">CompressionType</a> <a class="permalink" href="#CompressionType">&para;</a></h3>
+    <pre>type CompressionType <a href="https://godoc.org/builtin#int">int</a></pre>
+    <p>CompressionType描述Options类型中使用的压缩方式。</p>
+    <pre>const (
+    <span id="Uncompressed">Uncompressed</span> <a href="#CompressionType">CompressionType</a> = <a href="https://godoc.org/builtin#iota">iota</a>
+    <span id="Deflate">Deflate</span>
+)</pre>
+    <h3 id="Options">type <a title="View Source" href="http://code.google.com/p/go/source/browse/tiff/writer.go?repo=image#277">Options</a> <a class="permalink" href="#Options">&para;</a></h3>
+    <pre>type Options struct {
+    <span class="com">// Compression是采用的压缩方式。</span>
+    <span id="Options.Compression">Compression</span> <a href="#CompressionType">CompressionType</a>
+    <span class="com">// Predictor决定是否使用差异预测。如为真，将不保存每个像素的颜色而是保存与之前像素的差异。</span>
+    <span class="com">// 对特定类型的图像和压缩算法，可以提升压缩效果。如对照片和Deflate压缩算法很有效。</span>
+    <span id="Options.Predictor">Predictor</span> <a href="https://godoc.org/builtin#bool">bool</a>
+}</pre>
+    <p>Options是编码的参数。</p>
+    <h3 id="Decode">func <a title="View Source" href="http://code.google.com/p/go/source/browse/tiff/reader.go?repo=image#479">Decode</a> <a class="permalink" href="#Decode">&para;</a></h3>
+    <pre class="funcdecl">func Decode(r <a href="https://godoc.org/io">io</a>.<a href="https://godoc.org/io#Reader">Reader</a>) (img <a href="https://godoc.org/image">image</a>.<a href="https://godoc.org/image#Image">Image</a>, err <a href="https://godoc.org/builtin#error">error</a>)</pre>
+    <p>Decode从r读取并解析一个tiff图像，返回该图像的image.Image接口。接口保管的具体类型视tiff图像的内容而定。</p>
+    <h3 id="DecodeConfig">func <a title="View Source" href="http://code.google.com/p/go/source/browse/tiff/reader.go?repo=image#469">DecodeConfig</a> <a class="permalink" href="#DecodeConfig">&para;</a></h3>
+    <pre class="funcdecl">func DecodeConfig(r <a href="https://godoc.org/io">io</a>.<a href="https://godoc.org/io#Reader">Reader</a>) (<a href="https://godoc.org/image">image</a>.<a href="https://godoc.org/image#Config">Config</a>, <a href="https://godoc.org/builtin#error">error</a>)</pre>
+    <p align="left">DecodeConfig从r读取并返回一个tiff图像的配置信息（色彩模型和尺寸），而不会解码整个图像。</p>
+    <h3 id="Encode">func <a title="View Source" href="http://code.google.com/p/go/source/browse/tiff/writer.go?repo=image#291">Encode</a> <a class="permalink" href="#Encode">&para;</a></h3>
+    <pre class="funcdecl">func Encode(w <a href="https://godoc.org/io">io</a>.<a href="https://godoc.org/io#Writer">Writer</a>, m <a href="https://godoc.org/image">image</a>.<a href="https://godoc.org/image#Image">Image</a>, opt *<a href="#Options">Options</a>) <a href="https://godoc.org/builtin#error">error</a></pre>
+    <p>Encode将图像m以tiff格式写入w。opt决定编码的选项，如压缩方式，如果opt为nil，将写入未压缩图像。</p>
+</div>
+</body>
+</html>

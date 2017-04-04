@@ -1,0 +1,73 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="./site.css" rel="stylesheet">
+<title>crypto/rand</title>
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package rand</h2>
+    <p><code>import "crypto/rand"</code>
+    <p>rand包实现了用于加解密的更安全的随机数生成器。</p>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#pkg-variables">Variables</a></li>
+        <li><a href="#Int">func Int(rand io.Reader, max *big.Int) (n *big.Int, err error)</a></li>
+        <li><a href="#Prime">func Prime(rand io.Reader, bits int) (p *big.Int, err error)</a></li>
+        <li><a href="#Read">func Read(b []byte) (n int, err error)</a></li>
+    </ul>
+    <h4 id="pkg-examples">Examples <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#example-Read" onclick="$('#ex-Read').addClass('in').removeClass('collapse').height('auto')">Read</a></li>
+    </ul>
+    <h3 id="pkg-variables">Variables <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>var <span id="Reader">Reader</span> <a href="io.htm">io</a>.<a href="io.htm#Reader">Reader</a></pre>
+    <p>Reader是一个全局、共享的密码用强随机数生成器。在Unix类型系统中，会从/dev/urandom读取；而Windows中会调用CryptGenRandom API。</p>
+    <h3 id="Int">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/rand/util.go?name=release#106">Int</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Int(rand <a href="io.htm">io</a>.<a href="io.htm#Reader">Reader</a>, max *<a href="math/big.htm">big</a>.<a href="math/big.htm#Int">Int</a>) (n *<a href="math/big.htm">big</a>.<a href="math/big.htm#Int">Int</a>, err <a href="builtin.htm#error">error</a>)</pre>
+    <p>返回一个在[0, max)区间服从均匀分布的随机值，如果max&lt;=0则会panic。</p>
+    <h3 id="Prime">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/rand/util.go?name=release#31">Prime</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Prime(rand <a href="io.htm">io</a>.<a href="io.htm#Reader">Reader</a>, bits <a href="builtin.htm#int">int</a>) (p *<a href="math/big.htm">big</a>.<a href="math/big.htm#Int">Int</a>, err <a href="builtin.htm#error">error</a>)</pre>
+    <p>返回一个具有指定字位数的数字，该数字具有很高可能性是质数。如果从rand读取时出错，或者bits&lt;2会返回错误。</p>
+    <h3 id="Read">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/rand/rand.go?name=release#19">Read</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Read(b []<a href="builtin.htm#byte">byte</a>) (n <a href="builtin.htm#int">int</a>, err <a href="builtin.htm#error">error</a>)</pre>
+    <p>本函数是一个使用io.ReadFull调用Reader.Read的辅助性函数。当且仅当err == nil时，返回值n == len(b)。</p>
+    <div class="panel-group">
+        <div class="panel panel-default" id="example-Read">
+            <div class="panel-heading" onclick="document.getElementById('ex-Read').style.display = document.getElementById('ex-Read').style.display=='none'?'block':'none';">Example</div>
+            <div id="ex-Read" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre>c := 10
+b := make([]byte, c)
+_, err := rand.Read(b)
+if err != nil {
+    fmt.Println(&#34;error:&#34;, err)
+    return
+}
+<span class="com">// The slice should now contain random bytes instead of only zeroes.</span>
+fmt.Println(bytes.Equal(b, make([]byte, c)))</pre>
+                    <p>Output:
+                    <pre>false
+</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="x-footer" class="clearfix">
+  <div class="container">
+    <a href="http://studygolang.com/">Go语言中文网</a>
+    <span class="text-muted">|</span> <a href="http://golang.org/">Go Language</a>
+    <span class="pull-right"><a href="#">Back to top</a></span>
+  </div>
+</div>
+<script src="../assets/jquery-2.0.3.min.js"></script>
+<script src="../bootstrap.min.js"></script>
+<script src="../site.js"></script>
+</body>
+</html>

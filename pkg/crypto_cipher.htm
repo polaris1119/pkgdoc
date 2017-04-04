@@ -1,0 +1,436 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="./site.css" rel="stylesheet">
+<title>crypto/cipher</title>
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package cipher</h2>
+    <p><code>import "crypto/cipher"</code>
+    <p align="left">cipher包实现了多个标准的用于包装底层块加密算法的加密算法实现。</p>
+    <p align="left">参见<a href="http://csrc.nist.gov/groups/ST/toolkit/BCM/current_modes.html">http://csrc.nist.gov/groups/ST/toolkit/BCM/current_modes.html</a>和NIST Special Publication 800-38A。</p>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#Block">type Block</a></li>
+        <li><a href="#BlockMode">type BlockMode</a></li>
+        <ul>
+            <li><a href="#NewCBCDecrypter">func NewCBCDecrypter(b Block, iv []byte) BlockMode</a></li>
+            <li><a href="#NewCBCEncrypter">func NewCBCEncrypter(b Block, iv []byte) BlockMode</a></li>
+        </ul>
+        <li><a href="#Stream">type Stream</a></li>
+        <ul>
+            <li><a href="#NewCFBDecrypter">func NewCFBDecrypter(block Block, iv []byte) Stream</a></li>
+            <li><a href="#NewCFBEncrypter">func NewCFBEncrypter(block Block, iv []byte) Stream</a></li>
+            <li><a href="#NewCTR">func NewCTR(block Block, iv []byte) Stream</a></li>
+            <li><a href="#NewOFB">func NewOFB(b Block, iv []byte) Stream</a></li>
+        </ul>
+        <li><a href="#StreamReader">type StreamReader</a></li>
+        <ul>
+            <li><a href="#StreamReader.Read">func (r StreamReader) Read(dst []byte) (n int, err error)</a></li>
+        </ul>
+        <li><a href="#StreamWriter">type StreamWriter</a></li>
+        <ul>
+            <li><a href="#StreamWriter.Write">func (w StreamWriter) Write(src []byte) (n int, err error)</a></li>
+            <li><a href="#StreamWriter.Close">func (w StreamWriter) Close() error</a></li>
+        </ul>
+        <li><a href="#AEAD">type AEAD</a></li>
+        <ul>
+            <li><a href="#NewGCM">func NewGCM(cipher Block) (AEAD, error)</a></li>
+        </ul>
+    </ul>
+    <h4 id="pkg-examples">Examples <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#example-NewCBCDecrypter" onclick="$('#ex-NewCBCDecrypter').addClass('in').removeClass('collapse').height('auto')">NewCBCDecrypter</a></li>
+        <li><a href="#example-NewCBCEncrypter" onclick="$('#ex-NewCBCEncrypter').addClass('in').removeClass('collapse').height('auto')">NewCBCEncrypter</a></li>
+        <li><a href="#example-NewCFBDecrypter" onclick="$('#ex-NewCFBDecrypter').addClass('in').removeClass('collapse').height('auto')">NewCFBDecrypter</a></li>
+        <li><a href="#example-NewCFBEncrypter" onclick="$('#ex-NewCFBEncrypter').addClass('in').removeClass('collapse').height('auto')">NewCFBEncrypter</a></li>
+        <li><a href="#example-NewCTR" onclick="$('#ex-NewCTR').addClass('in').removeClass('collapse').height('auto')">NewCTR</a></li>
+        <li><a href="#example-NewOFB" onclick="$('#ex-NewOFB').addClass('in').removeClass('collapse').height('auto')">NewOFB</a></li>
+        <li><a href="#example-StreamReader" onclick="$('#ex-StreamReader').addClass('in').removeClass('collapse').height('auto')">StreamReader</a></li>
+        <li><a href="#example-StreamWriter" onclick="$('#ex-StreamWriter').addClass('in').removeClass('collapse').height('auto')">StreamWriter</a></li>
+    </ul>
+    <h3 id="Block">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/cipher/cipher.go?name=release#15">Block</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Block interface {
+    <span class="com">// 返回加密字节块的大小</span>
+    <span id="Block.BlockSize">BlockSize</span>() <a href="builtin.htm#int">int</a>
+    <span class="com">// 加密src的第一块数据并写入dst，src和dst可指向同一内存地址</span>
+    <span id="Block.Encrypt">Encrypt</span>(dst, src []<a href="builtin.htm#byte">byte</a>)
+    <span class="com">// 解密src的第一块数据并写入dst，src和dst可指向同一内存地址</span>
+    <span id="Block.Decrypt">Decrypt</span>(dst, src []<a href="builtin.htm#byte">byte</a>)
+}</pre>
+    <p>Block接口代表一个使用特定密钥的底层块加/解密器。它提供了加密和解密独立数据块的能力。</p>
+    <h3 id="BlockMode">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/cipher/cipher.go?name=release#37">BlockMode</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type BlockMode interface {
+    <span class="com">// 返回加密字节块的大小</span>
+    <span id="BlockMode.BlockSize">BlockSize</span>() <a href="builtin.htm#int">int</a>
+    <span class="com">// 加密或解密连续的数据块，src的尺寸必须是块大小的整数倍，src和dst可指向同一内存地址</span>
+    <span id="BlockMode.CryptBlocks">CryptBlocks</span>(dst, src []<a href="builtin.htm#byte">byte</a>)
+}</pre>
+    <p>BlockMode接口代表一个工作在块模式（如CBC、ECB等）的加/解密器。</p>
+    <h4 id="NewCBCEncrypter">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/cipher/cbc.go?name=release#35">NewCBCEncrypter</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func NewCBCEncrypter(b <a href="#Block">Block</a>, iv []<a href="builtin.htm#byte">byte</a>) <a href="#BlockMode">BlockMode</a></pre>
+    <p>返回一个密码分组链接模式的、底层用b加密的BlockMode接口，初始向量iv的长度必须等于b的块尺寸。</p>
+    <div class="panel-group">
+        <div class="panel panel-default" id="example-NewCBCEncrypter">
+            <div class="panel-heading" onclick="document.getElementById('ex-NewCBCEncrypter').style.display = document.getElementById('ex-NewCBCEncrypter').style.display=='none'?'block':'none';">Example</div>
+            <div id="ex-NewCBCEncrypter" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre>
+key := []byte(&#34;example key 1234&#34;)
+plaintext := []byte(&#34;exampleplaintext&#34;)
+<span class="com">// CBC mode works on blocks so plaintexts may need to be padded to the</span>
+<span class="com">// next whole block. For an example of such padding, see</span>
+<span class="com">// https://tools.ietf.org/html/rfc5246#section-6.2.3.2. Here we&#39;ll</span>
+<span class="com">// assume that the plaintext is already of the correct length.</span>
+if len(plaintext)%aes.BlockSize != 0 {
+    panic(&#34;plaintext is not a multiple of the block size&#34;)
+}
+block, err := aes.NewCipher(key)
+if err != nil {
+    panic(err)
+}
+<span class="com">// The IV needs to be unique, but not secure. Therefore it&#39;s common to</span>
+<span class="com">// include it at the beginning of the ciphertext.</span>
+ciphertext := make([]byte, aes.BlockSize+len(plaintext))
+iv := ciphertext[:aes.BlockSize]
+if _, err := io.ReadFull(rand.Reader, iv); err != nil {
+    panic(err)
+}
+mode := cipher.NewCBCEncrypter(block, iv)
+mode.CryptBlocks(ciphertext[aes.BlockSize:], plaintext)
+<span class="com">// It&#39;s important to remember that ciphertexts must be authenticated</span>
+<span class="com">// (i.e. by using crypto/hmac) as well as being encrypted in order to</span>
+<span class="com">// be secure.</span>
+fmt.Printf(&#34;%x\n&#34;, ciphertext)
+</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    <h4 id="NewCBCDecrypter">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/cipher/cbc.go?name=release#81">NewCBCDecrypter</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func NewCBCDecrypter(b <a href="#Block">Block</a>, iv []<a href="builtin.htm#byte">byte</a>) <a href="#BlockMode">BlockMode</a></pre>
+    <p>返回一个密码分组链接模式的、底层用b解密的BlockMode接口，初始向量iv必须和加密时使用的iv相同。</p>
+    <div class="panel-group">
+        <div class="panel panel-default" id="example-NewCBCDecrypter">
+            <div class="panel-heading" onclick="document.getElementById('ex-NewCBCDecrypter').style.display = document.getElementById('ex-NewCBCDecrypter').style.display=='none'?'block':'none';">Example</div>
+            <div id="ex-NewCBCDecrypter" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre>key := []byte(&#34;example key 1234&#34;)
+ciphertext, _ := hex.DecodeString(&#34;f363f3ccdcb12bb883abf484ba77d9cd7d32b5baecb3d4b1b3e0e4beffdb3ded&#34;)
+block, err := aes.NewCipher(key)
+if err != nil {
+    panic(err)
+}
+<span class="com">// The IV needs to be unique, but not secure. Therefore it&#39;s common to</span>
+<span class="com">// include it at the beginning of the ciphertext.</span>
+if len(ciphertext) &lt; aes.BlockSize {
+    panic(&#34;ciphertext too short&#34;)
+}
+iv := ciphertext[:aes.BlockSize]
+ciphertext = ciphertext[aes.BlockSize:]
+<span class="com">// CBC mode always works in whole blocks.</span>
+if len(ciphertext)%aes.BlockSize != 0 {
+    panic(&#34;ciphertext is not a multiple of the block size&#34;)
+}
+mode := cipher.NewCBCDecrypter(block, iv)
+<span class="com">// CryptBlocks can work in-place if the two arguments are the same.</span>
+mode.CryptBlocks(ciphertext, ciphertext)
+<span class="com">// If the original plaintext lengths are not a multiple of the block</span>
+<span class="com">// size, padding would have to be added when encrypting, which would be</span>
+<span class="com">// removed at this point. For an example, see</span>
+<span class="com">// https://tools.ietf.org/html/rfc5246#section-6.2.3.2. However, it&#39;s</span>
+<span class="com">// critical to note that ciphertexts must be authenticated (i.e. by</span>
+<span class="com">// using crypto/hmac) before being decrypted in order to avoid creating</span>
+<span class="com">// a padding oracle.</span>
+fmt.Printf(&#34;%s\n&#34;, ciphertext)</pre>
+                    <p>Output:
+                    <pre>exampleplaintext
+</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    <h3 id="Stream">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/cipher/cipher.go?name=release#29">Stream</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Stream interface {
+    <span class="com">// 从加密器的key流和src中依次取出字节二者xor后写入dst，src和dst可指向同一内存地址</span>
+    <span id="Stream.XORKeyStream">XORKeyStream</span>(dst, src []<a href="builtin.htm#byte">byte</a>)
+}</pre>
+    <p>Stream接口代表一个流模式的加/解密器。</p>
+    <h4 id="NewCFBEncrypter">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/cipher/cfb.go?name=release#45">NewCFBEncrypter</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func NewCFBEncrypter(block <a href="#Block">Block</a>, iv []<a href="builtin.htm#byte">byte</a>) <a href="#Stream">Stream</a></pre>
+    <p>返回一个密码反馈模式的、底层用block加密的Stream接口，初始向量iv的长度必须等于block的块尺寸。</p>
+    <div class="panel-group">
+        <div class="panel panel-default" id="example-NewCFBEncrypter">
+            <div class="panel-heading" onclick="document.getElementById('ex-NewCFBEncrypter').style.display = document.getElementById('ex-NewCFBEncrypter').style.display=='none'?'block':'none';">Example</div>
+            <div id="ex-NewCFBEncrypter" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre>
+key := []byte(&#34;example key 1234&#34;)
+plaintext := []byte(&#34;some plaintext&#34;)
+block, err := aes.NewCipher(key)
+if err != nil {
+    panic(err)
+}
+<span class="com">// The IV needs to be unique, but not secure. Therefore it&#39;s common to</span>
+<span class="com">// include it at the beginning of the ciphertext.</span>
+ciphertext := make([]byte, aes.BlockSize+len(plaintext))
+iv := ciphertext[:aes.BlockSize]
+if _, err := io.ReadFull(rand.Reader, iv); err != nil {
+    panic(err)
+}
+stream := cipher.NewCFBEncrypter(block, iv)
+stream.XORKeyStream(ciphertext[aes.BlockSize:], plaintext)
+<span class="com">// It&#39;s important to remember that ciphertexts must be authenticated</span>
+<span class="com">// (i.e. by using crypto/hmac) as well as being encrypted in order to</span>
+<span class="com">// be secure.</span>
+</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    <h4 id="NewCFBDecrypter">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/cipher/cfb.go?name=release#52">NewCFBDecrypter</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func NewCFBDecrypter(block <a href="#Block">Block</a>, iv []<a href="builtin.htm#byte">byte</a>) <a href="#Stream">Stream</a></pre>
+    <p>返回一个密码反馈模式的、底层用block解密的Stream接口，初始向量iv必须和加密时使用的iv相同。</p>
+    <div class="panel-group">
+        <div class="panel panel-default" id="example-NewCFBDecrypter">
+            <div class="panel-heading" onclick="document.getElementById('ex-NewCFBDecrypter').style.display = document.getElementById('ex-NewCFBDecrypter').style.display=='none'?'block':'none';">Example</div>
+            <div id="ex-NewCFBDecrypter" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre>key := []byte(&#34;example key 1234&#34;)
+ciphertext, _ := hex.DecodeString(&#34;22277966616d9bc47177bd02603d08c9a67d5380d0fe8cf3b44438dff7b9&#34;)
+block, err := aes.NewCipher(key)
+if err != nil {
+    panic(err)
+}
+<span class="com">// The IV needs to be unique, but not secure. Therefore it&#39;s common to</span>
+<span class="com">// include it at the beginning of the ciphertext.</span>
+if len(ciphertext) &lt; aes.BlockSize {
+    panic(&#34;ciphertext too short&#34;)
+}
+iv := ciphertext[:aes.BlockSize]
+ciphertext = ciphertext[aes.BlockSize:]
+stream := cipher.NewCFBDecrypter(block, iv)
+<span class="com">// XORKeyStream can work in-place if the two arguments are the same.</span>
+stream.XORKeyStream(ciphertext, ciphertext)
+fmt.Printf(&#34;%s&#34;, ciphertext)</pre>
+                    <p>Output:
+                    <pre>some plaintext
+</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    <h4 id="NewOFB">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/cipher/ofb.go?name=release#19">NewOFB</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func NewOFB(b <a href="#Block">Block</a>, iv []<a href="builtin.htm#byte">byte</a>) <a href="#Stream">Stream</a></pre>
+    <p>返回一个输出反馈模式的、底层采用b生成key流的Stream接口，初始向量iv的长度必须等于b的块尺寸。</p>
+    <div class="panel-group">
+        <div class="panel panel-default" id="example-NewOFB">
+            <div class="panel-heading" onclick="document.getElementById('ex-NewOFB').style.display = document.getElementById('ex-NewOFB').style.display=='none'?'block':'none';">Example</div>
+            <div id="ex-NewOFB" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre>key := []byte(&#34;example key 1234&#34;)
+plaintext := []byte(&#34;some plaintext&#34;)
+block, err := aes.NewCipher(key)
+if err != nil {
+    panic(err)
+}
+<span class="com">// The IV needs to be unique, but not secure. Therefore it&#39;s common to</span>
+<span class="com">// include it at the beginning of the ciphertext.</span>
+ciphertext := make([]byte, aes.BlockSize+len(plaintext))
+iv := ciphertext[:aes.BlockSize]
+if _, err := io.ReadFull(rand.Reader, iv); err != nil {
+    panic(err)
+}
+stream := cipher.NewOFB(block, iv)
+stream.XORKeyStream(ciphertext[aes.BlockSize:], plaintext)
+<span class="com">// It&#39;s important to remember that ciphertexts must be authenticated</span>
+<span class="com">// (i.e. by using crypto/hmac) as well as being encrypted in order to</span>
+<span class="com">// be secure.</span>
+<span class="com">// OFB mode is the same for both encryption and decryption, so we can</span>
+<span class="com">// also decrypt that ciphertext with NewOFB.</span>
+plaintext2 := make([]byte, len(plaintext))
+stream = cipher.NewOFB(block, iv)
+stream.XORKeyStream(plaintext2, ciphertext[aes.BlockSize:])
+fmt.Printf(&#34;%s\n&#34;, plaintext2)</pre>
+                    <p>Output:
+                    <pre>some plaintext
+</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    <h4 id="NewCTR">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/cipher/ctr.go?name=release#26">NewCTR</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func NewCTR(block <a href="#Block">Block</a>, iv []<a href="builtin.htm#byte">byte</a>) <a href="#Stream">Stream</a></pre>
+    <p>返回一个计数器模式的、底层采用block生成key流的Stream接口，初始向量iv的长度必须等于block的块尺寸。</p>
+    <div class="panel-group">
+        <div class="panel panel-default" id="example-NewCTR">
+            <div class="panel-heading" onclick="document.getElementById('ex-NewCTR').style.display = document.getElementById('ex-NewCTR').style.display=='none'?'block':'none';">Example</div>
+            <div id="ex-NewCTR" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre>key := []byte(&#34;example key 1234&#34;)
+plaintext := []byte(&#34;some plaintext&#34;)
+block, err := aes.NewCipher(key)
+if err != nil {
+    panic(err)
+}
+<span class="com">// The IV needs to be unique, but not secure. Therefore it&#39;s common to</span>
+<span class="com">// include it at the beginning of the ciphertext.</span>
+ciphertext := make([]byte, aes.BlockSize+len(plaintext))
+iv := ciphertext[:aes.BlockSize]
+if _, err := io.ReadFull(rand.Reader, iv); err != nil {
+    panic(err)
+}
+stream := cipher.NewCTR(block, iv)
+stream.XORKeyStream(ciphertext[aes.BlockSize:], plaintext)
+<span class="com">// It&#39;s important to remember that ciphertexts must be authenticated</span>
+<span class="com">// (i.e. by using crypto/hmac) as well as being encrypted in order to</span>
+<span class="com">// be secure.</span>
+<span class="com">// CTR mode is the same for both encryption and decryption, so we can</span>
+<span class="com">// also decrypt that ciphertext with NewCTR.</span>
+plaintext2 := make([]byte, len(plaintext))
+stream = cipher.NewCTR(block, iv)
+stream.XORKeyStream(plaintext2, ciphertext[aes.BlockSize:])
+fmt.Printf(&#34;%s\n&#34;, plaintext2)</pre>
+                    <p>Output:
+                    <pre>some plaintext
+</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    <h3 id="StreamReader">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/cipher/io.go?name=release#14">StreamReader</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type StreamReader struct {
+    <span id="StreamReader.S">S</span>   <a href="#Stream">Stream</a>
+    <span id="StreamReader.R">R</span>   <a href="io.htm">io</a>.<a href="io.htm#Reader">Reader</a>
+}</pre>
+    <p>将一个Stream与一个io.Reader接口关联起来，Read方法会调用XORKeyStream方法来处理获取的所有切片。</p>
+    <div class="panel-group">
+        <div class="panel panel-default" id="example-StreamReader">
+            <div class="panel-heading" onclick="document.getElementById('ex-StreamReader').style.display = document.getElementById('ex-StreamReader').style.display=='none'?'block':'none';">Example</div>
+            <div id="ex-StreamReader" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre>
+key := []byte(&#34;example key 1234&#34;)
+inFile, err := os.Open(&#34;encrypted-file&#34;)
+if err != nil {
+    panic(err)
+}
+defer inFile.Close()
+block, err := aes.NewCipher(key)
+if err != nil {
+    panic(err)
+}
+<span class="com">// If the key is unique for each ciphertext, then it&#39;s ok to use a zero</span>
+<span class="com">// IV.</span>
+var iv [aes.BlockSize]byte
+stream := cipher.NewOFB(block, iv[:])
+outFile, err := os.OpenFile(&#34;decrypted-file&#34;, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
+if err != nil {
+    panic(err)
+}
+defer outFile.Close()
+reader := &amp;cipher.StreamReader{S: stream, R: inFile}
+<span class="com">// Copy the input file to the output file, decrypting as we go.</span>
+if _, err := io.Copy(outFile, reader); err != nil {
+    panic(err)
+}
+<span class="com">// Note that this example is simplistic in that it omits any</span>
+<span class="com">// authentication of the encrypted data. It you were actually to use</span>
+<span class="com">// StreamReader in this manner, an attacker could flip arbitrary bits in</span>
+<span class="com">// the output.</span>
+</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    <h4 id="StreamReader.Read">func (StreamReader) <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/cipher/io.go?name=release#19">Read</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (r <a href="#StreamReader">StreamReader</a>) Read(dst []<a href="builtin.htm#byte">byte</a>) (n <a href="builtin.htm#int">int</a>, err <a href="builtin.htm#error">error</a>)</pre>
+    <h3 id="StreamWriter">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/cipher/io.go?name=release#30">StreamWriter</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type StreamWriter struct {
+    <span id="StreamWriter.S">S</span>   <a href="#Stream">Stream</a>
+    <span id="StreamWriter.W">W</span>   <a href="io.htm">io</a>.<a href="io.htm#Writer">Writer</a>
+    <span id="StreamWriter.Err">Err</span> <a href="builtin.htm#error">error</a> <span class="com">// unused</span>
+}</pre>
+    <p>将一个Stream与一个io.Writer接口关联起来，Write方法会调用XORKeyStream方法来处理提供的所有切片。如果Write方法返回的n小于提供的切片的长度，则表示StreamWriter不同步，必须丢弃。StreamWriter没有内建的缓存，不需要调用Close方法去清空缓存。</p>
+    <div class="panel-group">
+        <div class="panel panel-default" id="example-StreamWriter">
+            <div class="panel-heading" onclick="document.getElementById('ex-StreamWriter').style.display = document.getElementById('ex-StreamWriter').style.display=='none'?'block':'none';">Example</div>
+            <div id="ex-StreamWriter" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre>
+key := []byte(&#34;example key 1234&#34;)
+inFile, err := os.Open(&#34;plaintext-file&#34;)
+if err != nil {
+    panic(err)
+}
+defer inFile.Close()
+block, err := aes.NewCipher(key)
+if err != nil {
+    panic(err)
+}
+<span class="com">// If the key is unique for each ciphertext, then it&#39;s ok to use a zero</span>
+<span class="com">// IV.</span>
+var iv [aes.BlockSize]byte
+stream := cipher.NewOFB(block, iv[:])
+outFile, err := os.OpenFile(&#34;encrypted-file&#34;, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
+if err != nil {
+    panic(err)
+}
+defer outFile.Close()
+writer := &amp;cipher.StreamWriter{S: stream, W: outFile}
+<span class="com">// Copy the input file to the output file, encrypting as we go.</span>
+if _, err := io.Copy(writer, inFile); err != nil {
+    panic(err)
+}
+<span class="com">// Note that this example is simplistic in that it omits any</span>
+<span class="com">// authentication of the encrypted data. It you were actually to use</span>
+<span class="com">// StreamReader in this manner, an attacker could flip arbitrary bits in</span>
+<span class="com">// the decrypted result.</span>
+</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    <h4 id="StreamWriter.Write">func (StreamWriter) <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/cipher/io.go?name=release#36">Write</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (w <a href="#StreamWriter">StreamWriter</a>) Write(src []<a href="builtin.htm#byte">byte</a>) (n <a href="builtin.htm#int">int</a>, err <a href="builtin.htm#error">error</a>)</pre>
+    <h4 id="StreamWriter.Close">func (StreamWriter) <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/cipher/io.go?name=release#50">Close</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (w <a href="#StreamWriter">StreamWriter</a>) Close() <a href="builtin.htm#error">error</a></pre>
+    <p>如果w.W字段实现了io.Closer接口，本方法会调用其Close方法并返回该方法的返回值；否则不做操作返回nil。</p>
+    <h3 id="AEAD">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/cipher/gcm.go?name=release#14">AEAD</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type AEAD interface {
+    <span class="com">// 返回提供给Seal和Open方法的随机数nonce的字节长度</span>
+    <span id="AEAD.NonceSize">NonceSize</span>() <a href="builtin.htm#int">int</a>
+    <span class="com">// 返回原始文本和加密文本的最大长度差异</span>
+    <span id="AEAD.Overhead">Overhead</span>() <a href="builtin.htm#int">int</a>
+    <span class="com">// 加密并认证明文，认证附加的data，将结果添加到dst，返回更新后的切片。</span>
+    <span class="com">// nonce的长度必须是NonceSize()字节，且对给定的key和时间都是独一无二的。</span>
+    <span class="com">// plaintext和dst可以是同一个切片，也可以不同。</span>
+    <span id="AEAD.Seal">Seal</span>(dst, nonce, plaintext, data []<a href="builtin.htm#byte">byte</a>) []<a href="builtin.htm#byte">byte</a>
+    <span class="com">// 解密密文并认证，认证附加的data，如果认证成功，将明文添加到dst，返回更新后的切片。</span>
+    <span class="com">// nonce的长度必须是NonceSize()字节，nonce和data都必须和加密时使用的相同。</span>
+    <span class="com">// ciphertext和dst可以是同一个切片，也可以不同。</span>
+    <span id="AEAD.Open">Open</span>(dst, nonce, ciphertext, data []<a href="builtin.htm#byte">byte</a>) ([]<a href="builtin.htm#byte">byte</a>, <a href="builtin.htm#error">error</a>)
+}</pre>
+    <p>AEAD接口是一种提供了使用关联数据进行认证加密的功能的加密模式。</p>
+    <h4 id="NewGCM">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/cipher/gcm.go?name=release#62">NewGCM</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func NewGCM(cipher <a href="#Block">Block</a>) (<a href="#AEAD">AEAD</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>函数用迦洛瓦计数器模式包装提供的128位Block接口，并返回AEAD接口。</p>
+</div>
+
+<div id="x-footer" class="clearfix">
+  <div class="container">
+    <a href="http://studygolang.com/">Go语言中文网</a>
+    <span class="text-muted">|</span> <a href="http://golang.org/">Go Language</a>
+    <span class="pull-right"><a href="#">Back to top</a></span>
+  </div>
+</div>
+<script src="../assets/jquery-2.0.3.min.js"></script>
+<script src="../bootstrap.min.js"></script>
+<script src="../site.js"></script>
+</body>
+</html>

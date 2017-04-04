@@ -1,0 +1,58 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="./site.css" rel="stylesheet">
+<title>net/http/cgi</title>
+<meta name="private:description" content="刘志曦翻译于2014年夏,Go 1.3版本">
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package cgi</h2>
+    <p><code>import "net/http/cgi"</code>
+    <p align="left">cgi包实现了CGI（Common Gateway Interface，公共网关协议），参见<a href="http://tools.ietf.org/html/rfc3875">RFC 3875</a>。</p>
+    <p align="left">注意使用CGI意味着对每一个请求开始一个新的进程，这显然要比使用长期运行的服务程序要低效。本包主要是为了兼容现有的系统。</p>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#Request">func Request() (*http.Request, error)</a></li>
+        <li><a href="#RequestFromMap">func RequestFromMap(params map[string]string) (*http.Request, error)</a></li>
+        <li><a href="#Serve">func Serve(handler http.Handler) error</a></li>
+        <li><a href="#Handler">type Handler</a></li>
+        <ul>
+            <li><a href="#Handler.ServeHTTP">func (h *Handler) ServeHTTP(rw http.ResponseWriter, req *http.Request)</a></li>
+        </ul>
+    </ul>
+    <h3 id="Request">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/cgi/child.go?name=release#29">Request</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Request() (*<a href="net/http.htm">http</a>.<a href="net/http.htm#Request">Request</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>返回一个当前环境下的HTTP请求。它假设当前程序执行在CGI环境下，成功返回的Request的Body是可读取数据的。（如果必要）</p>
+    <h3 id="RequestFromMap">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/cgi/child.go?name=release#52">RequestFromMap</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func RequestFromMap(params map[<a href="builtin.htm#string">string</a>]<a href="builtin.htm#string">string</a>) (*<a href="net/http.htm">http</a>.<a href="net/http.htm#Request">Request</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>使用CGI变量集params创建一个HTTP请求。返回的Request的Body是没有数据的。</p>
+    <h3 id="Serve">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/cgi/child.go?name=release#146">Serve</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Serve(handler <a href="net/http.htm">http</a>.<a href="net/http.htm#Handler">Handler</a>) <a href="builtin.htm#error">error</a></pre>
+    <p>在当前活跃CGI环境下执行handler；如当前无CGI环境，会返回错误。handler为nil时将使用http.DefaultServeMux。</p>
+    <h3 id="Handler">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/cgi/host.go?name=release#46">Handler</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Handler struct {
+    <span id="Handler.Path">Path</span> <a href="builtin.htm#string">string</a> <span class="com">// CGI可执行文件的路径</span>
+    <span id="Handler.Root">Root</span> <a href="builtin.htm#string">string</a> <span class="com">// handler的根URI前缀，""代表"/"</span>
+    <span class="com">// Dir指定CGI程序的工作目录。</span>
+    <span class="com">// 如果Dir为""则使用Path的基目录；如果Path没有基目录则使用当前工作目录。</span>
+    <span id="Handler.Dir">Dir</span> <a href="builtin.htm#string">string</a>
+    <span id="Handler.Env">Env</span>        []<a href="builtin.htm#string">string</a>    <span class="com">// 额外设置的环境变量（如果有），格式为"key=value"</span>
+    <span id="Handler.InheritEnv">InheritEnv</span> []<a href="builtin.htm#string">string</a>    <span class="com">// 从host继承的环境变量，只有"key"</span>
+    <span id="Handler.Logger">Logger</span>     *<a href="log.htm">log</a>.<a href="log.htm#Logger">Logger</a> <span class="com">// 可选的logger接口切片，如为nil则使用log.Print</span>
+    <span id="Handler.Args">Args</span>       []<a href="builtin.htm#string">string</a>    <span class="com">// 可选的传递给子进程的参数</span>
+    <span class="com">// 当CGI进程返回一个Location头，且其值以"/"开始时，</span>
+    <span class="com">// 本字段指定处理内部重定向的根部HTTP Handler。参见RFC 3875 § 6.3.2。</span>
+    <span class="com">// 一般会使用http.DefaultServeMux。</span>
+    <span class="com">// 如果为nil，返回一个本地URI路径的CGI回复会发送给客户端，不进行内部跳转。</span>
+    <span id="Handler.PathLocationHandler">PathLocationHandler</span> <a href="net/http.htm">http</a>.<a href="net/http.htm#Handler">Handler</a>
+}</pre>
+    <p>Handler在子进程中执行具有一个CGI环境的可执行程序。</p>
+    <h4 id="Handler.ServeHTTP">func (*Handler) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/cgi/host.go?name=release#97">ServeHTTP</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (h *<a href="#Handler">Handler</a>) ServeHTTP(rw <a href="net/http.htm">http</a>.<a href="net/http.htm#ResponseWriter">ResponseWriter</a>, req *<a href="net/http.htm">http</a>.<a href="net/http.htm#Request">Request</a>)</pre>
+</div>
+</body>
+</html>

@@ -1,0 +1,63 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="./site.css" rel="stylesheet">
+<title>net/http/cookiejar</title>
+<meta name="private:description" content="刘志曦翻译于2014年夏，Go 1.3版本">
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package cookiejar</h2>
+    <p><code>import "net/http/cookiejar"</code>
+    <p>cookiejar包实现了保管在内存中的符合<a href="http://tools.ietf.org/html/rfc6265">RFC 6265标准的</a>http.CookieJar接口。</p>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#PublicSuffixList">type PublicSuffixList</a></li>
+        <li><a href="#Options">type Options</a></li>
+        <li><a href="#Jar">type Jar</a></li>
+        <ul>
+            <li><a href="#New">func New(o *Options) (*Jar, error)</a></li>
+            <li><a href="#Jar.Cookies">func (j *Jar) Cookies(u *url.URL) (cookies []*http.Cookie)</a></li>
+            <li><a href="#Jar.SetCookies">func (j *Jar) SetCookies(u *url.URL, cookies []*http.Cookie)</a></li>
+        </ul>
+    </ul>
+    <h3 id="PublicSuffixList">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/cookiejar/jar.go?name=release#34">PublicSuffixList</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type PublicSuffixList interface {
+    <span class="com">// 返回域名的公共后缀。</span><span class="com"></span>
+    <span class="com">// TODO：域名的格式化应该由调用者还是接口方法负责还没有确定。</span>
+    <span id="PublicSuffixList.PublicSuffix">PublicSuffix</span>(domain <a href="builtin.htm#string">string</a>) <a href="builtin.htm#string">string</a>
+    <span class="com">// 返回公共后缀列表的来源的说明，该说明一般应该包含时间戳和版本号。</span><span class="com"></span>
+    <span id="PublicSuffixList.String">String</span>() <a href="builtin.htm#string">string</a>
+}</pre>
+    <p>PublicSuffixList提供域名的公共后缀。例如：</p>
+    <pre>- "example.com"的公共后缀是"com"
+- "foo1.foo2.foo3.co.uk"的公共后缀是"co.uk"
+- "bar.pvt.k12.ma.us"的公共后缀是"pvt.k12.ma.us"</pre>
+    <p>PublicSuffixList接口的实现必须是并发安全的。一个总是返回""的实现是合法的，也可以通过测试；但却是不安全的：它允许HTTP服务端跨域名设置cookie。推荐实现：<a href="http://godoc.org/code.google.com/p/go.net/publicsuffix">code.google.com/p/go.net/publicsuffix</a></p>
+    <h3 id="Options">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/cookiejar/jar.go?name=release#49">Options</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Options struct {
+    <span class="com">// PublicSuffixList是公共后缀列表，用于决定HTTP服务端是否能给某域名设置cookie</span>
+    <span class="com">// nil值合法的，也可以通过测试；但却是不安全的：它允许HTTP服务端跨域名设置cookie</span><span class="com"></span>
+    <span id="Options.PublicSuffixList">PublicSuffixList</span> <a href="#PublicSuffixList">PublicSuffixList</a>
+}</pre>
+    <p>Options是创建新Jar是的选项。</p>
+    <h3 id="Jar">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/cookiejar/jar.go?name=release#60">Jar</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Jar struct {
+    <span class="com">// 内含隐藏或非导出字段</span>
+}</pre>
+    <p>Jar类型实现了net/http包的http.CookieJar接口。</p>
+    <h4 id="New">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/cookiejar/jar.go?name=release#77">New</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func New(o *<a href="#Options">Options</a>) (*<a href="#Jar">Jar</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>返回一个新的Jar，nil指针等价于Options零值的指针。</p>
+    <h4 id="Jar.Cookies">func (*Jar) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/cookiejar/jar.go?name=release#171">Cookies</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (j *<a href="#Jar">Jar</a>) Cookies(u *<a href="net/url.htm">url</a>.<a href="net/url.htm#URL">URL</a>) (cookies []*<a href="net/http.htm">http</a>.<a href="net/http.htm#Cookie">Cookie</a>)</pre>
+    <p>实现CookieJar接口的Cookies方法，如果URL协议不是HTTP/HTTPS会返回空切片。</p>
+    <h4 id="Jar.SetCookies">func (*Jar) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/cookiejar/jar.go?name=release#235">SetCookies</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (j *<a href="#Jar">Jar</a>) SetCookies(u *<a href="net/url.htm">url</a>.<a href="net/url.htm#URL">URL</a>, cookies []*<a href="net/http.htm">http</a>.<a href="net/http.htm#Cookie">Cookie</a>)</pre>
+    <p>实现CookieJar接口的SetCookies方法，如果URL协议不是HTTP/HTTPS则不会有实际操作。</p>
+</div>
+</body>
+</html>

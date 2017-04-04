@@ -1,0 +1,45 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="./site.css" rel="stylesheet">
+<title>unsafe</title>
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package unsafe</h2>
+    <p><code>import "unsafe"</code>
+    <p>unsafe包提供了一些跳过go语言类型安全限制的操作。</p>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#ArbitraryType">type ArbitraryType</a></li>
+        <li><a href="#Pointer">type Pointer</a></li>
+        <li><a href="#Sizeof">func Sizeof(v ArbitraryType) uintptr</a></li>
+        <li><a href="#Alignof">func Alignof(v ArbitraryType) uintptr</a></li>
+        <li><a href="#Offsetof">func Offsetof(v ArbitraryType) uintptr</a></li>
+    </ul>
+    <h3 id="ArbitraryType">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/unsafe/unsafe.go?name=release#12">ArbitraryType</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type ArbitraryType <a href="builtin.htm#int">int</a></pre>
+    <p>ArbitraryType在本文档里表示任意一种类型，但并非一个实际存在与unsafe包的类型。</p>
+    <h3 id="Pointer">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/unsafe/unsafe.go?name=release#22">Pointer</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Pointer *<a href="#ArbitraryType">ArbitraryType</a></pre>
+    <p>Pointer类型用于表示任意类型的指针。有4个特殊的只能用于Pointer类型的操作：</p>
+    <pre>1) 任意类型的指针可以转换为一个Pointer类型值
+2) 一个Pointer类型值可以转换为任意类型的指针
+3) 一个uintptr类型值可以转换为一个Pointer类型值
+4) 一个Pointer类型值可以转换为一个uintptr类型值</pre>
+    <p>因此，Pointer类型允许程序绕过类型系统读写任意内存。使用它时必须谨慎。</p>
+    <h3 id="Sizeof">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/unsafe/unsafe.go?name=release#27">Sizeof</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Sizeof(v <a href="#ArbitraryType">ArbitraryType</a>) <a href="builtin.htm#uintptr">uintptr</a></pre>
+    <p>Sizeof返回类型v本身数据所占用的字节数。返回值是&ldquo;顶层&rdquo;的数据占有的字节数。例如，若v是一个切片，它会返回该切片描述符的大小，而非该切片底层引用的内存的大小。</p>
+    <h3 id="Alignof">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/unsafe/unsafe.go?name=release#37">Alignof</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Alignof(v <a href="#ArbitraryType">ArbitraryType</a>) <a href="builtin.htm#uintptr">uintptr</a></pre>
+    <p>Alignof返回类型v的对齐方式（即类型v在内存中占用的字节数）；若是结构体类型的字段的形式，它会返回字段f在该结构体中的对齐方式。</p>
+    <h3 id="Offsetof">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/unsafe/unsafe.go?name=release#32">Offsetof</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Offsetof(v <a href="#ArbitraryType">ArbitraryType</a>) <a href="builtin.htm#uintptr">uintptr</a></pre>
+    <p>Offsetof返回类型v所代表的结构体字段在结构体中的偏移量，它必须为结构体类型的字段的形式。换句话说，它返回该结构起始处与该字段起始处之间的字节数。</p>
+</div>
+</body>
+</html>

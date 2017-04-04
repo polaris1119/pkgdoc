@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="../site.css" rel="stylesheet">
+<title>appengine/datastore</title>
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package datastore</h2>
+    <p><code>import "code.google.com/p/appengine-go/appengine/datastore"</code>
+    <p>datastore提供App Engine的datastore服务。</p>
+    <h4 id="hdr-Basic_Operations">Basic Operations <a class="permalink" href="#hdr-Basic_Operations">&para</a></h4>
+    <p align="left">实体是存储的基本单元，并且与一个键关联。一个键包含一个可选的父键，一个AppID字符串，一个类型字符串（也被认为是实体的类型），以及一个字符串StringID或者数字IntID，StringID也被认为是实体的名称或者键的名称。 </p>
+    <p align="left">创建一个StringID和IntID都为零值的键是合法的，这种键被称作不完全键，和任何已保存的实体都不关联。将一个实体存在datastore里一个不完全键下时，就会生成一个对应于该实体的唯一键，该键包含一个非零的IntID。 </p>
+    <p align="left">一个实体的内容是从大小写敏感的名称到值的映射，合法的值类型如下：</p>
+    <pre>- 有符号整数(int, int8, int16, int32 and int64),
+- 布尔值,
+- 字符串,
+- 浮点数(float32, float64),
+- []byte(最大1mb长度),
+- 底层类型为以上类型的任意类型,
+- *Key,
+- time.Time(保存为微妙精度),
+- appengine.BlobKey,
+- 所有字段都是上述合法类型的结构体类型,
+- 以上任一类型的切片.</pre>
+    <p align="left">结构体的切片是合法的，含有切片的结构体也合法。但是，如果结构包含另一个结构，那么最多允许重复一次。这就排除了递归的定义结构体类型：某结构体T（直接或间接的）包含[]T。Get和Put函数加载或保存实体的内容。一个实体的内容应使用一个结构体的指针表示。 </p>
+    <p align="left">示例：</p>
+    <pre>type Entity struct {
+	Value string
+}
+func handle(w http.ResponseWriter, r *http.Request) {
+	c := appengine.NewContext(r)
+	k := datastore.NewKey(c, &#34;Entity&#34;, &#34;stringID&#34;, 0, nil)
+	e := new(Entity)
+	if err := datastore.Get(c, k, e); err != nil {
+		http.Error(w, err.Error(), 500)
+		return
+	}
+	old := e.Value
+	e.Value = r.URL.Path
+	if _, err := datastore.Put(c, k, e); err != nil {
+		http.Error(w, err.Error(), 500)
+		return
+	}
+	w.Header().Set(&#34;Content-Type&#34;, &#34;text/plain; charset=utf-8&#34;)
+	fmt.Fprintf(w, &#34;old=%q\nnew=%q\n&#34;, old, e.Value)
+}</pre>
+    <p>GetMulti、PutMulti和DeleteMulti是Get、Put和Delete函数的批处理版本，他们接受[]*Key而不是*Key，并且在遭遇部分错误时，返回appengine.MultiError。</p>
+    <h4 id="hdr-Properties">Properties <a class="permalink" href="#hdr-Properties">&para</a></h4>
+    <p align="left">一个实体的内容可以被多个类型表示。一般应使用结构体的指针，但也可以是任何实现了PropertyLoadSaver接口的类型。如果使用结构体指针的话，就不需要显式的实现PropertyLoadSaver接口了，datastore会自动使用反射进行转换。当然了，如果你闲的蛋疼实现了该接口，那么就会优先使用该接口的方法。结构体指针更稳定更易于使用，相对的PropertyLoadSaver更灵活。 </p>
+    <p align="left">提供给Get和Put函数的实际类型不必相同，即使在不同请求中也没事。一般来说，任何实体都是保存为一系列属性，也是属性对属性的装载到目标值里。当装载进一个结构体指针时，如果实体不能被完整的表达出来（如缺失了某个字段），将会返回ErrFieldMismatch，但是调用者可以自行决定怎么处理该错误（记录/恢复/忽略）。 </p>
+    <p align="left">默认情况下，对于结构体的指针，所有属性都潜在的被索引，属性名一般和字段名一致（因此必须以大写字母起始）。字段可以使用标签，格式为`datastore:"name,options"`。标签名name为属性名，必须是一个或多个"."连接起来的Go标识符，但可以小写字母起始。空的标签名代表使用字段名，标签名为"-"代表忽略该字段。如果options是"noindex"表示该字段不应被索引，如果options是""则逗号可省略。不支持其他options。 </p>
+    <p align="left">字段(除了[]byte以外)都默认被索引。超过500字符的字符串不能被索引，用于保存长字符串的字段应使用标签注明options为"noindex"。 </p>
+    <p align="left">示例：</p>
+    <pre>// A和B重命名为a和b
+// A、C和J不被索引
+// D的标签相当于没有标签（E）
+// I会被datastore完全忽略
+// J的标签信息既有datastore的，也有json包的
+type TaggedStruct struct {
+	A int `datastore:&#34;a,noindex&#34;`
+	B int `datastore:&#34;b&#34;`
+	C int `datastore:&#34;,noindex&#34;`
+	D int `datastore:&#34;&#34;`
+	E int
+	I int `datastore:&#34;-&#34;`
+	J int `datastore:&#34;,noindex&#34; json:&#34;j&#34;`
+}</pre>
+    <h4 id="hdr-Structured_Properties">Structured Properties <a class="permalink" href="#hdr-Structured_Properties">&para</a></h4>
+    <p>如果结构体内包含另一个结构体，那么嵌套/内嵌的结构体会被压平。如下例所示，下面给出的定义：</p>
+    <pre>type Inner1 struct {
+	W int32
+	X string
+}
+type Inner2 struct {
+	Y float64
+}
+type Inner3 struct {
+	Z bool
+}
+type Outer struct {
+	A int16
+	I []Inner1
+	J Inner2
+	Inner3
+}</pre>
+    <p>结构体Outer产生的属性等价于如下的情况：</p>
+    <pre>type OuterEquivalent struct {
+	A     int16
+	IDotW []int32  `datastore:&#34;I.W&#34;`
+	IDotX []string `datastore:&#34;I.X&#34;`
+	JDotY float64  `datastore:&#34;J.Y&#34;`
+	Z     bool
+}</pre>
+    <p align="left">如果Outer内嵌的Inner3字段设标签为`datastore:"Foo"`，那么等价的字段将是FooDotZ bool `datastore:"Foo.Z"`。 </p>
+    <p align="left">如果一个结构体字段标记为"noindex"，它所有内含的字段压平后都会设为"noindex"。</p>
+    <h4 id="hdr-The_PropertyLoadSaver_Interface">The PropertyLoadSaver Interface <a class="permalink" href="#hdr-The_PropertyLoadSaver_Interface">&para</a></h4>
+    <p align="left">一个实体的内容也可以被任何实现了PropertyLoadSaver 接口的类型表示。该类型可以是结构体的指针，但也可以是别的类型。Datastore包会调用Load方法获取实体的内容，Save方法来保存实体的内容。合理的用法包括获取未存储的字段、验证字段和只在值为正时索引字段等。 </p>
+    <p align="left">示例：</p>
+    <pre>type CustomPropsExample struct {
+	I, J int
+	// Sum未存储，但它应该总是等于I + J
+	Sum int `datastore:&#34;-&#34;`
+}
+func (x *CustomPropsExample) Load(c &lt;-chan Property) error {
+	// 像通常那样获取I和J
+	if err := datastore.LoadStruct(x, c); err != nil {
+		return err
+	}
+	// 取得Sum字段的值
+	x.Sum = x.I + x.J
+	return nil
+}
+func (x *CustomPropsExample) Save(c chan&lt;- Property) error {
+	defer close(c)
+	// 验证Sum字段
+	if x.Sum != x.I + x.J {
+		return errors.New(&#34;CustomPropsExample has inconsistent sum&#34;)
+	}
+	// 像通常那样保存I和J。
+	// 下面的代码出于示范的目的手动执行，
+	// 等价于调用"return datastore.SaveStruct(x, c)"。
+	c &lt;- datastore.Property{
+		Name:  &#34;I&#34;,
+		Value: int64(x.I),
+	}
+	c &lt;- datastore.Property{
+		Name:  &#34;J&#34;,
+		Value: int64(x.J),
+	}
+	return nil
+}</pre>
+    <p>*PropertyList类型实现了PropertyLoadSaver，因此可以保存任意实体的内容。</p>
+    <h4 id="hdr-Queries">Queries <a class="permalink" href="#hdr-Queries">&para</a></h4>
+    <p align="left">使用实体的属性或键的父子关系进行检索。执行query时，输出结果的迭代器，键集或者键值对集。检索可以重用，并发安全。但是迭代器是并发不安全的。 </p>
+    <p align="left">查询是不可变的，要么是调用NewQuery创建，要么是现有的查询调用Filter或Order之类的方法产生的。一个query一般都是由调用NewQuery后跟一条零到多个的这些方法构成的。这些方法有：</p>
+    <pre>- Ancestor和Filter 约束/过滤一个query返回的实体集
+- Order 控制返回的实体集里实体的顺序
+- Project 约束返回的字段
+- Distinct 对映射构造的实体进行去重
+- KeysOnly 让迭代器只返回键，而不返回键值对
+- Start、End、Offset和Limit 定义匹配得到的实体集应返回的子序列
+  Start和End接受Cursor类型，Offset和Limit接受整数
+  Start和Offset控制第一个结果的位置，End和Limit控制最后一个结果的位置
+  如果Start和Offset都设置了，offset以Start为基准
+  如果End和Limit都设置了，那么第一个到达的起效，Limit以Start+Offset为基准，而非End
+  如果limit为负数，表示不设约束</pre>
+    <p>示例：</p>
+    <pre>type Widget struct {
+	Description string
+	Price       int
+}
+func handle(w http.ResponseWriter, r *http.Request) {
+	c := appengine.NewContext(r)
+	q := datastore.NewQuery(&#34;Widget&#34;).
+		Filter(&#34;Price &lt;&#34;, 1000).
+		Order(&#34;-Price&#34;)
+	b := new(bytes.Buffer)
+	for t := q.Run(c); ; {
+		var x Widget
+		key, err := t.Next(&amp;x)
+		if err == datastore.Done {
+			break
+		}
+		if err != nil {
+			serveError(c, w, err)
+			return
+		}
+		fmt.Fprintf(b, &#34;Key=%v\nWidget=%#v\n\n&#34;, key, x)
+	}
+	w.Header().Set(&#34;Content-Type&#34;, &#34;text/plain; charset=utf-8&#34;)
+	io.Copy(w, b)
+}
+</pre>
+    <h4 id="hdr-Transactions">Transactions <a class="permalink" href="#hdr-Transactions">&para</a></h4>
+    <p align="left">RunInTransaction在一次事务中运行一个函数。 </p>
+    <p align="left">示例：</p>
+    <pre>type Counter struct {
+	Count int
+}
+func inc(c appengine.Context, key *datastore.Key) (int, error) {
+	var x Counter
+	if err := datastore.Get(c, key, &amp;x); err != nil &amp;&amp; err != datastore.ErrNoSuchEntity {
+		return 0, err
+	}
+	x.Count++
+	if _, err := datastore.Put(c, key, &amp;x); err != nil {
+		return 0, err
+	}
+	return x.Count, nil
+}
+func handle(w http.ResponseWriter, r *http.Request) {
+	c := appengine.NewContext(r)
+	var count int
+	err := datastore.RunInTransaction(c, func(c appengine.Context) error {
+		var err1 error
+		count, err1 = inc(c, datastore.NewKey(c, &#34;Counter&#34;, &#34;singleton&#34;, 0, nil))
+		return err1
+	}, nil)
+	if err != nil {
+		serveError(c, w, err)
+		return
+	}
+	w.Header().Set(&#34;Content-Type&#34;, &#34;text/plain; charset=utf-8&#34;)
+	fmt.Fprintf(w, &#34;Count=%d&#34;, count)
+}</pre>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <ul class="list-unstyled">
+        <li><a href="#pkg-variables">Variables</a></li>
+        <li><a href="#ErrFieldMismatch">type ErrFieldMismatch</a></li>
+        <ul>
+            <li><a href="#ErrFieldMismatch.Error">func (e *ErrFieldMismatch) Error() string</a></li>
+        </ul>
+        <li><a href="#Key">type Key</a></li>
+        <ul>
+            <li><a href="#DecodeKey">func DecodeKey(encoded string) (*Key, error)</a></li>
+            <li><a href="#NewIncompleteKey">func NewIncompleteKey(c appengine.Context, kind string, parent *Key) *Key</a></li>
+            <li><a href="#NewKey">func NewKey(c appengine.Context, kind, stringID string, intID int64, parent *Key) *Key</a></li>
+            <li><a href="#Key.AppID">func (k *Key) AppID() string</a></li>
+            <li><a href="#Key.IntID">func (k *Key) IntID() int64</a></li>
+            <li><a href="#Key.StringID">func (k *Key) StringID() string</a></li>
+            <li><a href="#Key.Kind">func (k *Key) Kind() string</a></li>
+            <li><a href="#Key.Parent">func (k *Key) Parent() *Key</a></li>
+            <li><a href="#Key.Incomplete">func (k *Key) Incomplete() bool</a></li>
+            <li><a href="#Key.Namespace">func (k *Key) Namespace() string</a></li>
+            <li><a href="#Key.Equal">func (k *Key) Equal(o *Key) bool</a></li>
+            <li><a href="#Key.String">func (k *Key) String() string</a></li>
+            <li><a href="#Key.Encode">func (k *Key) Encode() string</a></li>
+            <li><a href="#Key.GobEncode">func (k *Key) GobEncode() ([]byte, error)</a></li>
+            <li><a href="#Key.GobDecode">func (k *Key) GobDecode(buf []byte) error</a></li>
+            <li><a href="#Key.MarshalJSON">func (k *Key) MarshalJSON() ([]byte, error)</a></li>
+            <li><a href="#Key.UnmarshalJSON">func (k *Key) UnmarshalJSON(buf []byte) error</a></li>
+        </ul>
+        <li><a href="#Property">type Property</a></li>
+        <li><a href="#PropertyLoadSaver">type PropertyLoadSaver</a></li>
+        <li><a href="#PropertyList">type PropertyList</a></li>
+        <ul>
+            <li><a href="#PropertyList.Load">func (l *PropertyList) Load(c &lt;-chan Property) error</a></li>
+            <li><a href="#PropertyList.Save">func (l *PropertyList) Save(c chan&lt;- Property) error</a></li>
+        </ul>
+        <li><a href="#Query">type Query</a></li>
+        <ul>
+            <li><a href="#NewQuery">func NewQuery(kind string) *Query</a></li>
+            <li><a href="#Query.Ancestor">func (q *Query) Ancestor(ancestor *Key) *Query</a></li>
+            <li><a href="#Query.Filter">func (q *Query) Filter(filterStr string, value interface{}) *Query</a></li>
+            <li><a href="#Query.EventualConsistency">func (q *Query) EventualConsistency() *Query</a></li>
+            <li><a href="#Query.Project">func (q *Query) Project(fieldNames ...string) *Query</a></li>
+            <li><a href="#Query.Distinct">func (q *Query) Distinct() *Query</a></li>
+            <li><a href="#Query.KeysOnly">func (q *Query) KeysOnly() *Query</a></li>
+            <li><a href="#Query.Count">func (q *Query) Count(c appengine.Context) (int, error)</a></li>
+            <li><a href="#Query.Order">func (q *Query) Order(fieldName string) *Query</a></li>
+            <li><a href="#Query.Start">func (q *Query) Start(c Cursor) *Query</a></li>
+            <li><a href="#Query.End">func (q *Query) End(c Cursor) *Query</a></li>
+            <li><a href="#Query.Limit">func (q *Query) Limit(limit int) *Query</a></li>
+            <li><a href="#Query.Offset">func (q *Query) Offset(offset int) *Query</a></li>
+            <li><a href="#Query.Run">func (q *Query) Run(c appengine.Context) *Iterator</a></li>
+            <li><a href="#Query.GetAll">func (q *Query) GetAll(c appengine.Context, dst interface{}) ([]*Key, error)</a></li>
+        </ul>
+        <li><a href="#Iterator">type Iterator</a></li>
+        <ul>
+            <li><a href="#Iterator.Cursor">func (t *Iterator) Cursor() (Cursor, error)</a></li>
+            <li><a href="#Iterator.Next">func (t *Iterator) Next(dst interface{}) (*Key, error)</a></li>
+        </ul>
+        <li><a href="#Cursor">type Cursor</a></li>
+        <ul>
+            <li><a href="#DecodeCursor">func DecodeCursor(s string) (Cursor, error)</a></li>
+            <li><a href="#Cursor.String">func (c Cursor) String() string</a></li>
+        </ul>
+        <li><a href="#TransactionOptions">type TransactionOptions</a></li>
+        <li><a href="#AllocateIDs">func AllocateIDs(c appengine.Context, kind string, parent *Key, n int) (low, high int64, err error)</a></li>
+        <li><a href="#Get">func Get(c appengine.Context, key *Key, dst interface{}) error</a></li>
+        <li><a href="#GetMulti">func GetMulti(c appengine.Context, key []*Key, dst interface{}) error</a></li>
+        <li><a href="#Put">func Put(c appengine.Context, key *Key, src interface{}) (*Key, error)</a></li>
+        <li><a href="#PutMulti">func PutMulti(c appengine.Context, key []*Key, src interface{}) ([]*Key, error)</a></li>
+        <li><a href="#Delete">func Delete(c appengine.Context, key *Key) error</a></li>
+        <li><a href="#DeleteMulti">func DeleteMulti(c appengine.Context, key []*Key) error</a></li>
+        <li><a href="#LoadStruct">func LoadStruct(dst interface{}, c &lt;-chan Property) error</a></li>
+        <li><a href="#SaveStruct">func SaveStruct(src interface{}, c chan&lt;- Property) error</a></li>
+        <li><a href="#RunInTransaction">func RunInTransaction(c appengine.Context, f func(tc appengine.Context) error, opts *TransactionOptions) error</a></li>
+    </ul>
+    <h3 id="pkg-variables">Variables <a class="permalink" href="#pkg-variables">&para;</a></h3>
+    <pre>var (
+    <span class="com">// Get和Next之类的函数在接受的参数类型不合法时返回本错误</span>
+    <span id="ErrInvalidEntityType">ErrInvalidEntityType</span> = <a href="https://godoc.org/errors">errors</a>.<a href="https://godoc.org/errors#New">New</a>(&#34;datastore: invalid entity type&#34;)
+    <span class="com">// 当提供的键不合法时返回本错误</span>
+    <span id="ErrInvalidKey">ErrInvalidKey</span> = <a href="https://godoc.org/errors">errors</a>.<a href="https://godoc.org/errors#New">New</a>(&#34;datastore: invalid key&#34;)
+    <span class="com">// 当给出的键没有发现对应的实体时，返回本错误</span>
+    <span id="ErrNoSuchEntity">ErrNoSuchEntity</span> = <a href="https://godoc.org/errors">errors</a>.<a href="https://godoc.org/errors#New">New</a>(&#34;datastore: no such entity&#34;)
+)</pre>
+    <pre>var <span id="Done">Done</span> = <a href="https://godoc.org/errors">errors</a>.<a href="https://godoc.org/errors#New">New</a>(&#34;datastore: query has no more results&#34;)</pre>
+    <p>当一个query的迭代器迭代结束时，返回Done。</p>
+    <pre>var <span id="ErrConcurrentTransaction">ErrConcurrentTransaction</span> = <a href="https://godoc.org/errors">errors</a>.<a href="https://godoc.org/errors#New">New</a>(&#34;datastore: concurrent transaction&#34;)</pre>
+    <p>当一个事务因为并发事务的冲突回滚时，将返回本错误。</p>
+    <h3 id="ErrFieldMismatch">type <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/datastore/datastore.go#34">ErrFieldMismatch</a> <a class="permalink" href="#ErrFieldMismatch">&para;</a></h3>
+    <pre>type ErrFieldMismatch struct {
+    <span id="ErrFieldMismatch.StructType">StructType</span> <a href="https://godoc.org/reflect">reflect</a>.<a href="https://godoc.org/reflect#Type">Type</a>
+    <span id="ErrFieldMismatch.FieldName">FieldName</span>  <a href="https://godoc.org/builtin#string">string</a>
+    <span id="ErrFieldMismatch.Reason">Reason</span>     <a href="https://godoc.org/builtin#string">string</a>
+}</pre>
+    <p>当字段类型不匹配，或者有字段未导出到目标结构体时返回本类型错误。StructType为提供的结构体的类型。</p>
+    <h4 id="ErrFieldMismatch.Error">func (*ErrFieldMismatch) <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/datastore/datastore.go#40">Error</a> <a class="permalink" href="#ErrFieldMismatch.Error">&para;</a></h4>
+    <pre class="funcdecl">func (e *<a href="#ErrFieldMismatch">ErrFieldMismatch</a>) Error() <a href="https://godoc.org/builtin#string">string</a></pre>
+    <h3 id="Key">type <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/datastore/key.go#24">Key</a> <a class="permalink" href="#Key">&para;</a></h3>
+    <pre>type Key struct {
+    <span class="com">// 内含隐藏字段</span>
+}</pre>
+    <p>Key代表一个datastore保存的实体的键，是不可变的。</p>
+    <h4 id="DecodeKey">func <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/datastore/key.go#224">DecodeKey</a> <a class="permalink" href="#DecodeKey">&para;</a></h4>
+    <pre class="funcdecl">func DecodeKey(encoded <a href="https://godoc.org/builtin#string">string</a>) (*<a href="#Key">Key</a>, <a href="https://godoc.org/builtin#error">error</a>)</pre>
+    <p>解码一个不透明描述（*Key的Encode方法生成）来获取键。</p>
+    <h4 id="NewIncompleteKey">func <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/datastore/key.go#245">NewIncompleteKey</a> <a class="permalink" href="#NewIncompleteKey">&para;</a></h4>
+    <pre class="funcdecl">func NewIncompleteKey(c <a href="https://godoc.org/appengine">appengine</a>.<a href="https://godoc.org/appengine#Context">Context</a>, kind <a href="https://godoc.org/builtin#string">string</a>, parent *<a href="#Key">Key</a>) *<a href="#Key">Key</a></pre>
+    <p>创建一个不完全键，kind参数不能为空。</p>
+    <h4 id="NewKey">func <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/datastore/key.go#254">NewKey</a> <a class="permalink" href="#NewKey">&para;</a></h4>
+    <pre class="funcdecl">func NewKey(c <a href="https://godoc.org/appengine">appengine</a>.<a href="https://godoc.org/appengine#Context">Context</a>, kind, stringID <a href="https://godoc.org/builtin#string">string</a>, intID <a href="https://godoc.org/builtin#int64">int64</a>, parent *<a href="#Key">Key</a>) *<a href="#Key">Key</a></pre>
+    <p>创建一个新的键，kind参数不可为空。stringID和intID两个参数至少应有一个为零值。如果都为零值，则键为不完全键。Parent参数必须是完全键或者nil。</p>
+    <h4 id="Key.AppID">func (*Key) <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/datastore/key.go#55">AppID</a> <a class="permalink" href="#Key.AppID">&para;</a></h4>
+    <pre class="funcdecl">func (k *<a href="#Key">Key</a>) AppID() <a href="https://godoc.org/builtin#string">string</a></pre>
+    <p>返回键的AppID。</p>
+    <h4 id="Key.IntID">func (*Key) <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/datastore/key.go#45">IntID</a> <a class="permalink" href="#Key.IntID">&para;</a></h4>
+    <pre class="funcdecl">func (k *<a href="#Key">Key</a>) IntID() <a href="https://godoc.org/builtin#int64">int64</a></pre>
+    <p>返回键的IntID，可以为0。</p>
+    <h4 id="Key.StringID">func (*Key) <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/datastore/key.go#40">StringID</a> <a class="permalink" href="#Key.StringID">&para;</a></h4>
+    <pre class="funcdecl">func (k *<a href="#Key">Key</a>) StringID() <a href="https://godoc.org/builtin#string">string</a></pre>
+    <p>返回键的StringID(也被视为实体的名字或键的名字)，可以是""。</p>
+    <h4 id="Key.Kind">func (*Key) <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/datastore/key.go#34">Kind</a> <a class="permalink" href="#Key.Kind">&para;</a></h4>
+    <pre class="funcdecl">func (k *<a href="#Key">Key</a>) Kind() <a href="https://godoc.org/builtin#string">string</a></pre>
+    <p>返回键的类型(也被视为实体的类型)。</p>
+    <h4 id="Key.Parent">func (*Key) <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/datastore/key.go#50">Parent</a> <a class="permalink" href="#Key.Parent">&para;</a></h4>
+    <pre class="funcdecl">func (k *<a href="#Key">Key</a>) Parent() *<a href="#Key">Key</a></pre>
+    <p>返回键的父键，可以是nil。</p>
+    <h4 id="Key.Incomplete">func (*Key) <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/datastore/key.go#66">Incomplete</a> <a class="permalink" href="#Key.Incomplete">&para;</a></h4>
+    <pre class="funcdecl">func (k *<a href="#Key">Key</a>) Incomplete() <a href="https://godoc.org/builtin#bool">bool</a></pre>
+    <p>返回键是否不完整，即是否键的StringID和IntID都为零值。</p>
+    <h4 id="Key.Namespace">func (*Key) <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/datastore/key.go#60">Namespace</a> <a class="permalink" href="#Key.Namespace">&para;</a></h4>
+    <pre class="funcdecl">func (k *<a href="#Key">Key</a>) Namespace() <a href="https://godoc.org/builtin#string">string</a></pre>
+    <p>返回键的命名空间。</p>
+    <h4 id="Key.Equal">func (*Key) <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/datastore/key.go#95">Equal</a> <a class="permalink" href="#Key.Equal">&para;</a></h4>
+    <pre class="funcdecl">func (k *<a href="#Key">Key</a>) Equal(o *<a href="#Key">Key</a>) <a href="https://godoc.org/builtin#bool">bool</a></pre>
+    <p>返回两个键是否相等。</p>
+    <h4 id="Key.String">func (*Key) <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/datastore/key.go#129">String</a> <a class="permalink" href="#Key.String">&para;</a></h4>
+    <pre class="funcdecl">func (k *<a href="#Key">Key</a>) String() <a href="https://godoc.org/builtin#string">string</a></pre>
+    <p>返回键的字符串表示。</p>
+    <h4 id="Key.Encode">func (*Key) <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/datastore/key.go#211">Encode</a> <a class="permalink" href="#Key.Encode">&para;</a></h4>
+    <pre class="funcdecl">func (k *<a href="#Key">Key</a>) Encode() <a href="https://godoc.org/builtin#string">string</a></pre>
+    <p>返回键的不透明描述，该描述可以用于HTML文件和URL中，并且和Python、Jave运行时环境兼容。</p>
+    <h4 id="Key.GobEncode">func (*Key) <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/datastore/key.go#175">GobEncode</a> <a class="permalink" href="#Key.GobEncode">&para;</a></h4>
+    <pre class="funcdecl">func (k *<a href="#Key">Key</a>) GobEncode() ([]<a href="https://godoc.org/builtin#byte">byte</a>, <a href="https://godoc.org/builtin#error">error</a>)</pre>
+    <h4 id="Key.GobDecode">func (*Key) <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/datastore/key.go#183">GobDecode</a> <a class="permalink" href="#Key.GobDecode">&para;</a></h4>
+    <pre class="funcdecl">func (k *<a href="#Key">Key</a>) GobDecode(buf []<a href="https://godoc.org/builtin#byte">byte</a>) <a href="https://godoc.org/builtin#error">error</a></pre>
+    <h4 id="Key.MarshalJSON">func (*Key) <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/datastore/key.go#192">MarshalJSON</a> <a class="permalink" href="#Key.MarshalJSON">&para;</a></h4>
+    <pre class="funcdecl">func (k *<a href="#Key">Key</a>) MarshalJSON() ([]<a href="https://godoc.org/builtin#byte">byte</a>, <a href="https://godoc.org/builtin#error">error</a>)</pre>
+    <h4 id="Key.UnmarshalJSON">func (*Key) <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/datastore/key.go#196">UnmarshalJSON</a> <a class="permalink" href="#Key.UnmarshalJSON">&para;</a></h4>
+    <pre class="funcdecl">func (k *<a href="#Key">Key</a>) UnmarshalJSON(buf []<a href="https://godoc.org/builtin#byte">byte</a>) <a href="https://godoc.org/builtin#error">error</a></pre>
+    <h3 id="Property">type <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/datastore/prop.go#25">Property</a> <a class="permalink" href="#Property">&para;</a></h3>
+    <pre>type Property struct {
+    <span class="com">// Name是属性名</span>
+    <span id="Property.Name">Name</span> <a href="https://godoc.org/builtin#string">string</a>
+    <span class="com">// Value是属性的值，合法类型如下</span>
+    <span class="com">//   - int64</span>
+    <span class="com">//   - bool</span>
+    <span class="com">//   - string</span>
+    <span class="com">//   - float64</span>
+    <span class="com">//   - *Key</span>
+    <span class="com">//   - time.Time</span>
+    <span class="com">//   - appengine.BlobKey</span>
+    <span class="com">//   - appengine.GeoPoint</span>
+    <span class="com">//   - []byte (最长1mb)</span>
+    <span class="com">// 这个集合比合法结构体字段的类型集合要小</span>
+    <span class="com">// 属性的值不能是切片（除了[]byte以外），应使用多个属性替代</span>
+    <span class="com">// 属性的类型必须显式的属于上面的列表，只是底层类型在该列表是不行的</span>
+    <span class="com">// 如"type myInt64 int64"，myInt64类型就是非法的</span>
+    <span class="com">// 因此，比合法结构体字段类型要严格的多</span>
+    <span class="com">//</span>
+    <span class="com">// 当从索引装载实体时，如通过映射查询，Value会拥有不透明的类型</span>
+    <span class="com">// 当使用映射查询时，应该将实体装载到结构体中，而非PropertyLoadSaver接口中</span>
+    <span class="com">//</span>
+    <span class="com">// 一个Value也可以是nil的接口值；等价于Python的None，但不能被go结构体直接表示</span>
+    <span class="com">// 装载一个nil值的属性到结构体会将对应的字段设为零值</span>
+    <span id="Property.Value">Value</span> interface{}
+    <span class="com">// NoIndex控制datastore是否应索引该属性</span>
+    <span id="Property.NoIndex">NoIndex</span> <a href="https://godoc.org/builtin#bool">bool</a>
+    <span class="com">// 控制实体是否可以包含多个同名的属性,用来表示类型为[]T而非T的字段的一系列值</span>
+    <span class="com">// 即使某个特定的实例的某个名称的属性只有一个，也应设置该Multiple为真</span>
+    <span id="Property.Multiple">Multiple</span> <a href="https://godoc.org/builtin#bool">bool</a>
+}</pre>
+    <p>Property是附加了一些元数据的键值对。一个datastore的实体的内容都以Property序列的形式保存和加载。一个实体可以包含同名的多个Property，这些Property都应设值Multiple为真，表示一个切片。</p>
+    <h3 id="PropertyLoadSaver">type <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/datastore/prop.go#68">PropertyLoadSaver</a> <a class="permalink" href="#PropertyLoadSaver">&para;</a></h3>
+    <pre>type PropertyLoadSaver interface {
+    <span id="PropertyLoadSaver.Load">Load</span>(&lt;-chan <a href="#Property">Property</a>) <a href="https://godoc.org/builtin#error">error</a>
+    <span id="PropertyLoadSaver.Save">Save</span>(chan&lt;- <a href="#Property">Property</a>) <a href="https://godoc.org/builtin#error">error</a>
+}</pre>
+    <p>PropertyLoadSaver接口可以与[]Property类型相互转换。</p>
+    <h3 id="PropertyList">type <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/datastore/prop.go#74">PropertyList</a> <a class="permalink" href="#PropertyList">&para;</a></h3>
+    <pre>type PropertyList []<a href="#Property">Property</a></pre>
+    <p>PropertyList为 []Property实现了PropertyLoadSaver接口。</p>
+    <h4 id="PropertyList.Load">func (*PropertyList) <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/datastore/prop.go#83">Load</a> <a class="permalink" href="#PropertyList.Load">&para;</a></h4>
+    <pre class="funcdecl">func (l *<a href="#PropertyList">PropertyList</a>) Load(c &lt;-chan <a href="#Property">Property</a>) <a href="https://godoc.org/builtin#error">error</a></pre>
+    <p>装载所有提供的属性到l，本函数不会先重置*l为空切片。</p>
+    <h4 id="PropertyList.Save">func (*PropertyList) <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/datastore/prop.go#91">Save</a> <a class="permalink" href="#PropertyList.Save">&para;</a></h4>
+    <pre class="funcdecl">func (l *<a href="#PropertyList">PropertyList</a>) Save(c chan&lt;- <a href="#Property">Property</a>) <a href="https://godoc.org/builtin#error">error</a></pre>
+    <p>保存l的所有属性为一个Property的切片。</p>
+    <h3 id="Query">type <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/datastore/query.go#77">Query</a> <a class="permalink" href="#Query">&para;</a></h3>
+    <pre>type Query struct {
+    <span class="com">// 内含隐藏字段</span>
+}</pre>
+    <p>Query表示一个datastore的查询。</p>
+    <h4 id="NewQuery">func <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/datastore/query.go#69">NewQuery</a> <a class="permalink" href="#NewQuery">&para;</a></h4>
+    <pre class="funcdecl">func NewQuery(kind <a href="https://godoc.org/builtin#string">string</a>) *<a href="#Query">Query</a></pre>
+    <p align="left">为某类型的实体创建一个新的Query。 </p>
+    <p align="left">kind为空表示返回所有实体，包括被其他App Engine产品创建和管理的实体，这被称为无类型实体，无类型实体不能对属性值进行过滤和排序。</p>
+    <h4 id="Query.Ancestor">func (*Query) <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/datastore/query.go#111">Ancestor</a> <a class="permalink" href="#Query.Ancestor">&para;</a></h4>
+    <pre class="funcdecl">func (q *<a href="#Query">Query</a>) Ancestor(ancestor *<a href="#Key">Key</a>) *<a href="#Query">Query</a></pre>
+    <p>返回具有同一根键的一个衍生查询，过滤器。Ancestor参数不能为nil。</p>
+    <h4 id="Query.Filter">func (*Query) <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/datastore/query.go#135">Filter</a> <a class="permalink" href="#Query.Filter">&para;</a></h4>
+    <pre class="funcdecl">func (q *<a href="#Query">Query</a>) Filter(filterStr <a href="https://godoc.org/builtin#string">string</a>, value interface{}) *<a href="#Query">Query</a></pre>
+    <p>返回一个对字段进行过滤的衍生查询。filterStr参数必须是一个字段名后跟可选的空格以及一个操作符，操作符为"&gt;"、"&lt;"、"&gt;="、"&lt;="和"="其中之一。字段根据操作符与提供的value进行比较。</p>
+    <h4 id="Query.EventualConsistency">func (*Query) <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/datastore/query.go#124">EventualConsistency</a> <a class="permalink" href="#Query.EventualConsistency">&para;</a></h4>
+    <pre class="funcdecl">func (q *<a href="#Query">Query</a>) EventualConsistency() *<a href="#Query">Query</a></pre>
+    <p>返回会输出具有最终一致性的结果的衍生查询，只对Ancestor方法有影响。</p>
+    <h4 id="Query.Project">func (*Query) <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/datastore/query.go#192">Project</a> <a class="permalink" href="#Query.Project">&para;</a></h4>
+    <pre class="funcdecl">func (q *<a href="#Query">Query</a>) Project(fieldNames ...<a href="https://godoc.org/builtin#string">string</a>) *<a href="#Query">Query</a></pre>
+    <p>返回一个只输出给定字段的映射查询。</p>
+    <h4 id="Query.Distinct">func (*Query) <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/datastore/query.go#201">Distinct</a> <a class="permalink" href="#Query.Distinct">&para;</a></h4>
+    <pre class="funcdecl">func (q *<a href="#Query">Query</a>) Distinct() *<a href="#Query">Query</a></pre>
+    <p>返回对映射字段集合进行去重的一个衍生的映射查询，只能用于映射查询。</p>
+    <h4 id="Query.KeysOnly">func (*Query) <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/datastore/query.go#209">KeysOnly</a> <a class="permalink" href="#Query.KeysOnly">&para;</a></h4>
+    <pre class="funcdecl">func (q *<a href="#Query">Query</a>) KeysOnly() *<a href="#Query">Query</a></pre>
+    <p>返回一个只输出键的衍生的唯键查询，本方法不能用于映射查询。</p>
+    <h4 id="Query.Count">func (*Query) <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/datastore/query.go#342">Count</a> <a class="permalink" href="#Query.Count">&para;</a></h4>
+    <pre class="funcdecl">func (q *<a href="#Query">Query</a>) Count(c <a href="https://godoc.org/appengine">appengine</a>.<a href="https://godoc.org/appengine#Context">Context</a>) (<a href="https://godoc.org/builtin#int">int</a>, <a href="https://godoc.org/builtin#error">error</a>)</pre>
+    <p>返回查询得到的结果的数量。</p>
+    <h4 id="Query.Order">func (*Query) <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/datastore/query.go#168">Order</a> <a class="permalink" href="#Query.Order">&para;</a></h4>
+    <pre class="funcdecl">func (q *<a href="#Query">Query</a>) Order(fieldName <a href="https://godoc.org/builtin#string">string</a>) *<a href="#Query">Query</a></pre>
+    <p>返回一个根据参数进行排序后的查询。函数将按参数递增顺序排序的（从小到大输出），如果要反过来，在fieldName参数的字段名前添加'-'。</p>
+    <h4 id="Query.Start">func (*Query) <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/datastore/query.go#244">Start</a> <a class="permalink" href="#Query.Start">&para;</a></h4>
+    <pre class="funcdecl">func (q *<a href="#Query">Query</a>) Start(c <a href="#Cursor">Cursor</a>) *<a href="#Query">Query</a></pre>
+    <p>返回一个从给定位置起始的查询。</p>
+    <h4 id="Query.End">func (*Query) <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/datastore/query.go#255">End</a> <a class="permalink" href="#Query.End">&para;</a></h4>
+    <pre class="funcdecl">func (q *<a href="#Query">Query</a>) End(c <a href="#Cursor">Cursor</a>) *<a href="#Query">Query</a></pre>
+    <p>返回一个在给定位置结束的查询。</p>
+    <h4 id="Query.Limit">func (*Query) <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/datastore/query.go#217">Limit</a> <a class="permalink" href="#Query.Limit">&para;</a></h4>
+    <pre class="funcdecl">func (q *<a href="#Query">Query</a>) Limit(limit <a href="https://godoc.org/builtin#int">int</a>) *<a href="#Query">Query</a></pre>
+    <p>返回一个限定结果个数的查询，limit小于0代表无限制。</p>
+    <h4 id="Query.Offset">func (*Query) <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/datastore/query.go#229">Offset</a> <a class="permalink" href="#Query.Offset">&para;</a></h4>
+    <pre class="funcdecl">func (q *<a href="#Query">Query</a>) Offset(offset <a href="https://godoc.org/builtin#int">int</a>) *<a href="#Query">Query</a></pre>
+    <p>返回一个跳过起始offset个结果的查询，offset不能小于0。</p>
+    <h4 id="Query.Run">func (*Query) <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/datastore/query.go#515">Run</a> <a class="permalink" href="#Query.Run">&para;</a></h4>
+    <pre class="funcdecl">func (q *<a href="#Query">Query</a>) Run(c <a href="https://godoc.org/appengine">appengine</a>.<a href="https://godoc.org/appengine#Context">Context</a>) *<a href="#Iterator">Iterator</a></pre>
+    <p>在给定的上下文环境下输出查询结果的迭代器。</p>
+    <h4 id="Query.GetAll">func (*Query) <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/datastore/query.go#448">GetAll</a> <a class="permalink" href="#Query.GetAll">&para;</a></h4>
+    <pre class="funcdecl">func (q *<a href="#Query">Query</a>) GetAll(c <a href="https://godoc.org/appengine">appengine</a>.<a href="https://godoc.org/appengine#Context">Context</a>, dst interface{}) ([]*<a href="#Key">Key</a>, <a href="https://godoc.org/builtin#error">error</a>)</pre>
+    <p align="left">方法在给定的上下文环境下执行查询，将结果附加进dst并返回所有对应的键。 </p>
+    <p align="left">对dst的要求和GetMulti函数一样。返回的键和附加进dst的实体一一对应，如果是唯键查询，会忽略dst。</p>
+    <h3 id="Iterator">type <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/datastore/query.go#555">Iterator</a> <a class="permalink" href="#Iterator">&para;</a></h3>
+    <pre>type Iterator struct {
+    <span class="com">// 内含隐藏字段</span>
+}</pre>
+    <p>Iterator是一个查询返回的结果的迭代器。</p>
+    <h4 id="Iterator.Cursor">func (*Iterator) <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/datastore/query.go#636">Cursor</a> <a class="permalink" href="#Iterator.Cursor">&para;</a></h4>
+    <pre class="funcdecl">func (t *<a href="#Iterator">Iterator</a>) Cursor() (<a href="#Cursor">Cursor</a>, <a href="https://godoc.org/builtin#error">error</a>)</pre>
+    <p>返回迭代器当前位置的Cursor。</p>
+    <h4 id="Iterator.Next">func (*Iterator) <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/datastore/query.go#581">Next</a> <a class="permalink" href="#Iterator.Next">&para;</a></h4>
+    <pre class="funcdecl">func (t *<a href="#Iterator">Iterator</a>) Next(dst interface{}) (*<a href="#Key">Key</a>, <a href="https://godoc.org/builtin#error">error</a>)</pre>
+    <p align="left">返回下一个结果的键，当没有下一个时，会返回Done作为错误值。 </p>
+    <p align="left">如果查询未使用KeysOnly，并且dst不是nil，方法还会将返回的key对应的实体装载到dst中，dst的要求和Get函数一样，也可能返回和Get函数一样的错误。</p>
+    <h3 id="Cursor">type <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/datastore/query.go#684">Cursor</a> <a class="permalink" href="#Cursor">&para;</a></h3>
+    <pre>type Cursor struct {
+    <span class="com">// 内含隐藏字段</span>
+}</pre>
+    <p>Cursor 代表一个迭代器的位置。它可以编解码为一个不透明字符串。一个Cursor可以用于不同的HTTP请求，但是只有在类型、父键、过滤和顺序约束都一致的情况下才代表同一个位置。</p>
+    <h4 id="DecodeCursor">func <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/datastore/query.go#704">DecodeCursor</a> <a class="permalink" href="#DecodeCursor">&para;</a></h4>
+    <pre class="funcdecl">func DecodeCursor(s <a href="https://godoc.org/builtin#string">string</a>) (<a href="#Cursor">Cursor</a>, <a href="https://godoc.org/builtin#error">error</a>)</pre>
+    <p>解码一个表示Cursor的base64字符串获取该Cursor。</p>
+    <h4 id="Cursor.String">func (Cursor) <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/datastore/query.go#689">String</a> <a class="permalink" href="#Cursor.String">&para;</a></h4>
+    <pre class="funcdecl">func (c <a href="#Cursor">Cursor</a>) String() <a href="https://godoc.org/builtin#string">string</a></pre>
+    <p>返回一个Cursor的base64字符串表示。</p>
+    <h3 id="TransactionOptions">type <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/datastore/transaction.go#127">TransactionOptions</a> <a class="permalink" href="#TransactionOptions">&para;</a></h3>
+    <pre>type TransactionOptions struct {
+    <span class="com">// 表示是否事务跨越多个实体组。</span>
+    <span class="com">// 单实体组的事务指它使用的所有键都有同一个根键。</span>
+    <span class="com">// 注意跨组事务和单组事务的行为是不一样的。</span>
+    <span class="com">// 特别注意，在全局查询中，更倾向于出现跨组事务。</span>
+    <span class="com">// 即使单组事务，将XG设为真也是合法的；反过来就不行。</span>
+    <span id="TransactionOptions.XG">XG</span> <a href="https://godoc.org/builtin#bool">bool</a>
+}</pre>
+    <p>TransactionOptions是执行事务的选项。</p>
+    <h3 id="AllocateIDs">func <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/datastore/key.go#285">AllocateIDs</a> <a class="permalink" href="#AllocateIDs">&para;</a></h3>
+    <pre class="funcdecl">func AllocateIDs(c <a href="https://godoc.org/appengine">appengine</a>.<a href="https://godoc.org/appengine#Context">Context</a>, kind <a href="https://godoc.org/builtin#string">string</a>, parent *<a href="#Key">Key</a>, n <a href="https://godoc.org/builtin#int">int</a>) (low, high <a href="https://godoc.org/builtin#int64">int64</a>, err <a href="https://godoc.org/builtin#error">error</a>)</pre>
+    <p align="left">AllocateIDs返回一个n个整数ID的范围，可用于和给出的kind和父键联合构建key。 kind不能为空，parent可以为nil。返回的范围内的整数ID不会被datastore键生成器所使用，可以用于NewKey函数而不会导致冲突。 </p>
+    <p align="left">合法的整数ID 要求不小于low且小于high。如果没有出错，返回值low + n == high。</p>
+    <h3 id="Get">func <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/datastore/datastore.go#232">Get</a> <a class="permalink" href="#Get">&para;</a></h3>
+    <pre class="funcdecl">func Get(c <a href="https://godoc.org/appengine">appengine</a>.<a href="https://godoc.org/appengine#Context">Context</a>, key *<a href="#Key">Key</a>, dst interface{}) <a href="https://godoc.org/builtin#error">error</a></pre>
+    <p align="left">函数将key对应的实体装载到dst，dst必须是结构体的指针或者实现了PropertyLoadSaver接口。如果没有对应key的实体，函数返回ErrNoSuchEntity。 </p>
+    <p align="left">dst中与实体不匹配的字段不会被修改，匹配的切片类型字段不会重置，对应的属性值直接添加到后面。因此，强烈建议对每次调用Get函数都使用指向零值结构体的指针。 </p>
+    <p align="left">如果某属性对应的字段类型错误时，或者某属性在dst结构体中无对应字段或字段隐藏时，返回ErrFieldMismatch类型错误。这个错误只会在dst是结构体指针时可能被返回。</p>
+    <h3 id="GetMulti">func <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/datastore/datastore.go#250">GetMulti</a> <a class="permalink" href="#GetMulti">&para;</a></h3>
+    <pre class="funcdecl">func GetMulti(c <a href="https://godoc.org/appengine">appengine</a>.<a href="https://godoc.org/appengine#Context">Context</a>, key []*<a href="#Key">Key</a>, dst interface{}) <a href="https://godoc.org/builtin#error">error</a></pre>
+    <p align="left">函数是Get函数的批处理版本。 </p>
+    <p align="left">dst必须是[]S、[]*S、[]I、[]P，其中S表示结构体类型，I表示接口类型，P表示实现了PropertyLoadSaver接口的某种类型，如果dst类型为[]I，其中每个元素都应为结构体指针或者实现了PropertyLoadSaver接口。 </p>
+    <p align="left">有一个特例，PropertyList类型不适用于dst，虽然该类型是结构体的切片，PropertyList类型视为非法以免当我们需要[]PropertyList时被错误的传递。</p>
+    <h3 id="Put">func <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/datastore/datastore.go#300">Put</a> <a class="permalink" href="#Put">&para;</a></h3>
+    <pre class="funcdecl">func Put(c <a href="https://godoc.org/appengine">appengine</a>.<a href="https://godoc.org/appengine#Context">Context</a>, key *<a href="#Key">Key</a>, src interface{}) (*<a href="#Key">Key</a>, <a href="https://godoc.org/builtin#error">error</a>)</pre>
+    <p>将src保存到key对应的实体中，src必须是结构体指针或者实现了PropertyLoadSaver接口。如果是结构体指针，结构体的所有隐藏字段将忽略。如果key是不完全键，返回的键为datastore生成的对应该实体的专有完全键。</p>
+    <h3 id="PutMulti">func <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/datastore/datastore.go#314">PutMulti</a> <a class="permalink" href="#PutMulti">&para;</a></h3>
+    <pre class="funcdecl">func PutMulti(c <a href="https://godoc.org/appengine">appengine</a>.<a href="https://godoc.org/appengine#Context">Context</a>, key []*<a href="#Key">Key</a>, src interface{}) ([]*<a href="#Key">Key</a>, <a href="https://godoc.org/builtin#error">error</a>)</pre>
+    <p>函数为Put的批处理版本，对src的要求同GetMulti的dst参数。</p>
+    <h3 id="Delete">func <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/datastore/datastore.go#361">Delete</a> <a class="permalink" href="#Delete">&para;</a></h3>
+    <pre class="funcdecl">func Delete(c <a href="https://godoc.org/appengine">appengine</a>.<a href="https://godoc.org/appengine#Context">Context</a>, key *<a href="#Key">Key</a>) <a href="https://godoc.org/builtin#error">error</a></pre>
+    <p>删除一个键对应的实体。</p>
+    <h3 id="DeleteMulti">func <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/datastore/datastore.go#370">DeleteMulti</a> <a class="permalink" href="#DeleteMulti">&para;</a></h3>
+    <pre class="funcdecl">func DeleteMulti(c <a href="https://godoc.org/appengine">appengine</a>.<a href="https://godoc.org/appengine#Context">Context</a>, key []*<a href="#Key">Key</a>) <a href="https://godoc.org/builtin#error">error</a></pre>
+    <p>Delete的批处理版本。</p>
+    <h3 id="LoadStruct">func <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/datastore/prop.go#282">LoadStruct</a> <a class="permalink" href="#LoadStruct">&para;</a></h3>
+    <pre class="funcdecl">func LoadStruct(dst interface{}, c &lt;-chan <a href="#Property">Property</a>) <a href="https://godoc.org/builtin#error">error</a></pre>
+    <p>从c中装载属性到dst，直到c关闭。dst必须是结构体的指针。</p>
+    <h3 id="SaveStruct">func <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/datastore/prop.go#295">SaveStruct</a> <a class="permalink" href="#SaveStruct">&para;</a></h3>
+    <pre class="funcdecl">func SaveStruct(src interface{}, c chan&lt;- <a href="#Property">Property</a>) <a href="https://godoc.org/builtin#error">error</a></pre>
+    <p>将src的属性保存到c，写完后会关闭c。src必须是结构体的指针。</p>
+    <h3 id="RunInTransaction">func <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/datastore/transaction.go#114">RunInTransaction</a> <a class="permalink" href="#RunInTransaction">&para;</a></h3>
+    <pre class="funcdecl">func RunInTransaction(c <a href="https://godoc.org/appengine">appengine</a>.<a href="https://godoc.org/appengine#Context">Context</a>, f func(tc <a href="https://godoc.org/appengine">appengine</a>.<a href="https://godoc.org/appengine#Context">Context</a>) <a href="https://godoc.org/builtin#error">error</a>, opts *<a href="#TransactionOptions">TransactionOptions</a>) <a href="https://godoc.org/builtin#error">error</a></pre>
+    <p align="left">函数在一次事务中执行f。它使用一个事务上下文tc调用f，f应在全部的操作中都使用tc。 </p>
+    <p align="left">如果f返回nil，RunInTransaction会尝试递交事务，如果成功会返回nil。如果因为事务冲突递交失败，函数会重试f，每次重试都会重新产生一个新的事务上下文tc。在递交失败3次后，函数会放弃并返回ErrConcurrentTransaction。 </p>
+    <p align="left">如果f返回非nil的错误值，则datastore不会被修改，函数不会重试，而直接返回该错误。 </p>
+    <p align="left">注意当f返回时，事务还没有递交。调用代码必须注意不能假设f的任何操作已经被递交，除非函数返回了nil。 </p>
+    <p align="left">不支持嵌套事务，c只能是从user或appengine包获取的Context，不能是事务上下文。</p>
+</div>
+</body>
+</html>

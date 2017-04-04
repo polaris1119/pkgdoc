@@ -1,0 +1,56 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="./site.css" rel="stylesheet">
+<title>os/signal</title>
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package signal</h2>
+    <p><code>import "os/signal"</code>
+    <p>signal包实现了对输入信号的访问。</p>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#Notify">func Notify(c chan&lt;- os.Signal, sig ...os.Signal)</a></li>
+        <li><a href="#Stop">func Stop(c chan&lt;- os.Signal)</a></li>
+    </ul>
+    <h4 id="pkg-examples">Examples <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#example-Notify" onclick="$('#ex-Notify').addClass('in').removeClass('collapse').height('auto')">Notify</a></li>
+    </ul>
+    <h3 id="Notify">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/os/signal/signal.go?name=release#49">Notify</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Notify(c chan&lt;- <a href="os.htm">os</a>.<a href="os.htm#Signal">Signal</a>, sig ...<a href="os.htm">os</a>.<a href="os.htm#Signal">Signal</a>)</pre>
+    <p align="left">Notify函数让signal包将输入信号转发到c。如果没有列出要传递的信号，会将所有输入信号传递到c；否则只传递列出的输入信号。</p>
+    <p align="left">signal包不会为了向c发送信息而阻塞（就是说如果发送时c阻塞了，signal包会直接放弃）：调用者应该保证c有足够的缓存空间可以跟上期望的信号频率。对使用单一信号用于通知的通道，缓存为1就足够了。</p>
+    <p align="left">可以使用同一通道多次调用Notify：每一次都会扩展该通道接收的信号集。唯一从信号集去除信号的方法是调用Stop。可以使用同一信号和不同通道多次调用Notify：每一个通道都会独立接收到该信号的一个拷贝。</p>
+    <div class="panel-group">
+        <div class="panel panel-default" id="example-Notify">
+            <div class="panel-heading" onclick="document.getElementById('ex-Notify').style.display = document.getElementById('ex-Notify').style.display=='none'?'block':'none';">Example</div>
+            <div id="ex-Notify" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre>
+<span class="com">// Set up channel on which to send signal notifications.</span>
+<span class="com">// We must use a buffered channel or risk missing the signal</span>
+<span class="com">// if we&#39;re not ready to receive when the signal is sent.</span>
+c := make(chan os.Signal, 1)
+signal.Notify(c, os.Interrupt, os.Kill)
+<span class="com">// Block until a signal is received.</span>
+s := &lt;-c
+fmt.Println(&#34;Got signal:&#34;, s)
+</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    <h3 id="Stop">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/os/signal/signal.go?name=release#93">Stop</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Stop(c chan&lt;- <a href="os.htm">os</a>.<a href="os.htm#Signal">Signal</a>)</pre>
+    <p>Stop函数让signal包停止向c转发信号。它会取消之前使用c调用的所有Notify的效果。当Stop返回后，会保证c不再接收到任何信号。</p>
+    <h3 id="pkg-note-bug">Bugs <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <p><a title="View Source" href="https://github.com/golang/go/blob/master/src/os/signal/signal.go?name=release#8">☞</a> 本包还没在Plan 9上实现。
+</div>
+</body>
+</html>

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="../../../site.css" rel="stylesheet">
+<title>go.text/transform</title>
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package transform</h2>
+    <p><code>import "code.google.com/p/go.text/transform"</code>
+    <p>transform包提供了对数据进行编码转换的读写接口的包装。主要用于编码转化和编码标准化等。</p>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <ul class="list-unstyled">
+        <li><a href="#pkg-variables">Variables</a></li>
+        <li><a href="#Transformer">type Transformer</a></li>
+        <ul>
+            <li><a href="#Chain">func Chain(t ...Transformer) Transformer</a></li>
+            <li><a href="#RemoveFunc">func RemoveFunc(f func(r rune) bool) Transformer</a></li>
+        </ul>
+        <li><a href="#Reader">type Reader</a></li>
+        <ul>
+            <li><a href="#NewReader">func NewReader(r io.Reader, t Transformer) *Reader</a></li>
+            <li><a href="#Reader.Read">func (r *Reader) Read(p []byte) (int, error)</a></li>
+        </ul>
+        <li><a href="#Writer">type Writer</a></li>
+        <ul>
+            <li><a href="#NewWriter">func NewWriter(w io.Writer, t Transformer) *Writer</a></li>
+            <li><a href="#Writer.Close">func (w *Writer) Close() error</a></li>
+            <li><a href="#Writer.Write">func (w *Writer) Write(data []byte) (n int, err error)</a></li>
+        </ul>
+        <li><a href="#Bytes">func Bytes(t Transformer, b []byte) (result []byte, n int, err error)</a></li>
+        <li><a href="#String">func String(t Transformer, s string) (result string, n int, err error)</a></li>
+    </ul>
+    <h4 id="pkg-examples">Examples <a class="permalink" href="#pkg-examples">&para;</a></h4>
+    <ul class="list-unstyled">
+        <li><a href="#example-RemoveFunc" onclick="$('#ex-RemoveFunc').addClass('in').removeClass('collapse').height('auto')">RemoveFunc</a></li>
+    </ul>
+    <h3 id="pkg-variables">Variables <a class="permalink" href="#pkg-variables">&para;</a></h3>
+    <pre>var (
+    <span class="com">// ErrShortDst代表目的地的缓冲太小，无法接受所有的转换后的字节</span>
+    <span id="ErrShortDst">ErrShortDst</span> = <a href="https://godoc.org/errors">errors</a>.<a href="https://godoc.org/errors#New">New</a>(&#34;transform: short destination buffer&#34;)
+    <span class="com">// ErrShortSrc表示数据来源的缓冲中的数据不完整，不能完成转换</span>
+    <span id="ErrShortSrc">ErrShortSrc</span> = <a href="https://godoc.org/errors">errors</a>.<a href="https://godoc.org/errors#New">New</a>(&#34;transform: short source buffer&#34;)
+)</pre>
+    <h3 id="Transformer">type <a title="View Source" href="http://code.google.com/p/go/source/browse/transform/transform.go?repo=text#37">Transformer</a> <a class="permalink" href="#Transformer">&para;</a></h3>
+    <pre>type Transformer interface {
+    <span class="com">// Transform将从src读取的字节转换编码后写入dst，返回写入dst字节数和读取src字节数。</span>
+    <span class="com">// atEOF参数用来说明src是否是输入的最后一部分字节。</span>
+    <span class="com">// 调用者应总是在处理完读取的数据和写入生成的数据后再考虑错误问题。</span>
+    <span class="com">// nil错误值表示所有转换后的字节（不管是刚刚转换的，还是之前调用Transform方法留下的）。</span>
+    <span class="com">// 都已经写入了dst。不管atEOF参数是不是真，都可以返回nil的错误值。</span>
+    <span class="com">// 如果返回值err为nil，nSrc必须等于len(src)；反过来则不需要。</span>
+    <span class="com">// ErrShortDst代表dst太短，不能接收所有编码后的字节；</span>
+    <span class="com">// ErrShortSrc表示src有不完整的编码，不能完成转换；</span>
+    <span class="com">// 如果两种情况都出现了，则可以返回两者中任一个。</span>
+    <span class="com">// 除了这两个错误之外，具体实现可以返回任何错误（但它们会导致转换中止并向上层返回该错误）。</span>
+    <span id="Transformer.Transform">Transform</span>(dst, src []<a href="https://godoc.org/builtin#byte">byte</a>, atEOF <a href="https://godoc.org/builtin#bool">bool</a>) (nDst, nSrc <a href="https://godoc.org/builtin#int">int</a>, err <a href="https://godoc.org/builtin#error">error</a>)
+}</pre>
+    <p>Transformer转换字节数据。</p>
+    <pre>var (
+    <span class="com">// Discard是一个Transformer。</span>
+    <span class="com">// 它的所有Transform调用都会成功，会吃掉所有输入但不输入任何东西</span>
+    <span id="Discard">Discard</span> <a href="#Transformer">Transformer</a> = discard{}
+    <span class="com">// Nop是一个Transformer。它的Transform方法会将src的数据原封不动的拷贝到dst</span>
+    <span id="Nop">Nop</span> <a href="#Transformer">Transformer</a> = nop{}
+)</pre>
+    <h4 id="Chain">func <a title="View Source" href="http://code.google.com/p/go/source/browse/transform/transform.go?repo=text#314">Chain</a> <a class="permalink" href="#Chain">&para;</a></h4>
+    <pre class="funcdecl">func Chain(t ...<a href="#Transformer">Transformer</a>) <a href="#Transformer">Transformer</a></pre>
+    <p>Chain返回一个Transformer，会将提供给其的数据依次用生成时的Transformer处理。</p>
+    <h4 id="RemoveFunc">func <a title="View Source" href="http://code.google.com/p/go/source/browse/transform/transform.go?repo=text#422">RemoveFunc</a> <a class="permalink" href="#RemoveFunc">&para;</a></h4>
+    <pre class="funcdecl">func RemoveFunc(f func(r <a href="https://godoc.org/builtin#rune">rune</a>) <a href="https://godoc.org/builtin#bool">bool</a>) <a href="#Transformer">Transformer</a></pre>
+    <p>RemoveFunc返回一个Transformer，它会将提供给它的输入流所有码值中满足f返回真的码值去掉。输入中的非法字节会被替换为RuneError。</p>
+    <div class="panel-group">
+        <div class="panel panel-default" id="example-RemoveFunc">
+            <div class="panel-heading" onclick="document.getElementById('ex-RemoveFunc').style.display = document.getElementById('ex-RemoveFunc').style.display=='none'?'block':'none';">Example</div>
+            <div id="ex-RemoveFunc" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre>input := []byte(`tschüß; до свидания`)
+b := make([]byte, len(input))
+t := transform.RemoveFunc(unicode.IsSpace)
+n, _, _ := t.Transform(b, input, true)
+fmt.Println(string(b[:n]))
+t = transform.RemoveFunc(func(r rune) bool {
+    return !unicode.Is(unicode.Latin, r)
+})
+n, _, _ = t.Transform(b, input, true)
+fmt.Println(string(b[:n]))
+n, _, _ = t.Transform(b, norm.NFD.Bytes(input), true)
+fmt.Println(string(b[:n]))</pre>
+                    <p>Output:
+                    <pre>tschüß;досвидания
+tschüß
+tschuß
+</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    <h3 id="Reader">type <a title="View Source" href="http://code.google.com/p/go/source/browse/transform/transform.go?repo=text#64">Reader</a> <a class="permalink" href="#Reader">&para;</a></h3>
+    <pre>type Reader struct {
+    <span class="com">// 内含隐藏或非导出字段</span>
+}</pre>
+    <p>Reader包装一个io.Reader接口，从下层读取的数据都会先进行编码转换再返回。</p>
+    <h4 id="NewReader">func <a title="View Source" href="http://code.google.com/p/go/source/browse/transform/transform.go?repo=text#88">NewReader</a> <a class="permalink" href="#NewReader">&para;</a></h4>
+    <pre class="funcdecl">func NewReader(r <a href="https://godoc.org/io">io</a>.<a href="https://godoc.org/io#Reader">Reader</a>, t <a href="#Transformer">Transformer</a>) *<a href="#Reader">Reader</a></pre>
+    <p align="left">NewReader返回一个新的Reader，从r读取的数据都会先用t转换编码再返回。</p>
+    <h4 id="Reader.Read">func (*Reader) <a title="View Source" href="http://code.google.com/p/go/source/browse/transform/transform.go?repo=text#98">Read</a> <a class="permalink" href="#Reader.Read">&para;</a></h4>
+    <pre class="funcdecl">func (r *<a href="#Reader">Reader</a>) Read(p []<a href="https://godoc.org/builtin#byte">byte</a>) (<a href="https://godoc.org/builtin#int">int</a>, <a href="https://godoc.org/builtin#error">error</a>)</pre>
+    <p>Read方法实现了io.Reader接口。</p>
+    <h3 id="Writer">type <a title="View Source" href="http://code.google.com/p/go/source/browse/transform/transform.go?repo=text#162">Writer</a> <a class="permalink" href="#Writer">&para;</a></h3>
+    <pre>type Writer struct {
+    <span class="com">// 内含隐藏或非导出字段</span>
+}</pre>
+    <p>Writer包装一个io. Writer接口，向其写入的数据都会进行编码转换后再写入下层。调用者需要调用Close方法来将缓冲中未写入下层的数据刷新掉。</p>
+    <h4 id="NewWriter">func <a title="View Source" href="http://code.google.com/p/go/source/browse/transform/transform.go?repo=text#174">NewWriter</a> <a class="permalink" href="#NewWriter">&para;</a></h4>
+    <pre class="funcdecl">func NewWriter(w <a href="https://godoc.org/io">io</a>.<a href="https://godoc.org/io#Writer">Writer</a>, t <a href="#Transformer">Transformer</a>) *<a href="#Writer">Writer</a></pre>
+    <p>NewWriter返回一个新的Writer，向其写入的数据都用t转换编码后再写入w。</p>
+    <h4 id="Writer.Write">func (*Writer) <a title="View Source" href="http://code.google.com/p/go/source/browse/transform/transform.go?repo=text#186">Write</a> <a class="permalink" href="#Writer.Write">&para;</a></h4>
+    <pre class="funcdecl">func (w *<a href="#Writer">Writer</a>) Write(data []<a href="https://godoc.org/builtin#byte">byte</a>) (n <a href="https://godoc.org/builtin#int">int</a>, err <a href="https://godoc.org/builtin#error">error</a>)</pre>
+    <p>Write方法实现了io. Writer接口。如果没有足够的字节来完成转换，会缓冲用于下一次Write方法。调用Close会将缓冲中的数据进行转换并写入下层。</p>
+    <h4 id="Writer.Close">func (*Writer) <a title="View Source" href="http://code.google.com/p/go/source/browse/transform/transform.go?repo=text#233">Close</a> <a class="permalink" href="#Writer.Close">&para;</a></h4>
+    <pre class="funcdecl">func (w *<a href="#Writer">Writer</a>) Close() <a href="https://godoc.org/builtin#error">error</a></pre>
+    <p>Close方法实现了io. Closer接口。</p>
+    <h3 id="Bytes">func <a title="View Source" href="http://code.google.com/p/go/source/browse/transform/transform.go?repo=text#575">Bytes</a> <a class="permalink" href="#Bytes">&para;</a></h3>
+    <pre class="funcdecl">func Bytes(t <a href="#Transformer">Transformer</a>, b []<a href="https://godoc.org/builtin#byte">byte</a>) (result []<a href="https://godoc.org/builtin#byte">byte</a>, n <a href="https://godoc.org/builtin#int">int</a>, err <a href="https://godoc.org/builtin#error">error</a>)</pre>
+    <p>Bytes返回将b中的部分数据b[:n]用t转换编码后的切片result。返回值n &lt;= len(s)；如果发未遇到错误，返回值n == len(s)。</p>
+    <h3 id="String">func <a title="View Source" href="http://code.google.com/p/go/source/browse/transform/transform.go?repo=text#489">String</a> <a class="permalink" href="#String">&para;</a></h3>
+    <pre class="funcdecl">func String(t <a href="#Transformer">Transformer</a>, s <a href="https://godoc.org/builtin#string">string</a>) (result <a href="https://godoc.org/builtin#string">string</a>, n <a href="https://godoc.org/builtin#int">int</a>, err <a href="https://godoc.org/builtin#error">error</a>)</pre>
+    <p>String返回将s中的部分数据s[:n]用t转换编码后的字符串result。返回值n &lt;= len(s)；如果发未遇到错误，返回值n == len(s)。</p>
+</div>
+</body>
+</html>

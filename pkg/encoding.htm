@@ -1,0 +1,46 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="./site.css" rel="stylesheet">
+<title>encoding</title>
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package encoding</h2>
+    <p><code>import "encoding"</code>
+    <p>encoding包定义了供其它包使用的可以将数据在字节水平和文本表示之间转换的接口。encoding/gob、encoding/json、encoding/xml三个包都会检查使用这些接口。因此，只要实现了这些接口一次，就可以在多个包里使用。标准包内建类型time.Time和net.IP都实现了这些接口。接口是成对的，分别产生和还原编码后的数据。</p>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#BinaryMarshaler">type BinaryMarshaler</a></li>
+        <li><a href="#BinaryUnmarshaler">type BinaryUnmarshaler</a></li>
+        <li><a href="#TextMarshaler">type TextMarshaler</a></li>
+        <li><a href="#TextUnmarshaler">type TextUnmarshaler</a></li>
+    </ul>
+    <h3 id="BinaryMarshaler">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/encoding.go?name=release#18">BinaryMarshaler</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type BinaryMarshaler interface {
+    <span id="BinaryMarshaler.MarshalBinary">MarshalBinary</span>() (data []<a href="builtin.htm#byte">byte</a>, err <a href="builtin.htm#error">error</a>)
+}</pre>
+    <p>实现了BinaryMarshaler接口的类型可以将自身序列化为binary格式。</p>
+    <h3 id="BinaryUnmarshaler">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/encoding.go?name=release#28">BinaryUnmarshaler</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type BinaryUnmarshaler interface {
+    <span id="BinaryUnmarshaler.UnmarshalBinary">UnmarshalBinary</span>(data []<a href="builtin.htm#byte">byte</a>) <a href="builtin.htm#error">error</a>
+}</pre>
+    <p align="left">实现了BinaryUnmarshaler接口的类型可以将binary格式表示的自身解序列化。</p>
+    <p align="left">UnmarshalBinary必须可以解码MarshalBinary生成的binary格式数据。本函数可能会对data内容作出修改，所以如果要保持data的数据请事先进行拷贝。</p>
+    <h3 id="TextMarshaler">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/encoding.go?name=release#36">TextMarshaler</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type TextMarshaler interface {
+    <span id="TextMarshaler.MarshalText">MarshalText</span>() (text []<a href="builtin.htm#byte">byte</a>, err <a href="builtin.htm#error">error</a>)
+}</pre>
+    <p>实现了BinaryMarshaler接口的类型可以将自身序列化为utf-8编码的textual格式。</p>
+    <h3 id="TextUnmarshaler">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/encoding.go?name=release#46">TextUnmarshaler</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type TextUnmarshaler interface {
+    <span id="TextUnmarshaler.UnmarshalText">UnmarshalText</span>(text []<a href="builtin.htm#byte">byte</a>) <a href="builtin.htm#error">error</a>
+}</pre>
+    <p align="left">实现了TextUnmarshaler接口的类型可以将textual格式表示的自身解序列化。</p>
+    <p align="left">UnmarshalText必须可以解码MarshalText生成的textual格式数据。本函数可能会对data内容作出修改，所以如果要保持data的数据请事先进行拷贝。</p>
+</div>
+</body>
+</html>

@@ -1,0 +1,233 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="./site.css" rel="stylesheet">
+<title>sync</title>
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package sync</h2>
+    <p><code>import "sync"</code>
+    <p>sync包提供了基本的同步基元，如互斥锁。除了Once和WaitGroup类型，大部分都是适用于低水平程序线程，高水平的同步使用channel通信更好一些。</p>
+    <p>本包的类型的值不应被拷贝。</p>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#Locker">type Locker</a></li>
+        <li><a href="#Once">type Once</a></li>
+        <ul>
+            <li><a href="#Once.Do">func (o *Once) Do(f func())</a></li>
+        </ul>
+        <li><a href="#Mutex">type Mutex</a></li>
+        <ul>
+            <li><a href="#Mutex.Lock">func (m *Mutex) Lock()</a></li>
+            <li><a href="#Mutex.Unlock">func (m *Mutex) Unlock()</a></li>
+        </ul>
+        <li><a href="#RWMutex">type RWMutex</a></li>
+        <ul>
+            <li><a href="#RWMutex.Lock">func (rw *RWMutex) Lock()</a></li>
+            <li><a href="#RWMutex.Unlock">func (rw *RWMutex) Unlock()</a></li>
+            <li><a href="#RWMutex.RLock">func (rw *RWMutex) RLock()</a></li>
+            <li><a href="#RWMutex.RUnlock">func (rw *RWMutex) RUnlock()</a></li>
+            <li><a href="#RWMutex.RLocker">func (rw *RWMutex) RLocker() Locker</a></li>
+        </ul>
+        <li><a href="#Cond">type Cond</a></li>
+        <ul>
+            <li><a href="#NewCond">func NewCond(l Locker) *Cond</a></li>
+            <li><a href="#Cond.Broadcast">func (c *Cond) Broadcast()</a></li>
+            <li><a href="#Cond.Signal">func (c *Cond) Signal()</a></li>
+            <li><a href="#Cond.Wait">func (c *Cond) Wait()</a></li>
+        </ul>
+        <li><a href="#WaitGroup">type WaitGroup</a></li>
+        <ul>
+            <li><a href="#WaitGroup.Add">func (wg *WaitGroup) Add(delta int)</a></li>
+            <li><a href="#WaitGroup.Done">func (wg *WaitGroup) Done()</a></li>
+            <li><a href="#WaitGroup.Wait">func (wg *WaitGroup) Wait()</a></li>
+        </ul>
+        <li><a href="#Pool">type Pool</a></li>
+        <ul>
+            <li><a href="#Pool.Get">func (p *Pool) Get() interface{}</a></li>
+            <li><a href="#Pool.Put">func (p *Pool) Put(x interface{})</a></li>
+        </ul>
+    </ul>
+    <h4 id="pkg-examples">Examples <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#example-Once" onclick="$('#ex-Once').addClass('in').removeClass('collapse').height('auto')">Once</a></li>
+        <li><a href="#example-WaitGroup" onclick="$('#ex-WaitGroup').addClass('in').removeClass('collapse').height('auto')">WaitGroup</a></li>
+    </ul>
+    <h3 id="Locker">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/sync/mutex.go?name=release#27">Locker</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Locker interface {
+    <span id="Locker.Lock">Lock</span>()
+    <span id="Locker.Unlock">Unlock</span>()
+}</pre>
+    <p>Locker接口代表一个可以加锁和解锁的对象。</p>
+    <h3 id="Once">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/sync/once.go?name=release#12">Once</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Once struct {
+    <span class="com">// 包含隐藏或非导出字段</span>
+}</pre>
+    <p>Once是只执行一次动作的对象。</p>
+    <div class="panel-group">
+        <div class="panel panel-default" id="example-Once">
+            <div class="panel-heading" onclick="document.getElementById('ex-Once').style.display = document.getElementById('ex-Once').style.display=='none'?'block':'none';">Example</div>
+            <div id="ex-Once" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre>var once sync.Once
+onceBody := func() {
+    fmt.Println(&#34;Only once&#34;)
+}
+done := make(chan bool)
+for i := 0; i &lt; 10; i++ {
+    go func() {
+        once.Do(onceBody)
+        done &lt;- true
+    }()
+}
+for i := 0; i &lt; 10; i++ {
+    &lt;-done
+}</pre>
+                    <p>Output:
+                    <pre>Only once
+</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    <h4 id="Once.Do">func (*Once) <a title="View Source" href="https://github.com/golang/go/blob/master/src/sync/once.go?name=release#32">Do</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (o *<a href="#Once">Once</a>) Do(f func())</pre>
+    <p>Do方法当且仅当第一次被调用时才执行函数f。换句话说，给定变量：</p>
+    <pre>var once Once
+</pre>
+    <p>如果once.Do(f)被多次调用，只有第一次调用会执行f，即使f每次调用Do 提供的f值不同。需要给每个要执行仅一次的函数都建立一个Once类型的实例。</p>
+    <p>Do用于必须刚好运行一次的初始化。因为f是没有参数的，因此可能需要使用闭包来提供给Do方法调用：</p>
+    <pre>config.once.Do(func() { config.init(filename) })
+</pre>
+    <p>因为只有f返回后Do方法才会返回，f若引起了Do的调用，会导致死锁。</p>
+    <h3 id="Mutex">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/sync/mutex.go?name=release#21">Mutex</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Mutex struct {
+    <span class="com">// 包含隐藏或非导出字段</span>
+}</pre>
+    <p>Mutex是一个互斥锁，可以创建为其他结构体的字段；零值为解锁状态。Mutex类型的锁和线程无关，可以由不同的线程加锁和解锁。</p>
+    <h4 id="Mutex.Lock">func (*Mutex) <a title="View Source" href="https://github.com/golang/go/blob/master/src/sync/mutex.go?name=release#41">Lock</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (m *<a href="#Mutex">Mutex</a>) Lock()</pre>
+    <p>Lock方法锁住m，如果m已经加锁，则阻塞直到m解锁。</p>
+    <h4 id="Mutex.Unlock">func (*Mutex) <a title="View Source" href="https://github.com/golang/go/blob/master/src/sync/mutex.go?name=release#82">Unlock</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (m *<a href="#Mutex">Mutex</a>) Unlock()</pre>
+    <p>Unlock方法解锁m，如果m未加锁会导致运行时错误。锁和线程无关，可以由不同的线程加锁和解锁。</p>
+<h3 id="RWMutex">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/sync/rwmutex.go?name=release#18">RWMutex</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type RWMutex struct {
+    <span class="com">// 包含隐藏或非导出字段</span>
+}</pre>
+    <p>RWMutex是读写互斥锁。该锁可以被同时多个读取者持有或唯一个写入者持有。RWMutex可以创建为其他结构体的字段；零值为解锁状态。RWMutex类型的锁也和线程无关，可以由不同的线程加读取锁/写入和解读取锁/写入锁。</p>
+    <h4 id="RWMutex.Lock">func (*RWMutex) <a title="View Source" href="https://github.com/golang/go/blob/master/src/sync/rwmutex.go?name=release#72">Lock</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (rw *<a href="#RWMutex">RWMutex</a>) Lock()</pre>
+    <p>Lock方法将rw锁定为写入状态，禁止其他线程读取或者写入。</p>
+    <h4 id="RWMutex.Unlock">func (*RWMutex) <a title="View Source" href="https://github.com/golang/go/blob/master/src/sync/rwmutex.go?name=release#98">Unlock</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (rw *<a href="#RWMutex">RWMutex</a>) Unlock()</pre>
+    <p>Unlock方法解除rw的写入锁状态，如果m未加写入锁会导致运行时错误。</p>
+    <h4 id="RWMutex.RLock">func (*RWMutex) <a title="View Source" href="https://github.com/golang/go/blob/master/src/sync/rwmutex.go?name=release#29">RLock</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (rw *<a href="#RWMutex">RWMutex</a>) RLock()</pre>
+    <p>RLock方法将rw锁定为读取状态，禁止其他线程写入，但不禁止读取。</p>
+    <h4 id="RWMutex.RUnlock">func (*RWMutex) <a title="View Source" href="https://github.com/golang/go/blob/master/src/sync/rwmutex.go?name=release#48">RUnlock</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (rw *<a href="#RWMutex">RWMutex</a>) RUnlock()</pre>
+    <p>Runlock方法解除rw的读取锁状态，如果m未加读取锁会导致运行时错误。</p>
+    <h4 id="RWMutex.RLocker">func (*RWMutex) <a title="View Source" href="https://github.com/golang/go/blob/master/src/sync/rwmutex.go?name=release#121">RLocker</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (rw *<a href="#RWMutex">RWMutex</a>) RLocker() <a href="#Locker">Locker</a></pre>
+    <p>Rlocker方法返回一个互斥锁，通过调用rw.Rlock和rw.Runlock实现了Locker接口。</p>
+    <h3 id="Cond">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/sync/cond.go?name=release#22">Cond</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Cond struct {
+    <span class="com">// 在观测或更改条件时L会冻结</span>
+    <span id="Cond.L">L</span> <a href="#Locker">Locker</a>
+    <span class="com">// 包含隐藏或非导出字段</span>
+}</pre>
+    <p align="left">Cond实现了一个条件变量，一个线程集合地，供线程等待或者宣布某事件的发生。</p>
+    <p align="left">每个Cond实例都有一个相关的锁（一般是*Mutex或*RWMutex类型的值），它必须在改变条件时或者调用Wait方法时保持锁定。Cond可以创建为其他结构体的字段，Cond在开始使用后不能被拷贝。</p>
+    <h4 id="NewCond">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/sync/cond.go?name=release#32">NewCond</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func NewCond(l <a href="#Locker">Locker</a>) *<a href="#Cond">Cond</a></pre>
+    <p>使用锁l创建一个*Cond。</p>
+    <h4 id="Cond.Broadcast">func (*Cond) <a title="View Source" href="https://github.com/golang/go/blob/master/src/sync/cond.go?name=release#78">Broadcast</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *<a href="#Cond">Cond</a>) Broadcast()</pre>
+    <p>Broadcast唤醒所有等待c的线程。调用者在调用本方法时，建议（但并非必须）保持c.L的锁定。</p>
+    <h4 id="Cond.Signal">func (*Cond) <a title="View Source" href="https://github.com/golang/go/blob/master/src/sync/cond.go?name=release#70">Signal</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *<a href="#Cond">Cond</a>) Signal()</pre>
+    <p>Signal唤醒等待c的一个线程（如果存在）。调用者在调用本方法时，建议（但并非必须）保持c.L的锁定。</p>
+    <h4 id="Cond.Wait">func (*Cond) <a title="View Source" href="https://github.com/golang/go/blob/master/src/sync/cond.go?name=release#52">Wait</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *<a href="#Cond">Cond</a>) Wait()</pre>
+    <p align="left">Wait自行解锁c.L并阻塞当前线程，在之后线程恢复执行时，Wait方法会在返回前锁定c.L。和其他系统不同，Wait除非被Broadcast或者Signal唤醒，不会主动返回。</p>
+    <p align="left">因为线程中Wait方法是第一个恢复执行的，而此时c.L未加锁。调用者不应假设Wait恢复时条件已满足，相反，调用者应在循环中等待：</p>
+    <pre>c.L.Lock()
+for !condition() {
+    c.Wait()
+}
+... make use of condition ...
+c.L.Unlock()</pre>
+    <h3 id="WaitGroup">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/sync/waitgroup.go?name=release#17">WaitGroup</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type WaitGroup struct {
+    <span class="com">// 包含隐藏或非导出字段</span>
+}</pre>
+    <p>WaitGroup用于等待一组线程的结束。父线程调用Add方法来设定应等待的线程的数量。每个被等待的线程在结束时应调用Done方法。同时，主线程里可以调用Wait方法阻塞至所有线程结束。</p>
+    <div class="panel-group">
+        <div class="panel panel-default" id="example-WaitGroup">
+            <div class="panel-heading" onclick="document.getElementById('ex-WaitGroup').style.display = document.getElementById('ex-WaitGroup').style.display=='none'?'block':'none';">Example</div>
+            <div id="ex-WaitGroup" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre>
+var wg sync.WaitGroup
+var urls = []string{
+    &#34;http://www.golang.org/&#34;,
+    &#34;http://www.google.com/&#34;,
+    &#34;http://www.somestupidname.com/&#34;,
+}
+for _, url := range urls {
+    <span class="com">// Increment the WaitGroup counter.</span>
+    wg.Add(1)
+    <span class="com">// Launch a goroutine to fetch the URL.</span>
+    go func(url string) {
+        <span class="com">// Decrement the counter when the goroutine completes.</span>
+        defer wg.Done()
+        <span class="com">// Fetch the URL.</span>
+        http.Get(url)
+    }(url)
+}
+<span class="com">// Wait for all HTTP fetches to complete.</span>
+wg.Wait()
+</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    <h4 id="WaitGroup.Add">func (*WaitGroup) <a title="View Source" href="https://github.com/golang/go/blob/master/src/sync/waitgroup.go?name=release#44">Add</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (wg *<a href="#WaitGroup">WaitGroup</a>) Add(delta <a href="builtin.htm#int">int</a>)</pre>
+    <p>Add方法向内部计数加上delta，delta可以是负数；如果内部计数器变为0，Wait方法阻塞等待的所有线程都会释放，如果计数器小于0，方法panic。注意Add加上正数的调用应在Wait之前，否则Wait可能只会等待很少的线程。一般来说本方法应在创建新的线程或者其他应等待的事件之前调用。</p>
+    <h4 id="WaitGroup.Done">func (*WaitGroup) <a title="View Source" href="https://github.com/golang/go/blob/master/src/sync/waitgroup.go?name=release#81">Done</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (wg *<a href="#WaitGroup">WaitGroup</a>) Done()</pre>
+    <p>Done方法减少WaitGroup计数器的值，应在线程的最后执行。</p>
+    <h4 id="WaitGroup.Wait">func (*WaitGroup) <a title="View Source" href="https://github.com/golang/go/blob/master/src/sync/waitgroup.go?name=release#86">Wait</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (wg *<a href="#WaitGroup">WaitGroup</a>) Wait()</pre>
+    <p>Wait方法阻塞直到WaitGroup计数器减为0。</p>
+    <h3 id="Pool">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/sync/pool.go?name=release#42">Pool</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Pool struct {
+    <span class="com">// 可选参数New指定一个函数在Get方法可能返回nil时来生成一个值</span>
+    <span class="com">// 该参数不能在调用Get方法时被修改</span>
+    <span id="Pool.New">New</span> func() interface{}
+    <span class="com">// 包含隐藏或非导出字段</span>
+}</pre>
+    <p align="left">Pool是一个可以分别存取的临时对象的集合。</p>
+    <p align="left">Pool中保存的任何item都可能随时不做通告的释放掉。如果Pool持有该对象的唯一引用，这个item就可能被回收。</p>
+    <p align="left">Pool可以安全的被多个线程同时使用。</p>
+    <p align="left">Pool的目的是缓存申请但未使用的item用于之后的重用，以减轻GC的压力。也就是说，让创建高效而线程安全的空闲列表更容易。但Pool并不适用于所有空闲列表。</p>
+    <p align="left">Pool的合理用法是用于管理一组静静的被多个独立并发线程共享并可能重用的临时item。Pool提供了让多个线程分摊内存申请消耗的方法。</p>
+    <p align="left">Pool的一个好例子在fmt包里。该Pool维护一个动态大小的临时输出缓存仓库。该仓库会在过载（许多线程活跃的打印时）增大，在沉寂时缩小。</p>
+    <p align="left">另一方面，管理着短寿命对象的空闲列表不适合使用Pool，因为这种情况下内存申请消耗不能很好的分配。这时应该由这些对象自己实现空闲列表。</p>
+    <h4 id="Pool.Get">func (*Pool) <a title="View Source" href="https://github.com/golang/go/blob/master/src/sync/pool.go?name=release#93">Get</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#Pool">Pool</a>) Get() interface{}</pre>
+    <p align="left">Get方法从池中选择任意一个item，删除其在池中的引用计数，并提供给调用者。Get方法也可能选择无视内存池，将其当作空的。调用者不应认为Get的返回这和传递给Put的值之间有任何关系。</p>
+    <p align="left">假使Get方法没有取得item：如p.New非nil，Get返回调用p.New的结果；否则返回nil。</p>
+    <h4 id="Pool.Put">func (*Pool) <a title="View Source" href="https://github.com/golang/go/blob/master/src/sync/pool.go?name=release#61">Put</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#Pool">Pool</a>) Put(x interface{})</pre>
+    <p>Put方法将x放入池中。</p>
+</div>
+</body>
+</html>

@@ -1,0 +1,44 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="./site.css" rel="stylesheet">
+<title>compress/bzip2</title>
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package bzip2</h2>
+    <p><code>import "compress/bzip2"</code>
+    <p>bzip2包实现bzip2的解压缩。</p>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#StructuralError">type StructuralError</a></li>
+        <ul>
+            <li><a href="#StructuralError.Error">func (s StructuralError) Error() string</a></li>
+        </ul>
+        <li><a href="#NewReader">func NewReader(r io.Reader) io.Reader</a></li>
+    </ul>
+    <h3 id="StructuralError">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/compress/bzip2/bzip2.go?name=release#17">StructuralError</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type StructuralError <a href="builtin.htm#string">string</a></pre>
+    <p>当bzip2数据的语法不合法时，会返回本类型错误。</p>
+    <h4 id="StructuralError.Error">func (StructuralError) <a title="View Source" href="https://github.com/golang/go/blob/master/src/compress/bzip2/bzip2.go?name=release#19">Error</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (s <a href="#StructuralError">StructuralError</a>) Error() <a href="builtin.htm#string">string</a></pre>
+    <h3 id="NewReader">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/compress/bzip2/bzip2.go?name=release#45">NewReader</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func NewReader(r <a href="io.htm">io</a>.<a href="io.htm#Reader">Reader</a>) <a href="io.htm">io</a>.<a href="io.htm#Reader">Reader</a></pre>
+    <p>NewReader返回一个从r读取bzip2压缩数据并解压缩后返回给调用者的io.Reader。</p>
+</div>
+
+<div id="x-footer" class="clearfix">
+  <div class="container">
+    <a href="http://studygolang.com/">Go语言中文网</a>
+    <span class="text-muted">|</span> <a href="http://golang.org/">Go Language</a>
+    <span class="pull-right"><a href="#">Back to top</a></span>
+  </div>
+</div>
+<script src="../assets/jquery-2.0.3.min.js"></script>
+<script src="../bootstrap.min.js"></script>
+<script src="../site.js"></script>
+</body>
+</html>

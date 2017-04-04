@@ -1,0 +1,40 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="./site.css" rel="stylesheet">
+<title>unicode/utf16</title>
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package utf16</h2>
+    <p><code>import "unicode/utf16"</code>
+    <p>utf16包实现了UTF-16序列的编解码。</p>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#IsSurrogate">func IsSurrogate(r rune) bool</a></li>
+        <li><a href="#DecodeRune">func DecodeRune(r1, r2 rune) rune</a></li>
+        <li><a href="#Decode">func Decode(s []uint16) []rune</a></li>
+        <li><a href="#EncodeRune">func EncodeRune(r rune) (r1, r2 rune)</a></li>
+        <li><a href="#Encode">func Encode(s []rune) []uint16</a></li>
+    </ul>
+    <h3 id="IsSurrogate">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/unicode/utf16/utf16.go?name=release#30">IsSurrogate</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func IsSurrogate(r <a href="builtin.htm#rune">rune</a>) <a href="builtin.htm#bool">bool</a></pre>
+    <p>返回r是否可以编码为一个utf-16的代理对。</p>
+    <h3 id="DecodeRune">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/unicode/utf16/utf16.go?name=release#37">DecodeRune</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func DecodeRune(r1, r2 <a href="builtin.htm#rune">rune</a>) <a href="builtin.htm#rune">rune</a></pre>
+    <p>将utf-16代理对(r1, r2)解码为unicode码值。如果代理对不合法，会返回U+FFFD。</p>
+    <h3 id="Decode">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/unicode/utf16/utf16.go?name=release#86">Decode</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Decode(s []<a href="builtin.htm#uint16">uint16</a>) []<a href="builtin.htm#rune">rune</a></pre>
+    <p>将utf-16序列解码为unicode码值序列。</p>
+    <h3 id="EncodeRune">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/unicode/utf16/utf16.go?name=release#47">EncodeRune</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func EncodeRune(r <a href="builtin.htm#rune">rune</a>) (r1, r2 <a href="builtin.htm#rune">rune</a>)</pre>
+    <p>将unicode码值r编码为一个utf-16的代理对。如果不能编码，会返回(U+FFFD, U+FFFD)。</p>
+    <h3 id="Encode">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/unicode/utf16/utf16.go?name=release#56">Encode</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Encode(s []<a href="builtin.htm#rune">rune</a>) []<a href="builtin.htm#uint16">uint16</a></pre>
+    <p>将unicode码值序列编码为utf-16序列。</p>
+</div>
+</body>
+</html>

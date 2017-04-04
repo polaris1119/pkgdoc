@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="../../../site.css" rel="stylesheet">
+<title>go.net/html/charset</title>
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package charset</h2>
+    <p><code>import "code.google.com/p/go.net/html/charset"</code>
+    <p>charset包提供了HTML文档的常见文本编码解析。</p>
+    <p>从编码标志到编码的映射参见<a href="http://encoding.spec.whatwg.org">http://encoding.spec.whatwg.org</a>。</p>
+<h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <ul class="list-unstyled">
+        <li><a href="#DetermineEncoding">func DetermineEncoding(content []byte, contentType string) (e encoding.Encoding, name string, certain bool)</a></li>
+        <li><a href="#Lookup">func Lookup(label string) (e encoding.Encoding, name string)</a></li>
+        <li><a href="#NewReader">func NewReader(r io.Reader, contentType string) (io.Reader, error)</a></li>
+    </ul>
+    <h3 id="DetermineEncoding">func <a title="View Source" href="http://code.google.com/p/go/source/browse/html/charset/charset.go?repo=net#34">DetermineEncoding</a> <a class="permalink" href="#DetermineEncoding">&para;</a></h3>
+    <pre class="funcdecl">func DetermineEncoding(content []<a href="https://godoc.org/builtin#byte">byte</a>, contentType <a href="https://godoc.org/builtin#string">string</a>) (e <a href="https://godoc.org/code.google.com/p/go.text/encoding">encoding</a>.<a href="https://godoc.org/code.google.com/p/go.text/encoding#Encoding">Encoding</a>, name <a href="https://godoc.org/builtin#string">string</a>, certain <a href="https://godoc.org/builtin#bool">bool</a>)</pre>
+    <p>DetermineEncoding通过文档内容最多前1024字节数据和HTTP回复的Content-Type头，确定HTML文档的编码。</p>
+    <p>参见<a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/parsing.html#determining-the-character-encoding">http://www.whatwg.org/specs/web-apps/current-work/multipage/parsing.html#determining-the-character-encoding</a></p>
+    <h3 id="Lookup">func <a title="View Source" href="http://code.google.com/p/go/source/browse/html/charset/charset.go?repo=net#24">Lookup</a> <a class="permalink" href="#Lookup">&para;</a></h3>
+    <pre class="funcdecl">func Lookup(label <a href="https://godoc.org/builtin#string">string</a>) (e <a href="https://godoc.org/code.google.com/p/go.text/encoding">encoding</a>.<a href="https://godoc.org/code.google.com/p/go.text/encoding#Encoding">Encoding</a>, name <a href="https://godoc.org/builtin#string">string</a>)</pre>
+    <p>Lookup返回编码标志对应的编解码器和该编解码器的标准编码标志。如果label不是HTML的标准编码之一，会返回(nil, &quot;&quot;)。r匹配时大小写敏感的，会忽略label前后端的空白。</p>
+    <h3 id="NewReader">func <a title="View Source" href="http://code.google.com/p/go/source/browse/html/charset/charset.go?repo=net#90">NewReader</a> <a class="permalink" href="#NewReader">&para;</a></h3>
+    <pre class="funcdecl">func NewReader(r <a href="https://godoc.org/io">io</a>.<a href="https://godoc.org/io#Reader">Reader</a>, contentType <a href="https://godoc.org/builtin#string">string</a>) (<a href="https://godoc.org/io">io</a>.<a href="https://godoc.org/io#Reader">Reader</a>, <a href="https://godoc.org/builtin#error">error</a>)</pre>
+    <p>NewReader返回一个将r中内容解码为UTF-8文本的io.Reader接口。本函数会调用DetermineEncoding来确定r使用的编码格式以选择对应解码器。</p>
+</div>
+</body>
+</html>

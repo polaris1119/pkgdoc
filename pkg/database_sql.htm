@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="./site.css" rel="stylesheet">
+<title>database/sql</title>
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package sql</h2>
+    <p><code>import "database/sql"</code>
+    <p> sql包提供了保证SQL或类SQL数据库的泛用接口。</p>
+    <p>使用sql包时必须注入（至少）一个数据库驱动。参见<a href="http://golang.org/s/sqldrivers">http://golang.org/s/sqldrivers</a> 获取驱动列表。</p>
+    <p>更多用法示例，参见wiki页面：<a href="http://golang.org/s/sqlwiki">http://golang.org/s/sqlwiki</a>。</p>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#pkg-variables">Variables</a></li>
+        <li><a href="#Scanner">type Scanner</a></li>
+        <li><a href="#NullBool">type NullBool</a></li>
+        <ul>
+            <li><a href="#NullBool.Scan">func (n *NullBool) Scan(value interface{}) error</a></li>
+            <li><a href="#NullBool.Value">func (n NullBool) Value() (driver.Value, error)</a></li>
+        </ul>
+        <li><a href="#NullInt64">type NullInt64</a></li>
+        <ul>
+            <li><a href="#NullInt64.Scan">func (n *NullInt64) Scan(value interface{}) error</a></li>
+            <li><a href="#NullInt64.Value">func (n NullInt64) Value() (driver.Value, error)</a></li>
+        </ul>
+        <li><a href="#NullFloat64">type NullFloat64</a></li>
+        <ul>
+            <li><a href="#NullFloat64.Scan">func (n *NullFloat64) Scan(value interface{}) error</a></li>
+            <li><a href="#NullFloat64.Value">func (n NullFloat64) Value() (driver.Value, error)</a></li>
+        </ul>
+        <li><a href="#NullString">type NullString</a></li>
+        <ul>
+            <li><a href="#NullString.Scan">func (ns *NullString) Scan(value interface{}) error</a></li>
+            <li><a href="#NullString.Value">func (ns NullString) Value() (driver.Value, error)</a></li>
+        </ul>
+        <li><a href="#RawBytes">type RawBytes</a></li>
+        <li><a href="#Result">type Result</a></li>
+        <li><a href="#DB">type DB</a></li>
+        <ul>
+            <li><a href="#Open">func Open(driverName, dataSourceName string) (*DB, error)</a></li>
+            <li><a href="#DB.Driver">func (db *DB) Driver() driver.Driver</a></li>
+            <li><a href="#DB.Ping">func (db *DB) Ping() error</a></li>
+            <li><a href="#DB.Close">func (db *DB) Close() error</a></li>
+            <li><a href="#DB.SetMaxOpenConns">func (db *DB) SetMaxOpenConns(n int)</a></li>
+            <li><a href="#DB.SetMaxIdleConns">func (db *DB) SetMaxIdleConns(n int)</a></li>
+            <li><a href="#DB.Exec">func (db *DB) Exec(query string, args ...interface{}) (Result, error)</a></li>
+            <li><a href="#DB.Query">func (db *DB) Query(query string, args ...interface{}) (*Rows, error)</a></li>
+            <li><a href="#DB.QueryRow">func (db *DB) QueryRow(query string, args ...interface{}) *Row</a></li>
+            <li><a href="#DB.Prepare">func (db *DB) Prepare(query string) (*Stmt, error)</a></li>
+            <li><a href="#DB.Begin">func (db *DB) Begin() (*Tx, error)</a></li>
+        </ul>
+        <li><a href="#Row">type Row</a></li>
+        <ul>
+            <li><a href="#Row.Scan">func (r *Row) Scan(dest ...interface{}) error</a></li>
+        </ul>
+        <li><a href="#Rows">type Rows</a></li>
+        <ul>
+            <li><a href="#Rows.Columns">func (rs *Rows) Columns() ([]string, error)</a></li>
+            <li><a href="#Rows.Scan">func (rs *Rows) Scan(dest ...interface{}) error</a></li>
+            <li><a href="#Rows.Next">func (rs *Rows) Next() bool</a></li>
+            <li><a href="#Rows.Close">func (rs *Rows) Close() error</a></li>
+            <li><a href="#Rows.Err">func (rs *Rows) Err() error</a></li>
+        </ul>
+        <li><a href="#Stmt">type Stmt</a></li>
+        <ul>
+            <li><a href="#Stmt.Exec">func (s *Stmt) Exec(args ...interface{}) (Result, error)</a></li>
+            <li><a href="#Stmt.Query">func (s *Stmt) Query(args ...interface{}) (*Rows, error)</a></li>
+            <li><a href="#Stmt.QueryRow">func (s *Stmt) QueryRow(args ...interface{}) *Row</a></li>
+            <li><a href="#Stmt.Close">func (s *Stmt) Close() error</a></li>
+        </ul>
+        <li><a href="#Tx">type Tx</a></li>
+        <ul>
+            <li><a href="#Tx.Exec">func (tx *Tx) Exec(query string, args ...interface{}) (Result, error)</a></li>
+            <li><a href="#Tx.Query">func (tx *Tx) Query(query string, args ...interface{}) (*Rows, error)</a></li>
+            <li><a href="#Tx.QueryRow">func (tx *Tx) QueryRow(query string, args ...interface{}) *Row</a></li>
+            <li><a href="#Tx.Prepare">func (tx *Tx) Prepare(query string) (*Stmt, error)</a></li>
+            <li><a href="#Tx.Stmt">func (tx *Tx) Stmt(stmt *Stmt) *Stmt</a></li>
+            <li><a href="#Tx.Commit">func (tx *Tx) Commit() error</a></li>
+            <li><a href="#Tx.Rollback">func (tx *Tx) Rollback() error</a></li>
+        </ul>
+        <li><a href="#Register">func Register(name string, driver driver.Driver)</a></li>
+    </ul>
+    <h4 id="pkg-examples">Examples <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#example-DB-Query" onclick="$('#ex-DB-Query').addClass('in').removeClass('collapse').height('auto')">DB.Query</a></li>
+        <li><a href="#example-DB-QueryRow" onclick="$('#ex-DB-QueryRow').addClass('in').removeClass('collapse').height('auto')">DB.QueryRow</a></li>
+    </ul>
+    <h3 id="pkg-variables">Variables <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>var <span id="ErrNoRows">ErrNoRows</span> = <a href="/errors">errors</a>.<a href="/errors#New">New</a>(&#34;sql: no rows in result set&#34;)</pre>
+    <p>当QueryRow方法没有返回一个row时，调用返回值的Scan方法会返回ErrNoRows。此时，QueryRow返回一个占位的*Row值，延迟本错误直到调用Scan方法时才释放。</p>
+    <pre>var <span id="ErrTxDone">ErrTxDone</span> = <a href="/errors">errors</a>.<a href="/errors#New">New</a>(&#34;sql: Transaction has already been committed or rolled back&#34;)</pre>
+    <h3 id="Register">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/database/sql/sql.go?name=release#30">Register</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Register(name <a href="/builtin#string">string</a>, driver <a href="/database/sql/driver">driver</a>.<a href="/database/sql/driver#Driver">Driver</a>)</pre>
+    <p>Register注册并命名一个数据库，可以在Open函数中使用该命名启用该驱动。如果 Register注册同一名称两次，或者driver参数为nil，会导致panic。</p>
+    <h3 id="Scanner">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/database/sql/sql.go?name=release#160">Scanner</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Scanner interface {
+    <span class="com">// Scan方法从数据库驱动获取一个值。</span>
+    <span class="com">//</span>
+    <span class="com">// 参数src的类型保证为如下类型之一：</span><span class="com"></span>
+    <span class="com">//</span>
+    <span class="com">//    int64</span>
+    <span class="com">//    float64</span>
+    <span class="com">//    bool</span>
+    <span class="com">//    []byte</span>
+    <span class="com">//    string</span>
+    <span class="com">//    time.Time</span>
+    <span class="com">//    nil - 表示NULL值</span>
+    <span class="com">//</span>
+    <span class="com">// 如果不能不丢失信息的保存一个值，应返回错误。</span>
+    <span id="Scanner.Scan">Scan</span>(src interface{}) <a href="/builtin#error">error</a>
+}</pre>
+    <p>Scanner接口会被Rows或Row的Scan方法使用。</p>
+    <h3 id="NullBool">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/database/sql/sql.go?name=release#136">NullBool</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type NullBool struct {
+    <span id="NullBool.Bool">Bool</span>  <a href="/builtin#bool">bool</a>
+    <span id="NullBool.Valid">Valid</span> <a href="/builtin#bool">bool</a> <span class="com">// 如果Bool不是NULL则Valid为真</span>
+}</pre>
+    <p>NullBool代表一个可为NULL的布尔值。NullBool实现了Scanner接口，因此可以作为Rows/Row的Scan方法的参数保存扫描结果，类似NullString。</p>
+    <h4 id="NullBool.Scan">func (*NullBool) <a title="View Source" href="https://github.com/golang/go/blob/master/src/database/sql/sql.go?name=release#142">Scan</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (n *<a href="#NullBool">NullBool</a>) Scan(value interface{}) <a href="/builtin#error">error</a></pre>
+    <p>Scan实现了Scanner接口。</p>
+    <h4 id="NullBool.Value">func (NullBool) <a title="View Source" href="https://github.com/golang/go/blob/master/src/database/sql/sql.go?name=release#152">Value</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (n <a href="#NullBool">NullBool</a>) Value() (<a href="/database/sql/driver">driver</a>.<a href="/database/sql/driver#Value">Value</a>, <a href="/builtin#error">error</a>)</pre>
+    <p>Value实现了driver.Valuer接口。</p>
+    <h3 id="NullInt64">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/database/sql/sql.go?name=release#84">NullInt64</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type NullInt64 struct {
+    <span id="NullInt64.Int64">Int64</span> <a href="/builtin#int64">int64</a>
+    <span id="NullInt64.Valid">Valid</span> <a href="/builtin#bool">bool</a> <span class="com">// 如果Int64不是NULL则Valid为真</span>
+}</pre>
+    <p>NullInt64代表一个可为NULL的int64值。NullInt64实现了Scanner接口，因此可以作为Rows/Row的Scan方法的参数保存扫描结果，类似NullString。</p>
+<h4 id="NullInt64.Scan">func (*NullInt64) <a title="View Source" href="https://github.com/golang/go/blob/master/src/database/sql/sql.go?name=release#90">Scan</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (n *<a href="#NullInt64">NullInt64</a>) Scan(value interface{}) <a href="/builtin#error">error</a></pre>
+    <p>Scan实现了Scanner接口。</p>
+    <h4 id="NullInt64.Value">func (NullInt64) <a title="View Source" href="https://github.com/golang/go/blob/master/src/database/sql/sql.go?name=release#100">Value</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (n <a href="#NullInt64">NullInt64</a>) Value() (<a href="/database/sql/driver">driver</a>.<a href="/database/sql/driver#Value">Value</a>, <a href="/builtin#error">error</a>)</pre>
+    <p>Value实现了driver.Valuer接口。</p>
+    <h3 id="NullFloat64">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/database/sql/sql.go?name=release#110">NullFloat64</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type NullFloat64 struct {
+    <span id="NullFloat64.Float64">Float64</span> <a href="/builtin#float64">float64</a>
+    <span id="NullFloat64.Valid">Valid</span>   <a href="/builtin#bool">bool</a> <span class="com">// 如果Float64不是NULL则Valid为真</span>
+}</pre>
+    <p>NullFloat64代表一个可为NULL的float64值。NullFloat64实现了Scanner接口，因此可以作为Rows/Row的Scan方法的参数保存扫描结果，类似NullString。</p>
+<h4 id="NullFloat64.Scan">func (*NullFloat64) <a title="View Source" href="https://github.com/golang/go/blob/master/src/database/sql/sql.go?name=release#116">Scan</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (n *<a href="#NullFloat64">NullFloat64</a>) Scan(value interface{}) <a href="/builtin#error">error</a></pre>
+    <p>Scan实现了Scanner接口。</p>
+    <h4 id="NullFloat64.Value">func (NullFloat64) <a title="View Source" href="https://github.com/golang/go/blob/master/src/database/sql/sql.go?name=release#126">Value</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (n <a href="#NullFloat64">NullFloat64</a>) Value() (<a href="/database/sql/driver">driver</a>.<a href="/database/sql/driver#Value">Value</a>, <a href="/builtin#error">error</a>)</pre>
+    <p>Value实现了driver.Valuer接口。</p>
+    <h3 id="NullString">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/database/sql/sql.go?name=release#58">NullString</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type NullString struct {
+    <span id="NullString.String">String</span> <a href="/builtin#string">string</a>
+    <span id="NullString.Valid">Valid</span>  <a href="/builtin#bool">bool</a> <span class="com">// </span><span class="com">如果String不是NULL则Valid为真</span>
+}</pre>
+    <p>NullString代表一个可为NULL的字符串。NullString实现了Scanner接口，因此可以作为Rows/Row的Scan方法的参数保存扫描结果：</p>
+    <pre>var s NullString
+err := db.QueryRow(&#34;SELECT name FROM foo WHERE id=?&#34;, id).Scan(&amp;s)
+...
+if s.Valid {
+   // use s.String
+} else {
+   // NULL value
+}</pre>
+    <h4 id="NullString.Scan">func (*NullString) <a title="View Source" href="https://github.com/golang/go/blob/master/src/database/sql/sql.go?name=release#64">Scan</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (ns *<a href="#NullString">NullString</a>) Scan(value interface{}) <a href="/builtin#error">error</a></pre>
+    <p>Scan实现了Scanner接口。</p>
+    <h4 id="NullString.Value">func (NullString) <a title="View Source" href="https://github.com/golang/go/blob/master/src/database/sql/sql.go?name=release#74">Value</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (ns <a href="#NullString">NullString</a>) Value() (<a href="/database/sql/driver">driver</a>.<a href="/database/sql/driver#Value">Value</a>, <a href="/builtin#error">error</a>)</pre>
+    <p>Value实现了driver.Valuer接口。</p>
+    <h3 id="RawBytes">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/database/sql/sql.go?name=release#43">RawBytes</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type RawBytes []<a href="/builtin#byte">byte</a></pre>
+    <p>RawBytes是一个字节切片，保管对内存的引用，为数据库自身所使用。在Scaner接口的Scan方法写入RawBytes数据后，该切片只在限次调用Next、Scan或Close方法之前合法。</p>
+    <h3 id="Result">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/database/sql/sql.go?name=release#1679">Result</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Result interface {
+    <span class="com">// LastInsertId返回一个数据库生成的回应命令的整数。</span>
+    <span class="com">// 当插入新行时，一般来自一个"自增"列。</span>
+    <span class="com">// 不是所有的数据库都支持该功能，该状态的语法也各有不同。</span>
+    <span id="Result.LastInsertId">LastInsertId</span>() (<a href="/builtin#int64">int64</a>, <a href="/builtin#error">error</a>)
+
+    <span class="com">// RowsAffected返回被update、insert或delete命令影响的行数。</span>
+    <span class="com">// 不是所有的数据库都支持该功能。</span>
+    <span id="Result.RowsAffected">RowsAffected</span>() (<a href="/builtin#int64">int64</a>, <a href="/builtin#error">error</a>)
+}</pre>
+    <p>Result是对已执行的SQL命令的总结。</p>
+    <h3 id="DB">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/database/sql/sql.go?name=release#196">DB</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type DB struct {
+    <span class="com">// 内含隐藏或非导出字段</span>
+}</pre>
+    <p>DB是一个数据库（操作）句柄，代表一个具有零到多个底层连接的连接池。它可以安全的被多个go程同时使用。</p>
+    <p>sql包会自动创建和释放连接；它也会维护一个闲置连接的连接池。如果数据库具有单连接状态的概念，该状态只有在事务中被观察时才可信。一旦调用了BD.Begin，返回的Tx会绑定到单个连接。当调用事务Tx的Commit或Rollback后，该事务使用的连接会归还到DB的闲置连接池中。连接池的大小可以用SetMaxIdleConns方法控制。</p>
+    <h4 id="Open">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/database/sql/sql.go?name=release#429">Open</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func Open(driverName, dataSourceName <a href="/builtin#string">string</a>) (*<a href="#DB">DB</a>, <a href="/builtin#error">error</a>)</pre>
+    <p>Open打开一个dirverName指定的数据库，dataSourceName指定数据源，一般包至少括数据库文件名和（可能的）连接信息。</p>
+    <p>大多数用户会通过数据库特定的连接帮助函数打开数据库，返回一个*DB。Go标准库中没有数据库驱动。参见<a href="http://golang.org/s/sqldrivers">http://golang.org/s/sqldrivers</a>获取第三方驱动。</p>
+    <p>Open函数可能只是验证其参数，而不创建与数据库的连接。如果要检查数据源的名称是否合法，应调用返回值的Ping方法。</p>
+    <p>返回的DB可以安全的被多个go程同时使用，并会维护自身的闲置连接池。这样一来，Open函数只需调用一次。很少需要关闭DB。</p>
+    <h4 id="DB.Driver">func (*DB) <a title="View Source" href="https://github.com/golang/go/blob/master/src/database/sql/sql.go?name=release#1031">Driver</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (db *<a href="#DB">DB</a>) Driver() <a href="/database/sql/driver">driver</a>.<a href="/database/sql/driver#Driver">Driver</a></pre>
+    <p>Driver方法返回数据库下层驱动。</p>
+    <h4 id="DB.Ping">func (*DB) <a title="View Source" href="https://github.com/golang/go/blob/master/src/database/sql/sql.go?name=release#448">Ping</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (db *<a href="#DB">DB</a>) Ping() <a href="/builtin#error">error</a></pre>
+    <p>Ping检查与数据库的连接是否仍有效，如果需要会创建连接。</p>
+    <h4 id="DB.Close">func (*DB) <a title="View Source" href="https://github.com/golang/go/blob/master/src/database/sql/sql.go?name=release#464">Close</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (db *<a href="#DB">DB</a>) Close() <a href="/builtin#error">error</a></pre>
+    <p>Close关闭数据库，释放任何打开的资源。一般不会关闭DB，因为DB句柄通常被多个go程共享，并长期活跃。</p>
+    <h4 id="DB.SetMaxOpenConns">func (*DB) <a title="View Source" href="https://github.com/golang/go/blob/master/src/database/sql/sql.go?name=release#550">SetMaxOpenConns</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (db *<a href="#DB">DB</a>) SetMaxOpenConns(n <a href="/builtin#int">int</a>)</pre>
+    <p>SetMaxOpenConns设置与数据库建立连接的最大数目。</p>
+    <p>如果n大于0且小于最大闲置连接数，会将最大闲置连接数减小到匹配最大开启连接数的限制。</p>
+    <p>如果n &lt;= 0，不会限制最大开启连接数，默认为0（无限制）。</p>
+    <h4 id="DB.SetMaxIdleConns">func (*DB) <a title="View Source" href="https://github.com/golang/go/blob/master/src/database/sql/sql.go?name=release#517">SetMaxIdleConns</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (db *<a href="#DB">DB</a>) SetMaxIdleConns(n <a href="/builtin#int">int</a>)</pre>
+    <p>SetMaxIdleConns设置连接池中的最大闲置连接数。</p>
+    <p>如果n大于最大开启连接数，则新的最大闲置连接数会减小到匹配最大开启连接数的限制。</p>
+    <p>如果n &lt;= 0，不会保留闲置连接。</p>
+    <h4 id="DB.Exec">func (*DB) <a title="View Source" href="https://github.com/golang/go/blob/master/src/database/sql/sql.go?name=release#862">Exec</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (db *<a href="#DB">DB</a>) Exec(query <a href="/builtin#string">string</a>, args ...interface{}) (<a href="#Result">Result</a>, <a href="/builtin#error">error</a>)</pre>
+    <p>Exec执行一次命令（包括查询、删除、更新、插入等），不返回任何执行结果。参数args表示query中的占位参数。</p>
+    <h4 id="DB.Query">func (*DB) <a title="View Source" href="https://github.com/golang/go/blob/master/src/database/sql/sql.go?name=release#911">Query</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (db *<a href="#DB">DB</a>) Query(query <a href="/builtin#string">string</a>, args ...interface{}) (*<a href="#Rows">Rows</a>, <a href="/builtin#error">error</a>)</pre>
+    <p>Query执行一次查询，返回多行结果（即Rows），一般用于执行select命令。参数args表示query中的占位参数。</p>
+    <div class="panel-group">
+        <div class="panel panel-default" id="example-DB-Query">
+            <div class="panel-heading" onclick="document.getElementById('ex-DB-Query').style.display = document.getElementById('ex-DB-Query').style.display=='none'?'block':'none';">Example</div>
+            <div id="ex-DB-Query" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre>
+age := 27
+rows, err := db.Query(&#34;SELECT name FROM users WHERE age=?&#34;, age)
+if err != nil {
+    log.Fatal(err)
+}
+defer rows.Close()
+for rows.Next() {
+    var name string
+    if err := rows.Scan(&amp;name); err != nil {
+        log.Fatal(err)
+    }
+    fmt.Printf(&#34;%s is %d\n&#34;, name, age)
+}
+if err := rows.Err(); err != nil {
+    log.Fatal(err)
+}
+</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    <h4 id="DB.QueryRow">func (*DB) <a title="View Source" href="https://github.com/golang/go/blob/master/src/database/sql/sql.go?name=release#992">QueryRow</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (db *<a href="#DB">DB</a>) QueryRow(query <a href="/builtin#string">string</a>, args ...interface{}) *<a href="#Row">Row</a></pre>
+    <p>QueryRow执行一次查询，并期望返回最多一行结果（即Row）。QueryRow总是返回非nil的值，直到返回值的Scan方法被调用时，才会返回被延迟的错误。（如：未找到结果）</p>
+    <div class="panel-group">
+        <div class="panel panel-default" id="example-DB-QueryRow">
+            <div class="panel-heading" onclick="document.getElementById('ex-DB-QueryRow').style.display = document.getElementById('ex-DB-QueryRow').style.display=='none'?'block':'none';">Example</div>
+            <div id="ex-DB-QueryRow" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre>
+id := 123
+var username string
+err := db.QueryRow(&#34;SELECT username FROM users WHERE id=?&#34;, id).Scan(&amp;username)
+switch {
+case err == sql.ErrNoRows:
+    log.Printf(&#34;No user with that ID.&#34;)
+case err != nil:
+    log.Fatal(err)
+default:
+    fmt.Printf(&#34;Username is %s\n&#34;, username)
+}
+</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    <h4 id="DB.Prepare">func (*DB) <a title="View Source" href="https://github.com/golang/go/blob/master/src/database/sql/sql.go?name=release#820">Prepare</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (db *<a href="#DB">DB</a>) Prepare(query <a href="/builtin#string">string</a>) (*<a href="#Stmt">Stmt</a>, <a href="/builtin#error">error</a>)</pre>
+    <p>Prepare创建一个准备好的状态用于之后的查询和命令。返回值可以同时执行多个查询和命令。</p>
+    <h4 id="DB.Begin">func (*DB) <a title="View Source" href="https://github.com/golang/go/blob/master/src/database/sql/sql.go?name=release#999">Begin</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (db *<a href="#DB">DB</a>) Begin() (*<a href="#Tx">Tx</a>, <a href="/builtin#error">error</a>)</pre>
+    <p>Begin开始一个事务。隔离水平由数据库驱动决定。</p>
+    <h3 id="Row">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/database/sql/sql.go?name=release#1625">Row</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Row struct {
+    <span class="com">// 内含隐藏或非导出字段</span>
+}</pre>
+    <p>QueryRow方法返回Row，代表单行查询结果。</p>
+    <h4 id="Row.Scan">func (*Row) <a title="View Source" href="https://github.com/golang/go/blob/master/src/database/sql/sql.go?name=release#1635">Scan</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (r *<a href="#Row">Row</a>) Scan(dest ...interface{}) <a href="/builtin#error">error</a></pre>
+    <p>Scan将该行查询结果各列分别保存进dest参数指定的值中。如果该查询匹配多行，Scan会使用第一行结果并丢弃其余各行。如果没有匹配查询的行，Scan会返回ErrNoRows。</p>
+    <h3 id="Rows">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/database/sql/sql.go?name=release#1518">Rows</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Rows struct {
+    <span class="com">// 内含隐藏或非导出字段</span>
+}</pre>
+    <p>Rows是查询的结果。它的游标指向结果集的第零行，使用Next方法来遍历各行结果：</p>
+    <pre>rows, err := db.Query(&#34;SELECT ...&#34;)
+...
+defer rows.Close()
+for rows.Next() {
+    var id int
+    var name string
+    err = rows.Scan(&amp;id, &amp;name)
+    ...
+}
+err = rows.Err() // get any error encountered during iteration
+...</pre>
+    <h4 id="Rows.Columns">func (*Rows) <a title="View Source" href="https://github.com/golang/go/blob/master/src/database/sql/sql.go?name=release#1562">Columns</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (rs *<a href="#Rows">Rows</a>) Columns() ([]<a href="/builtin#string">string</a>, <a href="/builtin#error">error</a>)</pre>
+    <p>Columns返回列名。如果Rows已经关闭会返回错误。</p>
+    <h4 id="Rows.Scan">func (*Rows) <a title="View Source" href="https://github.com/golang/go/blob/master/src/database/sql/sql.go?name=release#1584">Scan</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (rs *<a href="#Rows">Rows</a>) Scan(dest ...interface{}) <a href="/builtin#error">error</a></pre>
+    <p>Scan将当前行各列结果填充进dest指定的各个值中。</p>
+    <p>如果某个参数的类型为*[]byte，Scan会保存对应数据的拷贝，该拷贝为调用者所有，可以安全的,修改或无限期的保存。如果参数类型为*RawBytes可以避免拷贝；参见RawBytes的文档获取其使用的约束。</p>
+    <p>如果某个参数的类型为*interface{}，Scan会不做转换的拷贝底层驱动提供的值。如果值的类型为[]byte，会进行数据的拷贝，调用者可以安全使用该值。</p>
+    <h4 id="Rows.Next">func (*Rows) <a title="View Source" href="https://github.com/golang/go/blob/master/src/database/sql/sql.go?name=release#1535">Next</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (rs *<a href="#Rows">Rows</a>) Next() <a href="/builtin#bool">bool</a></pre>
+    <p>Next准备用于Scan方法的下一行结果。如果成功会返回真，如果没有下一行或者出现错误会返回假。Err应该被调用以区分这两种情况。</p>
+    <p>每一次调用Scan方法，甚至包括第一次调用该方法，都必须在前面先调用Next方法。</p>
+<h4 id="Rows.Close">func (*Rows) <a title="View Source" href="https://github.com/golang/go/blob/master/src/database/sql/sql.go?name=release#1608">Close</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (rs *<a href="#Rows">Rows</a>) Close() <a href="/builtin#error">error</a></pre>
+    <p>Close关闭Rows，阻止对其更多的列举。 如果Next方法返回假，Rows会自动关闭，满足。检查Err方法结果的条件。Close方法时幂等的（多次调用无效的成功），不影响Err方法的结果。</p>
+    <h4 id="Rows.Err">func (*Rows) <a title="View Source" href="https://github.com/golang/go/blob/master/src/database/sql/sql.go?name=release#1552">Err</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (rs *<a href="#Rows">Rows</a>) Err() <a href="/builtin#error">error</a></pre>
+    <p>Err返回可能的、在迭代时出现的错误。Err需在显式或隐式调用Close方法后调用。</p>
+    <h3 id="Stmt">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/database/sql/sql.go?name=release#1237">Stmt</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Stmt struct {
+    <span class="com">// 内含隐藏或非导出字段</span>
+}</pre>
+    <p>Stmt是准备好的状态。Stmt可以安全的被多个go程同时使用。</p>
+    <h4 id="Stmt.Exec">func (*Stmt) <a title="View Source" href="https://github.com/golang/go/blob/master/src/database/sql/sql.go?name=release#1261">Exec</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (s *<a href="#Stmt">Stmt</a>) Exec(args ...interface{}) (<a href="#Result">Result</a>, <a href="/builtin#error">error</a>)</pre>
+    <p>Exec使用提供的参数执行准备好的命令状态，返回Result类型的该状态执行结果的总结。</p>
+    <h4 id="Stmt.Query">func (*Stmt) <a title="View Source" href="https://github.com/golang/go/blob/master/src/database/sql/sql.go?name=release#1382">Query</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (s *<a href="#Stmt">Stmt</a>) Query(args ...interface{}) (*<a href="#Rows">Rows</a>, <a href="/builtin#error">error</a>)</pre>
+    <p>Query使用提供的参数执行准备好的查询状态，返回Rows类型查询结果。</p>
+    <h4 id="Stmt.QueryRow">func (*Stmt) <a title="View Source" href="https://github.com/golang/go/blob/master/src/database/sql/sql.go?name=release#1458">QueryRow</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (s *<a href="#Stmt">Stmt</a>) QueryRow(args ...interface{}) *<a href="#Row">Row</a></pre>
+    <p>QueryRow使用提供的参数执行准备好的查询状态。如果在执行时遇到了错误，该错误会被延迟，直到返回值的Scan方法被调用时才释放。返回值总是非nil的。如果没有查询到结果，*Row类型返回值的Scan方法会返回ErrNoRows；否则，Scan方法会扫描结果第一行并丢弃其余行。</p>
+    <p>示例用法：</p>
+    <pre>var name string
+err := nameByUseridStmt.QueryRow(id).Scan(&amp;name)
+</pre>
+    <h4 id="Stmt.Close">func (*Stmt) <a title="View Source" href="https://github.com/golang/go/blob/master/src/database/sql/sql.go?name=release#1467">Close</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (s *<a href="#Stmt">Stmt</a>) Close() <a href="/builtin#error">error</a></pre>
+    <p>Close关闭状态。</p>
+    <h3 id="Tx">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/database/sql/sql.go?name=release#1041">Tx</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Tx struct {
+    <span class="com">// 内含隐藏或非导出字段</span>
+}</pre>
+    <p>Tx代表一个进行中的数据库事务。</p>
+    <p>一次事务必须以对Commit或Rollback的调用结束。</p>
+    <p>调用Commit或Rollback后，所有对事务的操作都会失败并返回错误值ErrTxDone。</p>
+    <h4 id="Tx.Exec">func (*Tx) <a title="View Source" href="https://github.com/golang/go/blob/master/src/database/sql/sql.go?name=release#1179">Exec</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (tx *<a href="#Tx">Tx</a>) Exec(query <a href="/builtin#string">string</a>, args ...interface{}) (<a href="#Result">Result</a>, <a href="/builtin#error">error</a>)</pre>
+    <p>Exec执行命令，但不返回结果。例如执行insert和update。</p>
+    <h4 id="Tx.Query">func (*Tx) <a title="View Source" href="https://github.com/golang/go/blob/master/src/database/sql/sql.go?name=release#1213">Query</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (tx *<a href="#Tx">Tx</a>) Query(query <a href="/builtin#string">string</a>, args ...interface{}) (*<a href="#Rows">Rows</a>, <a href="/builtin#error">error</a>)</pre>
+    <p>Query执行查询并返回零到多行结果（Rows），一般执行select命令。</p>
+    <h4 id="Tx.QueryRow">func (*Tx) <a title="View Source" href="https://github.com/golang/go/blob/master/src/database/sql/sql.go?name=release#1225">QueryRow</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (tx *<a href="#Tx">Tx</a>) QueryRow(query <a href="/builtin#string">string</a>, args ...interface{}) *<a href="#Row">Row</a></pre>
+    <p>QueryRow执行查询并期望返回最多一行结果（Row）。QueryRow总是返回非nil的结果，查询失败的错误会延迟到在调用该结果的Scan方法时释放。</p>
+    <h4 id="Tx.Prepare">func (*Tx) <a title="View Source" href="https://github.com/golang/go/blob/master/src/database/sql/sql.go?name=release#1102">Prepare</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (tx *<a href="#Tx">Tx</a>) Prepare(query <a href="/builtin#string">string</a>) (*<a href="#Stmt">Stmt</a>, <a href="/builtin#error">error</a>)</pre>
+    <p>Prepare准备一个专用于该事务的状态。返回的该事务专属状态操作在Tx递交会回滚后不能再使用。要在该事务中使用已存在的状态，参见Tx.Stmt方法。</p>
+<h4 id="Tx.Stmt">func (*Tx) <a title="View Source" href="https://github.com/golang/go/blob/master/src/database/sql/sql.go?name=release#1149">Stmt</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (tx *<a href="#Tx">Tx</a>) Stmt(stmt *<a href="#Stmt">Stmt</a>) *<a href="#Stmt">Stmt</a></pre>
+    <p>Stmt使用已存在的状态生成一个该事务特定的状态。</p>
+    <p>示例：</p>
+    <pre>updateMoney, err := db.Prepare(&#34;UPDATE balance SET money=money+? WHERE id=?&#34;)
+...
+tx, err := db.Begin()
+...
+res, err := tx.Stmt(updateMoney).Exec(123.45, 98293203)</pre>
+    <h4 id="Tx.Commit">func (*Tx) <a title="View Source" href="https://github.com/golang/go/blob/master/src/database/sql/sql.go?name=release#1075">Commit</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (tx *<a href="#Tx">Tx</a>) Commit() <a href="/builtin#error">error</a></pre>
+    <p>Commit递交事务。</p>
+    <h4 id="Tx.Rollback">func (*Tx) <a title="View Source" href="https://github.com/golang/go/blob/master/src/database/sql/sql.go?name=release#1086">Rollback</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (tx *<a href="#Tx">Tx</a>) Rollback() <a href="/builtin#error">error</a></pre>
+    <p>Rollback放弃并回滚事务。</p>
+</div>
+</body>
+</html>

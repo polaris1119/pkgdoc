@@ -1,0 +1,341 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="./site.css" rel="stylesheet">
+<title>bufio</title>
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package bufio</h2>
+    <p><code>import "bufio"</code>
+    <p>bufio包实现了有缓冲的I/O。它包装一个io.Reader或io.Writer接口对象，创建另一个也实现了该接口，且同时还提供了缓冲和一些文本I/O的帮助函数的对象。</p>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#pkg-constants">Constants</a></li>
+        <li><a href="#pkg-variables">Variables</a></li>
+        <li><a href="#Reader">type Reader</a></li>
+        <ul>
+            <li><a href="#NewReader">func NewReader(rd io.Reader) *Reader</a></li>
+            <li><a href="#NewReaderSize">func NewReaderSize(rd io.Reader, size int) *Reader</a></li>
+            <li><a href="#Reader.Reset">func (b *Reader) Reset(r io.Reader)</a></li>
+            <li><a href="#Reader.Buffered">func (b *Reader) Buffered() int</a></li>
+            <li><a href="#Reader.Peek">func (b *Reader) Peek(n int) ([]byte, error)</a></li>
+            <li><a href="#Reader.Read">func (b *Reader) Read(p []byte) (n int, err error)</a></li>
+            <li><a href="#Reader.ReadByte">func (b *Reader) ReadByte() (c byte, err error)</a></li>
+            <li><a href="#Reader.UnreadByte">func (b *Reader) UnreadByte() error</a></li>
+            <li><a href="#Reader.ReadRune">func (b *Reader) ReadRune() (r rune, size int, err error)</a></li>
+            <li><a href="#Reader.UnreadRune">func (b *Reader) UnreadRune() error</a></li>
+            <li><a href="#Reader.ReadLine">func (b *Reader) ReadLine() (line []byte, isPrefix bool, err error)</a></li>
+            <li><a href="#Reader.ReadSlice">func (b *Reader) ReadSlice(delim byte) (line []byte, err error)</a></li>
+            <li><a href="#Reader.ReadBytes">func (b *Reader) ReadBytes(delim byte) (line []byte, err error)</a></li>
+            <li><a href="#Reader.ReadString">func (b *Reader) ReadString(delim byte) (line string, err error)</a></li>
+            <li><a href="#Reader.WriteTo">func (b *Reader) WriteTo(w io.Writer) (n int64, err error)</a></li>
+        </ul>
+        <li><a href="#Writer">type Writer</a></li>
+        <ul>
+            <li><a href="#NewWriter">func NewWriter(w io.Writer) *Writer</a></li>
+            <li><a href="#NewWriterSize">func NewWriterSize(w io.Writer, size int) *Writer</a></li>
+            <li><a href="#Writer.Reset">func (b *Writer) Reset(w io.Writer)</a></li>
+            <li><a href="#Writer.Buffered">func (b *Writer) Buffered() int</a></li>
+            <li><a href="#Writer.Available">func (b *Writer) Available() int</a></li>
+            <li><a href="#Writer.Write">func (b *Writer) Write(p []byte) (nn int, err error)</a></li>
+            <li><a href="#Writer.WriteString">func (b *Writer) WriteString(s string) (int, error)</a></li>
+            <li><a href="#Writer.WriteByte">func (b *Writer) WriteByte(c byte) error</a></li>
+            <li><a href="#Writer.WriteRune">func (b *Writer) WriteRune(r rune) (size int, err error)</a></li>
+            <li><a href="#Writer.Flush">func (b *Writer) Flush() error</a></li>
+            <li><a href="#Writer.ReadFrom">func (b *Writer) ReadFrom(r io.Reader) (n int64, err error)</a></li>
+        </ul>
+        <li><a href="#ReadWriter">type ReadWriter</a></li>
+        <ul>
+            <li><a href="#NewReadWriter">func NewReadWriter(r *Reader, w *Writer) *ReadWriter</a></li>
+        </ul>
+        <li><a href="#SplitFunc">type SplitFunc</a></li>
+        <li><a href="#ScanBytes">func ScanBytes(data []byte, atEOF bool) (advance int, token []byte, err error)</a></li>
+        <li><a href="#ScanRunes">func ScanRunes(data []byte, atEOF bool) (advance int, token []byte, err error)</a></li>
+        <li><a href="#ScanWords">func ScanWords(data []byte, atEOF bool) (advance int, token []byte, err error)</a></li>
+        <li><a href="#ScanLines">func ScanLines(data []byte, atEOF bool) (advance int, token []byte, err error)</a></li>
+        <li><a href="#Scanner">type Scanner</a></li>
+        <ul>
+            <li><a href="#NewScanner">func NewScanner(r io.Reader) *Scanner</a></li>
+            <li><a href="#Scanner.Split">func (s *Scanner) Split(split SplitFunc)</a></li>
+            <li><a href="#Scanner.Scan">func (s *Scanner) Scan() bool</a></li>
+            <li><a href="#Scanner.Bytes">func (s *Scanner) Bytes() []byte</a></li>
+            <li><a href="#Scanner.Text">func (s *Scanner) Text() string</a></li>
+            <li><a href="#Scanner.Err">func (s *Scanner) Err() error</a></li>
+        </ul>
+    </ul>
+    <h4 id="pkg-examples">Examples <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#example-Scanner--Custom" onclick="$('#ex-Scanner--Custom').addClass('in').removeClass('collapse').height('auto')">Scanner (Custom)</a></li>
+        <li><a href="#example-Scanner--Lines" onclick="$('#ex-Scanner--Lines').addClass('in').removeClass('collapse').height('auto')">Scanner (Lines)</a></li>
+        <li><a href="#example-Scanner--Words" onclick="$('#ex-Scanner--Words').addClass('in').removeClass('collapse').height('auto')">Scanner (Words)</a></li>
+        <li><a href="#example-Writer" onclick="$('#ex-Writer').addClass('in').removeClass('collapse').height('auto')">Writer</a></li>
+    </ul>
+    <h3 id="pkg-constants">Constants <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>const (
+    <span class="com">// 用于缓冲一个token，实际需要的最大token尺寸可能小一些，例如缓冲中需要保存一整行内容</span><span class="com"></span>
+    <span id="MaxScanTokenSize">MaxScanTokenSize</span> = 64 * 1024
+)</pre>
+    <h3 id="pkg-variables">Variables <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>var (
+    <span id="ErrInvalidUnreadByte">ErrInvalidUnreadByte</span> = <a href="errors.htm">errors</a>.<a href="errors.htm#New">New</a>(&#34;bufio: invalid use of UnreadByte&#34;)
+    <span id="ErrInvalidUnreadRune">ErrInvalidUnreadRune</span> = <a href="errors.htm">errors</a>.<a href="errors.htm#New">New</a>(&#34;bufio: invalid use of UnreadRune&#34;)
+    <span id="ErrBufferFull">ErrBufferFull</span>        = <a href="errors.htm">errors</a>.<a href="errors.htm#New">New</a>(&#34;bufio: buffer full&#34;)
+    <span id="ErrNegativeCount">ErrNegativeCount</span>     = <a href="errors.htm">errors</a>.<a href="errors.htm#New">New</a>(&#34;bufio: negative count&#34;)
+)</pre>
+    <pre>var (
+    <span id="ErrTooLong">ErrTooLong</span>         = <a href="errors.htm">errors</a>.<a href="errors.htm#New">New</a>(&#34;bufio.Scanner: token too long&#34;)
+    <span id="ErrNegativeAdvance">ErrNegativeAdvance</span> = <a href="errors.htm">errors</a>.<a href="errors.htm#New">New</a>(&#34;bufio.Scanner: SplitFunc returns negative advance count&#34;)
+    <span id="ErrAdvanceTooFar">ErrAdvanceTooFar</span>   = <a href="errors.htm">errors</a>.<a href="errors.htm#New">New</a>(&#34;bufio.Scanner: SplitFunc returns advance count beyond input&#34;)
+)</pre>
+    <p>会被Scanner类型返回的错误。</p>
+    <h3 id="Reader">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/bufio/bufio.go?name=release#31">Reader</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Reader struct {
+    <span class="com">// 内含隐藏或非导出字段</span>
+}</pre>
+    <p>Reader实现了给一个io.Reader接口对象附加缓冲。</p>
+    <h4 id="NewReader">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/bufio/bufio.go?name=release#61">NewReader</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func NewReader(rd <a href="io.htm">io</a>.<a href="io.htm#Reader">Reader</a>) *<a href="#Reader">Reader</a></pre>
+    <p>NewReader创建一个具有默认大小缓冲、从r读取的*Reader。</p>
+    <h4 id="NewReaderSize">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/bufio/bufio.go?name=release#46">NewReaderSize</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func NewReaderSize(rd <a href="io.htm">io</a>.<a href="io.htm#Reader">Reader</a>, size <a href="builtin.htm#int">int</a>) *<a href="#Reader">Reader</a></pre>
+    <p>NewReaderSize创建一个具有最少有size尺寸的缓冲、从r读取的*Reader。如果参数r已经是一个具有足够大缓冲的* Reader类型值，会返回r。</p>
+    <h4 id="Reader.Reset">func (*Reader) <a title="View Source" href="https://github.com/golang/go/blob/master/src/bufio/bufio.go?name=release#67">Reset</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (b *<a href="#Reader">Reader</a>) Reset(r <a href="io.htm">io</a>.<a href="io.htm#Reader">Reader</a>)</pre>
+    <p>Reset丢弃缓冲中的数据，清除任何错误，将b重设为其下层从r读取数据。</p>
+    <h4 id="Reader.Buffered">func (*Reader) <a title="View Source" href="https://github.com/golang/go/blob/master/src/bufio/bufio.go?name=release#261">Buffered</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (b *<a href="#Reader">Reader</a>) Buffered() <a href="builtin.htm#int">int</a></pre>
+    <p>Buffered返回缓冲中现有的可读取的字节数。</p>
+    <h4 id="Reader.Peek">func (*Reader) <a title="View Source" href="https://github.com/golang/go/blob/master/src/bufio/bufio.go?name=release#123">Peek</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (b *<a href="#Reader">Reader</a>) Peek(n <a href="builtin.htm#int">int</a>) ([]<a href="builtin.htm#byte">byte</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>Peek返回输入流的下n个字节，而不会移动读取位置。返回的[]byte只在下一次调用读取操作前合法。如果Peek返回的切片长度比n小，它也会返会一个错误说明原因。如果n比缓冲尺寸还大，返回的错误将是ErrBufferFull。</p>
+    <h4 id="Reader.Read">func (*Reader) <a title="View Source" href="https://github.com/golang/go/blob/master/src/bufio/bufio.go?name=release#153">Read</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (b *<a href="#Reader">Reader</a>) Read(p []<a href="builtin.htm#byte">byte</a>) (n <a href="builtin.htm#int">int</a>, err <a href="builtin.htm#error">error</a>)</pre>
+    <p>Read读取数据写入p。本方法返回写入p的字节数。本方法一次调用最多会调用下层Reader接口一次Read方法，因此返回值n可能小于len(p)。读取到达结尾时，返回值n将为0而err将为io.EOF。</p>
+    <h4 id="Reader.ReadByte">func (*Reader) <a title="View Source" href="https://github.com/golang/go/blob/master/src/bufio/bufio.go?name=release#193">ReadByte</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (b *<a href="#Reader">Reader</a>) ReadByte() (c <a href="builtin.htm#byte">byte</a>, err <a href="builtin.htm#error">error</a>)</pre>
+    <p>ReadByte读取并返回一个字节。如果没有可用的数据，会返回错误。</p>
+    <h4 id="Reader.UnreadByte">func (*Reader) <a title="View Source" href="https://github.com/golang/go/blob/master/src/bufio/bufio.go?name=release#208">UnreadByte</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (b *<a href="#Reader">Reader</a>) UnreadByte() <a href="builtin.htm#error">error</a></pre>
+    <p>UnreadByte吐出最近一次读取操作读取的最后一个字节。（只能吐出最后一个，多次调用会出问题）</p>
+    <h4 id="Reader.ReadRune">func (*Reader) <a title="View Source" href="https://github.com/golang/go/blob/master/src/bufio/bufio.go?name=release#228">ReadRune</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (b *<a href="#Reader">Reader</a>) ReadRune() (r <a href="builtin.htm#rune">rune</a>, size <a href="builtin.htm#int">int</a>, err <a href="builtin.htm#error">error</a>)</pre>
+    <p>ReadRune读取一个utf-8编码的unicode码值，返回该码值、其编码长度和可能的错误。如果utf-8编码非法，读取位置只移动1字节，返回U+FFFD，返回值size为1而err为nil。如果没有可用的数据，会返回错误。</p>
+    <h4 id="Reader.UnreadRune">func (*Reader) <a title="View Source" href="https://github.com/golang/go/blob/master/src/bufio/bufio.go?name=release#250">UnreadRune</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (b *<a href="#Reader">Reader</a>) UnreadRune() <a href="builtin.htm#error">error</a></pre>
+    <p>UnreadRune吐出最近一次ReadRune调用读取的unicode码值。如果最近一次读取不是调用的ReadRune，会返回错误。（从这点看，UnreadRune比UnreadByte严格很多）</p>
+    <h4 id="Reader.ReadLine">func (*Reader) <a title="View Source" href="https://github.com/golang/go/blob/master/src/bufio/bufio.go?name=release#325">ReadLine</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (b *<a href="#Reader">Reader</a>) ReadLine() (line []<a href="builtin.htm#byte">byte</a>, isPrefix <a href="builtin.htm#bool">bool</a>, err <a href="builtin.htm#error">error</a>)</pre>
+    <p align="left">ReadLine是一个低水平的行数据读取原语。大多数调用者应使用ReadBytes('\n')或ReadString('\n')代替，或者使用Scanner。</p>
+    <p align="left">ReadLine尝试返回一行数据，不包括行尾标志的字节。如果行太长超过了缓冲，返回值isPrefix会被设为true，并返回行的前面一部分。该行剩下的部分将在之后的调用中返回。返回值isPrefix会在返回该行最后一个片段时才设为false。返回切片是缓冲的子切片，只在下一次读取操作之前有效。ReadLine要么返回一个非nil的line，要么返回一个非nil的err，两个返回值至少一个非nil。</p>
+    <p align="left">返回的文本不包含行尾的标志字节（"\r\n"或"\n"）。如果输入流结束时没有行尾标志字节，方法不会出错，也不会指出这一情况。在调用ReadLine之后调用UnreadByte会总是吐出最后一个读取的字节（很可能是该行的行尾标志字节），即使该字节不是ReadLine返回值的一部分。</p>
+    <h4 id="Reader.ReadSlice">func (*Reader) <a title="View Source" href="https://github.com/golang/go/blob/master/src/bufio/bufio.go?name=release#273">ReadSlice</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (b *<a href="#Reader">Reader</a>) ReadSlice(delim <a href="builtin.htm#byte">byte</a>) (line []<a href="builtin.htm#byte">byte</a>, err <a href="builtin.htm#error">error</a>)</pre>
+    <p>ReadSlice读取直到第一次遇到delim字节，返回缓冲里的包含已读取的数据和delim字节的切片。该返回值只在下一次读取操作之前合法。如果ReadSlice放在在读取到delim之前遇到了错误，它会返回在错误之前读取的数据在缓冲中的切片以及该错误（一般是io.EOF）。如果在读取到delim之前缓冲就被写满了，ReadSlice失败并返回ErrBufferFull。因为ReadSlice的返回值会被下一次I/O操作重写，调用者应尽量使用ReadBytes或ReadString替代本法功法。当且仅当ReadBytes方法返回的切片不以delim结尾时，会返回一个非nil的错误。</p>
+    <h4 id="Reader.ReadBytes">func (*Reader) <a title="View Source" href="https://github.com/golang/go/blob/master/src/bufio/bufio.go?name=release#367">ReadBytes</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (b *<a href="#Reader">Reader</a>) ReadBytes(delim <a href="builtin.htm#byte">byte</a>) (line []<a href="builtin.htm#byte">byte</a>, err <a href="builtin.htm#error">error</a>)</pre>
+    <p>ReadBytes读取直到第一次遇到delim字节，返回一个包含已读取的数据和delim字节的切片。如果ReadBytes方法在读取到delim之前遇到了错误，它会返回在错误之前读取的数据以及该错误（一般是io.EOF）。当且仅当ReadBytes方法返回的切片不以delim结尾时，会返回一个非nil的错误。</p>
+    <h4 id="Reader.ReadString">func (*Reader) <a title="View Source" href="https://github.com/golang/go/blob/master/src/bufio/bufio.go?name=release#415">ReadString</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (b *<a href="#Reader">Reader</a>) ReadString(delim <a href="builtin.htm#byte">byte</a>) (line <a href="builtin.htm#string">string</a>, err <a href="builtin.htm#error">error</a>)</pre>
+    <p>ReadString读取直到第一次遇到delim字节，返回一个包含已读取的数据和delim字节的字符串。如果ReadString方法在读取到delim之前遇到了错误，它会返回在错误之前读取的数据以及该错误（一般是io.EOF）。当且仅当ReadString方法返回的切片不以delim结尾时，会返回一个非nil的错误。</p>
+    <h4 id="Reader.WriteTo">func (*Reader) <a title="View Source" href="https://github.com/golang/go/blob/master/src/bufio/bufio.go?name=release#422">WriteTo</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (b *<a href="#Reader">Reader</a>) WriteTo(w <a href="io.htm">io</a>.<a href="io.htm#Writer">Writer</a>) (n <a href="builtin.htm#int64">int64</a>, err <a href="builtin.htm#error">error</a>)</pre>
+    <p>WriteTo方法实现了io.WriterTo接口。</p>
+    <h3 id="Writer">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/bufio/bufio.go?name=release#479">Writer</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Writer struct {
+    <span class="com">// 内含隐藏或非导出字段</span>
+}</pre>
+    <p>Writer实现了为io.Writer接口对象提供缓冲。如果在向一个Writer类型值写入时遇到了错误，该对象将不再接受任何数据，且所有写操作都会返回该错误。在说有数据都写入后，调用者有义务调用Flush方法以保证所有的数据都交给了下层的io.Writer。</p>
+    <div class="panel-group">
+        <div class="panel panel-default" id="example-Writer">
+            <div class="panel-heading" onclick="document.getElementById('ex-Writer').style.display = document.getElementById('ex-Writer').style.display=='none'?'block':'none';">Example</div>
+            <div id="ex-Writer" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre>w := bufio.NewWriter(os.Stdout)
+fmt.Fprint(w, &#34;Hello, &#34;)
+fmt.Fprint(w, &#34;world!&#34;)
+w.Flush() <span class="com">// Don&#39;t forget to flush!</span></pre>
+                    <p>Output:
+                    <pre>Hello, world!
+</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    <h4 id="NewWriter">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/bufio/bufio.go?name=release#505">NewWriter</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func NewWriter(w <a href="io.htm">io</a>.<a href="io.htm#Writer">Writer</a>) *<a href="#Writer">Writer</a></pre>
+    <p>NewWriter创建一个具有默认大小缓冲、写入w的*Writer。</p>
+    <h4 id="NewWriterSize">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/bufio/bufio.go?name=release#489">NewWriterSize</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func NewWriterSize(w <a href="io.htm">io</a>.<a href="io.htm#Writer">Writer</a>, size <a href="builtin.htm#int">int</a>) *<a href="#Writer">Writer</a></pre>
+    <p>NewWriterSize创建一个具有最少有size尺寸的缓冲、写入w的*Writer。如果参数w已经是一个具有足够大缓冲的*Writer类型值，会返回w。</p>
+    <h4 id="Writer.Reset">func (*Writer) <a title="View Source" href="https://github.com/golang/go/blob/master/src/bufio/bufio.go?name=release#511">Reset</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (b *<a href="#Writer">Writer</a>) Reset(w <a href="io.htm">io</a>.<a href="io.htm#Writer">Writer</a>)</pre>
+    <p>Reset丢弃缓冲中的数据，清除任何错误，将b重设为将其输出写入w。</p>
+    <h4 id="Writer.Buffered">func (*Writer) <a title="View Source" href="https://github.com/golang/go/blob/master/src/bufio/bufio.go?name=release#550">Buffered</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (b *<a href="#Writer">Writer</a>) Buffered() <a href="builtin.htm#int">int</a></pre>
+    <p>Buffered返回缓冲中已使用的字节数。</p>
+    <h4 id="Writer.Available">func (*Writer) <a title="View Source" href="https://github.com/golang/go/blob/master/src/bufio/bufio.go?name=release#547">Available</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (b *<a href="#Writer">Writer</a>) Available() <a href="builtin.htm#int">int</a></pre>
+    <p>Available返回缓冲中还有多少字节未使用。</p>
+    <h4 id="Writer.Write">func (*Writer) <a title="View Source" href="https://github.com/golang/go/blob/master/src/bufio/bufio.go?name=release#556">Write</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (b *<a href="#Writer">Writer</a>) Write(p []<a href="builtin.htm#byte">byte</a>) (nn <a href="builtin.htm#int">int</a>, err <a href="builtin.htm#error">error</a>)</pre>
+    <p>Write将p的内容写入缓冲。返回写入的字节数。如果返回值nn &lt; len(p)，还会返回一个错误说明原因。</p>
+    <h4 id="Writer.WriteString">func (*Writer) <a title="View Source" href="https://github.com/golang/go/blob/master/src/bufio/bufio.go?name=release#626">WriteString</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (b *<a href="#Writer">Writer</a>) WriteString(s <a href="builtin.htm#string">string</a>) (<a href="builtin.htm#int">int</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>WriteString写入一个字符串。返回写入的字节数。如果返回值nn &lt; len(s)，还会返回一个错误说明原因。</p>
+    <h4 id="Writer.WriteByte">func (*Writer) <a title="View Source" href="https://github.com/golang/go/blob/master/src/bufio/bufio.go?name=release#581">WriteByte</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (b *<a href="#Writer">Writer</a>) WriteByte(c <a href="builtin.htm#byte">byte</a>) <a href="builtin.htm#error">error</a></pre>
+    <p>WriteByte写入单个字节。</p>
+    <h4 id="Writer.WriteRune">func (*Writer) <a title="View Source" href="https://github.com/golang/go/blob/master/src/bufio/bufio.go?name=release#595">WriteRune</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (b *<a href="#Writer">Writer</a>) WriteRune(r <a href="builtin.htm#rune">rune</a>) (size <a href="builtin.htm#int">int</a>, err <a href="builtin.htm#error">error</a>)</pre>
+    <p>WriteRune写入一个unicode码值（的utf-8编码），返回写入的字节数和可能的错误。</p>
+    <h4 id="Writer.Flush">func (*Writer) <a title="View Source" href="https://github.com/golang/go/blob/master/src/bufio/bufio.go?name=release#518">Flush</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (b *<a href="#Writer">Writer</a>) Flush() <a href="builtin.htm#error">error</a></pre>
+    <p>Flush方法将缓冲中的数据写入下层的io.Writer接口。</p>
+    <h4 id="Writer.ReadFrom">func (*Writer) <a title="View Source" href="https://github.com/golang/go/blob/master/src/bufio/bufio.go?name=release#645">ReadFrom</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (b *<a href="#Writer">Writer</a>) ReadFrom(r <a href="io.htm">io</a>.<a href="io.htm#Reader">Reader</a>) (n <a href="builtin.htm#int64">int64</a>, err <a href="builtin.htm#error">error</a>)</pre>
+    <p>ReadFrom实现了io.ReaderFrom接口。</p>
+    <h3 id="ReadWriter">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/bufio/bufio.go?name=release#690">ReadWriter</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type ReadWriter struct {
+    *<a href="#Reader">Reader</a>
+    *<a href="#Writer">Writer</a>
+}</pre>
+    <p>ReadWriter类型保管了指向Reader和Writer类型的指针，（因此）实现了io.ReadWriter接口。</p>
+    <h4 id="NewReadWriter">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/bufio/bufio.go?name=release#696">NewReadWriter</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func NewReadWriter(r *<a href="#Reader">Reader</a>, w *<a href="#Writer">Writer</a>) *<a href="#ReadWriter">ReadWriter</a></pre>
+    <p>NewReadWriter申请创建一个新的、将读写操作分派给r和w 的ReadWriter。</p>
+    <h3 id="SplitFunc">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/bufio/scan.go?name=release#57">SplitFunc</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type SplitFunc func(data []<a href="builtin.htm#byte">byte</a>, atEOF <a href="builtin.htm#bool">bool</a>) (advance <a href="builtin.htm#int">int</a>, token []<a href="builtin.htm#byte">byte</a>, err <a href="builtin.htm#error">error</a>)</pre>
+    <p align="left">SplitFunc类型代表用于对输出作词法分析的分割函数。</p>
+    <p align="left">参数data是尚未处理的数据的一个开始部分的切片，参数atEOF表示是否Reader接口不能提供更多的数据。返回值是解析位置前进的字节数，将要返回给调用者的token切片，以及可能遇到的错误。如果数据不足以（保证）生成一个完整的token，例如需要一整行数据但data里没有换行符，SplitFunc可以返回(0, nil, nil)来告诉Scanner读取更多的数据写入切片然后用从同一位置起始、长度更长的切片再试一次（调用SplitFunc类型函数）。</p>
+    <p align="left">如果返回值err非nil，扫描将终止并将该错误返回给Scanner的调用者。</p>
+    <p align="left">除非atEOF为真，永远不会使用空切片data调用SplitFunc类型函数。然而，如果atEOF为真，data却可能是非空的、且包含着未处理的文本。</p>
+    <h3 id="ScanBytes">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/bufio/scan.go?name=release#213">ScanBytes</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func ScanBytes(data []<a href="builtin.htm#byte">byte</a>, atEOF <a href="builtin.htm#bool">bool</a>) (advance <a href="builtin.htm#int">int</a>, token []<a href="builtin.htm#byte">byte</a>, err <a href="builtin.htm#error">error</a>)</pre>
+    <p>ScanBytes是用于Scanner类型的分割函数（符合SplitFunc），本函数会将每个字节作为一个token返回。</p>
+    <h3 id="ScanRunes">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/bufio/scan.go?name=release#228">ScanRunes</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func ScanRunes(data []<a href="builtin.htm#byte">byte</a>, atEOF <a href="builtin.htm#bool">bool</a>) (advance <a href="builtin.htm#int">int</a>, token []<a href="builtin.htm#byte">byte</a>, err <a href="builtin.htm#error">error</a>)</pre>
+    <p>ScanRunes是用于Scanner类型的分割函数（符合SplitFunc），本函数会将每个utf-8编码的unicode码值作为一个token返回。本函数返回的rune序列和range一个字符串的输出rune序列相同。错误的utf-8编码会翻译为U+FFFD = "\xef\xbf\xbd"，但只会消耗一个字节。调用者无法区分正确编码的rune和错误编码的rune。</p>
+    <h3 id="ScanWords">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/bufio/scan.go?name=release#319">ScanWords</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func ScanWords(data []<a href="builtin.htm#byte">byte</a>, atEOF <a href="builtin.htm#bool">bool</a>) (advance <a href="builtin.htm#int">int</a>, token []<a href="builtin.htm#byte">byte</a>, err <a href="builtin.htm#error">error</a>)</pre>
+    <p>ScanRunes是用于Scanner类型的分割函数（符合SplitFunc），本函数会将空白（参见unicode.IsSpace）分隔的片段（去掉前后空白后）作为一个token返回。本函数永远不会返回空字符串。</p>
+    <h3 id="ScanLines">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/bufio/scan.go?name=release#274">ScanLines</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func ScanLines(data []<a href="builtin.htm#byte">byte</a>, atEOF <a href="builtin.htm#bool">bool</a>) (advance <a href="builtin.htm#int">int</a>, token []<a href="builtin.htm#byte">byte</a>, err <a href="builtin.htm#error">error</a>)</pre>
+    <p>ScanRunes是用于Scanner类型的分割函数（符合SplitFunc），本函数会将每一行文本去掉末尾的换行标记作为一个token返回。返回的行可以是空字符串。换行标记为一个可选的回车后跟一个必选的换行符。最后一行即使没有换行符也会作为一个token返回。</p>
+    <h3 id="Scanner">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/bufio/scan.go?name=release#30">Scanner</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Scanner struct {
+    <span class="com">// 内含隐藏或非导出字段</span>
+}</pre>
+    <p align="left">Scanner类型提供了方便的读取数据的接口，如从换行符分隔的文本里读取每一行。</p>
+    <p align="left">成功调用的Scan方法会逐步提供文件的token，跳过token之间的字节。token由SplitFunc类型的分割函数指定；默认的分割函数会将输入分割为多个行，并去掉行尾的换行标志。本包预定义的分割函数可以将文件分割为行、字节、unicode码值、空白分隔的word。调用者可以定制自己的分割函数。</p>
+    <p align="left">扫描会在抵达输入流结尾、遇到的第一个I/O错误、token过大不能保存进缓冲时，不可恢复的停止。当扫描停止后，当前读取位置可能会远在最后一个获得的token后面。需要更多对错误管理的控制或token很大，或必须从reader连续扫描的程序，应使用bufio.Reader代替。</p>
+    <div class="panel-group">
+        <div class="panel panel-default" id="example-Scanner--Custom">
+            <div class="panel-heading" onclick="document.getElementById('ex-Scanner--Custom').style.display = document.getElementById('ex-Scanner--Custom').style.display=='none'?'block':'none';">Example (Custom)</div>
+            <div id="ex-Scanner--Custom" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre><span class="com">// An artificial input source.</span>
+const input = &#34;1234 5678 1234567901234567890&#34;
+scanner := bufio.NewScanner(strings.NewReader(input))
+<span class="com">// Create a custom split function by wrapping the existing ScanWords function.</span>
+split := func(data []byte, atEOF bool) (advance int, token []byte, err error) {
+    advance, token, err = bufio.ScanWords(data, atEOF)
+    if err == nil &amp;&amp; token != nil {
+        _, err = strconv.ParseInt(string(token), 10, 32)
+    }
+    return
+}
+<span class="com">// Set the split function for the scanning operation.</span>
+scanner.Split(split)
+<span class="com">// Validate the input</span>
+for scanner.Scan() {
+    fmt.Printf(&#34;%s\n&#34;, scanner.Text())
+}
+if err := scanner.Err(); err != nil {
+    fmt.Printf(&#34;Invalid input: %s&#34;, err)
+}</pre>
+                    <p>Output:
+                    <pre>1234
+5678
+Invalid input: strconv.ParseInt: parsing &#34;1234567901234567890&#34;: value out of range
+</pre>
+                </div>
+            </div>
+        </div>
+        <div class="panel panel-default" id="example-Scanner--Lines">
+            <div class="panel-heading" onclick="document.getElementById('ex-Scanner--Lines').style.display = document.getElementById('ex-Scanner--Lines').style.display=='none'?'block':'none';">Example (Lines)</div>
+            <div id="ex-Scanner--Lines" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre>
+scanner := bufio.NewScanner(os.Stdin)
+for scanner.Scan() {
+    fmt.Println(scanner.Text()) <span class="com">// Println will add back the final &#39;\n&#39;</span>
+}
+if err := scanner.Err(); err != nil {
+    fmt.Fprintln(os.Stderr, &#34;reading standard input:&#34;, err)
+}
+</pre>
+                </div>
+            </div>
+        </div>
+        <div class="panel panel-default" id="example-Scanner--Words">
+            <div class="panel-heading" onclick="document.getElementById('ex-Scanner--Words').style.display = document.getElementById('ex-Scanner--Words').style.display=='none'?'block':'none';">Example (Words)</div>
+            <div id="ex-Scanner--Words" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre><span class="com">// An artificial input source.</span>
+const input = &#34;Now is the winter of our discontent,\nMade glorious summer by this sun of York.\n&#34;
+scanner := bufio.NewScanner(strings.NewReader(input))
+<span class="com">// Set the split function for the scanning operation.</span>
+scanner.Split(bufio.ScanWords)
+<span class="com">// Count the words.</span>
+count := 0
+for scanner.Scan() {
+    count++
+}
+if err := scanner.Err(); err != nil {
+    fmt.Fprintln(os.Stderr, &#34;reading input:&#34;, err)
+}
+fmt.Printf(&#34;%d\n&#34;, count)</pre>
+                    <p>Output:
+                    <pre>15
+</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    <h4 id="NewScanner">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/bufio/scan.go?name=release#74">NewScanner</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func NewScanner(r <a href="io.htm">io</a>.<a href="io.htm#Reader">Reader</a>) *<a href="#Scanner">Scanner</a></pre>
+    <p>NewScanner创建并返回一个从r读取数据的Scanner，默认的分割函数是ScanLines。</p>
+    <h4 id="Scanner.Split">func (*Scanner) <a title="View Source" href="https://github.com/golang/go/blob/master/src/bufio/scan.go?name=release#206">Split</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (s *<a href="#Scanner">Scanner</a>) Split(split <a href="#SplitFunc">SplitFunc</a>)</pre>
+    <p>Split设置该Scanner的分割函数。本方法必须在Scan之前调用。</p>
+    <h4 id="Scanner.Scan">func (*Scanner) <a title="View Source" href="https://github.com/golang/go/blob/master/src/bufio/scan.go?name=release#110">Scan</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (s *<a href="#Scanner">Scanner</a>) Scan() <a href="builtin.htm#bool">bool</a></pre>
+    <p>Scan方法获取当前位置的token（该token可以通过Bytes或Text方法获得），并让Scanner的扫描位置移动到下一个token。当扫描因为抵达输入流结尾或者遇到错误而停止时，本方法会返回false。在Scan方法返回false后，Err方法将返回扫描时遇到的任何错误；除非是io.EOF，此时Err会返回nil。</p>
+    <h4 id="Scanner.Bytes">func (*Scanner) <a title="View Source" href="https://github.com/golang/go/blob/master/src/bufio/scan.go?name=release#94">Bytes</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (s *<a href="#Scanner">Scanner</a>) Bytes() []<a href="builtin.htm#byte">byte</a></pre>
+    <p>Bytes方法返回最近一次Scan调用生成的token。底层数组指向的数据可能会被下一次Scan的调用重写。</p>
+    <h4 id="Scanner.Text">func (*Scanner) <a title="View Source" href="https://github.com/golang/go/blob/master/src/bufio/scan.go?name=release#100">Text</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (s *<a href="#Scanner">Scanner</a>) Text() <a href="builtin.htm#string">string</a></pre>
+    <p>Bytes方法返回最近一次Scan调用生成的token，会申请创建一个字符串保存token并返回该字符串。</p>
+    <h4 id="Scanner.Err">func (*Scanner) <a title="View Source" href="https://github.com/golang/go/blob/master/src/bufio/scan.go?name=release#84">Err</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (s *<a href="#Scanner">Scanner</a>) Err() <a href="builtin.htm#error">error</a></pre>
+    <p>Err返回Scanner遇到的第一个非EOF的错误。</p>
+</div>
+
+<div id="x-footer" class="clearfix">
+  <div class="container">
+    <a href="http://studygolang.com/">Go语言中文网</a>
+    <span class="text-muted">|</span> <a href="http://golang.org/">Go Language</a>
+    <span class="pull-right"><a href="#">Back to top</a></span>
+  </div>
+</div>
+<script src="../assets/jquery-2.0.3.min.js"></script>
+<script src="../bootstrap.min.js"></script>
+<script src="../site.js"></script>
+</body>
+</html>

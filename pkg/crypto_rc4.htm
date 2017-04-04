@@ -1,0 +1,60 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="./site.css" rel="stylesheet">
+<title>crypto/rc4</title>
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package rc4</h2>
+    <p><code>import "crypto/rc4"</code>
+    <p>rc4包实现了RC4加密算法，参见Bruce Schneier's Applied Cryptography。</p>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#KeySizeError">type KeySizeError</a></li>
+        <ul>
+            <li><a href="#KeySizeError.Error">func (k KeySizeError) Error() string</a></li>
+        </ul>
+        <li><a href="#Cipher">type Cipher</a></li>
+        <ul>
+            <li><a href="#NewCipher">func NewCipher(key []byte) (*Cipher, error)</a></li>
+            <li><a href="#Cipher.Reset">func (c *Cipher) Reset()</a></li>
+            <li><a href="#Cipher.XORKeyStream">func (c *Cipher) XORKeyStream(dst, src []byte)</a></li>
+        </ul>
+    </ul>
+    <h3 id="KeySizeError">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/rc4/rc4.go?name=release#20">KeySizeError</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type KeySizeError <a href="builtin.htm#int">int</a></pre>
+    <h4 id="KeySizeError.Error">func (KeySizeError) <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/rc4/rc4.go?name=release#22">Error</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (k <a href="#KeySizeError">KeySizeError</a>) Error() <a href="builtin.htm#string">string</a></pre>
+    <h3 id="Cipher">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/rc4/rc4.go?name=release#15">Cipher</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Cipher struct {
+    <span class="com">// 内含隐藏或非导出字段</span>
+}</pre>
+    <p>Cipher是一个使用特定密钥的RC4实例，本类型实现了cipher.Stream接口。</p>
+    <h4 id="NewCipher">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/rc4/rc4.go?name=release#28">NewCipher</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func NewCipher(key []<a href="builtin.htm#byte">byte</a>) (*<a href="#Cipher">Cipher</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>NewCipher创建并返回一个新的Cipher。参数key是RC4密钥，至少1字节，最多256字节。</p>
+    <h4 id="Cipher.Reset">func (*Cipher) <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/rc4/rc4.go?name=release#47">Reset</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *<a href="#Cipher">Cipher</a>) Reset()</pre>
+    <p>Reset方法会清空密钥数据，以便将其数据从程序内存中清除（以免被破解）</p>
+    <h4 id="Cipher.XORKeyStream">func (*Cipher) <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/rc4/rc4_asm.go?name=release#13">XORKeyStream</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *<a href="#Cipher">Cipher</a>) XORKeyStream(dst, src []<a href="builtin.htm#byte">byte</a>)</pre>
+    <p>XORKeyStream方法将src的数据与秘钥生成的伪随机位流取XOR并写入dst。dst和src可指向同一内存地址；但如果指向不同则其底层内存不可重叠。</p>
+    <h3 id="pkg-note-bug">Bugs <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <p><a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/rc4/rc4.go?name=release#9">☞</a> RC4被广泛使用，但设计上的缺陷使它很少用于较新的协议中。    </div>
+
+<div id="x-footer" class="clearfix">
+  <div class="container">
+    <a href="http://studygolang.com/">Go语言中文网</a>
+    <span class="text-muted">|</span> <a href="http://golang.org/">Go Language</a>
+    <span class="pull-right"><a href="#">Back to top</a></span>
+  </div>
+</div>
+<script src="../assets/jquery-2.0.3.min.js"></script>
+<script src="../bootstrap.min.js"></script>
+<script src="../site.js"></script>
+</body>
+</html>

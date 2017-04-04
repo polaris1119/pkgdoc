@@ -1,0 +1,57 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="./site.css" rel="stylesheet">
+<title>encoding/pem</title>
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package pem</h2>
+    <p><code>import "encoding/pem"</code>
+    <p>pem包实现了PEM数据编码（源自保密增强邮件协议）。目前PEM编码主要用于TLS密钥和证书。参见<a href="http://tools.ietf.org/html/rfc1421">RFC 1421</a></p>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#Block">type Block</a></li>
+        <ul>
+            <li><a href="#Decode">func Decode(data []byte) (p *Block, rest []byte)</a></li>
+        </ul>
+        <li><a href="#Encode">func Encode(out io.Writer, b *Block) error</a></li>
+        <li><a href="#EncodeToMemory">func EncodeToMemory(b *Block) []byte</a></li>
+    </ul>
+    <h3 id="Block">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/pem/pem.go?name=release#25">Block</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Block struct {
+    <span id="Block.Type">Type</span>    <a href="builtin.htm#string">string</a>            <span class="com">// 得自前言的类型（如"RSA PRIVATE KEY"）</span>
+    <span id="Block.Headers">Headers</span> map[<a href="builtin.htm#string">string</a>]<a href="builtin.htm#string">string</a> <span class="com">// 可选的头项</span>
+    <span id="Block.Bytes">Bytes</span>   []<a href="builtin.htm#byte">byte</a>            <span class="com">// 内容解码后的数据，一般是DER编码的ASN.1结构</span>
+}</pre>
+    <p>Block代表PEM编码的结构。编码格式如下：</p>
+    <pre>-----BEGIN Type-----
+Headers
+base64-encoded Bytes
+-----END Type-----
+</pre>
+    <p>其中Headers是可为空的多行键值对。</p>
+    <h4 id="Decode">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/pem/pem.go?name=release#76">Decode</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func Decode(data []<a href="builtin.htm#byte">byte</a>) (p *<a href="#Block">Block</a>, rest []<a href="builtin.htm#byte">byte</a>)</pre>
+    <p>Decode函数会从输入里查找到下一个PEM格式的块（证书、私钥等）。它返回解码得到的Block和剩余未解码的数据。如果未发现PEM数据，返回(nil, data)。</p>
+    <h3 id="Encode">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/pem/pem.go?name=release#218">Encode</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Encode(out <a href="io.htm">io</a>.<a href="io.htm#Writer">Writer</a>, b *<a href="#Block">Block</a>) <a href="builtin.htm#error">error</a></pre>
+    <h3 id="EncodeToMemory">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/pem/pem.go?name=release#273">EncodeToMemory</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func EncodeToMemory(b *<a href="#Block">Block</a>) []<a href="builtin.htm#byte">byte</a></pre>
+</div>
+
+<div id="x-footer" class="clearfix">
+  <div class="container">
+    <a href="http://studygolang.com/">Go语言中文网</a>
+    <span class="text-muted">|</span> <a href="http://golang.org/">Go Language</a>
+    <span class="pull-right"><a href="#">Back to top</a></span>
+  </div>
+</div>
+<script src="../assets/jquery-2.0.3.min.js"></script>
+<script src="../bootstrap.min.js"></script>
+<script src="../site.js"></script>
+</body>
+</html>

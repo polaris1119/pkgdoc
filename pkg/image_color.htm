@@ -1,0 +1,195 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="./site.css" rel="stylesheet">
+<title>image/color</title>
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package color</h2>
+    <p><code>import "image/color"</code>
+    <p>color包实现了基本色彩库。</p>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#pkg-variables">Variables</a></li>
+        <li><a href="#Color">type Color</a></li>
+        <li><a href="#Model">type Model</a></li>
+        <ul>
+            <li><a href="#ModelFunc">func ModelFunc(f func(Color) Color) Model</a></li>
+        </ul>
+        <li><a href="#Alpha">type Alpha</a></li>
+        <ul>
+            <li><a href="#Alpha.RGBA">func (c Alpha) RGBA() (r, g, b, a uint32)</a></li>
+        </ul>
+        <li><a href="#Alpha16">type Alpha16</a></li>
+        <ul>
+            <li><a href="#Alpha16.RGBA">func (c Alpha16) RGBA() (r, g, b, a uint32)</a></li>
+        </ul>
+        <li><a href="#Gray">type Gray</a></li>
+        <ul>
+            <li><a href="#Gray.RGBA">func (c Gray) RGBA() (r, g, b, a uint32)</a></li>
+        </ul>
+        <li><a href="#Gray16">type Gray16</a></li>
+        <ul>
+            <li><a href="#Gray16.RGBA">func (c Gray16) RGBA() (r, g, b, a uint32)</a></li>
+        </ul>
+        <li><a href="#RGBA">type RGBA</a></li>
+        <ul>
+            <li><a href="#RGBA.RGBA">func (c RGBA) RGBA() (r, g, b, a uint32)</a></li>
+        </ul>
+        <li><a href="#RGBA64">type RGBA64</a></li>
+        <ul>
+            <li><a href="#RGBA64.RGBA">func (c RGBA64) RGBA() (r, g, b, a uint32)</a></li>
+        </ul>
+        <li><a href="#NRGBA">type NRGBA</a></li>
+        <ul>
+            <li><a href="#NRGBA.RGBA">func (c NRGBA) RGBA() (r, g, b, a uint32)</a></li>
+        </ul>
+        <li><a href="#NRGBA64">type NRGBA64</a></li>
+        <ul>
+            <li><a href="#NRGBA64.RGBA">func (c NRGBA64) RGBA() (r, g, b, a uint32)</a></li>
+        </ul>
+        <li><a href="#YCbCr">type YCbCr</a></li>
+        <ul>
+            <li><a href="#YCbCr.RGBA">func (c YCbCr) RGBA() (uint32, uint32, uint32, uint32)</a></li>
+        </ul>
+        <li><a href="#Palette">type Palette</a></li>
+        <ul>
+            <li><a href="#Palette.Convert">func (p Palette) Convert(c Color) Color</a></li>
+            <li><a href="#Palette.Index">func (p Palette) Index(c Color) int</a></li>
+        </ul>
+        <li><a href="#RGBToYCbCr">func RGBToYCbCr(r, g, b uint8) (uint8, uint8, uint8)</a></li>
+        <li><a href="#YCbCrToRGB">func YCbCrToRGB(y, cb, cr uint8) (uint8, uint8, uint8)</a></li>
+    </ul>
+    <h3 id="pkg-variables">Variables <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>var (
+    <span id="Black">Black</span>       = <a href="#Gray16">Gray16</a>{0}       <span class="com">// 黑色</span>
+    <span id="White">White</span>       = <a href="#Gray16">Gray16</a>{0xffff}  <span class="com">// 白色</span>
+    <span id="Transparent">Transparent</span> = <a href="#Alpha16">Alpha16</a>{0}      <span class="com">// 完全透明</span>
+    <span id="Opaque">Opaque</span>      = <a href="#Alpha16">Alpha16</a>{0xffff} <span class="com">// 完全不透明</span>
+)</pre>
+    <p>标准色彩。</p>
+    <h3 id="Color">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/color/color.go?name=release#10">Color</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Color interface {
+    <span class="com">// 方法返回预乘了alpha的红、绿、蓝色彩值和alpha通道值，范围都在[0, 0xFFFF]。</span>
+    <span class="com">// 返回值类型为uint32，这样当乘以接近0xFFFF的混合参数时，不会溢出。</span><span class="com"></span>
+    <span id="Color.RGBA">RGBA</span>() (r, g, b, a <a href="builtin.htm#uint32">uint32</a>)
+}</pre>
+    <p>实现了Color接口的类型可以将自身转化为预乘了alpha的16位通道的RGBA，转换可能会丢失色彩信息。</p>
+    <h3 id="Model">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/color/color.go?name=release#133">Model</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Model interface {
+    <span id="Model.Convert">Convert</span>(c <a href="#Color">Color</a>) <a href="#Color">Color</a>
+}</pre>
+    <p>Model接口可以将任意Color接口转换为采用自身色彩模型的Color接口。转换可能会丢失色彩信息。</p>
+    <pre>var (
+    <span id="RGBAModel">RGBAModel</span>    <a href="#Model">Model</a> = <a href="#ModelFunc">ModelFunc</a>(rgbaModel)
+    <span id="RGBA64Model">RGBA64Model</span>  <a href="#Model">Model</a> = <a href="#ModelFunc">ModelFunc</a>(rgba64Model)
+    <span id="NRGBAModel">NRGBAModel</span>   <a href="#Model">Model</a> = <a href="#ModelFunc">ModelFunc</a>(nrgbaModel)
+    <span id="NRGBA64Model">NRGBA64Model</span> <a href="#Model">Model</a> = <a href="#ModelFunc">ModelFunc</a>(nrgba64Model)
+    <span id="AlphaModel">AlphaModel</span>   <a href="#Model">Model</a> = <a href="#ModelFunc">ModelFunc</a>(alphaModel)
+    <span id="Alpha16Model">Alpha16Model</span> <a href="#Model">Model</a> = <a href="#ModelFunc">ModelFunc</a>(alpha16Model)
+    <span id="GrayModel">GrayModel</span>    <a href="#Model">Model</a> = <a href="#ModelFunc">ModelFunc</a>(grayModel)
+    <span id="Gray16Model">Gray16Model</span>  <a href="#Model">Model</a> = <a href="#ModelFunc">ModelFunc</a>(gray16Model)
+)</pre>
+    <p>Models接口返回标准的Color接口类型。</p>
+    <pre>var <span id="YCbCrModel">YCbCrModel</span> <a href="#Model">Model</a> = <a href="#ModelFunc">ModelFunc</a>(yCbCrModel)</pre>
+    <p>包变量YcbCrModel是Y'cbCr色彩模型的Model接口。</p>
+    <h4 id="ModelFunc">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/color/color.go?name=release#138">ModelFunc</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func ModelFunc(f func(<a href="#Color">Color</a>) <a href="#Color">Color</a>) <a href="#Model">Model</a></pre>
+    <p>函数ModelFunc返回一个调用函数f实现色彩转换的Model接口。</p>
+    <h3 id="Alpha">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/color/color.go?name=release#90">Alpha</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Alpha struct {
+    <span id="Alpha.A">A</span> <a href="builtin.htm#uint8">uint8</a>
+}</pre>
+    <p>Alpha类型代表一个8位的alpha通道（alpha通道表示透明度）。</p>
+    <h4 id="Alpha.RGBA">func (Alpha) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/color/color.go?name=release#94">RGBA</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c <a href="#Alpha">Alpha</a>) RGBA() (r, g, b, a <a href="builtin.htm#uint32">uint32</a>)</pre>
+    <h3 id="Alpha16">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/color/color.go?name=release#101">Alpha16</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Alpha16 struct {
+    <span id="Alpha16.A">A</span> <a href="builtin.htm#uint16">uint16</a>
+}</pre>
+    <p>Alpha16类型代表一个16位的alpha通道。</p>
+    <h4 id="Alpha16.RGBA">func (Alpha16) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/color/color.go?name=release#105">RGBA</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c <a href="#Alpha16">Alpha16</a>) RGBA() (r, g, b, a <a href="builtin.htm#uint32">uint32</a>)</pre>
+    <h3 id="Gray">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/color/color.go?name=release#111">Gray</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Gray struct {
+    <span id="Gray.Y">Y</span> <a href="builtin.htm#uint8">uint8</a>
+}</pre>
+    <p>Gray类型代表一个8位的灰度色彩。</p>
+    <h4 id="Gray.RGBA">func (Gray) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/color/color.go?name=release#115">RGBA</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c <a href="#Gray">Gray</a>) RGBA() (r, g, b, a <a href="builtin.htm#uint32">uint32</a>)</pre>
+    <h3 id="Gray16">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/color/color.go?name=release#122">Gray16</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Gray16 struct {
+    <span id="Gray16.Y">Y</span> <a href="builtin.htm#uint16">uint16</a>
+}</pre>
+    <p>Gray16类型代表一个16位的灰度色彩。</p>
+    <h4 id="Gray16.RGBA">func (Gray16) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/color/color.go?name=release#126">RGBA</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c <a href="#Gray16">Gray16</a>) RGBA() (r, g, b, a <a href="builtin.htm#uint32">uint32</a>)</pre>
+    <h3 id="RGBA">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/color/color.go?name=release#20">RGBA</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type RGBA struct {
+    <span id="RGBA.R">R</span>, <span id="RGBA.G">G</span>, <span id="RGBA.B">B</span>, <span id="RGBA.A">A</span> <a href="builtin.htm#uint8">uint8</a>
+}</pre>
+    <p>RGBA类型代表传统的预乘了alpha通道的32位RGB色彩，Red、Green、Blue、Alpha各8位。</p>
+    <h4 id="RGBA.RGBA">func (RGBA) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/color/color.go?name=release#24">RGBA</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c <a href="#RGBA">RGBA</a>) RGBA() (r, g, b, a <a href="builtin.htm#uint32">uint32</a>)</pre>
+    <h3 id="RGBA64">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/color/color.go?name=release#38">RGBA64</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type RGBA64 struct {
+    <span id="RGBA64.R">R</span>, <span id="RGBA64.G">G</span>, <span id="RGBA64.B">B</span>, <span id="RGBA64.A">A</span> <a href="builtin.htm#uint16">uint16</a>
+}</pre>
+    <p>RGBA64类型代表预乘了alpha通道的64位RGB色彩，Red、Green、Blue、Alpha各16位。</p>
+    <h4 id="RGBA64.RGBA">func (RGBA64) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/color/color.go?name=release#42">RGBA</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c <a href="#RGBA64">RGBA64</a>) RGBA() (r, g, b, a <a href="builtin.htm#uint32">uint32</a>)</pre>
+    <h3 id="NRGBA">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/color/color.go?name=release#47">NRGBA</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type NRGBA struct {
+    <span id="NRGBA.R">R</span>, <span id="NRGBA.G">G</span>, <span id="NRGBA.B">B</span>, <span id="NRGBA.A">A</span> <a href="builtin.htm#uint8">uint8</a>
+}</pre>
+    <p>NRGBA类型代表没有预乘alpha通道的32位RGB色彩，Red、Green、Blue、Alpha各8位。</p>
+    <h4 id="NRGBA.RGBA">func (NRGBA) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/color/color.go?name=release#51">RGBA</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c <a href="#NRGBA">NRGBA</a>) RGBA() (r, g, b, a <a href="builtin.htm#uint32">uint32</a>)</pre>
+    <h3 id="NRGBA64">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/color/color.go?name=release#71">NRGBA64</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type NRGBA64 struct {
+    <span id="NRGBA64.R">R</span>, <span id="NRGBA64.G">G</span>, <span id="NRGBA64.B">B</span>, <span id="NRGBA64.A">A</span> <a href="builtin.htm#uint16">uint16</a>
+}</pre>
+    <p>NRGBA64类型代表没有预乘alpha通道的64位RGB色彩，Red、Green、Blue、Alpha各16位。</p>
+    <h4 id="NRGBA64.RGBA">func (NRGBA64) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/color/color.go?name=release#75">RGBA</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c <a href="#NRGBA64">NRGBA64</a>) RGBA() (r, g, b, a <a href="builtin.htm#uint32">uint32</a>)</pre>
+    <h3 id="YCbCr">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/color/ycbcr.go?name=release#80">YCbCr</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type YCbCr struct {
+    <span id="YCbCr.Y">Y</span>, <span id="YCbCr.Cb">Cb</span>, <span id="YCbCr.Cr">Cr</span> <a href="builtin.htm#uint8">uint8</a>
+}</pre>
+    <p align="left">YcbCr代表完全不透明的24位Y'CbCr色彩；每个色彩都有1个亮度成分和2个色度成分，分别用8位字节表示。</p>
+    <p align="left">JPEG、VP8、MPEG家族和其他编码方式使用本色彩模型。这些编码通常将Y'CbCr 和YUV两个色彩模型等同使用（Y=Y'=黄、U=Cb=青、V=Cr=品红）。但严格来说，YUV模只用于模拟视频信号，Y'是经过伽玛校正的Y。RGB和Y'CbCr色彩模型之间的转换会丢失色彩信息。两个色彩模型之间的转换有多个存在细微区别的算法。本包采用JFIF算法，参见<a href="http://www.w3.org/Graphics/JPEG/jfif3.pdf">http://www.w3.org/Graphics/JPEG/jfif3.pdf</a></p>
+    <h4 id="YCbCr.RGBA">func (YCbCr) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/color/ycbcr.go?name=release#84">RGBA</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c <a href="#YCbCr">YCbCr</a>) RGBA() (<a href="builtin.htm#uint32">uint32</a>, <a href="builtin.htm#uint32">uint32</a>, <a href="builtin.htm#uint32">uint32</a>, <a href="builtin.htm#uint32">uint32</a>)</pre>
+    <h3 id="Palette">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/color/color.go?name=release#254">Palette</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Palette []<a href="#Color">Color</a></pre>
+    <p>Palette类型代表一个色彩的调色板。</p>
+    <h4 id="Palette.Convert">func (Palette) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/color/color.go?name=release#257">Convert</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p <a href="#Palette">Palette</a>) Convert(c <a href="#Color">Color</a>) <a href="#Color">Color</a></pre>
+    <p>返回调色板中与色彩c在欧几里德RGB色彩空间最接近的色彩。（实现了Model接口）</p>
+    <h4 id="Palette.Index">func (Palette) <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/color/color.go?name=release#266">Index</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p <a href="#Palette">Palette</a>) Index(c <a href="#Color">Color</a>) <a href="builtin.htm#int">int</a></pre>
+    <p>返回调色板中与色彩c在欧几里德RGB色彩空间最接近的色彩的索引。</p>
+    <h3 id="RGBToYCbCr">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/color/ycbcr.go?name=release#8">RGBToYCbCr</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func RGBToYCbCr(r, g, b <a href="builtin.htm#uint8">uint8</a>) (<a href="builtin.htm#uint8">uint8</a>, <a href="builtin.htm#uint8">uint8</a>, <a href="builtin.htm#uint8">uint8</a>)</pre>
+    <p>函数将RGB三原色转换为Y'CbCr三原色。</p>
+    <h3 id="YCbCrToRGB">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/color/ycbcr.go?name=release#39">YCbCrToRGB</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func YCbCrToRGB(y, cb, cr <a href="builtin.htm#uint8">uint8</a>) (<a href="builtin.htm#uint8">uint8</a>, <a href="builtin.htm#uint8">uint8</a>, <a href="builtin.htm#uint8">uint8</a>)</pre>
+    <p>函数将Y'CbCr三原色转换为RGB三原色。</p>
+</div>
+
+<div id="x-footer" class="clearfix">
+  <div class="container">
+    <a href="http://studygolang.com/">Go语言中文网</a>
+    <span class="text-muted">|</span> <a href="http://golang.org/">Go Language</a>
+    <span class="pull-right"><a href="#">Back to top</a></span>
+  </div>
+</div>
+<script src="../assets/jquery-2.0.3.min.js"></script>
+<script src="../bootstrap.min.js"></script>
+<script src="../site.js"></script>
+</body>
+</html>

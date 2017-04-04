@@ -1,0 +1,81 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="./site.css" rel="stylesheet">
+<title>hash/crc32</title>
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package crc32</h2>
+    <p><code>import "hash/crc32"</code>
+    <p align="left">crc32包实现了32位循环冗余校验（CRC-32）的校验和算法，参见：</p>
+    <p align="left"><a href="http://en.wikipedia.org/wiki/Cyclic_redundancy_check">http://en.wikipedia.org/wiki/Cyclic_redundancy_check</a></p>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#pkg-constants">Constants</a></li>
+        <li><a href="#pkg-variables">Variables</a></li>
+        <li><a href="#Table">type Table</a></li>
+        <ul>
+            <li><a href="#MakeTable">func MakeTable(poly uint32) *Table</a></li>
+        </ul>
+        <li><a href="#Checksum">func Checksum(data []byte, tab *Table) uint32</a></li>
+        <li><a href="#ChecksumIEEE">func ChecksumIEEE(data []byte) uint32</a></li>
+        <li><a href="#Update">func Update(crc uint32, tab *Table, p []byte) uint32</a></li>
+        <li><a href="#New">func New(tab *Table) hash.Hash32</a></li>
+        <li><a href="#NewIEEE">func NewIEEE() hash.Hash32</a></li>
+    </ul>
+    <h3 id="pkg-constants">Constants <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>const (
+    <span class="com">// 最常用的CRC-32多项式；用于以太网、v.42、fddi、gzip、zip、png、mpeg-2……</span>
+    <span id="IEEE">IEEE</span> = 0xedb88320
+    <span class="com">// 卡斯塔尼奥利多项式，用在iSCSI；有比IEEE更好的错误探测特性</span>
+    <span class="com">// http://dx.doi.org/10.1109/26.231911</span>
+    <span id="Castagnoli">Castagnoli</span> = 0x82f63b78
+    <span class="com">// 库普曼多项式；错误探测特性也比IEEE好</span>
+    <span class="com">// http://dx.doi.org/10.1109/DSN.2002.1028931</span>
+    <span id="Koopman">Koopman</span> = 0xeb31d82e
+)</pre>
+    <p>预定义的多项式。</p>
+    <pre>const <span id="Size">Size</span> = 4</pre>
+    <p>CRC-32校验和的字节长度。</p>
+    <h3 id="pkg-variables">Variables <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>var <span id="IEEETable">IEEETable</span> = MakeTable(<a href="#IEEE">IEEE</a>)</pre>
+    <p>IEEETable是IEEE多项式对应的Table。</p>
+    <h3 id="Table">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/hash/crc32/crc32.go?name=release#36">Table</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Table [256]<a href="builtin.htm#uint32">uint32</a></pre>
+    <p>长度256的uint32切片，代表一个用于高效运作的多项式。</p>
+    <h4 id="MakeTable">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/hash/crc32/crc32.go?name=release#53">MakeTable</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func MakeTable(poly <a href="builtin.htm#uint32">uint32</a>) *<a href="#Table">Table</a></pre>
+    <p>返回一个代表poly指定的多项式的Table。</p>
+    <h3 id="Checksum">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/hash/crc32/crc32.go?name=release#131">Checksum</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Checksum(data []<a href="builtin.htm#byte">byte</a>, tab *<a href="#Table">Table</a>) <a href="builtin.htm#uint32">uint32</a></pre>
+    <p>返回数据data使用tab代表的多项式计算出的CRC-32校验和。</p>
+    <h3 id="ChecksumIEEE">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/hash/crc32/crc32.go?name=release#135">ChecksumIEEE</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func ChecksumIEEE(data []<a href="builtin.htm#byte">byte</a>) <a href="builtin.htm#uint32">uint32</a></pre>
+    <p>返回数据data使用IEEE多项式计算出的CRC-32校验和。</p>
+    <h3 id="Update">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/hash/crc32/crc32.go?name=release#110">Update</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Update(crc <a href="builtin.htm#uint32">uint32</a>, tab *<a href="#Table">Table</a>, p []<a href="builtin.htm#byte">byte</a>) <a href="builtin.htm#uint32">uint32</a></pre>
+    <p>返回将切片p的数据采用tab表示的多项式添加到crc之后计算出的新校验和。</p>
+    <h3 id="New">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/hash/crc32/crc32.go?name=release#89">New</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func New(tab *<a href="#Table">Table</a>) <a href="hash.htm">hash</a>.<a href="hash.htm#Hash32">Hash32</a></pre>
+    <p>创建一个使用tab代表的多项式计算CRC-32校验和的hash.Hash32接口。</p>
+    <h3 id="NewIEEE">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/hash/crc32/crc32.go?name=release#93">NewIEEE</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func NewIEEE() <a href="hash.htm">hash</a>.<a href="hash.htm#Hash32">Hash32</a></pre>
+    <p>创建一个使用IEEE多项式计算CRC-32校验和的hash.Hash32接口。</p>
+</div>
+
+<div id="x-footer" class="clearfix">
+  <div class="container">
+    <a href="http://studygolang.com/">Go语言中文网</a>
+    <span class="text-muted">|</span> <a href="http://golang.org/">Go Language</a>
+    <span class="pull-right"><a href="#">Back to top</a></span>
+  </div>
+</div>
+<script src="../assets/jquery-2.0.3.min.js"></script>
+<script src="../bootstrap.min.js"></script>
+<script src="../site.js"></script>
+</body>
+</html>

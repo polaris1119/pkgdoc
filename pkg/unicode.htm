@@ -1,0 +1,601 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="./site.css" rel="stylesheet">
+<title>unicode</title>
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package unicode</h2>
+    <p><code>import "unicode"</code>
+    <p>Package unicode provides data and functions to test some properties of
+        Unicode code points.</p>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#pkg-constants">Constants</a></li>
+        <li><a href="#pkg-variables">Variables</a></li>
+        <li><a href="#CaseRange">type CaseRange</a></li>
+        <li><a href="#Range16">type Range16</a></li>
+        <li><a href="#Range32">type Range32</a></li>
+        <li><a href="#RangeTable">type RangeTable</a></li>
+        <li><a href="#SpecialCase">type SpecialCase</a></li>
+        <ul>
+            <li><a href="#SpecialCase.ToLower">func (special SpecialCase) ToLower(r rune) rune</a></li>
+            <li><a href="#SpecialCase.ToUpper">func (special SpecialCase) ToUpper(r rune) rune</a></li>
+            <li><a href="#SpecialCase.ToTitle">func (special SpecialCase) ToTitle(r rune) rune</a></li>
+        </ul>
+        <li><a href="#Is">func Is(rangeTab *RangeTable, r rune) bool</a></li>
+        <li><a href="#In">func In(r rune, ranges ...*RangeTable) bool</a></li>
+        <li><a href="#IsOneOf">func IsOneOf(ranges []*RangeTable, r rune) bool</a></li>
+        <li><a href="#IsSpace">func IsSpace(r rune) bool</a></li>
+        <li><a href="#IsDigit">func IsDigit(r rune) bool</a></li>
+        <li><a href="#IsNumber">func IsNumber(r rune) bool</a></li>
+        <li><a href="#IsLetter">func IsLetter(r rune) bool</a></li>
+        <li><a href="#IsGraphic">func IsGraphic(r rune) bool</a></li>
+        <li><a href="#IsControl">func IsControl(r rune) bool</a></li>
+        <li><a href="#IsMark">func IsMark(r rune) bool</a></li>
+        <li><a href="#IsPrint">func IsPrint(r rune) bool</a></li>
+        <li><a href="#IsPunct">func IsPunct(r rune) bool</a></li>
+        <li><a href="#IsSymbol">func IsSymbol(r rune) bool</a></li>
+        <li><a href="#IsLower">func IsLower(r rune) bool</a></li>
+        <li><a href="#IsUpper">func IsUpper(r rune) bool</a></li>
+        <li><a href="#IsTitle">func IsTitle(r rune) bool</a></li>
+        <li><a href="#To">func To(_case int, r rune) rune</a></li>
+        <li><a href="#ToLower">func ToLower(r rune) rune</a></li>
+        <li><a href="#ToUpper">func ToUpper(r rune) rune</a></li>
+        <li><a href="#ToTitle">func ToTitle(r rune) rune</a></li>
+        <li><a href="#SimpleFold">func SimpleFold(r rune) rune</a></li>
+    </ul>
+    <h3 id="pkg-constants">Constants <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>const (
+    <span id="MaxRune">MaxRune</span>         = &#39;\U0010FFFF&#39; <span class="com">// 最大的合法unicode码值</span>
+    <span id="ReplacementChar">ReplacementChar</span> = &#39;\uFFFD&#39;     <span class="com">// 表示不合法的unicode码值</span>
+    <span id="MaxASCII">MaxASCII</span>        = &#39;\u007F&#39;     <span class="com">// 最大的ASCII值</span>
+    <span id="MaxLatin1">MaxLatin1</span>       = &#39;\u00FF&#39;     <span class="com">// 最大的Latin-1值</span>
+)</pre>
+    <pre>const (
+    <span id="UpperCase">UpperCase</span> = <a href="builtin.htm#iota">iota</a>
+    <span id="LowerCase">LowerCase</span>
+    <span id="TitleCase">TitleCase</span>
+    <span id="MaxCase">MaxCase</span>
+)</pre>
+    <p>下值可用于CaseRange类型里的数组类型Delta字段，用于码值映射。</p>
+    <pre>const (
+    <span id="UpperLower">UpperLower</span> = <a href="#MaxRune">MaxRune</a> + 1 <span class="com">// 不能是合法的delta值</span>
+)</pre>
+    <p align="left">如果一个CaseRange类型的的Delta字段使用了UpperLower，就表示该CaseRange表示的序列格式为：Upper Lower Upper Lower</p>
+<pre>const <span id="Version">Version</span> = &#34;6.3.0&#34;</pre>
+    <p>Version是本包采用的unicode版本（以及Variables栏里那些乱七八糟的字符集的来源）。</p>
+    <h3 id="pkg-variables">Variables <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>var (
+    <span id="Cc">Cc</span>     = _Cc <span class="com">// Cc is the set of Unicode characters in category Cc.</span>
+    <span id="Cf">Cf</span>     = _Cf <span class="com">// Cf is the set of Unicode characters in category Cf.</span>
+    <span id="Co">Co</span>     = _Co <span class="com">// Co is the set of Unicode characters in category Co.</span>
+    <span id="Cs">Cs</span>     = _Cs <span class="com">// Cs is the set of Unicode characters in category Cs.</span>
+    <span id="Digit">Digit</span>  = _Nd <span class="com">// Digit is the set of Unicode characters with the &#34;decimal digit&#34; property.</span>
+    <span id="Nd">Nd</span>     = _Nd <span class="com">// Nd is the set of Unicode characters in category Nd.</span>
+    <span id="Letter">Letter</span> = _L  <span class="com">// Letter/L is the set of Unicode letters, category L.</span>
+    <span id="L">L</span>      = _L
+    <span id="Lm">Lm</span>     = _Lm <span class="com">// Lm is the set of Unicode characters in category Lm.</span>
+    <span id="Lo">Lo</span>     = _Lo <span class="com">// Lo is the set of Unicode characters in category Lo.</span>
+    <span id="Lower">Lower</span>  = _Ll <span class="com">// Lower is the set of Unicode lower case letters.</span>
+    <span id="Ll">Ll</span>     = _Ll <span class="com">// Ll is the set of Unicode characters in category Ll.</span>
+    <span id="Mark">Mark</span>   = _M  <span class="com">// Mark/M is the set of Unicode mark characters, category M.</span>
+    <span id="M">M</span>      = _M
+    <span id="Mc">Mc</span>     = _Mc <span class="com">// Mc is the set of Unicode characters in category Mc.</span>
+    <span id="Me">Me</span>     = _Me <span class="com">// Me is the set of Unicode characters in category Me.</span>
+    <span id="Mn">Mn</span>     = _Mn <span class="com">// Mn is the set of Unicode characters in category Mn.</span>
+    <span id="Nl">Nl</span>     = _Nl <span class="com">// Nl is the set of Unicode characters in category Nl.</span>
+    <span id="No">No</span>     = _No <span class="com">// No is the set of Unicode characters in category No.</span>
+    <span id="Number">Number</span> = _N  <span class="com">// Number/N is the set of Unicode number characters, category N.</span>
+    <span id="N">N</span>      = _N
+    <span id="Other">Other</span>  = _C <span class="com">// Other/C is the set of Unicode control and special characters, category C.</span>
+    <span id="C">C</span>      = _C
+    <span id="Pc">Pc</span>     = _Pc <span class="com">// Pc is the set of Unicode characters in category Pc.</span>
+    <span id="Pd">Pd</span>     = _Pd <span class="com">// Pd is the set of Unicode characters in category Pd.</span>
+    <span id="Pe">Pe</span>     = _Pe <span class="com">// Pe is the set of Unicode characters in category Pe.</span>
+    <span id="Pf">Pf</span>     = _Pf <span class="com">// Pf is the set of Unicode characters in category Pf.</span>
+    <span id="Pi">Pi</span>     = _Pi <span class="com">// Pi is the set of Unicode characters in category Pi.</span>
+    <span id="Po">Po</span>     = _Po <span class="com">// Po is the set of Unicode characters in category Po.</span>
+    <span id="Ps">Ps</span>     = _Ps <span class="com">// Ps is the set of Unicode characters in category Ps.</span>
+    <span id="Punct">Punct</span>  = _P  <span class="com">// Punct/P is the set of Unicode punctuation characters, category P.</span>
+    <span id="P">P</span>      = _P
+    <span id="Sc">Sc</span>     = _Sc <span class="com">// Sc is the set of Unicode characters in category Sc.</span>
+    <span id="Sk">Sk</span>     = _Sk <span class="com">// Sk is the set of Unicode characters in category Sk.</span>
+    <span id="Sm">Sm</span>     = _Sm <span class="com">// Sm is the set of Unicode characters in category Sm.</span>
+    <span id="So">So</span>     = _So <span class="com">// So is the set of Unicode characters in category So.</span>
+    <span id="Space">Space</span>  = _Z  <span class="com">// Space/Z is the set of Unicode space characters, category Z.</span>
+    <span id="Z">Z</span>      = _Z
+    <span id="Symbol">Symbol</span> = _S <span class="com">// Symbol/S is the set of Unicode symbol characters, category S.</span>
+    <span id="S">S</span>      = _S
+    <span id="Title">Title</span>  = _Lt <span class="com">// Title is the set of Unicode title case letters.</span>
+    <span id="Lt">Lt</span>     = _Lt <span class="com">// Lt is the set of Unicode characters in category Lt.</span>
+    <span id="Upper">Upper</span>  = _Lu <span class="com">// Upper is the set of Unicode upper case letters.</span>
+    <span id="Lu">Lu</span>     = _Lu <span class="com">// Lu is the set of Unicode characters in category Lu.</span>
+    <span id="Zl">Zl</span>     = _Zl <span class="com">// Zl is the set of Unicode characters in category Zl.</span>
+    <span id="Zp">Zp</span>     = _Zp <span class="com">// Zp is the set of Unicode characters in category Zp.</span>
+    <span id="Zs">Zs</span>     = _Zs <span class="com">// Zs is the set of Unicode characters in category Zs.</span>
+)</pre>
+    <p>这些变量的类型是*RangeTable。</p>
+    <pre>var (
+    <span id="Arabic">Arabic</span>                 = _Arabic                 <span class="com">// Arabic is the set of Unicode characters in script Arabic.</span>
+    <span id="Armenian">Armenian</span>               = _Armenian               <span class="com">// Armenian is the set of Unicode characters in script Armenian.</span>
+    <span id="Avestan">Avestan</span>                = _Avestan                <span class="com">// Avestan is the set of Unicode characters in script Avestan.</span>
+    <span id="Balinese">Balinese</span>               = _Balinese               <span class="com">// Balinese is the set of Unicode characters in script Balinese.</span>
+    <span id="Bamum">Bamum</span>                  = _Bamum                  <span class="com">// Bamum is the set of Unicode characters in script Bamum.</span>
+    <span id="Batak">Batak</span>                  = _Batak                  <span class="com">// Batak is the set of Unicode characters in script Batak.</span>
+    <span id="Bengali">Bengali</span>                = _Bengali                <span class="com">// Bengali is the set of Unicode characters in script Bengali.</span>
+    <span id="Bopomofo">Bopomofo</span>               = _Bopomofo               <span class="com">// Bopomofo is the set of Unicode characters in script Bopomofo.</span>
+    <span id="Brahmi">Brahmi</span>                 = _Brahmi                 <span class="com">// Brahmi is the set of Unicode characters in script Brahmi.</span>
+    <span id="Braille">Braille</span>                = _Braille                <span class="com">// Braille is the set of Unicode characters in script Braille.</span>
+    <span id="Buginese">Buginese</span>               = _Buginese               <span class="com">// Buginese is the set of Unicode characters in script Buginese.</span>
+    <span id="Buhid">Buhid</span>                  = _Buhid                  <span class="com">// Buhid is the set of Unicode characters in script Buhid.</span>
+    <span id="Canadian_Aboriginal">Canadian_Aboriginal</span>    = _Canadian_Aboriginal    <span class="com">// Canadian_Aboriginal is the set of Unicode characters in script Canadian_Aboriginal.</span>
+    <span id="Carian">Carian</span>                 = _Carian                 <span class="com">// Carian is the set of Unicode characters in script Carian.</span>
+    <span id="Chakma">Chakma</span>                 = _Chakma                 <span class="com">// Chakma is the set of Unicode characters in script Chakma.</span>
+    <span id="Cham">Cham</span>                   = _Cham                   <span class="com">// Cham is the set of Unicode characters in script Cham.</span>
+    <span id="Cherokee">Cherokee</span>               = _Cherokee               <span class="com">// Cherokee is the set of Unicode characters in script Cherokee.</span>
+    <span id="Common">Common</span>                 = _Common                 <span class="com">// Common is the set of Unicode characters in script Common.</span>
+    <span id="Coptic">Coptic</span>                 = _Coptic                 <span class="com">// Coptic is the set of Unicode characters in script Coptic.</span>
+    <span id="Cuneiform">Cuneiform</span>              = _Cuneiform              <span class="com">// Cuneiform is the set of Unicode characters in script Cuneiform.</span>
+    <span id="Cypriot">Cypriot</span>                = _Cypriot                <span class="com">// Cypriot is the set of Unicode characters in script Cypriot.</span>
+    <span id="Cyrillic">Cyrillic</span>               = _Cyrillic               <span class="com">// Cyrillic is the set of Unicode characters in script Cyrillic.</span>
+    <span id="Deseret">Deseret</span>                = _Deseret                <span class="com">// Deseret is the set of Unicode characters in script Deseret.</span>
+    <span id="Devanagari">Devanagari</span>             = _Devanagari             <span class="com">// Devanagari is the set of Unicode characters in script Devanagari.</span>
+    <span id="Egyptian_Hieroglyphs">Egyptian_Hieroglyphs</span>   = _Egyptian_Hieroglyphs   <span class="com">// Egyptian_Hieroglyphs is the set of Unicode characters in script Egyptian_Hieroglyphs.</span>
+    <span id="Ethiopic">Ethiopic</span>               = _Ethiopic               <span class="com">// Ethiopic is the set of Unicode characters in script Ethiopic.</span>
+    <span id="Georgian">Georgian</span>               = _Georgian               <span class="com">// Georgian is the set of Unicode characters in script Georgian.</span>
+    <span id="Glagolitic">Glagolitic</span>             = _Glagolitic             <span class="com">// Glagolitic is the set of Unicode characters in script Glagolitic.</span>
+    <span id="Gothic">Gothic</span>                 = _Gothic                 <span class="com">// Gothic is the set of Unicode characters in script Gothic.</span>
+    <span id="Greek">Greek</span>                  = _Greek                  <span class="com">// Greek is the set of Unicode characters in script Greek.</span>
+    <span id="Gujarati">Gujarati</span>               = _Gujarati               <span class="com">// Gujarati is the set of Unicode characters in script Gujarati.</span>
+    <span id="Gurmukhi">Gurmukhi</span>               = _Gurmukhi               <span class="com">// Gurmukhi is the set of Unicode characters in script Gurmukhi.</span>
+    <span id="Han">Han</span>                    = _Han                    <span class="com">// Han is the set of Unicode characters in script Han.</span>
+    <span id="Hangul">Hangul</span>                 = _Hangul                 <span class="com">// Hangul is the set of Unicode characters in script Hangul.</span>
+    <span id="Hanunoo">Hanunoo</span>                = _Hanunoo                <span class="com">// Hanunoo is the set of Unicode characters in script Hanunoo.</span>
+    <span id="Hebrew">Hebrew</span>                 = _Hebrew                 <span class="com">// Hebrew is the set of Unicode characters in script Hebrew.</span>
+    <span id="Hiragana">Hiragana</span>               = _Hiragana               <span class="com">// Hiragana is the set of Unicode characters in script Hiragana.</span>
+    <span id="Imperial_Aramaic">Imperial_Aramaic</span>       = _Imperial_Aramaic       <span class="com">// Imperial_Aramaic is the set of Unicode characters in script Imperial_Aramaic.</span>
+    <span id="Inherited">Inherited</span>              = _Inherited              <span class="com">// Inherited is the set of Unicode characters in script Inherited.</span>
+    <span id="Inscriptional_Pahlavi">Inscriptional_Pahlavi</span>  = _Inscriptional_Pahlavi  <span class="com">// Inscriptional_Pahlavi is the set of Unicode characters in script Inscriptional_Pahlavi.</span>
+    <span id="Inscriptional_Parthian">Inscriptional_Parthian</span> = _Inscriptional_Parthian <span class="com">// Inscriptional_Parthian is the set of Unicode characters in script Inscriptional_Parthian.</span>
+    <span id="Javanese">Javanese</span>               = _Javanese               <span class="com">// Javanese is the set of Unicode characters in script Javanese.</span>
+    <span id="Kaithi">Kaithi</span>                 = _Kaithi                 <span class="com">// Kaithi is the set of Unicode characters in script Kaithi.</span>
+    <span id="Kannada">Kannada</span>                = _Kannada                <span class="com">// Kannada is the set of Unicode characters in script Kannada.</span>
+    <span id="Katakana">Katakana</span>               = _Katakana               <span class="com">// Katakana is the set of Unicode characters in script Katakana.</span>
+    <span id="Kayah_Li">Kayah_Li</span>               = _Kayah_Li               <span class="com">// Kayah_Li is the set of Unicode characters in script Kayah_Li.</span>
+    <span id="Kharoshthi">Kharoshthi</span>             = _Kharoshthi             <span class="com">// Kharoshthi is the set of Unicode characters in script Kharoshthi.</span>
+    <span id="Khmer">Khmer</span>                  = _Khmer                  <span class="com">// Khmer is the set of Unicode characters in script Khmer.</span>
+    <span id="Lao">Lao</span>                    = _Lao                    <span class="com">// Lao is the set of Unicode characters in script Lao.</span>
+    <span id="Latin">Latin</span>                  = _Latin                  <span class="com">// Latin is the set of Unicode characters in script Latin.</span>
+    <span id="Lepcha">Lepcha</span>                 = _Lepcha                 <span class="com">// Lepcha is the set of Unicode characters in script Lepcha.</span>
+    <span id="Limbu">Limbu</span>                  = _Limbu                  <span class="com">// Limbu is the set of Unicode characters in script Limbu.</span>
+    <span id="Linear_B">Linear_B</span>               = _Linear_B               <span class="com">// Linear_B is the set of Unicode characters in script Linear_B.</span>
+    <span id="Lisu">Lisu</span>                   = _Lisu                   <span class="com">// Lisu is the set of Unicode characters in script Lisu.</span>
+    <span id="Lycian">Lycian</span>                 = _Lycian                 <span class="com">// Lycian is the set of Unicode characters in script Lycian.</span>
+    <span id="Lydian">Lydian</span>                 = _Lydian                 <span class="com">// Lydian is the set of Unicode characters in script Lydian.</span>
+    <span id="Malayalam">Malayalam</span>              = _Malayalam              <span class="com">// Malayalam is the set of Unicode characters in script Malayalam.</span>
+    <span id="Mandaic">Mandaic</span>                = _Mandaic                <span class="com">// Mandaic is the set of Unicode characters in script Mandaic.</span>
+    <span id="Meetei_Mayek">Meetei_Mayek</span>           = _Meetei_Mayek           <span class="com">// Meetei_Mayek is the set of Unicode characters in script Meetei_Mayek.</span>
+    <span id="Meroitic_Cursive">Meroitic_Cursive</span>       = _Meroitic_Cursive       <span class="com">// Meroitic_Cursive is the set of Unicode characters in script Meroitic_Cursive.</span>
+    <span id="Meroitic_Hieroglyphs">Meroitic_Hieroglyphs</span>   = _Meroitic_Hieroglyphs   <span class="com">// Meroitic_Hieroglyphs is the set of Unicode characters in script Meroitic_Hieroglyphs.</span>
+    <span id="Miao">Miao</span>                   = _Miao                   <span class="com">// Miao is the set of Unicode characters in script Miao.</span>
+    <span id="Mongolian">Mongolian</span>              = _Mongolian              <span class="com">// Mongolian is the set of Unicode characters in script Mongolian.</span>
+    <span id="Myanmar">Myanmar</span>                = _Myanmar                <span class="com">// Myanmar is the set of Unicode characters in script Myanmar.</span>
+    <span id="New_Tai_Lue">New_Tai_Lue</span>            = _New_Tai_Lue            <span class="com">// New_Tai_Lue is the set of Unicode characters in script New_Tai_Lue.</span>
+    <span id="Nko">Nko</span>                    = _Nko                    <span class="com">// Nko is the set of Unicode characters in script Nko.</span>
+    <span id="Ogham">Ogham</span>                  = _Ogham                  <span class="com">// Ogham is the set of Unicode characters in script Ogham.</span>
+    <span id="Ol_Chiki">Ol_Chiki</span>               = _Ol_Chiki               <span class="com">// Ol_Chiki is the set of Unicode characters in script Ol_Chiki.</span>
+    <span id="Old_Italic">Old_Italic</span>             = _Old_Italic             <span class="com">// Old_Italic is the set of Unicode characters in script Old_Italic.</span>
+    <span id="Old_Persian">Old_Persian</span>            = _Old_Persian            <span class="com">// Old_Persian is the set of Unicode characters in script Old_Persian.</span>
+    <span id="Old_South_Arabian">Old_South_Arabian</span>      = _Old_South_Arabian      <span class="com">// Old_South_Arabian is the set of Unicode characters in script Old_South_Arabian.</span>
+    <span id="Old_Turkic">Old_Turkic</span>             = _Old_Turkic             <span class="com">// Old_Turkic is the set of Unicode characters in script Old_Turkic.</span>
+    <span id="Oriya">Oriya</span>                  = _Oriya                  <span class="com">// Oriya is the set of Unicode characters in script Oriya.</span>
+    <span id="Osmanya">Osmanya</span>                = _Osmanya                <span class="com">// Osmanya is the set of Unicode characters in script Osmanya.</span>
+    <span id="Phags_Pa">Phags_Pa</span>               = _Phags_Pa               <span class="com">// Phags_Pa is the set of Unicode characters in script Phags_Pa.</span>
+    <span id="Phoenician">Phoenician</span>             = _Phoenician             <span class="com">// Phoenician is the set of Unicode characters in script Phoenician.</span>
+    <span id="Rejang">Rejang</span>                 = _Rejang                 <span class="com">// Rejang is the set of Unicode characters in script Rejang.</span>
+    <span id="Runic">Runic</span>                  = _Runic                  <span class="com">// Runic is the set of Unicode characters in script Runic.</span>
+    <span id="Samaritan">Samaritan</span>              = _Samaritan              <span class="com">// Samaritan is the set of Unicode characters in script Samaritan.</span>
+    <span id="Saurashtra">Saurashtra</span>             = _Saurashtra             <span class="com">// Saurashtra is the set of Unicode characters in script Saurashtra.</span>
+    <span id="Sharada">Sharada</span>                = _Sharada                <span class="com">// Sharada is the set of Unicode characters in script Sharada.</span>
+    <span id="Shavian">Shavian</span>                = _Shavian                <span class="com">// Shavian is the set of Unicode characters in script Shavian.</span>
+    <span id="Sinhala">Sinhala</span>                = _Sinhala                <span class="com">// Sinhala is the set of Unicode characters in script Sinhala.</span>
+    <span id="Sora_Sompeng">Sora_Sompeng</span>           = _Sora_Sompeng           <span class="com">// Sora_Sompeng is the set of Unicode characters in script Sora_Sompeng.</span>
+    <span id="Sundanese">Sundanese</span>              = _Sundanese              <span class="com">// Sundanese is the set of Unicode characters in script Sundanese.</span>
+    <span id="Syloti_Nagri">Syloti_Nagri</span>           = _Syloti_Nagri           <span class="com">// Syloti_Nagri is the set of Unicode characters in script Syloti_Nagri.</span>
+    <span id="Syriac">Syriac</span>                 = _Syriac                 <span class="com">// Syriac is the set of Unicode characters in script Syriac.</span>
+    <span id="Tagalog">Tagalog</span>                = _Tagalog                <span class="com">// Tagalog is the set of Unicode characters in script Tagalog.</span>
+    <span id="Tagbanwa">Tagbanwa</span>               = _Tagbanwa               <span class="com">// Tagbanwa is the set of Unicode characters in script Tagbanwa.</span>
+    <span id="Tai_Le">Tai_Le</span>                 = _Tai_Le                 <span class="com">// Tai_Le is the set of Unicode characters in script Tai_Le.</span>
+    <span id="Tai_Tham">Tai_Tham</span>               = _Tai_Tham               <span class="com">// Tai_Tham is the set of Unicode characters in script Tai_Tham.</span>
+    <span id="Tai_Viet">Tai_Viet</span>               = _Tai_Viet               <span class="com">// Tai_Viet is the set of Unicode characters in script Tai_Viet.</span>
+    <span id="Takri">Takri</span>                  = _Takri                  <span class="com">// Takri is the set of Unicode characters in script Takri.</span>
+    <span id="Tamil">Tamil</span>                  = _Tamil                  <span class="com">// Tamil is the set of Unicode characters in script Tamil.</span>
+    <span id="Telugu">Telugu</span>                 = _Telugu                 <span class="com">// Telugu is the set of Unicode characters in script Telugu.</span>
+    <span id="Thaana">Thaana</span>                 = _Thaana                 <span class="com">// Thaana is the set of Unicode characters in script Thaana.</span>
+    <span id="Thai">Thai</span>                   = _Thai                   <span class="com">// Thai is the set of Unicode characters in script Thai.</span>
+    <span id="Tibetan">Tibetan</span>                = _Tibetan                <span class="com">// Tibetan is the set of Unicode characters in script Tibetan.</span>
+    <span id="Tifinagh">Tifinagh</span>               = _Tifinagh               <span class="com">// Tifinagh is the set of Unicode characters in script Tifinagh.</span>
+    <span id="Ugaritic">Ugaritic</span>               = _Ugaritic               <span class="com">// Ugaritic is the set of Unicode characters in script Ugaritic.</span>
+    <span id="Vai">Vai</span>                    = _Vai                    <span class="com">// Vai is the set of Unicode characters in script Vai.</span>
+    <span id="Yi">Yi</span>                     = _Yi                     <span class="com">// Yi is the set of Unicode characters in script Yi.</span>
+)</pre>
+    <p>这些变量的类型也是*RangeTable。</p>
+    <pre>var (
+    <span id="ASCII_Hex_Digit">ASCII_Hex_Digit</span>                    = _ASCII_Hex_Digit                    <span class="com">// ASCII_Hex_Digit is the set of Unicode characters with property ASCII_Hex_Digit.</span>
+    <span id="Bidi_Control">Bidi_Control</span>                       = _Bidi_Control                       <span class="com">// Bidi_Control is the set of Unicode characters with property Bidi_Control.</span>
+    <span id="Dash">Dash</span>                               = _Dash                               <span class="com">// Dash is the set of Unicode characters with property Dash.</span>
+    <span id="Deprecated">Deprecated</span>                         = _Deprecated                         <span class="com">// Deprecated is the set of Unicode characters with property Deprecated.</span>
+    <span id="Diacritic">Diacritic</span>                          = _Diacritic                          <span class="com">// Diacritic is the set of Unicode characters with property Diacritic.</span>
+    <span id="Extender">Extender</span>                           = _Extender                           <span class="com">// Extender is the set of Unicode characters with property Extender.</span>
+    <span id="Hex_Digit">Hex_Digit</span>                          = _Hex_Digit                          <span class="com">// Hex_Digit is the set of Unicode characters with property Hex_Digit.</span>
+    <span id="Hyphen">Hyphen</span>                             = _Hyphen                             <span class="com">// Hyphen is the set of Unicode characters with property Hyphen.</span>
+    <span id="IDS_Binary_Operator">IDS_Binary_Operator</span>                = _IDS_Binary_Operator                <span class="com">// IDS_Binary_Operator is the set of Unicode characters with property IDS_Binary_Operator.</span>
+    <span id="IDS_Trinary_Operator">IDS_Trinary_Operator</span>               = _IDS_Trinary_Operator               <span class="com">// IDS_Trinary_Operator is the set of Unicode characters with property IDS_Trinary_Operator.</span>
+    <span id="Ideographic">Ideographic</span>                        = _Ideographic                        <span class="com">// Ideographic is the set of Unicode characters with property Ideographic.</span>
+    <span id="Join_Control">Join_Control</span>                       = _Join_Control                       <span class="com">// Join_Control is the set of Unicode characters with property Join_Control.</span>
+    <span id="Logical_Order_Exception">Logical_Order_Exception</span>            = _Logical_Order_Exception            <span class="com">// Logical_Order_Exception is the set of Unicode characters with property Logical_Order_Exception.</span>
+    <span id="Noncharacter_Code_Point">Noncharacter_Code_Point</span>            = _Noncharacter_Code_Point            <span class="com">// Noncharacter_Code_Point is the set of Unicode characters with property Noncharacter_Code_Point.</span>
+    <span id="Other_Alphabetic">Other_Alphabetic</span>                   = _Other_Alphabetic                   <span class="com">// Other_Alphabetic is the set of Unicode characters with property Other_Alphabetic.</span>
+    <span id="Other_Default_Ignorable_Code_Point">Other_Default_Ignorable_Code_Point</span> = _Other_Default_Ignorable_Code_Point <span class="com">// Other_Default_Ignorable_Code_Point is the set of Unicode characters with property Other_Default_Ignorable_Code_Point.</span>
+    <span id="Other_Grapheme_Extend">Other_Grapheme_Extend</span>              = _Other_Grapheme_Extend              <span class="com">// Other_Grapheme_Extend is the set of Unicode characters with property Other_Grapheme_Extend.</span>
+    <span id="Other_ID_Continue">Other_ID_Continue</span>                  = _Other_ID_Continue                  <span class="com">// Other_ID_Continue is the set of Unicode characters with property Other_ID_Continue.</span>
+    <span id="Other_ID_Start">Other_ID_Start</span>                     = _Other_ID_Start                     <span class="com">// Other_ID_Start is the set of Unicode characters with property Other_ID_Start.</span>
+    <span id="Other_Lowercase">Other_Lowercase</span>                    = _Other_Lowercase                    <span class="com">// Other_Lowercase is the set of Unicode characters with property Other_Lowercase.</span>
+    <span id="Other_Math">Other_Math</span>                         = _Other_Math                         <span class="com">// Other_Math is the set of Unicode characters with property Other_Math.</span>
+    <span id="Other_Uppercase">Other_Uppercase</span>                    = _Other_Uppercase                    <span class="com">// Other_Uppercase is the set of Unicode characters with property Other_Uppercase.</span>
+    <span id="Pattern_Syntax">Pattern_Syntax</span>                     = _Pattern_Syntax                     <span class="com">// Pattern_Syntax is the set of Unicode characters with property Pattern_Syntax.</span>
+    <span id="Pattern_White_Space">Pattern_White_Space</span>                = _Pattern_White_Space                <span class="com">// Pattern_White_Space is the set of Unicode characters with property Pattern_White_Space.</span>
+    <span id="Quotation_Mark">Quotation_Mark</span>                     = _Quotation_Mark                     <span class="com">// Quotation_Mark is the set of Unicode characters with property Quotation_Mark.</span>
+    <span id="Radical">Radical</span>                            = _Radical                            <span class="com">// Radical is the set of Unicode characters with property Radical.</span>
+    <span id="STerm">STerm</span>                              = _STerm                              <span class="com">// STerm is the set of Unicode characters with property STerm.</span>
+    <span id="Soft_Dotted">Soft_Dotted</span>                        = _Soft_Dotted                        <span class="com">// Soft_Dotted is the set of Unicode characters with property Soft_Dotted.</span>
+    <span id="Terminal_Punctuation">Terminal_Punctuation</span>               = _Terminal_Punctuation               <span class="com">// Terminal_Punctuation is the set of Unicode characters with property Terminal_Punctuation.</span>
+    <span id="Unified_Ideograph">Unified_Ideograph</span>                  = _Unified_Ideograph                  <span class="com">// Unified_Ideograph is the set of Unicode characters with property Unified_Ideograph.</span>
+    <span id="Variation_Selector">Variation_Selector</span>                 = _Variation_Selector                 <span class="com">// Variation_Selector is the set of Unicode characters with property Variation_Selector.</span>
+    <span id="White_Space">White_Space</span>                        = _White_Space                        <span class="com">// White_Space is the set of Unicode characters with property White_Space.</span>
+)</pre>
+    <p>这些变量的类型还是*RangeTable。</p>
+    <pre>var <span id="CaseRanges">CaseRanges</span> = _CaseRanges</pre>
+    <p>CaseRanges is the table describing case mappings for all letters with
+        non-self mappings.</p>
+    <pre>var <span id="Categories">Categories</span> = map[<a href="builtin.htm#string">string</a>]*<a href="#RangeTable">RangeTable</a>{
+    &#34;C&#34;:  <a href="#C">C</a>,
+    &#34;Cc&#34;: <a href="#Cc">Cc</a>,
+    &#34;Cf&#34;: <a href="#Cf">Cf</a>,
+    &#34;Co&#34;: <a href="#Co">Co</a>,
+    &#34;Cs&#34;: <a href="#Cs">Cs</a>,
+    &#34;L&#34;:  <a href="#L">L</a>,
+    &#34;Ll&#34;: <a href="#Ll">Ll</a>,
+    &#34;Lm&#34;: <a href="#Lm">Lm</a>,
+    &#34;Lo&#34;: <a href="#Lo">Lo</a>,
+    &#34;Lt&#34;: <a href="#Lt">Lt</a>,
+    &#34;Lu&#34;: <a href="#Lu">Lu</a>,
+    &#34;M&#34;:  <a href="#M">M</a>,
+    &#34;Mc&#34;: <a href="#Mc">Mc</a>,
+    &#34;Me&#34;: <a href="#Me">Me</a>,
+    &#34;Mn&#34;: <a href="#Mn">Mn</a>,
+    &#34;N&#34;:  <a href="#N">N</a>,
+    &#34;Nd&#34;: <a href="#Nd">Nd</a>,
+    &#34;Nl&#34;: <a href="#Nl">Nl</a>,
+    &#34;No&#34;: <a href="#No">No</a>,
+    &#34;P&#34;:  <a href="#P">P</a>,
+    &#34;Pc&#34;: <a href="#Pc">Pc</a>,
+    &#34;Pd&#34;: <a href="#Pd">Pd</a>,
+    &#34;Pe&#34;: <a href="#Pe">Pe</a>,
+    &#34;Pf&#34;: <a href="#Pf">Pf</a>,
+    &#34;Pi&#34;: <a href="#Pi">Pi</a>,
+    &#34;Po&#34;: <a href="#Po">Po</a>,
+    &#34;Ps&#34;: <a href="#Ps">Ps</a>,
+    &#34;S&#34;:  <a href="#S">S</a>,
+    &#34;Sc&#34;: <a href="#Sc">Sc</a>,
+    &#34;Sk&#34;: <a href="#Sk">Sk</a>,
+    &#34;Sm&#34;: <a href="#Sm">Sm</a>,
+    &#34;So&#34;: <a href="#So">So</a>,
+    &#34;Z&#34;:  <a href="#Z">Z</a>,
+    &#34;Zl&#34;: <a href="#Zl">Zl</a>,
+    &#34;Zp&#34;: <a href="#Zp">Zp</a>,
+    &#34;Zs&#34;: <a href="#Zs">Zs</a>,
+}</pre>
+    <p>Categories is the set of Unicode category tables.</p>
+    <pre>var <span id="FoldCategory">FoldCategory</span> = map[<a href="builtin.htm#string">string</a>]*<a href="#RangeTable">RangeTable</a>{
+    &#34;Common&#34;:    foldCommon,
+    &#34;Greek&#34;:     foldGreek,
+    &#34;Inherited&#34;: foldInherited,
+    &#34;L&#34;:         foldL,
+    &#34;Ll&#34;:        foldLl,
+    &#34;Lt&#34;:        foldLt,
+    &#34;Lu&#34;:        foldLu,
+    &#34;M&#34;:         foldM,
+    &#34;Mn&#34;:        foldMn,
+}</pre>
+    <p>FoldCategory maps a category name to a table of
+        code points outside the category that are equivalent under
+        simple case folding to code points inside the category.
+        If there is no entry for a category name, there are no such points.</p>
+    <pre>var <span id="FoldScript">FoldScript</span> = map[<a href="builtin.htm#string">string</a>]*<a href="#RangeTable">RangeTable</a>{}</pre>
+    <p>FoldScript maps a script name to a table of
+        code points outside the script that are equivalent under
+        simple case folding to code points inside the script.
+        If there is no entry for a script name, there are no such points.</p>
+    <pre>var <span id="GraphicRanges">GraphicRanges</span> = []*<a href="#RangeTable">RangeTable</a>{
+    <a href="#L">L</a>, <a href="#M">M</a>, <a href="#N">N</a>, <a href="#P">P</a>, <a href="#S">S</a>, <a href="#Zs">Zs</a>,
+}</pre>
+    <p>GraphicRanges defines the set of graphic characters according to Unicode.</p>
+    <pre>var <span id="PrintRanges">PrintRanges</span> = []*<a href="#RangeTable">RangeTable</a>{
+    <a href="#L">L</a>, <a href="#M">M</a>, <a href="#N">N</a>, <a href="#P">P</a>, <a href="#S">S</a>,
+}</pre>
+    <p>PrintRanges defines the set of printable characters according to Go.
+        ASCII space, U+0020, is handled separately.</p>
+    <pre>var <span id="Properties">Properties</span> = map[<a href="builtin.htm#string">string</a>]*<a href="#RangeTable">RangeTable</a>{
+    &#34;ASCII_Hex_Digit&#34;:                    <a href="#ASCII_Hex_Digit">ASCII_Hex_Digit</a>,
+    &#34;Bidi_Control&#34;:                       <a href="#Bidi_Control">Bidi_Control</a>,
+    &#34;Dash&#34;:                               <a href="#Dash">Dash</a>,
+    &#34;Deprecated&#34;:                         <a href="#Deprecated">Deprecated</a>,
+    &#34;Diacritic&#34;:                          <a href="#Diacritic">Diacritic</a>,
+    &#34;Extender&#34;:                           <a href="#Extender">Extender</a>,
+    &#34;Hex_Digit&#34;:                          <a href="#Hex_Digit">Hex_Digit</a>,
+    &#34;Hyphen&#34;:                             <a href="#Hyphen">Hyphen</a>,
+    &#34;IDS_Binary_Operator&#34;:                <a href="#IDS_Binary_Operator">IDS_Binary_Operator</a>,
+    &#34;IDS_Trinary_Operator&#34;:               <a href="#IDS_Trinary_Operator">IDS_Trinary_Operator</a>,
+    &#34;Ideographic&#34;:                        <a href="#Ideographic">Ideographic</a>,
+    &#34;Join_Control&#34;:                       <a href="#Join_Control">Join_Control</a>,
+    &#34;Logical_Order_Exception&#34;:            <a href="#Logical_Order_Exception">Logical_Order_Exception</a>,
+    &#34;Noncharacter_Code_Point&#34;:            <a href="#Noncharacter_Code_Point">Noncharacter_Code_Point</a>,
+    &#34;Other_Alphabetic&#34;:                   <a href="#Other_Alphabetic">Other_Alphabetic</a>,
+    &#34;Other_Default_Ignorable_Code_Point&#34;: <a href="#Other_Default_Ignorable_Code_Point">Other_Default_Ignorable_Code_Point</a>,
+    &#34;Other_Grapheme_Extend&#34;:              <a href="#Other_Grapheme_Extend">Other_Grapheme_Extend</a>,
+    &#34;Other_ID_Continue&#34;:                  <a href="#Other_ID_Continue">Other_ID_Continue</a>,
+    &#34;Other_ID_Start&#34;:                     <a href="#Other_ID_Start">Other_ID_Start</a>,
+    &#34;Other_Lowercase&#34;:                    <a href="#Other_Lowercase">Other_Lowercase</a>,
+    &#34;Other_Math&#34;:                         <a href="#Other_Math">Other_Math</a>,
+    &#34;Other_Uppercase&#34;:                    <a href="#Other_Uppercase">Other_Uppercase</a>,
+    &#34;Pattern_Syntax&#34;:                     <a href="#Pattern_Syntax">Pattern_Syntax</a>,
+    &#34;Pattern_White_Space&#34;:                <a href="#Pattern_White_Space">Pattern_White_Space</a>,
+    &#34;Quotation_Mark&#34;:                     <a href="#Quotation_Mark">Quotation_Mark</a>,
+    &#34;Radical&#34;:                            <a href="#Radical">Radical</a>,
+    &#34;STerm&#34;:                              <a href="#STerm">STerm</a>,
+    &#34;Soft_Dotted&#34;:                        <a href="#Soft_Dotted">Soft_Dotted</a>,
+    &#34;Terminal_Punctuation&#34;:               <a href="#Terminal_Punctuation">Terminal_Punctuation</a>,
+    &#34;Unified_Ideograph&#34;:                  <a href="#Unified_Ideograph">Unified_Ideograph</a>,
+    &#34;Variation_Selector&#34;:                 <a href="#Variation_Selector">Variation_Selector</a>,
+    &#34;White_Space&#34;:                        <a href="#White_Space">White_Space</a>,
+}</pre>
+    <p>Properties is the set of Unicode property tables.</p>
+    <pre>var <span id="Scripts">Scripts</span> = map[<a href="builtin.htm#string">string</a>]*<a href="#RangeTable">RangeTable</a>{
+    &#34;Arabic&#34;:                 <a href="#Arabic">Arabic</a>,
+    &#34;Armenian&#34;:               <a href="#Armenian">Armenian</a>,
+    &#34;Avestan&#34;:                <a href="#Avestan">Avestan</a>,
+    &#34;Balinese&#34;:               <a href="#Balinese">Balinese</a>,
+    &#34;Bamum&#34;:                  <a href="#Bamum">Bamum</a>,
+    &#34;Batak&#34;:                  <a href="#Batak">Batak</a>,
+    &#34;Bengali&#34;:                <a href="#Bengali">Bengali</a>,
+    &#34;Bopomofo&#34;:               <a href="#Bopomofo">Bopomofo</a>,
+    &#34;Brahmi&#34;:                 <a href="#Brahmi">Brahmi</a>,
+    &#34;Braille&#34;:                <a href="#Braille">Braille</a>,
+    &#34;Buginese&#34;:               <a href="#Buginese">Buginese</a>,
+    &#34;Buhid&#34;:                  <a href="#Buhid">Buhid</a>,
+    &#34;Canadian_Aboriginal&#34;:    <a href="#Canadian_Aboriginal">Canadian_Aboriginal</a>,
+    &#34;Carian&#34;:                 <a href="#Carian">Carian</a>,
+    &#34;Chakma&#34;:                 <a href="#Chakma">Chakma</a>,
+    &#34;Cham&#34;:                   <a href="#Cham">Cham</a>,
+    &#34;Cherokee&#34;:               <a href="#Cherokee">Cherokee</a>,
+    &#34;Common&#34;:                 <a href="#Common">Common</a>,
+    &#34;Coptic&#34;:                 <a href="#Coptic">Coptic</a>,
+    &#34;Cuneiform&#34;:              <a href="#Cuneiform">Cuneiform</a>,
+    &#34;Cypriot&#34;:                <a href="#Cypriot">Cypriot</a>,
+    &#34;Cyrillic&#34;:               <a href="#Cyrillic">Cyrillic</a>,
+    &#34;Deseret&#34;:                <a href="#Deseret">Deseret</a>,
+    &#34;Devanagari&#34;:             <a href="#Devanagari">Devanagari</a>,
+    &#34;Egyptian_Hieroglyphs&#34;:   <a href="#Egyptian_Hieroglyphs">Egyptian_Hieroglyphs</a>,
+    &#34;Ethiopic&#34;:               <a href="#Ethiopic">Ethiopic</a>,
+    &#34;Georgian&#34;:               <a href="#Georgian">Georgian</a>,
+    &#34;Glagolitic&#34;:             <a href="#Glagolitic">Glagolitic</a>,
+    &#34;Gothic&#34;:                 <a href="#Gothic">Gothic</a>,
+    &#34;Greek&#34;:                  <a href="#Greek">Greek</a>,
+    &#34;Gujarati&#34;:               <a href="#Gujarati">Gujarati</a>,
+    &#34;Gurmukhi&#34;:               <a href="#Gurmukhi">Gurmukhi</a>,
+    &#34;Han&#34;:                    <a href="#Han">Han</a>,
+    &#34;Hangul&#34;:                 <a href="#Hangul">Hangul</a>,
+    &#34;Hanunoo&#34;:                <a href="#Hanunoo">Hanunoo</a>,
+    &#34;Hebrew&#34;:                 <a href="#Hebrew">Hebrew</a>,
+    &#34;Hiragana&#34;:               <a href="#Hiragana">Hiragana</a>,
+    &#34;Imperial_Aramaic&#34;:       <a href="#Imperial_Aramaic">Imperial_Aramaic</a>,
+    &#34;Inherited&#34;:              <a href="#Inherited">Inherited</a>,
+    &#34;Inscriptional_Pahlavi&#34;:  <a href="#Inscriptional_Pahlavi">Inscriptional_Pahlavi</a>,
+    &#34;Inscriptional_Parthian&#34;: <a href="#Inscriptional_Parthian">Inscriptional_Parthian</a>,
+    &#34;Javanese&#34;:               <a href="#Javanese">Javanese</a>,
+    &#34;Kaithi&#34;:                 <a href="#Kaithi">Kaithi</a>,
+    &#34;Kannada&#34;:                <a href="#Kannada">Kannada</a>,
+    &#34;Katakana&#34;:               <a href="#Katakana">Katakana</a>,
+    &#34;Kayah_Li&#34;:               <a href="#Kayah_Li">Kayah_Li</a>,
+    &#34;Kharoshthi&#34;:             <a href="#Kharoshthi">Kharoshthi</a>,
+    &#34;Khmer&#34;:                  <a href="#Khmer">Khmer</a>,
+    &#34;Lao&#34;:                    <a href="#Lao">Lao</a>,
+    &#34;Latin&#34;:                  <a href="#Latin">Latin</a>,
+    &#34;Lepcha&#34;:                 <a href="#Lepcha">Lepcha</a>,
+    &#34;Limbu&#34;:                  <a href="#Limbu">Limbu</a>,
+    &#34;Linear_B&#34;:               <a href="#Linear_B">Linear_B</a>,
+    &#34;Lisu&#34;:                   <a href="#Lisu">Lisu</a>,
+    &#34;Lycian&#34;:                 <a href="#Lycian">Lycian</a>,
+    &#34;Lydian&#34;:                 <a href="#Lydian">Lydian</a>,
+    &#34;Malayalam&#34;:              <a href="#Malayalam">Malayalam</a>,
+    &#34;Mandaic&#34;:                <a href="#Mandaic">Mandaic</a>,
+    &#34;Meetei_Mayek&#34;:           <a href="#Meetei_Mayek">Meetei_Mayek</a>,
+    &#34;Meroitic_Cursive&#34;:       <a href="#Meroitic_Cursive">Meroitic_Cursive</a>,
+    &#34;Meroitic_Hieroglyphs&#34;:   <a href="#Meroitic_Hieroglyphs">Meroitic_Hieroglyphs</a>,
+    &#34;Miao&#34;:                   <a href="#Miao">Miao</a>,
+    &#34;Mongolian&#34;:              <a href="#Mongolian">Mongolian</a>,
+    &#34;Myanmar&#34;:                <a href="#Myanmar">Myanmar</a>,
+    &#34;New_Tai_Lue&#34;:            <a href="#New_Tai_Lue">New_Tai_Lue</a>,
+    &#34;Nko&#34;:                    <a href="#Nko">Nko</a>,
+    &#34;Ogham&#34;:                  <a href="#Ogham">Ogham</a>,
+    &#34;Ol_Chiki&#34;:               <a href="#Ol_Chiki">Ol_Chiki</a>,
+    &#34;Old_Italic&#34;:             <a href="#Old_Italic">Old_Italic</a>,
+    &#34;Old_Persian&#34;:            <a href="#Old_Persian">Old_Persian</a>,
+    &#34;Old_South_Arabian&#34;:      <a href="#Old_South_Arabian">Old_South_Arabian</a>,
+    &#34;Old_Turkic&#34;:             <a href="#Old_Turkic">Old_Turkic</a>,
+    &#34;Oriya&#34;:                  <a href="#Oriya">Oriya</a>,
+    &#34;Osmanya&#34;:                <a href="#Osmanya">Osmanya</a>,
+    &#34;Phags_Pa&#34;:               <a href="#Phags_Pa">Phags_Pa</a>,
+    &#34;Phoenician&#34;:             <a href="#Phoenician">Phoenician</a>,
+    &#34;Rejang&#34;:                 <a href="#Rejang">Rejang</a>,
+    &#34;Runic&#34;:                  <a href="#Runic">Runic</a>,
+    &#34;Samaritan&#34;:              <a href="#Samaritan">Samaritan</a>,
+    &#34;Saurashtra&#34;:             <a href="#Saurashtra">Saurashtra</a>,
+    &#34;Sharada&#34;:                <a href="#Sharada">Sharada</a>,
+    &#34;Shavian&#34;:                <a href="#Shavian">Shavian</a>,
+    &#34;Sinhala&#34;:                <a href="#Sinhala">Sinhala</a>,
+    &#34;Sora_Sompeng&#34;:           <a href="#Sora_Sompeng">Sora_Sompeng</a>,
+    &#34;Sundanese&#34;:              <a href="#Sundanese">Sundanese</a>,
+    &#34;Syloti_Nagri&#34;:           <a href="#Syloti_Nagri">Syloti_Nagri</a>,
+    &#34;Syriac&#34;:                 <a href="#Syriac">Syriac</a>,
+    &#34;Tagalog&#34;:                <a href="#Tagalog">Tagalog</a>,
+    &#34;Tagbanwa&#34;:               <a href="#Tagbanwa">Tagbanwa</a>,
+    &#34;Tai_Le&#34;:                 <a href="#Tai_Le">Tai_Le</a>,
+    &#34;Tai_Tham&#34;:               <a href="#Tai_Tham">Tai_Tham</a>,
+    &#34;Tai_Viet&#34;:               <a href="#Tai_Viet">Tai_Viet</a>,
+    &#34;Takri&#34;:                  <a href="#Takri">Takri</a>,
+    &#34;Tamil&#34;:                  <a href="#Tamil">Tamil</a>,
+    &#34;Telugu&#34;:                 <a href="#Telugu">Telugu</a>,
+    &#34;Thaana&#34;:                 <a href="#Thaana">Thaana</a>,
+    &#34;Thai&#34;:                   <a href="#Thai">Thai</a>,
+    &#34;Tibetan&#34;:                <a href="#Tibetan">Tibetan</a>,
+    &#34;Tifinagh&#34;:               <a href="#Tifinagh">Tifinagh</a>,
+    &#34;Ugaritic&#34;:               <a href="#Ugaritic">Ugaritic</a>,
+    &#34;Vai&#34;:                    <a href="#Vai">Vai</a>,
+    &#34;Yi&#34;:                     <a href="#Yi">Yi</a>,
+}</pre>
+    <p>Scripts is the set of Unicode script tables.</p>
+    <h3 id="CaseRange">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/unicode/letter.go?name=release#54">CaseRange</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type CaseRange struct {
+    <span id="CaseRange.Lo">Lo</span>    <a href="builtin.htm#uint32">uint32</a>
+    <span id="CaseRange.Hi">Hi</span>    <a href="builtin.htm#uint32">uint32</a>
+    <span id="CaseRange.Delta">Delta</span> d <span class="com">// d为[MaxCase]rune的命名类型</span>
+}</pre>
+    <p align="left">代表简单的unicode码值的一一映射。范围为[Lo, Hi]，步长为1。</p>
+    <p align="left">该范围内的每个值+Delta[UpperCase]表示对应的大写字母；</p>
+    <p align="left">该范围内的每个值+Delta[LowerCase]表示对应的小写字母；</p>
+    <p align="left">该范围内的每个值+Delta[TitleCase]表示对应的标题字母。</p>
+    <p align="left">Delta数组里的值可为负数或零。如果Delta数组是：</p>
+    <pre>{UpperLower, UpperLower, UpperLower}
+</pre>
+    <p>表示[Lo, Hi]范围的字符序列是交替的、对应的大写字母小写字母对。否则常数UpperLower不能用Delta数组里。</p>
+    <h3 id="Range16">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/unicode/letter.go?name=release#29">Range16</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Range16 struct {
+    <span id="Range16.Lo">Lo</span>     <a href="builtin.htm#uint16">uint16</a>
+    <span id="Range16.Hi">Hi</span>     <a href="builtin.htm#uint16">uint16</a>
+    <span id="Range16.Stride">Stride</span> <a href="builtin.htm#uint16">uint16</a>
+}</pre>
+    <p>代表一系列16位unicode码值，范围为Lo到Hi（可以是Lo/Hi），步长为Stride。</p>
+    <h3 id="Range32">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/unicode/letter.go?name=release#38">Range32</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Range32 struct {
+    <span id="Range32.Lo">Lo</span>     <a href="builtin.htm#uint32">uint32</a>
+    <span id="Range32.Hi">Hi</span>     <a href="builtin.htm#uint32">uint32</a>
+    <span id="Range32.Stride">Stride</span> <a href="builtin.htm#uint32">uint32</a>
+}</pre>
+    <p>代表一系列32位unicode码值，范围为Lo到Hi（可以是Lo/Hi），步长为Stride；Lo和Hi必须大于等于1&lt;&lt;16。</p>
+    <h3 id="RangeTable">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/unicode/letter.go?name=release#21">RangeTable</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type RangeTable struct {
+    <span id="RangeTable.R16">R16</span>         []<a href="#Range16">Range16</a>
+    <span id="RangeTable.R32">R32</span>         []<a href="#Range32">Range32</a>  <span class="com">// R32不能包含低于0x10000（即1&lt;&lt;16）的值</span>
+    <span id="RangeTable.LatinOffset">LatinOffset</span> <a href="builtin.htm#int">int</a> <span class="com">// R16字段中Hi &lt;= MaxLatin1的成员数</span>
+}</pre>
+    <p>通过列出集合中码值的范围，定义了一个unicode码值的集合。出于节省空间，范围保存在两个切片里，分别保存16位字符的范围和32位字符的范围。R16和R32必须是有序排列的，且互不重叠的。</p>
+    <h3 id="SpecialCase">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/unicode/letter.go?name=release#62">SpecialCase</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type SpecialCase []<a href="#CaseRange">CaseRange</a></pre>
+    <p>SpecialCase代表特定语言的字符映射，如土耳其语。本类型的方法（通过覆盖）定制了标准映射。</p>
+    <pre>var <span id="AzeriCase">AzeriCase</span> <a href="#SpecialCase">SpecialCase</a> = _TurkishCase</pre>
+    <pre>var <span id="TurkishCase">TurkishCase</span> <a href="#SpecialCase">SpecialCase</a> = _TurkishCase</pre>
+    <h4 id="SpecialCase.ToLower">func (SpecialCase) <a title="View Source" href="https://github.com/golang/go/blob/master/src/unicode/letter.go?name=release#299">ToLower</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (special <a href="#SpecialCase">SpecialCase</a>) ToLower(r <a href="builtin.htm#rune">rune</a>) <a href="builtin.htm#rune">rune</a></pre>
+    <p>按特定映射，返回对应的小写字母。</p>
+    <h4 id="SpecialCase.ToUpper">func (SpecialCase) <a title="View Source" href="https://github.com/golang/go/blob/master/src/unicode/letter.go?name=release#281">ToUpper</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (special <a href="#SpecialCase">SpecialCase</a>) ToUpper(r <a href="builtin.htm#rune">rune</a>) <a href="builtin.htm#rune">rune</a></pre>
+    <p>按特定映射，返回对应的大写字母。</p>
+    <h4 id="SpecialCase.ToTitle">func (SpecialCase) <a title="View Source" href="https://github.com/golang/go/blob/master/src/unicode/letter.go?name=release#290">ToTitle</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (special <a href="#SpecialCase">SpecialCase</a>) ToTitle(r <a href="builtin.htm#rune">rune</a>) <a href="builtin.htm#rune">rune</a></pre>
+    <p>按特定映射，返回对应的标题字母。</p>
+    <h3 id="Is">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/unicode/letter.go?name=release#155">Is</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Is(rangeTab *<a href="#RangeTable">RangeTable</a>, r <a href="builtin.htm#rune">rune</a>) <a href="builtin.htm#bool">bool</a></pre>
+    <p>函数报告r是否在rangeTab指定的字符范围内。</p>
+    <h3 id="In">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/unicode/graphic.go?name=release#69">In</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func In(r <a href="builtin.htm#rune">rune</a>, ranges ...*<a href="#RangeTable">RangeTable</a>) <a href="builtin.htm#bool">bool</a></pre>
+    <p>函数报告r是否是给出的某个字母集的成员。</p>
+    <h3 id="IsOneOf">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/unicode/graphic.go?name=release#59">IsOneOf</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func IsOneOf(ranges []*<a href="#RangeTable">RangeTable</a>, r <a href="builtin.htm#rune">rune</a>) <a href="builtin.htm#bool">bool</a></pre>
+    <p>函数报告r是否是ranges某个成员指定的字符范围内。本函数的功能类似In，应优先使用In函数。</p>
+    <h3 id="IsSpace">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/unicode/graphic.go?name=release#126">IsSpace</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func IsSpace(r <a href="builtin.htm#rune">rune</a>) <a href="builtin.htm#bool">bool</a></pre>
+    <p>IsSpace报告一个字符是否是空白字符。在Latin-1字符空间中，空白字符为：</p>
+    <pre>&#39;\t&#39;, &#39;\n&#39;, &#39;\v&#39;, &#39;\f&#39;, &#39;\r&#39;, &#39; &#39;, U+0085 (NEL), U+00A0 (NBSP).
+</pre>
+    <p>其它的空白字符请参见策略Z和属性Pattern_White_Space。</p>
+    <h3 id="IsDigit">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/unicode/digit.go?name=release#8">IsDigit</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func IsDigit(r <a href="builtin.htm#rune">rune</a>) <a href="builtin.htm#bool">bool</a></pre>
+    <p>IsDigit报告一个字符是否是十进制数字字符。</p>
+    <h3 id="IsNumber">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/unicode/graphic.go?name=release#104">IsNumber</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func IsNumber(r <a href="builtin.htm#rune">rune</a>) <a href="builtin.htm#bool">bool</a></pre>
+    <p>IsNumber报告一个字符是否是数字字符，参见策略N。</p>
+    <h3 id="IsLetter">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/unicode/graphic.go?name=release#90">IsLetter</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func IsLetter(r <a href="builtin.htm#rune">rune</a>) <a href="builtin.htm#bool">bool</a></pre>
+    <p>IsLetter报告一个字符是否是字母，参见策略L。</p>
+    <h3 id="IsGraphic">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/unicode/graphic.go?name=release#36">IsGraphic</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func IsGraphic(r <a href="builtin.htm#rune">rune</a>) <a href="builtin.htm#bool">bool</a></pre>
+    <p>报告一个字符是否是unicode图形。包括字母、标记、数字、符号、标点、空白，参见L、M、N、P、S、Zs。</p>
+    <h3 id="IsMark">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/unicode/graphic.go?name=release#98">IsMark</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func IsMark(r <a href="builtin.htm#rune">rune</a>) <a href="builtin.htm#bool">bool</a></pre>
+    <p>IsMark报告一个字符是否是标记字符，参见策略M。</p>
+    <h3 id="IsPrint">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/unicode/graphic.go?name=release#50">IsPrint</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func IsPrint(r <a href="builtin.htm#rune">rune</a>) <a href="builtin.htm#bool">bool</a></pre>
+    <p>IsPrint一个字符是否是go的可打印字符。本函数基本和IsGraphic一致，只是ASCII空白字符U+0020会返回假。</p>
+    <h3 id="IsControl">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/unicode/graphic.go?name=release#81">IsControl</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func IsControl(r <a href="builtin.htm#rune">rune</a>) <a href="builtin.htm#bool">bool</a></pre>
+    <p>IsControl报告一个字符是否是控制字符，主要是策略C的字符和一些其他的字符如代理字符。</p>
+    <h3 id="IsPunct">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/unicode/graphic.go?name=release#113">IsPunct</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func IsPunct(r <a href="builtin.htm#rune">rune</a>) <a href="builtin.htm#bool">bool</a></pre>
+    <p>IsPunct报告一个字符是否是unicode标点字符，参见策略P。</p>
+    <h3 id="IsSymbol">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/unicode/graphic.go?name=release#139">IsSymbol</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func IsSymbol(r <a href="builtin.htm#rune">rune</a>) <a href="builtin.htm#bool">bool</a></pre>
+    <p>IsPunct报告一个字符是否是unicode符号字符。</p>
+    <h3 id="IsLower">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/unicode/letter.go?name=release#189">IsLower</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func IsLower(r <a href="builtin.htm#rune">rune</a>) <a href="builtin.htm#bool">bool</a></pre>
+    <p>返回字符是否是小写字母。</p>
+    <h3 id="IsUpper">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/unicode/letter.go?name=release#180">IsUpper</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func IsUpper(r <a href="builtin.htm#rune">rune</a>) <a href="builtin.htm#bool">bool</a></pre>
+    <p>返回字符是否是大写字母。</p>
+    <h3 id="IsTitle">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/unicode/letter.go?name=release#198">IsTitle</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func IsTitle(r <a href="builtin.htm#rune">rune</a>) <a href="builtin.htm#bool">bool</a></pre>
+    <p>返回字符是否是标题字母。</p>
+    <h3 id="To">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/unicode/letter.go?name=release#243">To</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func To(_case <a href="builtin.htm#int">int</a>, r <a href="builtin.htm#rune">rune</a>) <a href="builtin.htm#rune">rune</a></pre>
+    <p>返回_case指定的对应类型的字母：UpperCase、LowerCase、TitleCase。</p>
+    <h3 id="ToLower">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/unicode/letter.go?name=release#259">ToLower</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func ToLower(r <a href="builtin.htm#rune">rune</a>) <a href="builtin.htm#rune">rune</a></pre>
+    <p>返回对应的小写字母。</p>
+    <h3 id="ToUpper">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/unicode/letter.go?name=release#248">ToUpper</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func ToUpper(r <a href="builtin.htm#rune">rune</a>) <a href="builtin.htm#rune">rune</a></pre>
+    <p>返回对应的大写字母。</p>
+    <h3 id="ToTitle">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/unicode/letter.go?name=release#270">ToTitle</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func ToTitle(r <a href="builtin.htm#rune">rune</a>) <a href="builtin.htm#rune">rune</a></pre>
+    <p>返回对应的标题字母。</p>
+    <h3 id="SimpleFold">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/unicode/letter.go?name=release#331">SimpleFold</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func SimpleFold(r <a href="builtin.htm#rune">rune</a>) <a href="builtin.htm#rune">rune</a></pre>
+    <p>SimpleFold函数迭代在unicode标准字符映射中互相对应的unicode码值。在与r对应的码值中（包括r自身），会返回最小的那个大于r的字符（如果有）；否则返回映射中最小的字符。</p>
+    <p>举例：</p>
+    <pre>SimpleFold(&#39;A&#39;) = &#39;a&#39;
+SimpleFold(&#39;a&#39;) = &#39;A&#39;
+SimpleFold(&#39;K&#39;) = &#39;k&#39;
+SimpleFold(&#39;k&#39;) = &#39;\u212A&#39; (Kelvin symbol, K)
+SimpleFold(&#39;\u212A&#39;) = &#39;K&#39;
+SimpleFold(&#39;1&#39;) = &#39;1&#39;
+</pre>
+    <h3 id="pkg-note-bug">Bugs <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <p><a title="View Source" href="https://github.com/golang/go/blob/master/src/unicode/letter.go?name=release#64">☞</a> 没有全字符（包含多个rune的字符）折叠的机制。<a class="permalink" href="#pkg-index">&para;</a>
+</div>
+</body>
+</html>

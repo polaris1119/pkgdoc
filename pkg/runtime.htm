@@ -1,0 +1,295 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="./site.css" rel="stylesheet">
+<title>runtime</title>
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package runtime</h2>
+    <p><code>import "runtime"</code>
+    <p>runtime包提供和go运行时环境的互操作，如控制go程的函数。它也包括用于reflect包的低层次类型信息；参见reflect报的文档获取运行时类型系统的可编程接口。</p>
+    <h4 id="hdr-Environment_Variables">Environment Variables <a class="permalink" href="#pkg-index">&para</a></h4>
+    <p align="left">下面的环境变量（$name或%name%，这依赖于主机的操作系统）控制go程序的运行时行为。它们的含义和用法可能在各发行版之间改变。</p>
+    <p align="left">环境变量GOGC设置最初的垃圾收集目标百分比。当新申请的数据和前次垃圾收集剩下的存活数据的比率达到该百分比时，就会触发垃圾收集。默认GOGC=100。设置GOGC=off 会完全关闭垃圾收集。runtime/debug包的SetGCPercent函数允许在运行时修改该百分比。参见<a href="http://golang.org/pkg/runtime/debug/#SetGCPercent">http://golang.org/pkg/runtime/debug/#SetGCPercent</a></p>
+    <p align="left">环境变量GODEBUG控制运行时的debug输出。GODEBUG的值是逗号分隔的name=val对。支持的name如下：</p>
+    <pre>allocfreetrace: 设置其为1，会导致每次分配都会被记录剖面，会记录每一个对象的分配、释放
+  及其堆栈踪迹。
+efence: 设置其为1，会导致分配器运行模式为：每个对象申请在独立的页和地址，且永不循环利用。
+gctrace: 设置其为1，会导致垃圾收集器每次收集都向标准错误输出写入单行的数据，概述收集的总
+  内存的大小和暂停的总时间长度。设置其为2，会写入同样的概述，但也会写入每次收集的两个数据。
+gcdead: 设置其为1，会导致垃圾收集器摧毁任何它认为已经死掉的执行堆栈。
+schedtrace: 设置其为X，会导致调度程序每隔X毫秒输出单行信息到标准错误输出，概述调度状态。
+scheddetail: 设置schedtrace为X并设置其为1，会导致调度程序每隔X毫秒输出详细的多行信息，
+  描述调度、进程、线程和go程的状态。</pre>
+    <p align="left">环境变量GOMAXPROCS限制可以同时运行用户层次的go代码的操作系统进程数。没有对代表go代码的、可以在系统调用中阻塞的go程数的限制；那些阻塞的go程不与GOMAXPROCS限制冲突。本包的GOMAXPROCS函数可以查询和修改该限制。</p>
+    <p align="left">环境变量GOTRACEBACK控制当go程序因为不能恢复的panic或不期望的运行时情况失败时的输出。失败的程序默认会打印所有现存go程的堆栈踪迹（省略运行时系统中的函数），然后以状态码2退出。如果GOTRACEBACK为0，会完全忽略所有go程的堆栈踪迹。如果GOTRACEBACK为1，会采用默认行为。如果GOTRACEBACK为2，会打印所有现存go程包括运行时函数的堆栈踪迹。如果GOTRACEBACK为crash，会打印所有现存go程包括运行时函数的堆栈踪迹，并且如果可能会采用操作系统特定的方式崩溃，而不是退出。例如，在Unix系统里，程序会释放SIGABRT信号以触发核心信息转储。</p>
+    <p align="left">环境变量GOARCH、GOOS、GOPATH和GOROOT构成完整的go环境变量集合。它们影响go程序的构建（参见<a href="http://golang.org/cmd/go">http://golang.org/cmd/go</a> and<a href="http://golang.org/pkg/go/build">http://golang.org/pkg/go/build</a>）。</p>
+    <p align="left">GOARCH、GOOS和GOROOT在编译时被记录并可用本包的常量和函数获取，但它们不会影响运行时环境。</p>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#pkg-constants">Constants</a></li>
+        <li><a href="#pkg-variables">Variables</a></li>
+        <li><a href="#Error">type Error</a></li>
+        <li><a href="#TypeAssertionError">type TypeAssertionError</a></li>
+        <ul>
+            <li><a href="#TypeAssertionError.Error">func (e *TypeAssertionError) Error() string</a></li>
+            <li><a href="#TypeAssertionError.RuntimeError">func (*TypeAssertionError) RuntimeError()</a></li>
+        </ul>
+        <li><a href="#GOROOT">func GOROOT() string</a></li>
+        <li><a href="#Version">func Version() string</a></li>
+        <li><a href="#NumCPU">func NumCPU() int</a></li>
+        <li><a href="#GOMAXPROCS">func GOMAXPROCS(n int) int</a></li>
+        <li><a href="#GC">func GC()</a></li>
+        <li><a href="#SetFinalizer">func SetFinalizer(x, f interface{})</a></li>
+        <li><a href="#MemStats">type MemStats</a></li>
+        <li><a href="#ReadMemStats">func ReadMemStats(m *MemStats)</a></li>
+        <li><a href="#MemProfileRecord">type MemProfileRecord</a></li>
+        <ul>
+            <li><a href="#MemProfileRecord.InUseBytes">func (r *MemProfileRecord) InUseBytes() int64</a></li>
+            <li><a href="#MemProfileRecord.InUseObjects">func (r *MemProfileRecord) InUseObjects() int64</a></li>
+            <li><a href="#MemProfileRecord.Stack">func (r *MemProfileRecord) Stack() []uintptr</a></li>
+        </ul>
+        <li><a href="#MemProfile">func MemProfile(p []MemProfileRecord, inuseZero bool) (n int, ok bool)</a></li>
+       <li><a href="#SetCPUProfileRate">func SetCPUProfileRate(hz int)</a></li>
+        <li><a href="#CPUProfile">func CPUProfile() []byte</a></li>
+        <li><a href="#Breakpoint">func Breakpoint()</a></li>
+        <li><a href="#Stack">func Stack(buf []byte, all bool) int</a></li>
+        <li><a href="#Caller">func Caller(skip int) (pc uintptr, file string, line int, ok bool)</a></li>
+        <li><a href="#Callers">func Callers(skip int, pc []uintptr) int</a></li>
+        <li><a href="#StackRecord">type StackRecord</a></li>
+        <ul>
+            <li><a href="#StackRecord.Stack">func (r *StackRecord) Stack() []uintptr</a></li>
+        </ul>
+        <li><a href="#Func">type Func</a></li>
+        <ul>
+            <li><a href="#FuncForPC">func FuncForPC(pc uintptr) *Func</a></li>
+            <li><a href="#Func.Entry">func (f *Func) Entry() uintptr</a></li>
+            <li><a href="#Func.FileLine">func (f *Func) FileLine(pc uintptr) (file string, line int)</a></li>
+            <li><a href="#Func.Name">func (f *Func) Name() string</a></li>
+        </ul>
+        <li><a href="#NumCgoCall">func NumCgoCall() int64</a></li>
+        <li><a href="#NumGoroutine">func NumGoroutine() int</a></li>
+        <li><a href="#Goexit">func Goexit()</a></li>
+        <li><a href="#Gosched">func Gosched()</a></li>
+        <li><a href="#GoroutineProfile">func GoroutineProfile(p []StackRecord) (n int, ok bool)</a></li>
+        <li><a href="#LockOSThread">func LockOSThread()</a></li>
+        <li><a href="#UnlockOSThread">func UnlockOSThread()</a></li>
+        <li><a href="#ThreadCreateProfile">func ThreadCreateProfile(p []StackRecord) (n int, ok bool)</a></li>
+        <li><a href="#BlockProfileRecord">type BlockProfileRecord</a></li>
+        <li><a href="#SetBlockProfileRate">func SetBlockProfileRate(rate int)</a></li>
+        <li><a href="#BlockProfile">func BlockProfile(p []BlockProfileRecord) (n int, ok bool)</a></li>
+     </ul>
+    <h3 id="pkg-constants">Constants <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>const <span id="Compiler">Compiler</span> = &#34;gc&#34;</pre>
+    <p>Compiler是编译工具链的名字，工具链会构建可执行的二进制文件。已知的工具链是：</p>
+    <pre>gc      The 5g/6g/8g compiler suite at code.google.com/p/go.
+gccgo   The gccgo front end, part of the GCC compiler suite.</pre>
+    <pre>const <span id="GOARCH">GOARCH</span> <a href="builtin.htm#string">string</a> = theGoarch</pre>
+    <p>GOARCH是可执行程序的目标处理器架构（将要在该架构的机器上执行）：386、amd64或arm。</p>
+    <pre>const <span id="GOOS">GOOS</span> <a href="builtin.htm#string">string</a> = theGoos</pre>
+    <p>GOOS是可执行程序的目标操作系统（将要在该操作系统的机器上执行）：darwin、freebsd、linux等。</p>
+    <h3 id="pkg-variables">Variables <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>var <span id="MemProfileRate">MemProfileRate</span> <a href="builtin.htm#int">int</a> = 512 * 1024</pre>
+    <p align="left">MemProfileRate控制会在内存profile里记录和报告的内存分配采样频率。内存profile记录器平均每分配MemProfileRate字节进行一次分配采样。</p>
+    <p align="left">要在profile里包含每一个申请的块，可以将MemProfileRate设为1。要完全关闭profile的记录，设置本变量为0。</p>
+    <p align="left">处理内存profile的工具假设profile记录速度在整个程序的生命期是固定的，并等于当前值。修改内存profile的程序应该只进行一次，且尽可能早的修改（例如，在main函数的开始处）。</p>
+    <h3 id="Error">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/runtime/error.go?name=release#8">Error</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Error interface {
+    <a href="builtin.htm#error">error</a>
+    <span class="com">// RuntimeError是一个无操作的函数，仅用于区别运行时错误和普通错误。</span>
+    <span class="com">// 具有RuntimeError方法的错误类型就是运行时错误类型。</span>
+    <span id="Error.RuntimeError">RuntimeError</span>()
+}</pre>
+    <p>Error接口用来识别运行时错误。</p>
+    <h3 id="TypeAssertionError">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/runtime/error.go?name=release#19">TypeAssertionError</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type TypeAssertionError struct {
+    <span class="com">// 内含隐藏或非导出字段</span>
+}</pre>
+    <p>TypeAssertionError表示一次失败的类型断言。</p>
+    <h4 id="TypeAssertionError.Error">func (*TypeAssertionError) <a title="View Source" href="https://github.com/golang/go/blob/master/src/runtime/error.go?name=release#28">Error</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (e *<a href="#TypeAssertionError">TypeAssertionError</a>) Error() <a href="builtin.htm#string">string</a></pre>
+    <h4 id="TypeAssertionError.RuntimeError">func (*TypeAssertionError) <a title="View Source" href="https://github.com/golang/go/blob/master/src/runtime/error.go?name=release#26">RuntimeError</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (*<a href="#TypeAssertionError">TypeAssertionError</a>) RuntimeError()</pre>
+    <h3 id="GOROOT">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/runtime/extern.go?name=release#184">GOROOT</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func GOROOT() <a href="builtin.htm#string">string</a></pre>
+    <p>GOROOT返回Go的根目录。如果存在GOROOT环境变量，返回该变量的值；否则，返回创建Go时的根目录。</p>
+    <h3 id="Version">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/runtime/extern.go?name=release#195">Version</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Version() <a href="builtin.htm#string">string</a></pre>
+    <p>返回Go的版本字符串。它要么是递交的hash和创建时的日期；要么是发行标签如"go1.3"。</p>
+    <h3 id="NumCPU">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/runtime/debug.go?name=release#27">NumCPU</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func NumCPU() <a href="builtin.htm#int">int</a></pre>
+    <p>NumCPU返回本地机器的逻辑CPU个数。</p>
+    <h3 id="GOMAXPROCS">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/runtime/debug.go?name=release#24">GOMAXPROCS</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func GOMAXPROCS(n <a href="builtin.htm#int">int</a>) <a href="builtin.htm#int">int</a></pre>
+    <p>GOMAXPROCS设置可同时执行的最大CPU数，并返回先前的设置。 若 n &lt; 1，它就不会更改当前设置。本地机器的逻辑CPU数可通过 NumCPU 查询。本函数在调度程序优化后会去掉。</p>
+    <h3 id="SetCPUProfileRate">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/runtime/debug.go?name=release#141">SetCPUProfileRate</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func SetCPUProfileRate(hz <a href="builtin.htm#int">int</a>)</pre>
+    <p align="left">SetCPUProfileRate设置CPU profile记录的速率为平均每秒hz次。如果hz&lt;=0，SetCPUProfileRate会关闭profile的记录。如果记录器在执行，该速率必须在关闭之后才能修改。</p>
+    <p align="left">绝大多数使用者应使用runtime/pprof包或testing包的-test.cpuprofile选项而非直接使用SetCPUProfileRate。</p>
+    <h3 id="CPUProfile">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/runtime/debug.go?name=release#132">CPUProfile</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func CPUProfile() []<a href="builtin.htm#byte">byte</a></pre>
+    <p align="left">CPUProfile返回二进制CPU profile堆栈跟踪数据的下一个chunk，函数会阻塞直到该数据可用。 如果profile的记录被关闭，且在记录器开着的时候积累的profile数据都被返回了，CPUProfile会返回nil。调用者在再次调用本函数之前应先保存返回的数据。</p>
+    <p align="left">绝大多数使用者应使用 runtime/pprof包或testing包的-test.cpuprofile选项而非直接使用 CPUProfile。</p>
+    <h3 id="GC">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/runtime/mem.go?name=release#75">GC</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func GC()</pre>
+    <p>GC执行一次垃圾回收。</p>
+    <h3 id="SetFinalizer">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/runtime/extern.go?name=release#177">SetFinalizer</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func SetFinalizer(x, f interface{})</pre>
+    <p align="left">SetFinalizer将x的终止器设置为f。当垃圾收集器发现一个不能接触的（即引用计数为零，程序中不能再直接或间接访问该对象）具有终止器的块时，它会清理该关联（对象到终止器）并在独立go程调用f(x)。这使x再次可以接触，但没有了绑定的终止器。如果SetFinalizer没有被再次调用，下一次垃圾收集器将视x为不可接触的，并释放x。</p>
+    <p align="left">SetFinalizer(x, nil)会清理任何绑定到x的终止器。</p>
+    <p align="left">参数x必须是一个指向通过new申请的对象的指针，或者通过对复合字面值取址得到的指针。参数f必须是一个函数，它接受单个可以直接用x类型值赋值的参数，也可以有任意个被忽略的返回值。如果这两条任一条不被满足，本函数就会中断程序。</p>
+    <p align="left">终止器会按依赖顺序执行：如果A指向B，两者都有终止器，且它们无法从其它方面接触，只有A的终止器执行；A被释放后，B的终止器就可以执行。如果一个循环结构包含一个具有终止器的块，该循环不能保证会被当垃圾收集，终止器也不能保证会执行；因为没有尊重依赖关系的顺序。</p>
+    <p align="left">x的终止器会在x变为不可接触之后的任意时间被调度执行。不保证终止器会在程序退出前执行，因此一般终止器只用于在长期运行的程序中释放关联到某对象的非内存资源。例如，当一个程序丢弃一个os.File对象时没有调用其Close方法，该os.File对象可以使用终止器去关闭对应的操作系统文件描述符。但依靠终止器去刷新内存中的I/O缓冲如bufio.Writer是错误的，因为缓冲不会在程序退出时被刷新。</p>
+    <p align="left">如果*x的大小为0字节，不保证终止器会执行。</p>
+    <p align="left">一个程序会有单独一个go程顺序执行所有的终止器。如果一个终止器必须运行较长时间，它应该在内部另开go程执行该任务。</p>
+    <h3 id="MemStats">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/runtime/mem.go?name=release#13">MemStats</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type MemStats struct {
+    <span class="com">// 一般统计</span>
+    <span id="MemStats.Alloc">Alloc</span>      <a href="builtin.htm#uint64">uint64</a> <span class="com">// 已申请且仍在使用的字节数</span>
+    <span id="MemStats.TotalAlloc">TotalAlloc</span> <a href="builtin.htm#uint64">uint64</a> <span class="com">// 已申请的总字节数（已释放的部分也算在内）</span>
+    <span id="MemStats.Sys">Sys</span>        <a href="builtin.htm#uint64">uint64</a> <span class="com">// 从系统中获取的字节数（下面XxxSys之和）</span>
+    <span id="MemStats.Lookups">Lookups</span>    <a href="builtin.htm#uint64">uint64</a> <span class="com">// 指针查找的次数</span>
+    <span id="MemStats.Mallocs">Mallocs</span>    <a href="builtin.htm#uint64">uint64</a> <span class="com">// 申请内存的次数</span>
+    <span id="MemStats.Frees">Frees</span>      <a href="builtin.htm#uint64">uint64</a> <span class="com">// 释放内存的次数</span>
+    <span class="com">// 主分配堆统计</span>
+    <span id="MemStats.HeapAlloc">HeapAlloc</span>    <a href="builtin.htm#uint64">uint64</a> <span class="com">// 已申请且仍在使用的字节数</span>
+    <span id="MemStats.HeapSys">HeapSys</span>      <a href="builtin.htm#uint64">uint64</a> <span class="com">// 从系统中获取的字节数</span>
+    <span id="MemStats.HeapIdle">HeapIdle</span>     <a href="builtin.htm#uint64">uint64</a> <span class="com">// 闲置span中的字节数</span>
+    <span id="MemStats.HeapInuse">HeapInuse</span>    <a href="builtin.htm#uint64">uint64</a> <span class="com">// 非闲置span中的字节数</span>
+    <span id="MemStats.HeapReleased">HeapReleased</span> <a href="builtin.htm#uint64">uint64</a> <span class="com">// 释放到系统的字节数</span>
+    <span id="MemStats.HeapObjects">HeapObjects</span>  <a href="builtin.htm#uint64">uint64</a> <span class="com">// 已分配对象的总个数</span>
+    <span class="com">// L低层次、大小固定的结构体分配器统计，Inuse为正在使用的字节数，Sys为从系统获取的字节数</span>
+    <span id="MemStats.StackInuse">StackInuse</span>  <a href="builtin.htm#uint64">uint64</a> <span class="com">// 引导程序的堆栈</span>
+    <span id="MemStats.StackSys">StackSys</span>    <a href="builtin.htm#uint64">uint64</a>
+    <span id="MemStats.MSpanInuse">MSpanInuse</span>  <a href="builtin.htm#uint64">uint64</a> <span class="com">// mspan结构体</span>
+    <span id="MemStats.MSpanSys">MSpanSys</span>    <a href="builtin.htm#uint64">uint64</a>
+    <span id="MemStats.MCacheInuse">MCacheInuse</span> <a href="builtin.htm#uint64">uint64</a> <span class="com">// mcache结构体</span>
+    <span id="MemStats.MCacheSys">MCacheSys</span>   <a href="builtin.htm#uint64">uint64</a>
+    <span id="MemStats.BuckHashSys">BuckHashSys</span> <a href="builtin.htm#uint64">uint64</a> <span class="com">// profile桶散列表</span>
+    <span id="MemStats.GCSys">GCSys</span>       <a href="builtin.htm#uint64">uint64</a> <span class="com">// GC元数据</span>
+    <span id="MemStats.OtherSys">OtherSys</span>    <a href="builtin.htm#uint64">uint64</a> <span class="com">// 其他系统申请</span>
+    <span class="com">// 垃圾收集器统计</span>
+    <span id="MemStats.NextGC">NextGC</span>       <a href="builtin.htm#uint64">uint64</a> <span class="com">// 会在HeapAlloc字段到达该值（字节数）时运行下次GC</span>
+    <span id="MemStats.LastGC">LastGC</span>       <a href="builtin.htm#uint64">uint64</a> <span class="com">// 上次运行的绝对时间（纳秒）</span>
+    <span id="MemStats.PauseTotalNs">PauseTotalNs</span> <a href="builtin.htm#uint64">uint64</a>
+    <span id="MemStats.PauseNs">PauseNs</span>      [256]<a href="builtin.htm#uint64">uint64</a> <span class="com">// 近期GC暂停时间的循环缓冲，最近一次在[(NumGC+255)%256]</span>
+    <span id="MemStats.NumGC">NumGC</span>        <a href="builtin.htm#uint32">uint32</a>
+    <span id="MemStats.EnableGC">EnableGC</span>     <a href="builtin.htm#bool">bool</a>
+    <span id="MemStats.DebugGC">DebugGC</span>      <a href="builtin.htm#bool">bool</a>
+    <span class="com">// 每次申请的字节数的统计，61是C代码中的尺寸分级数</span>
+    <span id="MemStats.BySize">BySize</span> [61]struct {
+        Size    <a href="builtin.htm#uint32">uint32</a>
+        Mallocs <a href="builtin.htm#uint64">uint64</a>
+        Frees   <a href="builtin.htm#uint64">uint64</a>
+    }
+}</pre>
+    <p>MemStats记录内存申请和分配的统计信息。</p>
+    <h3 id="ReadMemStats">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/runtime/mem.go?name=release#72">ReadMemStats</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func ReadMemStats(m *<a href="#MemStats">MemStats</a>)</pre>
+    <p>ReadMemStats将内存申请和分配的统计信息填写进m。</p>
+    <h3 id="MemProfileRecord">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/runtime/debug.go?name=release#53">MemProfileRecord</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type MemProfileRecord struct {
+    <span id="MemProfileRecord.AllocBytes">AllocBytes</span>, <span id="MemProfileRecord.FreeBytes">FreeBytes</span>     <a href="builtin.htm#int64">int64</a>       <span class="com">// 申请和释放的字节数</span>
+    <span id="MemProfileRecord.AllocObjects">AllocObjects</span>, <span id="MemProfileRecord.FreeObjects">FreeObjects</span> <a href="builtin.htm#int64">int64</a>       <span class="com">// 申请和释放的对象数</span>
+    <span id="MemProfileRecord.Stack0">Stack0</span>                    [32]<a href="builtin.htm#uintptr">uintptr</a> <span class="com">// 该记录的调用栈踪迹，以第一个零值成员截止</span>
+}</pre>
+    <p>MemProfileRecord用于描述某个调用栈序列申请和释放的活动对象等信息。</p>
+    <h4 id="MemProfileRecord.InUseBytes">func (*MemProfileRecord) <a title="View Source" href="https://github.com/golang/go/blob/master/src/runtime/debug.go?name=release#60">InUseBytes</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (r *<a href="#MemProfileRecord">MemProfileRecord</a>) InUseBytes() <a href="builtin.htm#int64">int64</a></pre>
+    <p>InUseBytes返回正在使用的字节数（AllocBytes – FreeBytes）</p>
+    <h4 id="MemProfileRecord.InUseObjects">func (*MemProfileRecord) <a title="View Source" href="https://github.com/golang/go/blob/master/src/runtime/debug.go?name=release#63">InUseObjects</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (r *<a href="#MemProfileRecord">MemProfileRecord</a>) InUseObjects() <a href="builtin.htm#int64">int64</a></pre>
+    <p>InUseObjects返回正在使用的对象数（AllocObjects - FreeObjects）</p>
+    <h4 id="MemProfileRecord.Stack">func (*MemProfileRecord) <a title="View Source" href="https://github.com/golang/go/blob/master/src/runtime/debug.go?name=release#69">Stack</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (r *<a href="#MemProfileRecord">MemProfileRecord</a>) Stack() []<a href="builtin.htm#uintptr">uintptr</a></pre>
+    <p>Stack返回关联至此记录的调用栈踪迹，即r.Stack0的前缀。</p>
+    <h3 id="MemProfile">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/runtime/debug.go?name=release#90">MemProfile</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func MemProfile(p []<a href="#MemProfileRecord">MemProfileRecord</a>, inuseZero <a href="builtin.htm#bool">bool</a>) (n <a href="builtin.htm#int">int</a>, ok <a href="builtin.htm#bool">bool</a>)</pre>
+    <p align="left">MemProfile返回当前内存profile中的记录数n。若len(p)&gt;=n，MemProfile会将此分析报告复制到p中并返回(n, true)；如果len(p)&lt;n，MemProfile则不会更改p，而只返回(n, false)。</p>
+    <p align="left">如果inuseZero为真，该profile就会包含无效分配记录（其中r.AllocBytes&gt;0，而r.AllocBytes==r.FreeBytes。这些内存都是被申请后又释放回运行时环境的）。</p>
+    <p align="left">大多数调用者应当使用runtime/pprof包或testing包的-test.memprofile标记，而非直接调用MemProfile。</p>
+    <h3 id="Breakpoint">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/runtime/debug.go?name=release#8">Breakpoint</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Breakpoint()</pre>
+    <p>Breakpoint执行一个断点陷阱。</p>
+    <h3 id="Stack">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/runtime/debug.go?name=release#172">Stack</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Stack(buf []<a href="builtin.htm#byte">byte</a>, all <a href="builtin.htm#bool">bool</a>) <a href="builtin.htm#int">int</a></pre>
+    <p>Stack将调用其的go程的调用栈踪迹格式化后写入到buf中并返回写入的字节数。若all为true，函数会在写入当前go程的踪迹信息后，将其它所有go程的调用栈踪迹都格式化写入到buf中。</p>
+    <h3 id="Caller">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/runtime/extern.go?name=release#95">Caller</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Caller(skip <a href="builtin.htm#int">int</a>) (pc <a href="builtin.htm#uintptr">uintptr</a>, file <a href="builtin.htm#string">string</a>, line <a href="builtin.htm#int">int</a>, ok <a href="builtin.htm#bool">bool</a>)</pre>
+    <p align="left">Caller报告当前go程调用栈所执行的函数的文件和行号信息。实参skip为上溯的栈帧数，0表示Caller的调用者（Caller所在的调用栈）。（由于历史原因，skip的意思在Caller和Callers中并不相同。）函数的返回值为调用栈标识符、文件名、该调用在文件中的行号。如果无法获得信息，ok会被设为false。</p>
+    <h3 id="Callers">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/runtime/extern.go?name=release#102">Callers</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Callers(skip <a href="builtin.htm#int">int</a>, pc []<a href="builtin.htm#uintptr">uintptr</a>) <a href="builtin.htm#int">int</a></pre>
+    <p>函数把当前go程调用栈上的调用栈标识符填入切片pc中，返回写入到pc中的项数。实参skip为开始在pc中记录之前所要跳过的栈帧数，0表示Callers自身的调用栈，1表示Callers所在的调用栈。返回写入p的项数。</p>
+<h3 id="StackRecord">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/runtime/debug.go?name=release#93">StackRecord</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type StackRecord struct {
+    <span id="StackRecord.Stack0">Stack0</span> [32]<a href="builtin.htm#uintptr">uintptr</a> <span class="com">// 该记录的调用栈踪迹，以第一个零值成员截止</span>
+}</pre>
+    <p>StackRecord描述单条调用栈。</p>
+    <h4 id="StackRecord.Stack">func (*StackRecord) <a title="View Source" href="https://github.com/golang/go/blob/master/src/runtime/debug.go?name=release#99">Stack</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (r *<a href="#StackRecord">StackRecord</a>) Stack() []<a href="builtin.htm#uintptr">uintptr</a></pre>
+    <p>Stack返回与记录相关联的调用栈踪迹，即r.Stack0的前缀。</p>
+    <h3 id="Func">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/runtime/extern.go?name=release#104">Func</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Func struct {
+    <span class="com">// 内含隐藏或非导出字段</span>
+}</pre>
+    <h4 id="FuncForPC">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/runtime/extern.go?name=release#110">FuncForPC</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func FuncForPC(pc <a href="builtin.htm#uintptr">uintptr</a>) *<a href="#Func">Func</a></pre>
+    <p>FuncForPC返回一个表示调用栈标识符pc对应的调用栈的*Func；如果该调用栈标识符没有对应的调用栈，函数会返回nil。每一个调用栈必然是对某个函数的调用。</p>
+    <h4 id="Func.Name">func (*Func) <a title="View Source" href="https://github.com/golang/go/blob/master/src/runtime/extern.go?name=release#113">Name</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (f *<a href="#Func">Func</a>) Name() <a href="builtin.htm#string">string</a></pre>
+    <p>Name返回该调用栈所调用的函数的名字。</p>
+    <h4 id="Func.FileLine">func (*Func) <a title="View Source" href="https://github.com/golang/go/blob/master/src/runtime/extern.go?name=release#126">FileLine</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (f *<a href="#Func">Func</a>) FileLine(pc <a href="builtin.htm#uintptr">uintptr</a>) (file <a href="builtin.htm#string">string</a>, line <a href="builtin.htm#int">int</a>)</pre>
+    <p>FileLine返回该调用栈所调用的函数的源代码文件名和行号。如果pc不是f内的调用栈标识符，结果是不精确的。</p>
+    <h4 id="Func.Entry">func (*Func) <a title="View Source" href="https://github.com/golang/go/blob/master/src/runtime/extern.go?name=release#118">Entry</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (f *<a href="#Func">Func</a>) Entry() <a href="builtin.htm#uintptr">uintptr</a></pre>
+    <p>Entry返回该调用栈的调用栈标识符。</p>
+    <h3 id="NumCgoCall">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/runtime/debug.go?name=release#30">NumCgoCall</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func NumCgoCall() <a href="builtin.htm#int64">int64</a></pre>
+    <p>NumCgoCall返回当前进程执行的cgo调用次数。</p>
+    <h3 id="NumGoroutine">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/runtime/debug.go?name=release#33">NumGoroutine</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func NumGoroutine() <a href="builtin.htm#int">int</a></pre>
+    <p>NumGoroutine返回当前存在的Go程数。</p>
+    <h3 id="Goexit">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/runtime/extern.go?name=release#87">Goexit</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Goexit()</pre>
+    <p align="left">Goexit终止调用它的go程。其它go程不会受影响。Goexit会在终止该go程前执行所有defer的函数。</p>
+    <p align="left">在程序的main go程调用本函数，会终结该go程，而不会让main返回。因为main函数没有返回，程序会继续执行其它的go程。如果所有其它go程都退出了，程序就会崩溃。</p>
+    <h3 id="Gosched">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/runtime/extern.go?name=release#78">Gosched</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Gosched()</pre>
+    <p>Gosched使当前go程放弃处理器，以让其它go程运行。它不会挂起当前go程，因此当前go程未来会恢复执行。</p>
+    <h3 id="GoroutineProfile">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/runtime/debug.go?name=release#122">GoroutineProfile</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func GoroutineProfile(p []<a href="#StackRecord">StackRecord</a>) (n <a href="builtin.htm#int">int</a>, ok <a href="builtin.htm#bool">bool</a>)</pre>
+    <p align="left">GoroutineProfile返回活跃go程的堆栈profile中的记录个数。若len(p) &gt;= n，函数就会将profile中的记录复制到p中并返回(n, true)。若len(p) &lt; n，则不会修改p，而只返回(n, false)。</p>
+    <p align="left">绝大多数调用者应当使用runtime/pprof包，而非直接调用GoroutineProfile。</p>
+    <h3 id="LockOSThread">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/runtime/debug.go?name=release#13">LockOSThread</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func LockOSThread()</pre>
+    <p>将调用的go程绑定到它当前所在的操作系统线程。除非调用的go程退出或调用UnlockOSThread，否则它将总是在该线程中执行，而其它go程则不能进入该线程。</p>
+    <h3 id="UnlockOSThread">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/runtime/debug.go?name=release#17">UnlockOSThread</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func UnlockOSThread()</pre>
+    <p>将调用的go程解除和它绑定的操作系统线程。若调用的go程未调用LockOSThread，UnlockOSThread不做操作。</p>
+    <h3 id="ThreadCreateProfile">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/runtime/debug.go?name=release#114">ThreadCreateProfile</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func ThreadCreateProfile(p []<a href="#StackRecord">StackRecord</a>) (n <a href="builtin.htm#int">int</a>, ok <a href="builtin.htm#bool">bool</a>)</pre>
+    <p>返回线程创建profile中的记录个数。如果len(p)&gt;=n，本函数就会将profile中的记录复制到p中并返回(n, true)。若len(p)&lt;n，则不会更改p，而只返回(n, false)。</p>
+<p align="left">绝大多数使用者应当使用runtime/pprof包，而非直接调用ThreadCreateProfile。</p>
+    <h3 id="BlockProfileRecord">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/runtime/debug.go?name=release#153">BlockProfileRecord</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type BlockProfileRecord struct {
+    <span id="BlockProfileRecord.Count">Count</span>  <a href="builtin.htm#int64">int64</a>
+    <span id="BlockProfileRecord.Cycles">Cycles</span> <a href="builtin.htm#int64">int64</a>
+    <a href="#StackRecord">StackRecord</a>
+}</pre>
+    <p>BlockProfileRecord用于描述某个调用栈序列发生的阻塞事件的信息。</p>
+    <h3 id="SetBlockProfileRate">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/runtime/debug.go?name=release#149">SetBlockProfileRate</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func SetBlockProfileRate(rate <a href="builtin.htm#int">int</a>)</pre>
+    <p align="left">SetBlockProfileRate控制阻塞profile记录go程阻塞事件的采样频率。对于一个阻塞事件，平均每阻塞rate纳秒，阻塞profile记录器就采集一份样本。</p>
+    <p align="left">要在profile中包括每一个阻塞事件，需传入rate=1；要完全关闭阻塞profile的记录，需传入rate&lt;=0。</p>
+    <h3 id="BlockProfile">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/runtime/debug.go?name=release#166">BlockProfile</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func BlockProfile(p []<a href="#BlockProfileRecord">BlockProfileRecord</a>) (n <a href="builtin.htm#int">int</a>, ok <a href="builtin.htm#bool">bool</a>)</pre>
+    <p align="left">BlockProfile返回当前阻塞profile中的记录个数。如果len(p)&gt;=n，本函数就会将此profile中的记录复制到p中并返回(n, true)。如果len(p)&lt;n，本函数则不会修改p，而只返回(n, false)。</p>
+    <p align="left">绝大多数使用者应当使用runtime/pprof包或testing包的-test.blockprofile标记， 而非直接调用 BlockProfile。</p>
+</div>
+</body>
+</html>

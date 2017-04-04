@@ -1,0 +1,193 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="./site.css" rel="stylesheet">
+<title>net/smtp</title>
+<meta name="private:description" content="刘志曦翻译于2014年夏，Go 1.3版本">
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package smtp</h2>
+    <p><code>import "net/smtp"</code>
+    <p>smtp包实现了简单邮件传输协议（SMTP），参见<a href="http://tools.ietf.org/html/rfc5321">RFC 5321</a>。同时本包还实现了如下扩展：</p>
+    <pre>8BITMIME  <a href="http://tools.ietf.org/html/rfc1652">RFC 1652</a>
+AUTH      <a href="http://tools.ietf.org/html/rfc2554">RFC 2554</a>
+STARTTLS  <a href="http://tools.ietf.org/html/rfc3207">RFC 3207</a>
+</pre>
+    <p>客户端可以自行管理其他的扩展。</p>
+    <div class="panel-group">
+        <div class="panel panel-default" id="example-package">
+            <div class="panel-heading" onclick="document.getElementById('ex-package').style.display = document.getElementById('ex-package').style.display=='none'?'block':'none';">Example</div>
+            <div id="ex-package" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre>
+<span class="com">// Connect to the remote SMTP server.</span>
+c, err := smtp.Dial(&#34;mail.example.com:25&#34;)
+if err != nil {
+    log.Fatal(err)
+}
+<span class="com">// Set the sender and recipient first</span>
+if err := c.Mail(&#34;sender@example.org&#34;); err != nil {
+    log.Fatal(err)
+}
+if err := c.Rcpt(&#34;recipient@example.net&#34;); err != nil {
+    log.Fatal(err)
+}
+<span class="com">// Send the email body.</span>
+wc, err := c.Data()
+if err != nil {
+    log.Fatal(err)
+}
+_, err = fmt.Fprintf(wc, &#34;This is the email body&#34;)
+if err != nil {
+    log.Fatal(err)
+}
+err = wc.Close()
+if err != nil {
+    log.Fatal(err)
+}
+<span class="com">// Send the QUIT command and close the connection.</span>
+err = c.Quit()
+if err != nil {
+    log.Fatal(err)
+}
+</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#ServerInfo">type ServerInfo</a></li>
+        <li><a href="#Auth">type Auth</a></li>
+        <ul>
+            <li><a href="#CRAMMD5Auth">func CRAMMD5Auth(username, secret string) Auth</a></li>
+            <li><a href="#PlainAuth">func PlainAuth(identity, username, password, host string) Auth</a></li>
+        </ul>
+        <li><a href="#Client">type Client</a></li>
+        <ul>
+            <li><a href="#Dial">func Dial(addr string) (*Client, error)</a></li>
+            <li><a href="#NewClient">func NewClient(conn net.Conn, host string) (*Client, error)</a></li>
+            <li><a href="#Client.Extension">func (c *Client) Extension(ext string) (bool, string)</a></li>
+            <li><a href="#Client.Hello">func (c *Client) Hello(localName string) error</a></li>
+            <li><a href="#Client.Auth">func (c *Client) Auth(a Auth) error</a></li>
+            <li><a href="#Client.Verify">func (c *Client) Verify(addr string) error</a></li>
+            <li><a href="#Client.StartTLS">func (c *Client) StartTLS(config *tls.Config) error</a></li>
+            <li><a href="#Client.Mail">func (c *Client) Mail(from string) error</a></li>
+            <li><a href="#Client.Rcpt">func (c *Client) Rcpt(to string) error</a></li>
+            <li><a href="#Client.Data">func (c *Client) Data() (io.WriteCloser, error)</a></li>
+            <li><a href="#Client.Reset">func (c *Client) Reset() error</a></li>
+            <li><a href="#Client.Quit">func (c *Client) Quit() error</a></li>
+            <li><a href="#Client.Close">func (c *Client) Close() error</a></li>
+        </ul>
+        <li><a href="#SendMail">func SendMail(addr string, a Auth, from string, to []string, msg []byte) error</a></li>
+    </ul>
+    <h4 id="pkg-examples">Examples <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#example-PlainAuth" onclick="$('#ex-PlainAuth').addClass('in').removeClass('collapse').height('auto')">PlainAuth</a></li>
+        <li><a href="#example-package" onclick="$('#ex-package').addClass('in').removeClass('collapse').height('auto')">package</a></li>
+    </ul>
+    <h3 id="ServerInfo">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/smtp/auth.go?name=release#35">ServerInfo</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type ServerInfo struct {
+    <span id="ServerInfo.Name">Name</span> <a href="builtin.htm#string">string</a>   <span class="com">// SMTP服务器的名字</span>
+    <span id="ServerInfo.TLS">TLS</span>  <a href="builtin.htm#bool">bool</a>     <span class="com">// Name有合法的证书并使用TLS时为真</span>
+    <span id="ServerInfo.Auth">Auth</span> []<a href="builtin.htm#string">string</a> <span class="com">// 支持的认证机制</span>
+}</pre>
+    <p>ServerInfo类型记录一个SMTP服务器的信息。</p>
+    <h3 id="Auth">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/smtp/auth.go?name=release#15">Auth</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Auth interface {
+    <span class="com">// 方法开始和服务端的认证。</span>
+    <span class="com">// 它返回认证协议的名字和可能有的应发送给服务端的包含初始认证信息的数据。</span>
+    <span class="com">// 如果返回值proto == ""，表示应跳过认证；</span>
+    <span class="com">// 如果返回一个非nil的错误，SMTP客户端应中断认证身份的尝试并关闭连接。</span>
+    <span id="Auth.Start">Start</span>(server *<a href="#ServerInfo">ServerInfo</a>) (proto <a href="builtin.htm#string">string</a>, toServer []<a href="builtin.htm#byte">byte</a>, err <a href="builtin.htm#error">error</a>)
+    <span class="com">// 方法继续认证过程。fromServer为服务端刚发送的数据。</span>
+    <span class="com">// 如果more为真，服务端会期望一个回复，回复内容应被Next返回，即toServer；</span>
+    <span class="com">// 否则返回值toServer应为nil。</span>
+    <span class="com">// 如果返回一个非nil的错误，SMTP客户端应中断认证身份的尝试并关闭连接。</span>
+    <span id="Auth.Next">Next</span>(fromServer []<a href="builtin.htm#byte">byte</a>, more <a href="builtin.htm#bool">bool</a>) (toServer []<a href="builtin.htm#byte">byte</a>, err <a href="builtin.htm#error">error</a>)
+}</pre>
+    <p>Auth接口应被每一个SMTP认证机制实现。</p>
+    <h4 id="CRAMMD5Auth">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/smtp/auth.go?name=release#91">CRAMMD5Auth</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func CRAMMD5Auth(username, secret <a href="builtin.htm#string">string</a>) <a href="#Auth">Auth</a></pre>
+    <p>返回一个实现了CRAM-MD5身份认证机制（参见<a href="http://tools.ietf.org/html/rfc2195">RFC 2195</a>）的Auth接口。返回的接口使用给出的用户名和密码，采用响应——回答机制与服务端进行身份认证。</p>
+    <h4 id="PlainAuth">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/smtp/auth.go?name=release#51">PlainAuth</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func PlainAuth(identity, username, password, host <a href="builtin.htm#string">string</a>) <a href="#Auth">Auth</a></pre>
+    <p>返回一个实现了PLAIN身份认证机制（参见<a href="http://tools.ietf.org/html/rfc4616">RFC 4616</a>）的Auth接口。返回的接口使用给出的用户名和密码，通过TLS连接到主机认证，采用identity为身份管理和行动（通常应设identity为""，以便使用username为身份）。</p>
+    <div class="panel-group">
+        <div class="panel panel-default" id="example-PlainAuth">
+            <div class="panel-heading" onclick="document.getElementById('ex-PlainAuth').style.display = document.getElementById('ex-PlainAuth').style.display=='none'?'block':'none';">Example</div>
+            <div id="ex-PlainAuth" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre>
+<span class="com">// Set up authentication information.</span>
+auth := smtp.PlainAuth(&#34;&#34;, &#34;user@example.com&#34;, &#34;password&#34;, &#34;mail.example.com&#34;)
+<span class="com">// Connect to the server, authenticate, set the sender and recipient,</span>
+<span class="com">// and send the email all in one step.</span>
+to := []string{&#34;recipient@example.net&#34;}
+msg := []byte(&#34;This is the email body.&#34;)
+err := smtp.SendMail(&#34;mail.example.com:25&#34;, auth, &#34;sender@example.org&#34;, to, msg)
+if err != nil {
+    log.Fatal(err)
+}
+</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    <h3 id="Client">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/smtp/smtp.go?name=release#24">Client</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Client struct {
+    <span class="com">// 代表被Client使用的textproto.Conn，它可以导出，以便使用者添加扩展。</span>
+    <span id="Client.Text">Text</span> *<a href="net/textproto.htm">textproto</a>.<a href="net/textproto.htm#Conn">Conn</a>
+    <span class="com">// 内含隐藏或非导出字段</span>
+}</pre>
+    <p>Client代表一个连接到SMTP服务器的客户端。</p>
+    <h4 id="Dial">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/smtp/smtp.go?name=release#45">Dial</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func Dial(addr <a href="builtin.htm#string">string</a>) (*<a href="#Client">Client</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>Dial返回一个连接到地址为addr的SMTP服务器的*Client；addr必须包含端口号。</p>
+    <h4 id="NewClient">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/smtp/smtp.go?name=release#56">NewClient</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func NewClient(conn <a href="net.htm">net</a>.<a href="net.htm#Conn">Conn</a>, host <a href="builtin.htm#string">string</a>) (*<a href="#Client">Client</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>NewClient使用已经存在的连接conn和作为服务器名的host（用于身份认证）来创建一个*Client。</p>
+    <h4 id="Client.Extension">func (*Client) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/smtp/smtp.go?name=release#325">Extension</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *<a href="#Client">Client</a>) Extension(ext <a href="builtin.htm#string">string</a>) (<a href="builtin.htm#bool">bool</a>, <a href="builtin.htm#string">string</a>)</pre>
+    <p>Extension返回服务端是否支持某个扩展，扩展名是大小写不敏感的。如果扩展被支持，方法还会返回一个包含指定给该扩展的各个参数的字符串。</p>
+    <h4 id="Client.Hello">func (*Client) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/smtp/smtp.go?name=release#89">Hello</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *<a href="#Client">Client</a>) Hello(localName <a href="builtin.htm#string">string</a>) <a href="builtin.htm#error">error</a></pre>
+    <p>Hello发送给服务端一个HELO或EHLO命令。本方法只有使用者需要控制使用的本地主机名时才应使用，否则程序会将本地主机名设为&ldquo;localhost&rdquo;，Hello方法只能在最开始调用。</p>
+    <h4 id="Client.Auth">func (*Client) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/smtp/smtp.go?name=release#175">Auth</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *<a href="#Client">Client</a>) Auth(a <a href="#Auth">Auth</a>) <a href="builtin.htm#error">error</a></pre>
+    <p>Auth使用提供的认证机制进行认证。失败的认证会关闭该连接。只有服务端支持AUTH时，本方法才有效。（但是不支持时，调用会默默的成功）</p>
+    <h4 id="Client.Verify">func (*Client) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/smtp/smtp.go?name=release#164">Verify</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *<a href="#Client">Client</a>) Verify(addr <a href="builtin.htm#string">string</a>) <a href="builtin.htm#error">error</a></pre>
+    <p>Verify检查一个邮箱地址在其服务器是否合法，如果合法会返回nil；但非nil的返回值并不代表不合法，因为许多服务器出于安全原因不支持这种查询。</p>
+    <h4 id="Client.StartTLS">func (*Client) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/smtp/smtp.go?name=release#146">StartTLS</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *<a href="#Client">Client</a>) StartTLS(config *<a href="crypto/tls.htm">tls</a>.<a href="crypto/tls.htm#Config">Config</a>) <a href="builtin.htm#error">error</a></pre>
+    <p>StartTLS方法发送STARTTLS命令，并将之后的所有数据往来加密。只有服务器附加了STARTTLS扩展，这个方法才有效。</p>
+    <h4 id="Client.Mail">func (*Client) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/smtp/smtp.go?name=release#222">Mail</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *<a href="#Client">Client</a>) Mail(from <a href="builtin.htm#string">string</a>) <a href="builtin.htm#error">error</a></pre>
+    <p>Mail发送MAIL命令和邮箱地址from到服务器。如果服务端支持8BITMIME扩展，本方法会添加BODY=8BITMIME参数。方法初始化一次邮件传输，后应跟1到多个Rcpt方法的调用。</p>
+    <h4 id="Client.Rcpt">func (*Client) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/smtp/smtp.go?name=release#239">Rcpt</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *<a href="#Client">Client</a>) Rcpt(to <a href="builtin.htm#string">string</a>) <a href="builtin.htm#error">error</a></pre>
+    <p>Rcpt发送RCPT命令和邮箱地址to到服务器。调用Rcpt方法之前必须调用了Mail方法，之后可以再一次调用Rcpt方法，也可以调用Data方法。</p>
+    <h4 id="Client.Data">func (*Client) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/smtp/smtp.go?name=release#259">Data</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *<a href="#Client">Client</a>) Data() (<a href="io.htm">io</a>.<a href="io.htm#WriteCloser">WriteCloser</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>Data发送DATA指令到服务器并返回一个io.WriteCloser，用于写入邮件信息。调用者必须在调用c的下一个方法之前关闭这个io.WriteCloser。方法必须在一次或多次Rcpt方法之后调用。</p>
+    <h4 id="Client.Reset">func (*Client) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/smtp/smtp.go?name=release#339">Reset</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *<a href="#Client">Client</a>) Reset() <a href="builtin.htm#error">error</a></pre>
+    <p>Reset向服务端发送REST命令，中断当前的邮件传输。</p>
+    <h4 id="Client.Quit">func (*Client) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/smtp/smtp.go?name=release#348">Quit</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *<a href="#Client">Client</a>) Quit() <a href="builtin.htm#error">error</a></pre>
+    <p>Quit发送QUIT命令并关闭到服务端的连接。</p>
+    <h4 id="Client.Close">func (*Client) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/smtp/smtp.go?name=release#68">Close</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *<a href="#Client">Client</a>) Close() <a href="builtin.htm#error">error</a></pre>
+    <p>Close关闭连接。</p>
+    <h3 id="SendMail">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/smtp/smtp.go?name=release#273">SendMail</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func SendMail(addr <a href="builtin.htm#string">string</a>, a <a href="#Auth">Auth</a>, from <a href="builtin.htm#string">string</a>, to []<a href="builtin.htm#string">string</a>, msg []<a href="builtin.htm#byte">byte</a>) <a href="builtin.htm#error">error</a></pre>
+    <p>SendMail连接到addr指定的服务器；如果支持会开启TLS；如果支持会使用a认证身份；然后以from为邮件源地址发送邮件msg到目标地址to。（可以是多个目标地址：群发）</p>
+</div>
+</body>
+</html>

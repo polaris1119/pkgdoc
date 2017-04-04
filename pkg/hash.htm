@@ -1,0 +1,61 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="./site.css" rel="stylesheet">
+<title>hash</title>
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package hash</h2>
+    <p><code>import "hash"</code>
+    <p>hash包提供hash函数的接口。</p>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#Hash">type Hash</a></li>
+        <li><a href="#Hash32">type Hash32</a></li>
+        <li><a href="#Hash64">type Hash64</a></li>
+    </ul>
+    <h3 id="Hash">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/hash/hash.go?name=release#11">Hash</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Hash interface {<span class="com"></span>
+    <span class="com">// 通过嵌入的匿名io.Writer接口的Write方法向hash中添加更多数据，永远不返回错误</span>
+    <a href="io.htm">io</a>.<a href="io.htm#Writer">Writer</a>
+    <span class="com">// 返回添加b到当前的hash值后的新切片，不会改变底层的hash状态</span>
+    <span id="Hash.Sum">Sum</span>(b []<a href="builtin.htm#byte">byte</a>) []<a href="builtin.htm#byte">byte</a>
+    <span class="com">// 重设hash为无数据输入的状态</span>
+    <span id="Hash.Reset">Reset</span>()
+    <span class="com">// 返回Sum会返回的切片的长度</span>
+    <span id="Hash.Size">Size</span>() <a href="builtin.htm#int">int</a>
+    <span class="com">// 返回hash底层的块大小；Write方法可以接受任何大小的数据，</span>
+    <span class="com">// 但提供的数据是块大小的倍数时效率更高</span>
+    <span id="Hash.BlockSize">BlockSize</span>() <a href="builtin.htm#int">int</a>
+}</pre>
+    <p>Hash是一个被所有hash函数实现的公共接口。</p>
+    <h3 id="Hash32">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/hash/hash.go?name=release#34">Hash32</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Hash32 interface {
+    <a href="#Hash">Hash</a>
+    <span id="Hash32.Sum32">Sum32</span>() <a href="builtin.htm#uint32">uint32</a>
+}</pre>
+    <p>Hash32是一个被所有32位hash函数实现的公共接口。</p>
+    <h3 id="Hash64">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/hash/hash.go?name=release#40">Hash64</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Hash64 interface {
+    <a href="#Hash">Hash</a>
+    <span id="Hash64.Sum64">Sum64</span>() <a href="builtin.htm#uint64">uint64</a>
+}</pre>
+    <p>Hash64是一个被所有64位hash函数实现的公共接口。</p>
+</div>
+
+<div id="x-footer" class="clearfix">
+  <div class="container">
+    <a href="http://studygolang.com/">Go语言中文网</a>
+    <span class="text-muted">|</span> <a href="http://golang.org/">Go Language</a>
+    <span class="pull-right"><a href="#">Back to top</a></span>
+  </div>
+</div>
+<script src="../assets/jquery-2.0.3.min.js"></script>
+<script src="../bootstrap.min.js"></script>
+<script src="../site.js"></script>
+</body>
+</html>

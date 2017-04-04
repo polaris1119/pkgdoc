@@ -1,0 +1,155 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="./site.css" rel="stylesheet">
+<title>sync/atomic</title>
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package atomic</h2>
+    <p><code>import "sync/atomic"</code>
+    <p align="left">atomic包提供了底层的原子级内存操作，对于同步算法的实现很有用。</p>
+    <p align="left">这些函数必须谨慎地保证正确使用。除了某些特殊的底层应用，使用通道或者sync包的函数/类型实现同步更好。</p>
+    <p align="left">应通过通信来共享内存，而不通过共享内存实现通信。</p>
+    <p align="left">被SwapT系列函数实现的交换操作，在原子性上等价于：</p>
+    <pre>old = *addr
+*addr = new
+return old</pre>
+    <p>CompareAndSwapT系列函数实现的比较-交换操作，在原子性上等价于：</p>
+    <pre>if *addr == old {
+	*addr = new
+	return true
+}
+return false</pre>
+    <p>AddT 系列函数实现加法操作，在原子性上等价于：</p>
+    <pre>*addr += delta
+return *addr</pre>
+    <p>LoadT和StoreT系列函数实现的加载和保持操作，在原子性上等价于："return *addr"和"*addr = val"。</p>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#LoadInt32">func LoadInt32(addr *int32) (val int32)</a></li>
+        <li><a href="#LoadInt64">func LoadInt64(addr *int64) (val int64)</a></li>
+        <li><a href="#LoadUint32">func LoadUint32(addr *uint32) (val uint32)</a></li>
+        <li><a href="#LoadUint64">func LoadUint64(addr *uint64) (val uint64)</a></li>
+        <li><a href="#LoadUintptr">func LoadUintptr(addr *uintptr) (val uintptr)</a></li>
+        <li><a href="#LoadPointer">func LoadPointer(addr *unsafe.Pointer) (val unsafe.Pointer)</a></li>
+        <li><a href="#StoreInt32">func StoreInt32(addr *int32, val int32)</a></li>
+        <li><a href="#StoreInt64">func StoreInt64(addr *int64, val int64)</a></li>
+        <li><a href="#StoreUint32">func StoreUint32(addr *uint32, val uint32)</a></li>
+        <li><a href="#StoreUint64">func StoreUint64(addr *uint64, val uint64)</a></li>
+        <li><a href="#StoreUintptr">func StoreUintptr(addr *uintptr, val uintptr)</a></li>
+        <li><a href="#StorePointer">func StorePointer(addr *unsafe.Pointer, val unsafe.Pointer)</a></li>
+        <li><a href="#AddInt32">func AddInt32(addr *int32, delta int32) (new int32)</a></li>
+        <li><a href="#AddInt64">func AddInt64(addr *int64, delta int64) (new int64)</a></li>
+        <li><a href="#AddUint32">func AddUint32(addr *uint32, delta uint32) (new uint32)</a></li>
+        <li><a href="#AddUint64">func AddUint64(addr *uint64, delta uint64) (new uint64)</a></li>
+        <li><a href="#AddUintptr">func AddUintptr(addr *uintptr, delta uintptr) (new uintptr)</a></li>
+        <li><a href="#SwapInt32">func SwapInt32(addr *int32, new int32) (old int32)</a></li>
+        <li><a href="#SwapInt64">func SwapInt64(addr *int64, new int64) (old int64)</a></li>
+        <li><a href="#SwapUint32">func SwapUint32(addr *uint32, new uint32) (old uint32)</a></li>
+        <li><a href="#SwapUint64">func SwapUint64(addr *uint64, new uint64) (old uint64)</a></li>
+        <li><a href="#SwapUintptr">func SwapUintptr(addr *uintptr, new uintptr) (old uintptr)</a></li>
+        <li><a href="#SwapPointer">func SwapPointer(addr *unsafe.Pointer, new unsafe.Pointer) (old unsafe.Pointer)</a></li>
+        <li><a href="#CompareAndSwapInt32">func CompareAndSwapInt32(addr *int32, old, new int32) (swapped bool)</a></li>
+        <li><a href="#CompareAndSwapInt64">func CompareAndSwapInt64(addr *int64, old, new int64) (swapped bool)</a></li>
+        <li><a href="#CompareAndSwapUint32">func CompareAndSwapUint32(addr *uint32, old, new uint32) (swapped bool)</a></li>
+        <li><a href="#CompareAndSwapUint64">func CompareAndSwapUint64(addr *uint64, old, new uint64) (swapped bool)</a></li>
+        <li><a href="#CompareAndSwapUintptr">func CompareAndSwapUintptr(addr *uintptr, old, new uintptr) (swapped bool)</a></li>
+        <li><a href="#CompareAndSwapPointer">func CompareAndSwapPointer(addr *unsafe.Pointer, old, new unsafe.Pointer) (swapped bool)</a></li>
+    </ul>
+    <h3 id="LoadInt32">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/sync/atomic/doc.go?name=release#113">LoadInt32</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func LoadInt32(addr *<a href="builtin.htm#int32">int32</a>) (val <a href="builtin.htm#int32">int32</a>)</pre>
+    <p>LoadInt32原子性的获取*addr的值。</p>
+    <h3 id="LoadInt64">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/sync/atomic/doc.go?name=release#116">LoadInt64</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func LoadInt64(addr *<a href="builtin.htm#int64">int64</a>) (val <a href="builtin.htm#int64">int64</a>)</pre>
+    <p>LoadInt64原子性的获取*addr的值。</p>
+    <h3 id="LoadUint32">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/sync/atomic/doc.go?name=release#119">LoadUint32</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func LoadUint32(addr *<a href="builtin.htm#uint32">uint32</a>) (val <a href="builtin.htm#uint32">uint32</a>)</pre>
+    <p>LoadUint32原子性的获取*addr的值。</p>
+    <h3 id="LoadUint64">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/sync/atomic/doc.go?name=release#122">LoadUint64</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func LoadUint64(addr *<a href="builtin.htm#uint64">uint64</a>) (val <a href="builtin.htm#uint64">uint64</a>)</pre>
+    <p>LoadUint64原子性的获取*addr的值。</p>
+    <h3 id="LoadUintptr">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/sync/atomic/doc.go?name=release#125">LoadUintptr</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func LoadUintptr(addr *<a href="builtin.htm#uintptr">uintptr</a>) (val <a href="builtin.htm#uintptr">uintptr</a>)</pre>
+    <p>LoadUintptr原子性的获取*addr的值。</p>
+    <h3 id="LoadPointer">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/sync/atomic/doc.go?name=release#128">LoadPointer</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func LoadPointer(addr *<a href="unsafe.htm">unsafe</a>.<a href="unsafe.htm#Pointer">Pointer</a>) (val <a href="unsafe.htm">unsafe</a>.<a href="unsafe.htm#Pointer">Pointer</a>)</pre>
+    <p>LoadPointer原子性的获取*addr的值。</p>
+    <h3 id="StoreInt32">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/sync/atomic/doc.go?name=release#131">StoreInt32</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func StoreInt32(addr *<a href="builtin.htm#int32">int32</a>, val <a href="builtin.htm#int32">int32</a>)</pre>
+    <p>StoreInt32原子性的将val的值保存到*addr。</p>
+    <h3 id="StoreInt64">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/sync/atomic/doc.go?name=release#134">StoreInt64</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func StoreInt64(addr *<a href="builtin.htm#int64">int64</a>, val <a href="builtin.htm#int64">int64</a>)</pre>
+    <p>StoreInt64原子性的将val的值保存到*addr。</p>
+    <h3 id="StoreUint32">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/sync/atomic/doc.go?name=release#137">StoreUint32</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func StoreUint32(addr *<a href="builtin.htm#uint32">uint32</a>, val <a href="builtin.htm#uint32">uint32</a>)</pre>
+    <p>StoreUint32原子性的将val的值保存到*addr。</p>
+    <h3 id="StoreUint64">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/sync/atomic/doc.go?name=release#140">StoreUint64</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func StoreUint64(addr *<a href="builtin.htm#uint64">uint64</a>, val <a href="builtin.htm#uint64">uint64</a>)</pre>
+    <p>StoreUint64原子性的将val的值保存到*addr。</p>
+    <h3 id="StoreUintptr">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/sync/atomic/doc.go?name=release#143">StoreUintptr</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func StoreUintptr(addr *<a href="builtin.htm#uintptr">uintptr</a>, val <a href="builtin.htm#uintptr">uintptr</a>)</pre>
+    <p>StoreUintptr原子性的将val的值保存到*addr。</p>
+    <h3 id="StorePointer">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/sync/atomic/doc.go?name=release#146">StorePointer</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func StorePointer(addr *<a href="unsafe.htm">unsafe</a>.<a href="unsafe.htm#Pointer">Pointer</a>, val <a href="unsafe.htm">unsafe</a>.<a href="unsafe.htm#Pointer">Pointer</a>)</pre>
+    <p>StorePointer原子性的将val的值保存到*addr。</p>
+    <h3 id="AddInt32">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/sync/atomic/doc.go?name=release#94">AddInt32</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func AddInt32(addr *<a href="builtin.htm#int32">int32</a>, delta <a href="builtin.htm#int32">int32</a>) (new <a href="builtin.htm#int32">int32</a>)</pre>
+    <p>AddInt32原子性的将val的值添加到*addr并返回新值。</p>
+    <h3 id="AddInt64">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/sync/atomic/doc.go?name=release#102">AddInt64</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func AddInt64(addr *<a href="builtin.htm#int64">int64</a>, delta <a href="builtin.htm#int64">int64</a>) (new <a href="builtin.htm#int64">int64</a>)</pre>
+    <p>AddInt64原子性的将val的值添加到*addr并返回新值。</p>
+    <h3 id="AddUint32">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/sync/atomic/doc.go?name=release#99">AddUint32</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func AddUint32(addr *<a href="builtin.htm#uint32">uint32</a>, delta <a href="builtin.htm#uint32">uint32</a>) (new <a href="builtin.htm#uint32">uint32</a>)</pre>
+    <p>AddUint32原子性的将val的值添加到*addr并返回新值。</p>
+    <p>如要减去一个值c，调用AddUint32(&amp;x, ^uint32(c-1))；特别的，让x减1，调用AddUint32(&amp;x, ^uint32(0))。</p>
+<h3 id="AddUint64">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/sync/atomic/doc.go?name=release#107">AddUint64</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func AddUint64(addr *<a href="builtin.htm#uint64">uint64</a>, delta <a href="builtin.htm#uint64">uint64</a>) (new <a href="builtin.htm#uint64">uint64</a>)</pre>
+    <p align="left">AddUint64原子性的将val的值添加到*addr并返回新值。</p>
+    <p align="left">如要减去一个值c，调用AddUint64(&amp;x, ^uint64(c-1))；特别的，让x减1，调用AddUint64(&amp;x, ^uint64(0))。</p>
+    <h3 id="AddUintptr">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/sync/atomic/doc.go?name=release#110">AddUintptr</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func AddUintptr(addr *<a href="builtin.htm#uintptr">uintptr</a>, delta <a href="builtin.htm#uintptr">uintptr</a>) (new <a href="builtin.htm#uintptr">uintptr</a>)</pre>
+    <p>AddUintptr原子性的将val的值添加到*addr并返回新值。</p>
+    <h3 id="SwapInt32">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/sync/atomic/doc.go?name=release#58">SwapInt32</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func SwapInt32(addr *<a href="builtin.htm#int32">int32</a>, new <a href="builtin.htm#int32">int32</a>) (old <a href="builtin.htm#int32">int32</a>)</pre>
+    <p>SwapInt32原子性的将新值保存到*addr并返回旧值。</p>
+    <h3 id="SwapInt64">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/sync/atomic/doc.go?name=release#61">SwapInt64</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func SwapInt64(addr *<a href="builtin.htm#int64">int64</a>, new <a href="builtin.htm#int64">int64</a>) (old <a href="builtin.htm#int64">int64</a>)</pre>
+    <p>SwapInt64原子性的将新值保存到*addr并返回旧值。</p>
+    <h3 id="SwapUint32">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/sync/atomic/doc.go?name=release#64">SwapUint32</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func SwapUint32(addr *<a href="builtin.htm#uint32">uint32</a>, new <a href="builtin.htm#uint32">uint32</a>) (old <a href="builtin.htm#uint32">uint32</a>)</pre>
+    <p>SwapUint32原子性的将新值保存到*addr并返回旧值。</p>
+    <h3 id="SwapUint64">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/sync/atomic/doc.go?name=release#67">SwapUint64</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func SwapUint64(addr *<a href="builtin.htm#uint64">uint64</a>, new <a href="builtin.htm#uint64">uint64</a>) (old <a href="builtin.htm#uint64">uint64</a>)</pre>
+    <p>SwapUint64原子性的将新值保存到*addr并返回旧值。</p>
+    <h3 id="SwapUintptr">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/sync/atomic/doc.go?name=release#70">SwapUintptr</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func SwapUintptr(addr *<a href="builtin.htm#uintptr">uintptr</a>, new <a href="builtin.htm#uintptr">uintptr</a>) (old <a href="builtin.htm#uintptr">uintptr</a>)</pre>
+    <p>SwapUintptr原子性的将新值保存到*addr并返回旧值。</p>
+    <h3 id="SwapPointer">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/sync/atomic/doc.go?name=release#73">SwapPointer</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func SwapPointer(addr *<a href="unsafe.htm">unsafe</a>.<a href="unsafe.htm#Pointer">Pointer</a>, new <a href="unsafe.htm">unsafe</a>.<a href="unsafe.htm#Pointer">Pointer</a>) (old <a href="unsafe.htm">unsafe</a>.<a href="unsafe.htm#Pointer">Pointer</a>)</pre>
+    <p>SwapPointer原子性的将新值保存到*addr并返回旧值。</p>
+    <h3 id="CompareAndSwapInt32">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/sync/atomic/doc.go?name=release#76">CompareAndSwapInt32</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func CompareAndSwapInt32(addr *<a href="builtin.htm#int32">int32</a>, old, new <a href="builtin.htm#int32">int32</a>) (swapped <a href="builtin.htm#bool">bool</a>)</pre>
+    <p>CompareAndSwapInt32原子性的比较*addr和old，如果相同则将new赋值给*addr并返回真。</p>
+    <h3 id="CompareAndSwapInt64">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/sync/atomic/doc.go?name=release#79">CompareAndSwapInt64</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func CompareAndSwapInt64(addr *<a href="builtin.htm#int64">int64</a>, old, new <a href="builtin.htm#int64">int64</a>) (swapped <a href="builtin.htm#bool">bool</a>)</pre>
+    <p>CompareAndSwapInt64原子性的比较*addr和old，如果相同则将new赋值给*addr并返回真。</p>
+    <h3 id="CompareAndSwapUint32">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/sync/atomic/doc.go?name=release#82">CompareAndSwapUint32</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func CompareAndSwapUint32(addr *<a href="builtin.htm#uint32">uint32</a>, old, new <a href="builtin.htm#uint32">uint32</a>) (swapped <a href="builtin.htm#bool">bool</a>)</pre>
+    <p>CompareAndSwapUint32原子性的比较*addr和old，如果相同则将new赋值给*addr并返回真。</p>
+    <h3 id="CompareAndSwapUint64">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/sync/atomic/doc.go?name=release#85">CompareAndSwapUint64</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func CompareAndSwapUint64(addr *<a href="builtin.htm#uint64">uint64</a>, old, new <a href="builtin.htm#uint64">uint64</a>) (swapped <a href="builtin.htm#bool">bool</a>)</pre>
+    <p>CompareAndSwapUint64原子性的比较*addr和old，如果相同则将new赋值给*addr并返回真。</p>
+    <h3 id="CompareAndSwapUintptr">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/sync/atomic/doc.go?name=release#88">CompareAndSwapUintptr</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func CompareAndSwapUintptr(addr *<a href="builtin.htm#uintptr">uintptr</a>, old, new <a href="builtin.htm#uintptr">uintptr</a>) (swapped <a href="builtin.htm#bool">bool</a>)</pre>
+    <p>CompareAndSwapUintptr原子性的比较*addr和old，如果相同则将new赋值给*addr并返回真。</p>
+    <h3 id="CompareAndSwapPointer">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/sync/atomic/doc.go?name=release#91">CompareAndSwapPointer</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func CompareAndSwapPointer(addr *<a href="unsafe.htm">unsafe</a>.<a href="unsafe.htm#Pointer">Pointer</a>, old, new <a href="unsafe.htm">unsafe</a>.<a href="unsafe.htm#Pointer">Pointer</a>) (swapped <a href="builtin.htm#bool">bool</a>)</pre>
+    <p>CompareAndSwapPointer原子性的比较*addr和old，如果相同则将new赋值给*addr并返回真。</p>
+    <h3 id="pkg-note-bug">Bugs <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <p><a title="View Source" href="https://github.com/golang/go/blob/master/src/sync/atomic/doc.go?name=release#48">☞ </a>在x86-32构架芯片上，64位函数使用的指令在Pentium MMX之前是不可用的；在非Linux的ARM芯片上，64位函数使用的指令在ARMv6k core之前是不可用的。不管是ARM又或x86-32芯片，安排原子性访问的64位word的64位对齐都是调用者的责任。可以依靠全局变量或申请的切片/结构体的第一个word来实现64位对齐。    </div>
+</body>
+</html>

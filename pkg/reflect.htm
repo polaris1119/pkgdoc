@@ -1,0 +1,641 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="./site.css" rel="stylesheet">
+<title>reflect</title>
+<meta name="private:description" content="刘志曦翻译于2014年夏，Go 1.3版本">
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package reflect</h2>
+    <p><code>import "reflect"</code>
+    <p align="left">reflect包实现了运行时反射，允许程序操作任意类型的对象。典型用法是用静态类型interface{}保存一个值，通过调用TypeOf获取其动态类型信息，该函数返回一个Type类型值。调用ValueOf函数返回一个Value类型值，该值代表运行时的数据。Zero接受一个Type类型参数并返回一个代表该类型零值的Value类型值。</p>
+    <p align="left">参见"The Laws of Reflection"获取go反射的介绍：<a href="http://golang.org/doc/articles/laws_of_reflection.html">http://golang.org/doc/articles/laws_of_reflection.html</a></p>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#pkg-constants">Constants</a></li>
+        <li><a href="#ValueError">type ValueError</a></li>
+        <ul>
+            <li><a href="#ValueError.Error">func (e *ValueError) Error() string</a></li>
+        </ul>
+        <li><a href="#Kind">type Kind</a></li>
+        <ul>
+            <li><a href="#Kind.String">func (k Kind) String() string</a></li>
+        </ul>
+        <li><a href="#StringHeader">type StringHeader</a></li>
+        <li><a href="#SliceHeader">type SliceHeader</a></li>
+        <li><a href="#StructField">type StructField</a></li>
+        <li><a href="#StructTag">type StructTag</a></li>
+        <ul>
+            <li><a href="#StructTag.Get">func (tag StructTag) Get(key string) string</a></li>
+        </ul>
+        <li><a href="#ChanDir">type ChanDir</a></li>
+        <ul>
+            <li><a href="#ChanDir.String">func (d ChanDir) String() string</a></li>
+        </ul>
+        <li><a href="#SelectDir">type SelectDir</a></li>
+        <li><a href="#SelectCase">type SelectCase</a></li>
+        <li><a href="#Select">func Select(cases []SelectCase) (chosen int, recv Value, recvOK bool)</a></li>
+        <li><a href="#Method">type Method</a></li>
+        <li><a href="#Type">type Type</a></li>
+        <ul>
+            <li><a href="#TypeOf">func TypeOf(i interface{}) Type</a></li>
+            <li><a href="#PtrTo">func PtrTo(t Type) Type</a></li>
+            <li><a href="#SliceOf">func SliceOf(t Type) Type</a></li>
+            <li><a href="#MapOf">func MapOf(key, elem Type) Type</a></li>
+            <li><a href="#ChanOf">func ChanOf(dir ChanDir, t Type) Type</a></li>
+        </ul>
+        <li><a href="#Value">type Value</a></li>
+        <ul>
+            <li><a href="#ValueOf">func ValueOf(i interface{}) Value</a></li>
+            <li><a href="#Zero">func Zero(typ Type) Value</a></li>
+            <li><a href="#New">func New(typ Type) Value</a></li>
+            <li><a href="#NewAt">func NewAt(typ Type, p unsafe.Pointer) Value</a></li>
+            <li><a href="#Indirect">func Indirect(v Value) Value</a></li>
+            <li><a href="#MakeSlice">func MakeSlice(typ Type, len, cap int) Value</a></li>
+            <li><a href="#MakeMap">func MakeMap(typ Type) Value</a></li>
+            <li><a href="#MakeChan">func MakeChan(typ Type, buffer int) Value</a></li>
+            <li><a href="#MakeFunc">func MakeFunc(typ Type, fn func(args []Value) (results []Value)) Value</a></li>
+            <li><a href="#Append">func Append(s Value, x ...Value) Value</a></li>
+            <li><a href="#AppendSlice">func AppendSlice(s, t Value) Value</a></li>
+            <li><a href="#Value.IsValid">func (v Value) IsValid() bool</a></li>
+            <li><a href="#Value.IsNil">func (v Value) IsNil() bool</a></li>
+            <li><a href="#Value.Kind">func (v Value) Kind() Kind</a></li>
+            <li><a href="#Value.Type">func (v Value) Type() Type</a></li>
+            <li><a href="#Value.Convert">func (v Value) Convert(t Type) Value</a></li>
+            <li><a href="#Value.Elem">func (v Value) Elem() Value</a></li>
+            <li><a href="#Value.Bool">func (v Value) Bool() bool</a></li>
+            <li><a href="#Value.Int">func (v Value) Int() int64</a></li>
+            <li><a href="#Value.OverflowInt">func (v Value) OverflowInt(x int64) bool</a></li>
+            <li><a href="#Value.Uint">func (v Value) Uint() uint64</a></li>
+            <li><a href="#Value.OverflowUint">func (v Value) OverflowUint(x uint64) bool</a></li>
+            <li><a href="#Value.Float">func (v Value) Float() float64</a></li>
+            <li><a href="#Value.OverflowFloat">func (v Value) OverflowFloat(x float64) bool</a></li>
+            <li><a href="#Value.Complex">func (v Value) Complex() complex128</a></li>
+            <li><a href="#Value.OverflowComplex">func (v Value) OverflowComplex(x complex128) bool</a></li>
+            <li><a href="#Value.Bytes">func (v Value) Bytes() []byte</a></li>
+            <li><a href="#Value.String">func (v Value) String() string</a></li>
+            <li><a href="#Value.Pointer">func (v Value) Pointer() uintptr</a></li>
+            <li><a href="#Value.InterfaceData">func (v Value) InterfaceData() [2]uintptr</a></li>
+            <li><a href="#Value.Slice">func (v Value) Slice(i, j int) Value</a></li>
+            <li><a href="#Value.Slice3">func (v Value) Slice3(i, j, k int) Value</a></li>
+            <li><a href="#Value.Cap">func (v Value) Cap() int</a></li>
+            <li><a href="#Value.Len">func (v Value) Len() int</a></li>
+            <li><a href="#Value.Index">func (v Value) Index(i int) Value</a></li>
+            <li><a href="#Value.MapIndex">func (v Value) MapIndex(key Value) Value</a></li>
+            <li><a href="#Value.MapKeys">func (v Value) MapKeys() []Value</a></li>
+            <li><a href="#Value.NumField">func (v Value) NumField() int</a></li>
+            <li><a href="#Value.Field">func (v Value) Field(i int) Value</a></li>
+            <li><a href="#Value.FieldByIndex">func (v Value) FieldByIndex(index []int) Value</a></li>
+            <li><a href="#Value.FieldByName">func (v Value) FieldByName(name string) Value</a></li>
+            <li><a href="#Value.FieldByNameFunc">func (v Value) FieldByNameFunc(match func(string) bool) Value</a></li>
+            <li><a href="#Value.Recv">func (v Value) Recv() (x Value, ok bool)</a></li>
+            <li><a href="#Value.TryRecv">func (v Value) TryRecv() (x Value, ok bool)</a></li>
+            <li><a href="#Value.Send">func (v Value) Send(x Value)</a></li>
+            <li><a href="#Value.TrySend">func (v Value) TrySend(x Value) bool</a></li>
+            <li><a href="#Value.Close">func (v Value) Close()</a></li>
+            <li><a href="#Value.Call">func (v Value) Call(in []Value) []Value</a></li>
+            <li><a href="#Value.CallSlice">func (v Value) CallSlice(in []Value) []Value</a></li>
+            <li><a href="#Value.NumMethod">func (v Value) NumMethod() int</a></li>
+            <li><a href="#Value.Method">func (v Value) Method(i int) Value</a></li>
+            <li><a href="#Value.MethodByName">func (v Value) MethodByName(name string) Value</a></li>
+            <li><a href="#Value.CanAddr">func (v Value) CanAddr() bool</a></li>
+            <li><a href="#Value.Addr">func (v Value) Addr() Value</a></li>
+            <li><a href="#Value.UnsafeAddr">func (v Value) UnsafeAddr() uintptr</a></li>
+            <li><a href="#Value.CanInterface">func (v Value) CanInterface() bool</a></li>
+            <li><a href="#Value.Interface">func (v Value) Interface() (i interface{})</a></li>
+            <li><a href="#Value.CanSet">func (v Value) CanSet() bool</a></li>
+            <li><a href="#Value.SetBool">func (v Value) SetBool(x bool)</a></li>
+            <li><a href="#Value.SetInt">func (v Value) SetInt(x int64)</a></li>
+            <li><a href="#Value.SetUint">func (v Value) SetUint(x uint64)</a></li>
+            <li><a href="#Value.SetFloat">func (v Value) SetFloat(x float64)</a></li>
+            <li><a href="#Value.SetComplex">func (v Value) SetComplex(x complex128)</a></li>
+            <li><a href="#Value.SetBytes">func (v Value) SetBytes(x []byte)</a></li>
+            <li><a href="#Value.SetString">func (v Value) SetString(x string)</a></li>
+            <li><a href="#Value.SetPointer">func (v Value) SetPointer(x unsafe.Pointer)</a></li>
+            <li><a href="#Value.SetCap">func (v Value) SetCap(n int)</a></li>
+            <li><a href="#Value.SetLen">func (v Value) SetLen(n int)</a></li>
+            <li><a href="#Value.SetMapIndex">func (v Value) SetMapIndex(key, val Value)</a></li>
+            <li><a href="#Value.Set">func (v Value) Set(x Value)</a></li>
+            <li><a href="#Copy">func Copy(dst, src Value) int</a></li>
+            <li><a href="#DeepEqual">func DeepEqual(a1, a2 interface{}) bool</a></li>
+        </ul>
+    </ul>
+    <h4 id="pkg-examples">Examples <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#example-MakeFunc" onclick="$('#ex-MakeFunc').addClass('in').removeClass('collapse').height('auto')">MakeFunc</a></li>
+        <li><a href="#example-StructTag" onclick="$('#ex-StructTag').addClass('in').removeClass('collapse').height('auto')">StructTag</a></li>
+    </ul>
+    <h3 id="pkg-constants">Constants <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>const (
+    <span id="SelectSend">SelectSend</span>    <span class="com">// case Chan &lt;- Send</span>
+    <span id="SelectRecv">SelectRecv</span>    <span class="com">// case &lt;-Chan:</span>
+    <span id="SelectDefault">SelectDefault</span> <span class="com">// default</span>
+)</pre>
+    <h3 id="ValueError">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/reflect/value.go?name=release#187">ValueError</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type ValueError struct {
+    <span id="ValueError.Method">Method</span> <a href="builtin.htm#string">string</a>
+    <span id="ValueError.Kind">Kind</span>   <a href="#Kind">Kind</a>
+}</pre>
+    <p>当一个Value类型值调用它不支持的方法时，将导致ValueError。具体情况参见各个方法。</p>
+    <h4 id="ValueError.Error">func (*ValueError) <a title="View Source" href="https://github.com/golang/go/blob/master/src/reflect/value.go?name=release#192">Error</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (e *<a href="#ValueError">ValueError</a>) Error() <a href="builtin.htm#string">string</a></pre>
+    <h3 id="Kind">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/reflect/type.go?name=release#208">Kind</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Kind <a href="builtin.htm#uint">uint</a></pre>
+    <p>Kind代表Type类型值表示的具体分类。零值表示非法分类。</p>
+    <pre>const (
+    <span id="Invalid">Invalid</span> <a href="#Kind">Kind</a> = <a href="builtin.htm#iota">iota</a>
+    <span id="Bool">Bool</span>
+    <span id="Int">Int</span>
+    <span id="Int8">Int8</span>
+    <span id="Int16">Int16</span>
+    <span id="Int32">Int32</span>
+    <span id="Int64">Int64</span>
+    <span id="Uint">Uint</span>
+    <span id="Uint8">Uint8</span>
+    <span id="Uint16">Uint16</span>
+    <span id="Uint32">Uint32</span>
+    <span id="Uint64">Uint64</span>
+    <span id="Uintptr">Uintptr</span>
+    <span id="Float32">Float32</span>
+    <span id="Float64">Float64</span>
+    <span id="Complex64">Complex64</span>
+    <span id="Complex128">Complex128</span>
+    <span id="Array">Array</span>
+    <span id="Chan">Chan</span>
+    <span id="Func">Func</span>
+    <span id="Interface">Interface</span>
+    <span id="Map">Map</span>
+    <span id="Ptr">Ptr</span>
+    <span id="Slice">Slice</span>
+    <span id="String">String</span>
+    <span id="Struct">Struct</span>
+    <span id="UnsafePointer">UnsafePointer</span>
+)</pre>
+    <h4 id="Kind.String">func (Kind) <a title="View Source" href="https://github.com/golang/go/blob/master/src/reflect/type.go?name=release#406">String</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (k <a href="#Kind">Kind</a>) String() <a href="builtin.htm#string">string</a></pre>
+    <h3 id="StringHeader">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/reflect/value.go?name=release#1914">StringHeader</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type StringHeader struct {
+    <span id="StringHeader.Data">Data</span> <a href="builtin.htm#uintptr">uintptr</a>
+    <span id="StringHeader.Len">Len</span>  <a href="builtin.htm#int">int</a>
+}</pre>
+    <p>StringHeader代表一个运行时的字符串。它不保证使用的可移植性、安全性；它的实现在未来的版本里也可能会改变。而且，Data字段也不能保证它指向的数据不会被当成垃圾收集，因此程序必须维护一个独立的、类型正确的指向底层数据的指针。</a></p>
+    <h3 id="SliceHeader">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/reflect/value.go?name=release#1931">SliceHeader</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type SliceHeader struct {
+    <span id="SliceHeader.Data">Data</span> <a href="builtin.htm#uintptr">uintptr</a>
+    <span id="SliceHeader.Len">Len</span>  <a href="builtin.htm#int">int</a>
+    <span id="SliceHeader.Cap">Cap</span>  <a href="builtin.htm#int">int</a>
+}</pre>
+    <p>SliceHeader代表一个运行时的切片。它不保证使用的可移植性、安全性；它的实现在未来的版本里也可能会改变。而且，Data字段也不能保证它指向的数据不会被当成垃圾收集，因此程序必须维护一个独立的、类型正确的指向底层数据的指针。</p>
+    <h3 id="StructField">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/reflect/type.go?name=release#734">StructField</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type StructField struct {
+    <span class="com">// Name是字段的名字。PkgPath是非导出字段的包路径，对导出字段该字段为""。</span>
+    <span class="com">// 参见http://golang.org/ref/spec#Uniqueness_of_identifiers</span>
+    <span id="StructField.Name">Name</span>    <a href="builtin.htm#string">string</a>
+    <span id="StructField.PkgPath">PkgPath</span> <a href="builtin.htm#string">string</a>
+    <span id="StructField.Type">Type</span>      <a href="#Type">Type</a>      <span class="com">// 字段的类型</span>
+    <span id="StructField.Tag">Tag</span>       <a href="#StructTag">StructTag</a> <span class="com">// 字段的标签</span>
+    <span id="StructField.Offset">Offset</span>    <a href="builtin.htm#uintptr">uintptr</a>   <span class="com">// 字段在结构体中的字节偏移量</span>
+    <span id="StructField.Index">Index</span>     []<a href="builtin.htm#int">int</a>     <span class="com">// 用于Type.FieldByIndex时的索引切片</span>
+    <span id="StructField.Anonymous">Anonymous</span> <a href="builtin.htm#bool">bool</a>      <span class="com">// 是否匿名字段</span>
+}</pre>
+    <p>StructField类型描述结构体中的一个字段的信息。</p>
+    <h3 id="StructTag">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/reflect/type.go?name=release#757">StructTag</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type StructTag <a href="builtin.htm#string">string</a></pre>
+    <p align="left">StructTag是结构体字段的标签。</p>
+    <p align="left">一般来说，标签字符串是（可选的）空格分隔的一连串`key:"value"`对。每个键都是不包含控制字符、空格、双引号、冒号的非空字符串。每个值都应被双引号括起来，使用go字符串字面语法。</p>
+    <div class="panel-group">
+        <div class="panel panel-default" id="example-StructTag">
+            <div class="panel-heading" onclick="document.getElementById('ex-StructTag').style.display = document.getElementById('ex-StructTag').style.display=='none'?'block':'none';">Example</div>
+            <div id="ex-StructTag" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre>type S struct {
+    F string `species:&#34;gopher&#34; color:&#34;blue&#34;`
+}
+s := S{}
+st := reflect.TypeOf(s)
+field := st.Field(0)
+fmt.Println(field.Tag.Get(&#34;color&#34;), field.Tag.Get(&#34;species&#34;))</pre>
+                    <p>Output:
+                    <pre>blue gopher
+</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    <h4 id="StructTag.Get">func (StructTag) <a title="View Source" href="https://github.com/golang/go/blob/master/src/reflect/type.go?name=release#763">Get</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (tag <a href="#StructTag">StructTag</a>) Get(key <a href="builtin.htm#string">string</a>) <a href="builtin.htm#string">string</a></pre>
+    <p>Get方法返回标签字符串中键key对应的值。如果标签中没有该键，会返回""。如果标签不符合标准格式，Get的返回值是不确定的。</p>
+    <h3 id="ChanDir">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/reflect/type.go?name=release#280">ChanDir</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type ChanDir <a href="builtin.htm#int">int</a></pre>
+    <p>ChanDir表示通道类型的方向。</p>
+    <pre>const (
+    <span id="RecvDir">RecvDir</span> <a href="#ChanDir">ChanDir</a>             = 1 &lt;&lt; <a href="builtin.htm#iota">iota</a> <span class="com">// &lt;-chan</span>
+    <span id="SendDir">SendDir</span>                                 <span class="com">// chan&lt;-</span>
+    <span id="BothDir">BothDir</span> = <a href="#RecvDir">RecvDir</a> | <a href="#SendDir">SendDir</a>             <span class="com">// chan</span>
+)</pre>
+    <h4 id="ChanDir.String">func (ChanDir) <a title="View Source" href="https://github.com/golang/go/blob/master/src/reflect/type.go?name=release#688">String</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (d <a href="#ChanDir">ChanDir</a>) String() <a href="builtin.htm#string">string</a></pre>
+    <h3 id="SelectDir">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/reflect/value.go?name=release#2074">SelectDir</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type SelectDir <a href="builtin.htm#int">int</a></pre>
+    <p>SelectDir描述一个SelectCase的通信方向。</p>
+    <h3 id="SelectCase">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/reflect/value.go?name=release#2102">SelectCase</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type SelectCase struct {
+    <span id="SelectCase.Dir">Dir</span>  <a href="#SelectDir">SelectDir</a> <span class="com">// case的方向</span>
+    <span id="SelectCase.Chan">Chan</span> <a href="#Value">Value</a>     <span class="com">// 使用的通道（收/发）</span>
+    <span id="SelectCase.Send">Send</span> <a href="#Value">Value</a>     <span class="com">// 用于发送的值</span>
+}</pre>
+    <p align="left">SelectCase描述select操作中的单条case。Case的类型由通信方向Dir决定。</p>
+    <p align="left">如果Dir是SelectDefault，该条case代表default case。Chan和Send字段必须是Value零值。</p>
+    <p align="left">如果Dir是SelectSend，该条case代表一个发送操作。Chan字段底层必须是一个chan类型，Send的底层必须是可以直接赋值给该chan类型成员类型的类型。如果Chan是Value零值，则不管Send字段是不是零值，该条case都会被忽略。</p>
+    <p align="left">如果Dir是SelectRecv，该条case代表一个接收操作。Chan字段底层必须是一个chan类型，而Send必须是一个Value零值。如果Chan是Value零值，该条case会被忽略，但Send字段仍需是Value零值。当该条case被执行时，接收到的值会被Select返回。</p>
+    <h3 id="Select">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/reflect/value.go?name=release#2115">Select</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Select(cases []<a href="#SelectCase">SelectCase</a>) (chosen <a href="builtin.htm#int">int</a>, recv <a href="#Value">Value</a>, recvOK <a href="builtin.htm#bool">bool</a>)</pre>
+    <p>Select函数执行cases切片描述的select操作。 类似go的select语句，它会阻塞直到至少一条case可以执行，从可执行的case中（伪）随机的选择一条，并执行该条case。它会返回选择执行的case的索引，以及如果执行的是接收case时，会返回接收到的值，以及一个布尔值说明该值是否对应于通道中某次发送的值（用以区分通道关闭时接收到的零值，此时recvOK会设为false）。</p>
+    <h3 id="Method">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/reflect/type.go?name=release#384">Method</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Method struct {
+    <span class="com">// Name是方法名。PkgPath是非导出字段的包路径，对导出字段该字段为""。</span>
+    <span class="com">// 结合PkgPath和Name可以从方法集中指定一个方法。</span>
+    <span class="com">// 参见http://golang.org/ref/spec#Uniqueness_of_identifiers</span>
+    <span id="Method.Name">Name</span>    <a href="builtin.htm#string">string</a>
+    <span id="Method.PkgPath">PkgPath</span> <a href="builtin.htm#string">string</a>
+    <span id="Method.Type">Type</span>  <a href="#Type">Type</a>  <span class="com">// 方法类型</span>
+    <span id="Method.Func">Func</span>  <a href="#Value">Value</a> <span class="com">// 方法的值</span>
+    <span id="Method.Index">Index</span> <a href="builtin.htm#int">int</a>   <span class="com">// 用于Type.Method的索引</span>
+}</pre>
+    <p>Method代表一个方法。</p>
+    <h3 id="Type">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/reflect/type.go?name=release#32">Type</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Type interface {
+    <span class="com">// Kind返回该接口的具体分类</span>
+    <span id="Type.Kind">Kind</span>() <a href="#Kind">Kind</a>
+    <span class="com">// Name返回该类型在自身包内的类型名，如果是未命名类型会返回""</span>
+    <span id="Type.Name">Name</span>() <a href="builtin.htm#string">string</a>
+    <span class="com">// PkgPath返回类型的包路径，即明确指定包的import路径，如"encoding/base64"</span>
+    <span class="com">// 如果类型为内建类型(string, error)或未命名类型(*T, struct{}, []int)，会返回""</span><span class="com"></span>
+    <span id="Type.PkgPath">PkgPath</span>() <a href="builtin.htm#string">string</a>
+    <span class="com">// 返回类型的字符串表示。该字符串可能会使用短包名（如用base64代替"encoding/base64"）</span>
+    <span class="com">// 也不保证每个类型的字符串表示不同。如果要比较两个类型是否相等，请直接用Type类型比较。</span>
+    <span id="Type.String">String</span>() <a href="builtin.htm#string">string</a>
+    <span class="com">// 返回要保存一个该类型的值需要多少字节；类似unsafe.Sizeof</span>
+    <span id="Type.Size">Size</span>() <a href="builtin.htm#uintptr">uintptr</a>
+    <span class="com">// 返回当从内存中申请一个该类型值时，会对齐的字节数</span>
+    <span id="Type.Align">Align</span>() <a href="builtin.htm#int">int</a>
+    <span class="com">// 返回当该类型作为结构体的字段时，会对齐的字节数</span>
+    <span id="Type.FieldAlign">FieldAlign</span>() <a href="builtin.htm#int">int</a>
+    <span class="com">// 如果该类型实现了u代表的接口，会返回真</span>
+    <span id="Type.Implements">Implements</span>(u <a href="#Type">Type</a>) <a href="builtin.htm#bool">bool</a>
+    <span class="com">// 如果该类型的值可以直接赋值给u代表的类型，返回真</span>
+    <span id="Type.AssignableTo">AssignableTo</span>(u <a href="#Type">Type</a>) <a href="builtin.htm#bool">bool</a>
+    <span class="com">// 如该类型的值可以转换为u代表的类型，返回真</span>
+    <span id="Type.ConvertibleTo">ConvertibleTo</span>(u <a href="#Type">Type</a>) <a href="builtin.htm#bool">bool</a>
+    <span class="com">// 返回该类型的字位数。如果该类型的Kind不是Int、Uint、Float或Complex，会panic</span><span class="com"></span>
+    <span id="Type.Bits">Bits</span>() <a href="builtin.htm#int">int</a>
+    <span class="com">// 返回array类型的长度，如非数组类型将panic</span>
+    <span id="Type.Len">Len</span>() <a href="builtin.htm#int">int</a>
+    <span class="com">// 返回该类型的元素类型，如果该类型的Kind不是Array、Chan、Map、Ptr或Slice，会panic</span><span class="com"></span>
+    <span id="Type.Elem">Elem</span>() <a href="#Type">Type</a>
+    <span class="com">// 返回map类型的键的类型。如非映射类型将panic</span>
+    <span id="Type.Key">Key</span>() <a href="#Type">Type</a>
+    <span class="com">// 返回一个channel类型的方向，如非通道类型将会panic</span>
+    <span id="Type.ChanDir">ChanDir</span>() <a href="#ChanDir">ChanDir</a>
+    <span class="com">// 返回struct类型的字段数（匿名字段算作一个字段），如非结构体类型将panic</span>
+    <span id="Type.NumField">NumField</span>() <a href="builtin.htm#int">int</a>
+    <span class="com">// 返回struct类型的第i个字段的类型，如非结构体或者i不在[0, NumField())内将会panic</span><span class="com"></span>
+    <span id="Type.Field">Field</span>(i <a href="builtin.htm#int">int</a>) <a href="#StructField">StructField</a>
+    <span class="com">// 返回索引序列指定的嵌套字段的类型，</span>
+    <span class="com">// 等价于用索引中每个值链式调用本方法，如非结构体将会</a>panic</span>
+    <span id="Type.FieldByIndex">FieldByIndex</span>(index []<a href="builtin.htm#int">int</a>) <a href="#StructField">StructField</a>
+    <span class="com">// 返回该类型名为name的字段（会查找匿名字段及其子字段），</span>
+    <span class="com">// 布尔值说明是否找到，如非结构体将panic</span>
+    <span id="Type.FieldByName">FieldByName</span>(name <a href="builtin.htm#string">string</a>) (<a href="#StructField">StructField</a>, <a href="builtin.htm#bool">bool</a>)
+    <span class="com">// 返回该类型第一个字段名满足函数match的字段，布尔值说明是否找到，如非结构体将会panic</span><span class="com"></span>
+    <span id="Type.FieldByNameFunc">FieldByNameFunc</span>(match func(<a href="builtin.htm#string">string</a>) <a href="builtin.htm#bool">bool</a>) (<a href="#StructField">StructField</a>, <a href="builtin.htm#bool">bool</a>)
+    <span class="com">// 如果函数类型的最后一个输入参数是"..."形式的参数，IsVariadic返回真</span>
+    <span class="com">// 如果这样，t.In(t.NumIn() - 1)返回参数的隐式的实际类型（声明类型的切片）</span>
+    <span class="com">// 如非函数类型将panic</span>
+    <span id="Type.IsVariadic">IsVariadic</span>() <a href="builtin.htm#bool">bool</a>
+    <span class="com">// 返回func类型的参数个数，如果不是函数，将会panic</span>
+    <span id="Type.NumIn">NumIn</span>() <a href="builtin.htm#int">int</a>
+    <span class="com">// 返回func类型的第i个参数的类型，如非函数或者i不在[0, NumIn())内将会panic</span><span class="com"></span>
+    <span id="Type.In">In</span>(i <a href="builtin.htm#int">int</a>) <a href="#Type">Type</a>
+    <span class="com">// 返回func类型的返回值个数，如果不是函数，将会panic</span><span class="com"></span>
+    <span id="Type.NumOut">NumOut</span>() <a href="builtin.htm#int">int</a>
+    <span class="com">// 返回func类型的第i个返回值的类型，如非函数或者i不在[0, NumOut())内将会panic</span><span class="com"></span>
+    <span id="Type.Out">Out</span>(i <a href="builtin.htm#int">int</a>) <a href="#Type">Type</a>
+    <span class="com">// 返回该类型的方法集中方法的数目</span>
+    <span class="com">// 匿名字段的方法会被计算；主体类型的方法会屏蔽匿名字段的同名方法；</span>
+    <span class="com">// 匿名字段导致的歧义方法会滤除</span>
+    <span id="Type.NumMethod">NumMethod</span>() <a href="builtin.htm#int">int</a>
+    <span class="com">// 返回该类型方法集中的第i个方法，i不在[0, NumMethod())范围内时，将导致panic</span>
+    <span class="com">// 对非接口类型T或*T，返回值的Type字段和Func字段描述方法的未绑定函数状态</span><span class="com"></span>
+    <span class="com">// 对接口类型，返回值的Type字段描述方法的签名，Func字段为nil</span><span class="com"></span>
+    <span id="Type.Method">Method</span>(<a href="builtin.htm#int">int</a>) <a href="#Method">Method</a>
+    <span class="com">// 根据方法名返回该类型方法集中的方法，使用一个布尔值说明是否发现该方法</span>
+    <span class="com">// 对非接口类型T或*T，返回值的Type字段和Func字段描述方法的未绑定函数状态</span>
+    <span class="com">// 对接口类型，返回值的Type字段描述方法的签名，Func字段为nil</span>
+    <span id="Type.MethodByName">MethodByName</span>(<a href="builtin.htm#string">string</a>) (<a href="#Method">Method</a>, <a href="builtin.htm#bool">bool</a>)
+    <span class="com">// 内含隐藏或非导出方法</span>
+}</pre>
+    <p align="left">Type类型用来表示一个go类型。</p>
+    <p align="left">不是所有go类型的Type值都能使用所有方法。请参见每个方法的文档获取使用限制。在调用有分类限定的方法时，应先使用Kind方法获知类型的分类。调用该分类不支持的方法会导致运行时的panic。</p>
+    <h4 id="TypeOf">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/reflect/type.go?name=release#1005">TypeOf</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func TypeOf(i interface{}) <a href="#Type">Type</a></pre>
+    <p>TypeOf返回接口中保存的值的类型，TypeOf(nil)会返回nil。</p>
+    <h4 id="PtrTo">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/reflect/type.go?name=release#1044">PtrTo</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func PtrTo(t <a href="#Type">Type</a>) <a href="#Type">Type</a></pre>
+    <p>PtrTo返回类型t的指针的类型。</p>
+    <h4 id="SliceOf">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/reflect/type.go?name=release#1702">SliceOf</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func SliceOf(t <a href="#Type">Type</a>) <a href="#Type">Type</a></pre>
+    <p>SliceOf返回类型t的切片的类型。</p>
+    <h4 id="MapOf">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/reflect/type.go?name=release#1507">MapOf</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func MapOf(key, elem <a href="#Type">Type</a>) <a href="#Type">Type</a></pre>
+    <p>MapOf返回一个键类型为key，值类型为elem的映射类型。如果key代表的类型不是合法的映射键类型（即它未实现go的==操作符），本函数会panic。</p>
+    <h4 id="ChanOf">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/reflect/type.go?name=release#1437">ChanOf</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func ChanOf(dir <a href="#ChanDir">ChanDir</a>, t <a href="#Type">Type</a>) <a href="#Type">Type</a></pre>
+    <p>ChanOf返回元素类型为t、方向为dir的通道类型。运行时GC强制将通道的元素类型的大小限定为64kb。如果t的尺寸大于或等于该限制，本函数将会panic。</p>
+    <h3 id="Value">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/reflect/value.go?name=release#61">Value</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Value struct {
+    <span class="com">// 内含隐藏或非导出字段</span>
+}</pre>
+    <p align="left">Value为go值提供了反射接口。</p>
+    <p align="left">不是所有go类型值的Value表示都能使用所有方法。请参见每个方法的文档获取使用限制。在调用有分类限定的方法时，应先使用Kind方法获知该值的分类。调用该分类不支持的方法会导致运行时的panic。</p>
+    <p align="left">Value类型的零值表示不持有某个值。零值的IsValid方法返回false，其Kind方法返回Invalid，而String方法返回"&lt;invalid Value&gt;"，所有其它方法都会panic。绝大多数函数和方法都永远不返回Value零值。如果某个函数/方法返回了非法的Value，它的文档必须显式的说明具体情况。</p>
+    <p align="left">如果某个go类型值可以安全的用于多线程并发操作，它的Value表示也可以安全的用于并发。</p>
+    <h4 id="ValueOf">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/reflect/value.go?name=release#2268">ValueOf</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func ValueOf(i interface{}) <a href="#Value">Value</a></pre>
+    <p>ValueOf返回一个初始化为i接口保管的具体值的Value，ValueOf(nil)返回Value零值。</p>
+    <h4 id="Zero">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/reflect/value.go?name=release#2288">Zero</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func Zero(typ <a href="#Type">Type</a>) <a href="#Value">Value</a></pre>
+    <p>Zero返回一个持有类型typ的零值的Value。注意持有零值的Value和Value零值是两回事。Value零值表示不持有任何值。例如Zero(TypeOf(42))返回一个Kind为Int、值为0的Value。Zero的返回值不能设置也不会寻址。</p>
+    <h4 id="New">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/reflect/value.go?name=release#2302">New</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func New(typ <a href="#Type">Type</a>) <a href="#Value">Value</a></pre>
+    <p>New返回一个Value类型值，该值持有一个指向类型为typ的新申请的零值的指针，返回值的Type为PtrTo(typ)。</p>
+    <h4 id="NewAt">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/reflect/value.go?name=release#2313">NewAt</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func NewAt(typ <a href="#Type">Type</a>, p <a href="unsafe.htm">unsafe</a>.<a href="unsafe.htm#Pointer">Pointer</a>) <a href="#Value">Value</a></pre>
+    <p>NewAt返回一个Value类型值，该值持有一个指向类型为typ、地址为p的值的指针。</p>
+    <h4 id="Indirect">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/reflect/value.go?name=release#2259">Indirect</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func Indirect(v <a href="#Value">Value</a>) <a href="#Value">Value</a></pre>
+    <p>返回持有v持有的指针指向的值的Value。如果v持有nil指针，会返回Value零值；如果v不持有指针，会返回v。</p>
+    <h4 id="MakeSlice">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/reflect/value.go?name=release#2214">MakeSlice</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func MakeSlice(typ <a href="#Type">Type</a>, len, cap <a href="builtin.htm#int">int</a>) <a href="#Value">Value</a></pre>
+    <p>MakeSlice创建一个新申请的元素类型为typ，长度len容量cap的切片类型的Value值。</p>
+    <h4 id="MakeMap">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/reflect/value.go?name=release#2248">MakeMap</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func MakeMap(typ <a href="#Type">Type</a>) <a href="#Value">Value</a></pre>
+    <p>MakeMap创建一个特定映射类型的Value值。</p>
+    <h4 id="MakeChan">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/reflect/value.go?name=release#2233">MakeChan</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func MakeChan(typ <a href="#Type">Type</a>, buffer <a href="builtin.htm#int">int</a>) <a href="#Value">Value</a></pre>
+    <p>MakeChan创建一个元素类型为typ、有buffer个缓存的通道类型的Value值。</p>
+    <h4 id="MakeFunc">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/reflect/makefunc.go?name=release#43">MakeFunc</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func MakeFunc(typ <a href="#Type">Type</a>, fn func(args []<a href="#Value">Value</a>) (results []<a href="#Value">Value</a>)) <a href="#Value">Value</a></pre>
+    <p>MakeFunc返回一个具有给定类型、包装函数fn的函数的Value封装。当被调用时，该函数会：</p>
+    <pre>- 将提供给它的参数转化为Value切片
+- 执行results := fn(args)
+- 将results中每一个result依次排列作为返回值</pre>
+    <p align="left">函数fn的实现可以假设参数Value切片匹配typ类型指定的参数数目和类型。如果typ表示一个可变参数函数类型，参数切片中最后一个Value本身必须是一个包含所有可变参数的切片。fn返回的结果Value切片也必须匹配typ类型指定的结果数目和类型。</p>
+    <p align="left">Value.Call方法允许程序员使用Value调用一个有类型约束的函数；反过来，MakeFunc方法允许程序员使用Value实现一个有类型约束的函数。</p>
+    <p align="left">下例是一个用MakeFunc创建一个生成不同参数类型的swap函数的代码及其说明。</p>
+    <div class="panel-group">
+        <div class="panel panel-default" id="example-MakeFunc">
+            <div class="panel-heading" onclick="document.getElementById('ex-MakeFunc').style.display = document.getElementById('ex-MakeFunc').style.display=='none'?'block':'none';">Example</div>
+            <div id="ex-MakeFunc" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre><span class="com">// swap is the implementation passed to MakeFunc.</span>
+<span class="com">// It must work in terms of reflect.Values so that it is possible</span>
+<span class="com">// to write code without knowing beforehand what the types</span>
+<span class="com">// will be.</span>
+swap := func(in []reflect.Value) []reflect.Value {
+    return []reflect.Value{in[1], in[0]}
+}
+<span class="com">// makeSwap expects fptr to be a pointer to a nil function.</span>
+<span class="com">// It sets that pointer to a new function created with MakeFunc.</span>
+<span class="com">// When the function is invoked, reflect turns the arguments</span>
+<span class="com">// into Values, calls swap, and then turns swap&#39;s result slice</span>
+<span class="com">// into the values returned by the new function.</span>
+makeSwap := func(fptr interface{}) {
+    <span class="com">// fptr is a pointer to a function.</span>
+    <span class="com">// Obtain the function value itself (likely nil) as a reflect.Value</span>
+    <span class="com">// so that we can query its type and then set the value.</span>
+    fn := reflect.ValueOf(fptr).Elem()
+    <span class="com">// Make a function of the right type.</span>
+    v := reflect.MakeFunc(fn.Type(), swap)
+    <span class="com">// Assign it to the value fn represents.</span>
+    fn.Set(v)
+}
+<span class="com">// Make and call a swap function for ints.</span>
+var intSwap func(int, int) (int, int)
+makeSwap(&amp;intSwap)
+fmt.Println(intSwap(0, 1))
+<span class="com">// Make and call a swap function for float64s.</span>
+var floatSwap func(float64, float64) (float64, float64)
+makeSwap(&amp;floatSwap)
+fmt.Println(floatSwap(2.72, 3.14))</pre>
+                    <p>Output:
+                    <pre>1 0
+3.14 2.72
+</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    <h4 id="Append">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/reflect/value.go?name=release#1980">Append</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func Append(s <a href="#Value">Value</a>, x ...<a href="#Value">Value</a>) <a href="#Value">Value</a></pre>
+    <p>向切片类型的Value值s中添加一系列值，x等Value值持有的值必须能直接赋值给s持有的切片的元素类型。</p>
+    <h4 id="AppendSlice">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/reflect/value.go?name=release#1991">AppendSlice</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func AppendSlice(s, t <a href="#Value">Value</a>) <a href="#Value">Value</a></pre>
+    <p>类似Append函数，但接受一个切片类型的Value值。将切片t的每一个值添加到s。</p>
+    <h4 id="Value.IsValid">func (Value) <a title="View Source" href="https://github.com/golang/go/blob/master/src/reflect/value.go?name=release#1148">IsValid</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (v <a href="#Value">Value</a>) IsValid() <a href="builtin.htm#bool">bool</a></pre>
+    <p>IsValid返回v是否持有一个值。如果v是Value零值会返回假，此时v除了IsValid、String、Kind之外的方法都会导致panic。绝大多数函数和方法都永远不返回Value零值。如果某个函数/方法返回了非法的Value，它的文档必须显式的说明具体情况。</p>
+    <h4 id="Value.IsNil">func (Value) <a title="View Source" href="https://github.com/golang/go/blob/master/src/reflect/value.go?name=release#1123">IsNil</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (v <a href="#Value">Value</a>) IsNil() <a href="builtin.htm#bool">bool</a></pre>
+    <p>IsNil报告v持有的值是否为nil。v持有的值的分类必须是通道、函数、接口、映射、指针、切片之一；否则IsNil函数会导致panic。注意IsNil并不总是等价于go语言中值与nil的常规比较。例如：如果v是通过使用某个值为nil的接口调用ValueOf函数创建的，v.IsNil()返回真，但是如果v是Value零值，会panic。</p>
+    <h4 id="Value.Kind">func (Value) <a title="View Source" href="https://github.com/golang/go/blob/master/src/reflect/value.go?name=release#1154">Kind</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (v <a href="#Value">Value</a>) Kind() <a href="#Kind">Kind</a></pre>
+    <p>Kind返回v持有的值的分类，如果v是Value零值，返回值为Invalid</p>
+    <h4 id="Value.Type">func (Value) <a title="View Source" href="https://github.com/golang/go/blob/master/src/reflect/value.go?name=release#1834">Type</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (v <a href="#Value">Value</a>) Type() <a href="#Type">Type</a></pre>
+    <p>返回v持有的值的类型的Type表示。</p>
+    <h4 id="Value.Convert">func (Value) <a title="View Source" href="https://github.com/golang/go/blob/master/src/reflect/value.go?name=release#2355">Convert</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (v <a href="#Value">Value</a>) Convert(t <a href="#Type">Type</a>) <a href="#Value">Value</a></pre>
+    <p>Convert将v持有的值转换为类型为t的值，并返回该值的Value封装。如果go转换规则不支持这种转换，会panic。</p>
+    <h4 id="Value.Elem">func (Value) <a title="View Source" href="https://github.com/golang/go/blob/master/src/reflect/value.go?name=release#831">Elem</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (v <a href="#Value">Value</a>) Elem() <a href="#Value">Value</a></pre>
+    <p>Elem返回v持有的接口保管的值的Value封装，或者v持有的指针指向的值的Value封装。如果v的Kind不是Interface或Ptr会panic；如果v持有的值为nil，会返回Value零值。</p>
+    <h4 id="Value.Bool">func (Value) <a title="View Source" href="https://github.com/golang/go/blob/master/src/reflect/value.go?name=release#352">Bool</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (v <a href="#Value">Value</a>) Bool() <a href="builtin.htm#bool">bool</a></pre>
+    <p>返回v持有的布尔值，如果v的Kind不是Bool会panic</p>
+    <h4 id="Value.Int">func (Value) <a title="View Source" href="https://github.com/golang/go/blob/master/src/reflect/value.go?name=release#1031">Int</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (v <a href="#Value">Value</a>) Int() <a href="builtin.htm#int64">int64</a></pre>
+    <p>返回v持有的有符号整数（表示为int64），如果v的Kind不是Int、Int8、Int16、Int32、Int64会panic</p>
+    <h4 id="Value.OverflowInt">func (Value) <a title="View Source" href="https://github.com/golang/go/blob/master/src/reflect/value.go?name=release#1361">OverflowInt</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (v <a href="#Value">Value</a>) OverflowInt(x <a href="builtin.htm#int64">int64</a>) <a href="builtin.htm#bool">bool</a></pre>
+    <p>如果v持有值的类型不能无溢出的表示x，会返回真。如果v的Kind不是Int、Int8、Int16、Int32、Int64会panic</p>
+    <h4 id="Value.Uint">func (Value) <a title="View Source" href="https://github.com/golang/go/blob/master/src/reflect/value.go?name=release#1867">Uint</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (v <a href="#Value">Value</a>) Uint() <a href="builtin.htm#uint64">uint64</a></pre>
+    <p>返回v持有的无符号整数（表示为uint64），如v的Kind不是Uint、Uintptr、Uint8、Uint16、Uint32、Uint64会panic</p>
+    <h4 id="Value.OverflowUint">func (Value) <a title="View Source" href="https://github.com/golang/go/blob/master/src/reflect/value.go?name=release#1374">OverflowUint</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (v <a href="#Value">Value</a>) OverflowUint(x <a href="builtin.htm#uint64">uint64</a>) <a href="builtin.htm#bool">bool</a></pre>
+    <p>如果v持有值的类型不能无溢出的表示x，会返回真。如果v的Kind不是Uint、Uintptr、Uint8、Uint16、Uint32、Uint64会panic</p>
+    <h4 id="Value.Float">func (Value) <a title="View Source" href="https://github.com/golang/go/blob/master/src/reflect/value.go?name=release#948">Float</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (v <a href="#Value">Value</a>) Float() <a href="builtin.htm#float64">float64</a></pre>
+    <p>返回v持有的浮点数（表示为float64），如果v的Kind不是Float32、Float64会panic</p>
+    <h4 id="Value.OverflowFloat">func (Value) <a title="View Source" href="https://github.com/golang/go/blob/master/src/reflect/value.go?name=release#1341">OverflowFloat</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (v <a href="#Value">Value</a>) OverflowFloat(x <a href="builtin.htm#float64">float64</a>) <a href="builtin.htm#bool">bool</a></pre>
+    <p>如果v持有值的类型不能无溢出的表示x，会返回真。如果v的Kind不是Float32、Float64会panic</p>
+    <h4 id="Value.Complex">func (Value) <a title="View Source" href="https://github.com/golang/go/blob/master/src/reflect/value.go?name=release#812">Complex</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (v <a href="#Value">Value</a>) Complex() <a href="builtin.htm#complex128">complex128</a></pre>
+    <p>返回v持有的复数（表示为complex64），如果v的Kind不是Complex64、Complex128会panic</p>
+    <h4 id="Value.OverflowComplex">func (Value) <a title="View Source" href="https://github.com/golang/go/blob/master/src/reflect/value.go?name=release#1328">OverflowComplex</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (v <a href="#Value">Value</a>) OverflowComplex(x <a href="builtin.htm#complex128">complex128</a>) <a href="builtin.htm#bool">bool</a></pre>
+    <p>如果v持有值的类型不能无溢出的表示x，会返回真。如果v的Kind不是Complex64、Complex128会panic</p>
+    <h4 id="Value.Pointer">func (Value) <a title="View Source" href="https://github.com/golang/go/blob/master/src/reflect/value.go?name=release#1399">Pointer</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (v <a href="#Value">Value</a>) Pointer() <a href="builtin.htm#uintptr">uintptr</a></pre>
+    <p align="left">将v持有的值作为一个指针返回。本方法返回值不是unsafe.Pointer类型，以避免程序员不显式导入unsafe包却得到unsafe.Pointer类型表示的指针。如果v的Kind不是Chan、Func、Map、Ptr、Slice或UnsafePointer会panic。</p>
+    <p align="left">如果v的Kind是Func，返回值是底层代码的指针，但并不足以用于区分不同的函数；只能保证当且仅当v持有函数类型零值nil时，返回值为0。</p>
+    <p align="left">如果v的Kind是Slice，返回值是指向切片第一个元素的指针。如果持有的切片为nil，返回值为0；如果持有的切片没有元素但不是nil，返回值不会是0。</p>
+    <h4 id="Value.Bytes">func (Value) <a title="View Source" href="https://github.com/golang/go/blob/master/src/reflect/value.go?name=release#362">Bytes</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (v <a href="#Value">Value</a>) Bytes() []<a href="builtin.htm#byte">byte</a></pre>
+    <p>返回v持有的[]byte类型值。如果v持有的值的类型不是[]byte会panic。</p>
+    <h4 id="Value.String">func (Value) <a title="View Source" href="https://github.com/golang/go/blob/master/src/reflect/value.go?name=release#1800">String</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (v <a href="#Value">Value</a>) String() <a href="builtin.htm#string">string</a></pre>
+    <p>返回v持有的值的字符串表示。因为go的String方法的惯例，Value的String方法比较特别。和其他获取v持有值的方法不同：v的Kind是String时，返回该字符串；v的Kind不是String时也不会panic而是返回格式为"&lt;T value&gt;"的字符串，其中T是v持有值的类型。</p>
+    <h4 id="Value.InterfaceData">func (Value) <a title="View Source" href="https://github.com/golang/go/blob/master/src/reflect/value.go?name=release#1105">InterfaceData</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (v <a href="#Value">Value</a>) InterfaceData() [2]<a href="builtin.htm#uintptr">uintptr</a></pre>
+    <p>返回v持有的接口类型值的数据。如果v的Kind不是Interface会panic</p>
+    <h4 id="Value.Slice">func (Value) <a title="View Source" href="https://github.com/golang/go/blob/master/src/reflect/value.go?name=release#1698">Slice</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (v <a href="#Value">Value</a>) Slice(i, j <a href="builtin.htm#int">int</a>) <a href="#Value">Value</a></pre>
+    <p>返回v[i:j]（v持有的切片的子切片的Value封装）；如果v的Kind不是Array、Slice或String会panic。如果v是一个不可寻址的数组，或者索引出界，也会panic</p>
+    <h4 id="Value.Slice3">func (Value) <a title="View Source" href="https://github.com/golang/go/blob/master/src/reflect/value.go?name=release#1752">Slice3</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (v <a href="#Value">Value</a>) Slice3(i, j, k <a href="builtin.htm#int">int</a>) <a href="#Value">Value</a></pre>
+    <p>是Slice的3参数版本，返回v[i:j:k] ；如果v的Kind不是Array、Slice或String会panic。如果v是一个不可寻址的数组，或者索引出界，也会panic。</p>
+    <h4 id="Value.Cap">func (Value) <a title="View Source" href="https://github.com/golang/go/blob/master/src/reflect/value.go?name=release#788">Cap</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (v <a href="#Value">Value</a>) Cap() <a href="builtin.htm#int">int</a></pre>
+    <p>返回v持有值的容量，如果v的Kind不是Array、Chan、Slice会panic</p>
+    <h4 id="Value.Len">func (Value) <a title="View Source" href="https://github.com/golang/go/blob/master/src/reflect/value.go?name=release#1160">Len</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (v <a href="#Value">Value</a>) Len() <a href="builtin.htm#int">int</a></pre>
+    <p>返回v持有值的长度，如果v的Kind不是Array、Chan、Slice、Map、String会panic</p>
+    <h4 id="Value.Index">func (Value) <a title="View Source" href="https://github.com/golang/go/blob/master/src/reflect/value.go?name=release#969">Index</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (v <a href="#Value">Value</a>) Index(i <a href="builtin.htm#int">int</a>) <a href="#Value">Value</a></pre>
+    <p>返回v持有值的第i个元素。如果v的Kind不是Array、Chan、Slice、String，或者i出界，会panic</p>
+    <h4 id="Value.MapIndex">func (Value) <a title="View Source" href="https://github.com/golang/go/blob/master/src/reflect/value.go?name=release#1184">MapIndex</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (v <a href="#Value">Value</a>) MapIndex(key <a href="#Value">Value</a>) <a href="#Value">Value</a></pre>
+    <p>返回v持有值里key持有值为键对应的值的Value封装。如果v的Kind不是Map会panic。如果未找到对应值或者v持有值是nil映射，会返回Value零值。key的持有值必须可以直接赋值给v持有值类型的键类型。</p>
+    <h4 id="Value.MapKeys">func (Value) <a title="View Source" href="https://github.com/golang/go/blob/master/src/reflect/value.go?name=release#1229">MapKeys</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (v <a href="#Value">Value</a>) MapKeys() []<a href="#Value">Value</a></pre>
+    <p>返回一个包含v持有值中所有键的Value封装的切片，该切片未排序。如果v的Kind不是Map会panic。如果v持有值是nil，返回空切片（非nil）。</p>
+    <h4 id="Value.NumField">func (Value) <a title="View Source" href="https://github.com/golang/go/blob/master/src/reflect/value.go?name=release#1320">NumField</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (v <a href="#Value">Value</a>) NumField() <a href="builtin.htm#int">int</a></pre>
+    <p>返回v持有的结构体类型值的字段数，如果v的Kind不是Struct会panic</p>
+    <h4 id="Value.Field">func (Value) <a title="View Source" href="https://github.com/golang/go/blob/master/src/reflect/value.go?name=release#866">Field</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (v <a href="#Value">Value</a>) Field(i <a href="builtin.htm#int">int</a>) <a href="#Value">Value</a></pre>
+    <p>返回结构体的第i个字段（的Value封装）。如果v的Kind不是Struct或i出界会panic</p>
+    <h4 id="Value.FieldByIndex">func (Value) <a title="View Source" href="https://github.com/golang/go/blob/master/src/reflect/value.go?name=release#907">FieldByIndex</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (v <a href="#Value">Value</a>) FieldByIndex(index []<a href="builtin.htm#int">int</a>) <a href="#Value">Value</a></pre>
+    <p>返回索引序列指定的嵌套字段的Value表示，等价于用索引中的值链式调用本方法，如v的Kind非Struct将会panic</p>
+    <h4 id="Value.FieldByName">func (Value) <a title="View Source" href="https://github.com/golang/go/blob/master/src/reflect/value.go?name=release#926">FieldByName</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (v <a href="#Value">Value</a>) FieldByName(name <a href="builtin.htm#string">string</a>) <a href="#Value">Value</a></pre>
+    <p>返回该类型名为name的字段（的Value封装）（会查找匿名字段及其子字段），如果v的Kind不是Struct会panic；如果未找到会返回Value零值。</p>
+    <h4 id="Value.FieldByNameFunc">func (Value) <a title="View Source" href="https://github.com/golang/go/blob/master/src/reflect/value.go?name=release#938">FieldByNameFunc</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (v <a href="#Value">Value</a>) FieldByNameFunc(match func(<a href="builtin.htm#string">string</a>) <a href="builtin.htm#bool">bool</a>) <a href="#Value">Value</a></pre>
+    <p>返回该类型第一个字段名满足match的字段（的Value封装）（会查找匿名字段及其子字段），如果v的Kind不是Struct会panic；如果未找到会返回Value零值。</p>
+    <h4 id="Value.Recv">func (Value) <a title="View Source" href="https://github.com/golang/go/blob/master/src/reflect/value.go?name=release#1435">Recv</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (v <a href="#Value">Value</a>) Recv() (x <a href="#Value">Value</a>, ok <a href="builtin.htm#bool">bool</a>)</pre>
+    <p>方法从v持有的通道接收并返回一个值（的Value封装）。如果v的Kind不是Chan会panic。方法会阻塞直到获取到值。如果返回值x对应于某个发送到v持有的通道的值，ok为真；如果因为通道关闭而返回，x为Value零值而ok为假。</p>
+    <h4 id="Value.TryRecv">func (Value) <a title="View Source" href="https://github.com/golang/go/blob/master/src/reflect/value.go?name=release#1817">TryRecv</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (v <a href="#Value">Value</a>) TryRecv() (x <a href="#Value">Value</a>, ok <a href="builtin.htm#bool">bool</a>)</pre>
+    <p>TryRecv尝试从v持有的通道接收一个值，但不会阻塞。如果v的Kind不是Chan会panic。如果方法成功接收到一个值，会返回该值（的Value封装）和true；如果不能无阻塞的接收到值，返回Value零值和false；如果因为通道关闭而返回，返回值x是持有通道元素类型的零值的Value和false。</p>
+    <h4 id="Value.Send">func (Value) <a title="View Source" href="https://github.com/golang/go/blob/master/src/reflect/value.go?name=release#1470">Send</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (v <a href="#Value">Value</a>) Send(x <a href="#Value">Value</a>)</pre>
+    <p>方法向v持有的通道发送x持有的值。如果v的Kind不是Chan，或者x的持有值不能直接赋值给v持有通道的元素类型，会panic。</p>
+    <h4 id="Value.TrySend">func (Value) <a title="View Source" href="https://github.com/golang/go/blob/master/src/reflect/value.go?name=release#1827">TrySend</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (v <a href="#Value">Value</a>) TrySend(x <a href="#Value">Value</a>) <a href="builtin.htm#bool">bool</a></pre>
+    <p>TrySend尝试向v持有的通道发送x持有的值，但不会阻塞。如果v的Kind不是Chan会panic。如果成功发送会返回真，否则返回假。x的持有值必须可以直接赋值给v持有通道的元素类型。</p>
+    <h4 id="Value.Close">func (Value) <a title="View Source" href="https://github.com/golang/go/blob/master/src/reflect/value.go?name=release#804">Close</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (v <a href="#Value">Value</a>) Close()</pre>
+    <p>关闭v持有的通道，如果v的Kind不是Chan会panic</p>
+    <h4 id="Value.Call">func (Value) <a title="View Source" href="https://github.com/golang/go/blob/master/src/reflect/value.go?name=release#408">Call</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (v <a href="#Value">Value</a>) Call(in []<a href="#Value">Value</a>) []<a href="#Value">Value</a></pre>
+    <p>Call方法使用输入的参数in调用v持有的函数。例如，如果len(in) == 3，v.Call(in)代表调用v(in[0], in[1], in[2])（其中Value值表示其持有值）。如果v的Kind不是Func会panic。它返回函数所有输出结果的Value封装的切片。和go代码一样，每一个输入实参的持有值都必须可以直接赋值给函数对应输入参数的类型。如果v持有值是可变参数函数，Call方法会自行创建一个代表可变参数的切片，将对应可变参数的值都拷贝到里面。</p>
+    <h4 id="Value.CallSlice">func (Value) <a title="View Source" href="https://github.com/golang/go/blob/master/src/reflect/value.go?name=release#421">CallSlice</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (v <a href="#Value">Value</a>) CallSlice(in []<a href="#Value">Value</a>) []<a href="#Value">Value</a></pre>
+    <p>CallSlice调用v持有的可变参数函数，会将切片类型的in[len(in)-1]（的成员）分配给v的最后的可变参数。例如，如果len(in) == 3，v.Call(in)代表调用v(in[0], in[1], in[2])（其中Value值表示其持有值，可变参数函数的可变参数位置提供一个切片并跟三个点号代表"解切片"）。如果v的Kind不是Func或者v的持有值不是可变参数函数，会panic。它返回函数所有输出结果的Value封装的切片。和go代码一样，每一个输入实参的持有值都必须可以直接赋值给函数对应输入参数的类型。</p>
+    <h4 id="Value.NumMethod">func (Value) <a title="View Source" href="https://github.com/golang/go/blob/master/src/reflect/value.go?name=release#1289">NumMethod</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (v <a href="#Value">Value</a>) NumMethod() <a href="builtin.htm#int">int</a></pre>
+    <p>返回v持有值的方法集的方法数目。</p>
+    <h4 id="Value.Method">func (Value) <a title="View Source" href="https://github.com/golang/go/blob/master/src/reflect/value.go?name=release#1272">Method</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (v <a href="#Value">Value</a>) Method(i <a href="builtin.htm#int">int</a>) <a href="#Value">Value</a></pre>
+    <p>返回v持有值类型的第i个方法的已绑定（到v的持有值的）状态的函数形式的Value封装。返回值调用Call方法时不应包含接收者；返回值持有的函数总是使用v的持有者作为接收者（即第一个参数）。如果i出界，或者v的持有值是接口类型的零值（nil），会panic。</p>
+    <h4 id="Value.MethodByName">func (Value) <a title="View Source" href="https://github.com/golang/go/blob/master/src/reflect/value.go?name=release#1304">MethodByName</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (v <a href="#Value">Value</a>) MethodByName(name <a href="builtin.htm#string">string</a>) <a href="#Value">Value</a></pre>
+    <p>返回v的名为name的方法的已绑定（到v的持有值的）状态的函数形式的Value封装。返回值调用Call方法时不应包含接收者；返回值持有的函数总是使用v的持有者作为接收者（即第一个参数）。如果未找到该方法，会返回一个Value零值。</p>
+    <h4 id="Value.CanAddr">func (Value) <a title="View Source" href="https://github.com/golang/go/blob/master/src/reflect/value.go?name=release#387">CanAddr</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (v <a href="#Value">Value</a>) CanAddr() <a href="builtin.htm#bool">bool</a></pre>
+    <p>返回是否可以获取v持有值的指针。可以获取指针的值被称为可寻址的。如果一个值是切片或可寻址数组的元素、可寻址结构体的字段、或从指针解引用得到的，该值即为可寻址的。</p>
+    <h4 id="Value.Addr">func (Value) <a title="View Source" href="https://github.com/golang/go/blob/master/src/reflect/value.go?name=release#343">Addr</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (v <a href="#Value">Value</a>) Addr() <a href="#Value">Value</a></pre>
+    <p>函数返回一个持有指向v持有者的指针的Value封装。如果v.CanAddr()返回假，调用本方法会panic。Addr一般用于获取结构体字段的指针或者切片的元素（的Value封装）以便调用需要指针类型接收者的方法。</p>
+    <h4 id="Value.UnsafeAddr">func (Value) <a title="View Source" href="https://github.com/golang/go/blob/master/src/reflect/value.go?name=release#1897">UnsafeAddr</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (v <a href="#Value">Value</a>) UnsafeAddr() <a href="builtin.htm#uintptr">uintptr</a></pre>
+    <p>返回指向v持有数据的地址的指针（表示为uintptr）以用作高级用途，如果v不可寻址会panic。</p>
+    <h4 id="Value.CanInterface">func (Value) <a title="View Source" href="https://github.com/golang/go/blob/master/src/reflect/value.go?name=release#1057">CanInterface</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (v <a href="#Value">Value</a>) CanInterface() <a href="builtin.htm#bool">bool</a></pre>
+    <p>如果CanInterface返回真，v可以不导致panic的调用Interface方法。</p>
+    <h4 id="Value.Interface">func (Value) <a title="View Source" href="https://github.com/golang/go/blob/master/src/reflect/value.go?name=release#1069">Interface</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (v <a href="#Value">Value</a>) Interface() (i interface{})</pre>
+    <p>本方法返回v当前持有的值（表示为/保管在interface{}类型），等价于：</p>
+    <pre>var i interface{} = (v&#39;s underlying value)
+</pre>
+    <p>如果v是通过访问非导出结构体字段获取的，会导致panic。</p>
+    <h4 id="Value.CanSet">func (Value) <a title="View Source" href="https://github.com/golang/go/blob/master/src/reflect/value.go?name=release#396">CanSet</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (v <a href="#Value">Value</a>) CanSet() <a href="builtin.htm#bool">bool</a></pre>
+    <p>如果v持有的值可以被修改，CanSet就会返回真。只有一个Value持有值可以被寻址同时又不是来自非导出字段时，它才可以被修改。如果CanSet返回假，调用Set或任何限定类型的设置函数（如SetBool、SetInt64）都会panic。</p>
+    <h4 id="Value.SetBool">func (Value) <a title="View Source" href="https://github.com/golang/go/blob/master/src/reflect/value.go?name=release#1518">SetBool</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (v <a href="#Value">Value</a>) SetBool(x <a href="builtin.htm#bool">bool</a>)</pre>
+    <p>设置v的持有值。如果v的Kind不是Bool或者v.CanSet()返回假，会panic。</p>
+    <h4 id="Value.SetInt">func (Value) <a title="View Source" href="https://github.com/golang/go/blob/master/src/reflect/value.go?name=release#1576">SetInt</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (v <a href="#Value">Value</a>) SetInt(x <a href="builtin.htm#int64">int64</a>)</pre>
+    <p>设置v的持有值。如果v的Kind不是Int、Int8、Int16、Int32、Int64之一或者v.CanSet()返回假，会panic。</p>
+    <h4 id="Value.SetUint">func (Value) <a title="View Source" href="https://github.com/golang/go/blob/master/src/reflect/value.go?name=release#1659">SetUint</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (v <a href="#Value">Value</a>) SetUint(x <a href="builtin.htm#uint64">uint64</a>)</pre>
+    <p>设置v的持有值。如果v的Kind不是Uint、Uintptr、Uint8、Uint16、Uint32、Uint64或者v.CanSet()返回假，会panic。</p>
+    <h4 id="Value.SetFloat">func (Value) <a title="View Source" href="https://github.com/golang/go/blob/master/src/reflect/value.go?name=release#1562">SetFloat</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (v <a href="#Value">Value</a>) SetFloat(x <a href="builtin.htm#float64">float64</a>)</pre>
+    <p>设置v的持有值。如果v的Kind不是Float32、Float64或者v.CanSet()返回假，会panic。</p>
+    <h4 id="Value.SetComplex">func (Value) <a title="View Source" href="https://github.com/golang/go/blob/master/src/reflect/value.go?name=release#1548">SetComplex</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (v <a href="#Value">Value</a>) SetComplex(x <a href="builtin.htm#complex128">complex128</a>)</pre>
+    <p>设置v的持有值。如果v的Kind不是Complex64、Complex128或者v.CanSet()返回假，会panic。</p>
+    <h4 id="Value.SetBytes">func (Value) <a title="View Source" href="https://github.com/golang/go/blob/master/src/reflect/value.go?name=release#1526">SetBytes</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (v <a href="#Value">Value</a>) SetBytes(x []<a href="builtin.htm#byte">byte</a>)</pre>
+    <p>设置v的持有值。如果v持有值不是[]byte类型或者v.CanSet()返回假，会panic。</p>
+    <h4 id="Value.SetString">func (Value) <a title="View Source" href="https://github.com/golang/go/blob/master/src/reflect/value.go?name=release#1689">SetString</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (v <a href="#Value">Value</a>) SetString(x <a href="builtin.htm#string">string</a>)</pre>
+    <p>设置v的持有值。如果v的Kind不是String或者v.CanSet()返回假，会panic。</p>
+    <h4 id="Value.SetPointer">func (Value) <a title="View Source" href="https://github.com/golang/go/blob/master/src/reflect/value.go?name=release#1681">SetPointer</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (v <a href="#Value">Value</a>) SetPointer(x <a href="unsafe.htm">unsafe</a>.<a href="unsafe.htm#Pointer">Pointer</a>)</pre>
+    <p>设置v的持有值。如果v的Kind不是UnsafePointer或者v.CanSet()返回假，会panic。</p>
+    <h4 id="Value.SetCap">func (Value) <a title="View Source" href="https://github.com/golang/go/blob/master/src/reflect/value.go?name=release#1610">SetCap</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (v <a href="#Value">Value</a>) SetCap(n <a href="builtin.htm#int">int</a>)</pre>
+    <p>设定v持有值的容量。如果v的Kind不是Slice或者n出界（小于长度或超出容量），将导致panic</p>
+    <h4 id="Value.SetLen">func (Value) <a title="View Source" href="https://github.com/golang/go/blob/master/src/reflect/value.go?name=release#1597">SetLen</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (v <a href="#Value">Value</a>) SetLen(n <a href="builtin.htm#int">int</a>)</pre>
+    <p>设定v持有值的长度。如果v的Kind不是Slice或者n出界（小于零或超出容量），将导致panic</p>
+    <h4 id="Value.SetMapIndex">func (Value) <a title="View Source" href="https://github.com/golang/go/blob/master/src/reflect/value.go?name=release#1626">SetMapIndex</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (v <a href="#Value">Value</a>) SetMapIndex(key, val <a href="#Value">Value</a>)</pre>
+    <p>用来给v的映射类型持有值添加/修改键值对，如果val是Value零值，则是删除键值对。如果v的Kind不是Map，或者v的持有值是nil，将会panic。key的持有值必须可以直接赋值给v持有值类型的键类型。val的持有值必须可以直接赋值给v持有值类型的值类型。</p>
+    <h4 id="Value.Set">func (Value) <a title="View Source" href="https://github.com/golang/go/blob/master/src/reflect/value.go?name=release#1499">Set</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (v <a href="#Value">Value</a>) Set(x <a href="#Value">Value</a>)</pre>
+    <p>将v的持有值修改为x的持有值。如果v.CanSet()返回假，会panic。x的持有值必须能直接赋给v持有值的类型。</p>
+    <h3 id="Copy">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/reflect/value.go?name=release#2005">Copy</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Copy(dst, src <a href="#Value">Value</a>) <a href="builtin.htm#int">int</a></pre>
+    <p>将src中的值拷贝到dst，直到src被耗尽或者dst被装满，要求这二者都是slice或array，且元素类型相同。</p>
+    <h3 id="DeepEqual">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/reflect/deepequal.go?name=release#135">DeepEqual</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func DeepEqual(a1, a2 interface{}) <a href="builtin.htm#bool">bool</a></pre>
+    <p>用来判断两个值是否深度一致：除了类型相同；在可以时（主要是基本类型）会使用==；但还会比较array、slice的成员，map的键值对，结构体字段进行深入比对。map的键值对，对键只使用==，但值会继续往深层比对。DeepEqual函数可以正确处理循环的类型。函数类型只有都会nil时才相等；空切片不等于nil切片；还会考虑array、slice的长度、map键值对数。</p>
+    <h3 id="pkg-note-bug">Bugs <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <p><a title="View Source" href="https://github.com/golang/go/blob/master/src/reflect/type.go?name=release#192">☞</a>FieldByName及相关的函数会将名称相同的结构体字段视为相同的字段，即使它们是来自不同包的非导出字段。这导致如果结构体类型t包含多个名为x的字段的话（被不同的包嵌入）t.FieldByName("x")的行为没有良好的定义。FieldByName可能会返回其中一个名为x的字段，也可能报告说没有这个字段。细节参见golang.org/issue/4876。    </div>
+</body>
+</html>

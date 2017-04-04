@@ -1,0 +1,41 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="./site.css" rel="stylesheet">
+<title>html</title>
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package html</h2>
+    <p><code>import "html"</code>
+    <p>html包提供了用于转义和解转义HTML文本的函数。</p>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#EscapeString">func EscapeString(s string) string</a></li>
+        <li><a href="#UnescapeString">func UnescapeString(s string) string</a>    </li>
+    </ul>
+    <h3 id="EscapeString">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/html/escape.go?name=release#229">EscapeString</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func EscapeString(s <a href="builtin.htm#string">string</a>) <a href="builtin.htm#string">string</a></pre>
+    <p align="left">EscapeString函数将特定的一些字符转为逸码后的字符实体，如"&lt;"变成"&amp;lt;"。</p>
+	<p align="left">它只会修改五个字符：&lt;、&gt;、&amp;、'、"。</p>
+    <p align="left">UnescapeString(EscapeString(s)) == s总是成立，但是两个函数顺序反过来则不一定成立。</p>
+    <h3 id="UnescapeString">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/html/escape.go?name=release#243">UnescapeString</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func UnescapeString(s <a href="builtin.htm#string">string</a>) <a href="builtin.htm#string">string</a></pre>
+    <p>UnescapeString函数将逸码的字符实体如"&amp;lt;"修改为原字符"&lt;"。它会解码一个很大范围内的字符实体，远比函数EscapeString转码范围大得多。例如"&amp;aacute;"解码为"á"，"&amp;#225;"和"&amp;xE1;"也会解码为该字符。</p>
+</div>
+
+<div id="x-footer" class="clearfix">
+  <div class="container">
+    <a href="http://studygolang.com/">Go语言中文网</a>
+    <span class="text-muted">|</span> <a href="http://golang.org/">Go Language</a>
+    <span class="pull-right"><a href="#">Back to top</a></span>
+  </div>
+</div>
+<script src="../assets/jquery-2.0.3.min.js"></script>
+<script src="../bootstrap.min.js"></script>
+<script src="../site.js"></script>
+</body>
+</html>

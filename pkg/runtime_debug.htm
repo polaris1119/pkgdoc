@@ -1,0 +1,73 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="./site.css" rel="stylesheet">
+<title>runtime/debug</title>
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package debug</h2>
+    <p><code>import "runtime/debug"</code>
+    <p>Package debug contains facilities for programs to debug themselves while
+        they are running.</p>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#FreeOSMemory">func FreeOSMemory()</a></li>
+        <li><a href="#SetGCPercent">func SetGCPercent(percent int) int</a></li>
+        <li><a href="#SetMaxStack">func SetMaxStack(bytes int) int</a></li>
+        <li><a href="#SetMaxThreads">func SetMaxThreads(threads int) int</a></li>
+        <li><a href="#SetPanicOnFault">func SetPanicOnFault(enabled bool) bool</a></li>
+        <li><a href="#GCStats">type GCStats</a></li>
+        <li><a href="#ReadGCStats">func ReadGCStats(stats *GCStats)</a></li>
+        <li><a href="#WriteHeapDump">func WriteHeapDump(fd uintptr)</a></li>
+        <li><a href="#Stack">func Stack() []byte</a></li>
+        <li><a href="#PrintStack">func PrintStack()</a></li>
+    </ul>
+    <h3 id="FreeOSMemory">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/runtime/debug/garbage.go?name=release#103">FreeOSMemory</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func FreeOSMemory()</pre>
+    <p>FreeOSMemory强制进行一次垃圾收集，以释放尽量多的内存回操作系统。（即使没有调用，运行时环境也会在后台任务里逐渐将内存释放给系统）</p>
+    <h3 id="SetGCPercent">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/runtime/debug/garbage.go?name=release#93">SetGCPercent</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func SetGCPercent(percent <a href="builtin.htm#int">int</a>) <a href="builtin.htm#int">int</a></pre>
+    <p>SetGCPercent设定垃圾收集的目标百分比：当新申请的内存大小占前次垃圾收集剩余可用内存大小的比率达到设定值时，就会触发垃圾收集。SetGCPercent返回之前的设定。初始值设定为环境变量GOGC的值；如果没有设置该环境变量，初始值为100。percent参数如果是负数值，会关闭垃圾收集。</p>
+    <h3 id="SetMaxStack">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/runtime/debug/garbage.go?name=release#117">SetMaxStack</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func SetMaxStack(bytes <a href="builtin.htm#int">int</a>) <a href="builtin.htm#int">int</a></pre>
+    <p align="left">SetMaxStack设置该以被单个go程调用栈可使用的内存最大值。如果任何go程在增加其调用栈时超出了该限制，程序就会崩溃。SetMaxStack返回之前的设置。默认设置在32位系统是250MB，在64位系统是1GB。</p>
+    <p align="left">SetMaxStack主要用于限制无限递归的go程带来的灾难。 它只会限制未来增长的调用栈。</p>
+    <h3 id="SetMaxThreads">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/runtime/debug/garbage.go?name=release#135">SetMaxThreads</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func SetMaxThreads(threads <a href="builtin.htm#int">int</a>) <a href="builtin.htm#int">int</a></pre>
+    <p align="left">SetMaxThreads设置go程序可以使用的最大操作系统线程数。如果程序试图使用超过该限制的线程数，就会导致程序崩溃。SetMaxThreads返回之前的设置，初始设置为10000个线程。</p>
+    <p align="left">该限制控制操作系统线程数，而非go程数。go程序只有在一个go程准备要执行，但现有的线程都阻塞在系统调用、cgo调用或被runtime.LockOSThread函数阻塞在其他go程时，才会创建一个新的线程。</p>
+    <p align="left">SetMaxThreads主要用于限制程序无限制的创造线程导致的灾难。目的是让程序在干掉操作系统之前，先干掉它自己。</p>
+    <h3 id="SetPanicOnFault">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/runtime/debug/garbage.go?name=release#148">SetPanicOnFault</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func SetPanicOnFault(enabled <a href="builtin.htm#bool">bool</a>) <a href="builtin.htm#bool">bool</a></pre>
+    <p>SetPanicOnFault控制程序在不期望（非nil）的地址出错时的运行时行为。这些错误一般是因为运行时内存破坏的bug引起的，因此默认反应是使程序崩溃。使用内存映射的文件或进行内存的不安全操作的程序可能会在非nil的地址出现错误；SetPanicOnFault允许这些程序请求运行时只触发一个panic，而不是崩溃。SetPanicOnFault只用于当前的go程。它返回之前的设置。</p>
+    <h3 id="GCStats">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/runtime/debug/garbage.go?name=release#14">GCStats</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type GCStats struct {
+    <span id="GCStats.LastGC">LastGC</span>         <a href="time.htm">time</a>.<a href="time.htm#Time">Time</a>       <span class="com">// 最近一次垃圾收集的时间</span>
+    <span id="GCStats.NumGC">NumGC</span>          <a href="builtin.htm#int64">int64</a>           <span class="com">// 垃圾收集的次数</span>
+    <span id="GCStats.PauseTotal">PauseTotal</span>     <a href="time.htm">time</a>.<a href="time.htm#Duration">Duration</a>   <span class="com">// 所有暂停收集垃圾消耗的总时间</span>
+    <span id="GCStats.Pause">Pause</span>          []<a href="time.htm">time</a>.<a href="time.htm#Duration">Duration</a> <span class="com">// 每次暂停收集垃圾的消耗的时间</span>
+    <span id="GCStats.PauseQuantiles">PauseQuantiles</span> []<a href="time.htm">time</a>.<a href="time.htm#Duration">Duration</a>
+}</pre>
+    <p>GCStats收集了近期垃圾收集的信息。</p>
+    <h3 id="ReadGCStats">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/runtime/debug/garbage.go?name=release#38">ReadGCStats</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func ReadGCStats(stats *<a href="#GCStats">GCStats</a>)</pre>
+    <p align="left">ReadGCStats将垃圾收集信息填入stats里。stats.Pause字段的长度是依赖于系统的；stats.Pause切片如果长度足够会被重用，否则会重新申请。ReadGCStats可能会使用stats.Pause切片的全部容量。</p>
+    <p align="left">如果stats.PauseQuantiles字段是非空的，ReadGCStats会在其中填写说明暂停时间分配的分位数。例如，如果len(stats.PauseQuantiles)为5，该字段会被填写上0%、25%、50%、75%、100%位置的分位数（就是说，不大于该位置暂停时间的暂停次数占总暂停次数的比例分别是0%、25%……）</p>
+    <h3 id="WriteHeapDump">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/runtime/debug/garbage.go?name=release#153">WriteHeapDump</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func WriteHeapDump(fd <a href="builtin.htm#uintptr">uintptr</a>)</pre>
+    <p align="left">WriteHeapDump将内存分配堆和其中对象的描述写入给定文件描述符fd指定的文件。</p>
+    <p align="left">堆转储格式参见<a href="http://golang.org/s/go13heapdump">http://golang.org/s/go13heapdump</a></p>
+    <h3 id="Stack">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/runtime/debug/stack.go?name=release#35">Stack</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Stack() []<a href="builtin.htm#byte">byte</a></pre>
+    <p align="left">Stack 返回格式化的go程的调用栈踪迹。 对于每一个调用栈，它包括原文件的行信息和PC值；对go函数还会尝试获取调用该函数的函数或方法，及调用所在行的文本。</p>
+    <p align="left">此函数已废弃。请使用runtime包中的Stack函数代替。</p>
+    <h3 id="PrintStack">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/runtime/debug/stack.go?name=release#25">PrintStack</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func PrintStack()</pre>
+    <p>PrintStack将Stack返回信息打印到标准错误输出。</p>
+</div>
+</body>
+</html>

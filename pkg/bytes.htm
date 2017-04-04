@@ -1,0 +1,480 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="./site.css" rel="stylesheet">
+<title>bytes</title>
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package bytes</h2>
+    <p><code>import "bytes"</code>
+    <p>bytes包实现了操作[]byte的常用函数。本包的函数和strings包的函数相当类似。</p>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#pkg-constants">Constants</a></li>
+        <li><a href="#pkg-variables">Variables</a></li>
+        <li><a href="#Compare">func Compare(a, b []byte) int</a></li>
+        <li><a href="#Equal">func Equal(a, b []byte) bool</a></li>
+        <li><a href="#EqualFold">func EqualFold(s, t []byte) bool</a></li>
+        <li><a href="#Runes">func Runes(s []byte) []rune</a></li>
+        <li><a href="#HasPrefix">func HasPrefix(s, prefix []byte) bool</a></li>
+        <li><a href="#HasSuffix">func HasSuffix(s, suffix []byte) bool</a></li>
+        <li><a href="#Contains">func Contains(b, subslice []byte) bool</a></li>
+        <li><a href="#Count">func Count(s, sep []byte) int</a></li>
+        <li><a href="#Index">func Index(s, sep []byte) int</a></li>
+        <li><a href="#IndexByte">func IndexByte(s []byte, c byte) int</a></li>
+        <li><a href="#IndexRune">func IndexRune(s []byte, r rune) int</a></li>
+        <li><a href="#IndexAny">func IndexAny(s []byte, chars string) int</a></li>
+        <li><a href="#IndexFunc">func IndexFunc(s []byte, f func(r rune) bool) int</a></li>
+        <li><a href="#LastIndex">func LastIndex(s, sep []byte) int</a></li>
+        <li><a href="#LastIndexAny">func LastIndexAny(s []byte, chars string) int</a></li>
+        <li><a href="#LastIndexFunc">func LastIndexFunc(s []byte, f func(r rune) bool) int</a></li>
+        <li><a href="#Title">func Title(s []byte) []byte</a></li>
+        <li><a href="#ToLower">func ToLower(s []byte) []byte</a></li>
+        <li><a href="#ToLowerSpecial">func ToLowerSpecial(_case unicode.SpecialCase, s []byte) []byte</a></li>
+        <li><a href="#ToUpper">func ToUpper(s []byte) []byte</a></li>
+        <li><a href="#ToUpperSpecial">func ToUpperSpecial(_case unicode.SpecialCase, s []byte) []byte</a></li>
+        <li><a href="#ToTitle">func ToTitle(s []byte) []byte</a></li>
+        <li><a href="#ToTitleSpecial">func ToTitleSpecial(_case unicode.SpecialCase, s []byte) []byte</a></li>
+        <li><a href="#Repeat">func Repeat(b []byte, count int) []byte</a></li>
+        <li><a href="#Replace">func Replace(s, old, new []byte, n int) []byte</a></li>
+        <li><a href="#Map">func Map(mapping func(r rune) rune, s []byte) []byte</a></li>
+        <li><a href="#Trim">func Trim(s []byte, cutset string) []byte</a></li>
+        <li><a href="#TrimSpace">func TrimSpace(s []byte) []byte</a></li>
+        <li><a href="#TrimFunc">func TrimFunc(s []byte, f func(r rune) bool) []byte</a></li>
+        <li><a href="#TrimLeft">func TrimLeft(s []byte, cutset string) []byte</a></li>
+        <li><a href="#TrimLeftFunc">func TrimLeftFunc(s []byte, f func(r rune) bool) []byte</a></li>
+        <li><a href="#TrimPrefix">func TrimPrefix(s, prefix []byte) []byte</a></li>
+        <li><a href="#TrimRight">func TrimRight(s []byte, cutset string) []byte</a></li>
+        <li><a href="#TrimRightFunc">func TrimRightFunc(s []byte, f func(r rune) bool) []byte</a></li>
+        <li><a href="#TrimSuffix">func TrimSuffix(s, suffix []byte) []byte</a></li>
+        <li><a href="#Fields">func Fields(s []byte) [][]byte</a></li>
+        <li><a href="#FieldsFunc">func FieldsFunc(s []byte, f func(rune) bool) [][]byte</a></li>
+        <li><a href="#Split">func Split(s, sep []byte) [][]byte</a></li>
+        <li><a href="#SplitN">func SplitN(s, sep []byte, n int) [][]byte</a></li>
+        <li><a href="#SplitAfter">func SplitAfter(s, sep []byte) [][]byte</a></li>
+        <li><a href="#SplitAfterN">func SplitAfterN(s, sep []byte, n int) [][]byte</a></li>
+        <li><a href="#Join">func Join(s [][]byte, sep []byte) []byte</a></li>
+        <li><a href="#Reader">type Reader</a></li>
+        <ul>
+            <li><a href="#NewReader">func NewReader(b []byte) *Reader</a></li>
+            <li><a href="#Reader.Len">func (r *Reader) Len() int</a></li>
+            <li><a href="#Reader.Read">func (r *Reader) Read(b []byte) (n int, err error)</a></li>
+            <li><a href="#Reader.ReadByte">func (r *Reader) ReadByte() (b byte, err error)</a></li>
+            <li><a href="#Reader.UnreadByte">func (r *Reader) UnreadByte() error</a></li>
+            <li><a href="#Reader.ReadRune">func (r *Reader) ReadRune() (ch rune, size int, err error)</a></li>
+            <li><a href="#Reader.UnreadRune">func (r *Reader) UnreadRune() error</a></li>
+            <li><a href="#Reader.Seek">func (r *Reader) Seek(offset int64, whence int) (int64, error)</a></li>
+            <li><a href="#Reader.ReadAt">func (r *Reader) ReadAt(b []byte, off int64) (n int, err error)</a></li>
+            <li><a href="#Reader.WriteTo">func (r *Reader) WriteTo(w io.Writer) (n int64, err error)</a></li>
+        </ul>
+        <li><a href="#Buffer">type Buffer</a></li>
+        <ul>
+            <li><a href="#NewBuffer">func NewBuffer(buf []byte) *Buffer</a></li>
+            <li><a href="#NewBufferString">func NewBufferString(s string) *Buffer</a></li>
+            <li><a href="#Buffer.Reset">func (b *Buffer) Reset()</a></li>
+            <li><a href="#Buffer.Len">func (b *Buffer) Len() int</a></li>
+            <li><a href="#Buffer.Bytes">func (b *Buffer) Bytes() []byte</a></li>
+            <li><a href="#Buffer.String">func (b *Buffer) String() string</a></li>
+            <li><a href="#Buffer.Truncate">func (b *Buffer) Truncate(n int)</a></li>
+            <li><a href="#Buffer.Grow">func (b *Buffer) Grow(n int)</a></li>
+            <li><a href="#Buffer.Read">func (b *Buffer) Read(p []byte) (n int, err error)</a></li>
+            <li><a href="#Buffer.Next">func (b *Buffer) Next(n int) []byte</a></li>
+            <li><a href="#Buffer.ReadByte">func (b *Buffer) ReadByte() (c byte, err error)</a></li>
+            <li><a href="#Buffer.UnreadByte">func (b *Buffer) UnreadByte() error</a></li>
+            <li><a href="#Buffer.ReadRune">func (b *Buffer) ReadRune() (r rune, size int, err error)</a></li>
+            <li><a href="#Buffer.UnreadRune">func (b *Buffer) UnreadRune() error</a></li>
+            <li><a href="#Buffer.ReadBytes">func (b *Buffer) ReadBytes(delim byte) (line []byte, err error)</a></li>
+            <li><a href="#Buffer.ReadString">func (b *Buffer) ReadString(delim byte) (line string, err error)</a></li>
+            <li><a href="#Buffer.Write">func (b *Buffer) Write(p []byte) (n int, err error)</a></li>
+            <li><a href="#Buffer.WriteString">func (b *Buffer) WriteString(s string) (n int, err error)</a></li>
+            <li><a href="#Buffer.WriteByte">func (b *Buffer) WriteByte(c byte) error</a></li>
+            <li><a href="#Buffer.WriteRune">func (b *Buffer) WriteRune(r rune) (n int, err error)</a></li>
+            <li><a href="#Buffer.ReadFrom">func (b *Buffer) ReadFrom(r io.Reader) (n int64, err error)</a></li>
+            <li><a href="#Buffer.WriteTo">func (b *Buffer) WriteTo(w io.Writer) (n int64, err error)</a></li>
+        </ul>
+    </ul>
+    <h4 id="pkg-examples">Examples <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#example-Buffer" onclick="$('#ex-Buffer').addClass('in').removeClass('collapse').height('auto')">Buffer</a></li>
+        <li><a href="#example-Buffer--Reader" onclick="$('#ex-Buffer--Reader').addClass('in').removeClass('collapse').height('auto')">Buffer (Reader)</a></li>
+        <li><a href="#example-Compare" onclick="$('#ex-Compare').addClass('in').removeClass('collapse').height('auto')">Compare</a></li>
+        <li><a href="#example-Compare--Search" onclick="$('#ex-Compare--Search').addClass('in').removeClass('collapse').height('auto')">Compare (Search)</a></li>
+        <li><a href="#example-TrimPrefix" onclick="$('#ex-TrimPrefix').addClass('in').removeClass('collapse').height('auto')">TrimPrefix</a></li>
+        <li><a href="#example-TrimSuffix" onclick="$('#ex-TrimSuffix').addClass('in').removeClass('collapse').height('auto')">TrimSuffix</a></li>
+    </ul>
+    <h3 id="pkg-constants">Constants <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>const <span id="MinRead">MinRead</span> = 512</pre>
+    <p>MinRead是被Buffer.ReadFrom传递给Read调用的最小尺寸。只要该Buffer在保存内容之外有最少MinRead字节的余量，其ReadFrom方法就不会增加底层的缓冲。</p>
+    <h3 id="pkg-variables">Variables <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>var <span id="ErrTooLarge">ErrTooLarge</span> = <a href="errors.htm">errors</a>.<a href="errors.htm#New">New</a>(&#34;bytes.Buffer: too large&#34;)</pre>
+    <p>如果内存中不能申请足够保存数据的缓冲，ErrTooLarge就会被传递给panic函数。</p>
+    <h3 id="Compare">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/bytes/bytes_decl.go?name=release#24">Compare</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Compare(a, b []<a href="builtin.htm#byte">byte</a>) <a href="builtin.htm#int">int</a></pre>
+    <p>Compare函数返回一个整数表示两个[]byte切片按字典序比较的结果（类同C的strcmp）。如果a==b返回0；如果a&lt;b返回-1；否则返回+1。nil参数视为空切片。</p>
+    <div class="panel-group">
+        <div class="panel panel-default" id="example-Compare">
+            <div class="panel-heading" onclick="document.getElementById('ex-Compare').style.display = document.getElementById('ex-Compare').style.display=='none'?'block':'none';">Example</div>
+            <div id="ex-Compare" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre>
+<span class="com">// Interpret Compare&#39;s result by comparing it to zero.</span>
+var a, b []byte
+if bytes.Compare(a, b) &lt; 0 {
+    <span class="com">// a less b</span>
+}
+if bytes.Compare(a, b) &lt;= 0 {
+    <span class="com">// a less or equal b</span>
+}
+if bytes.Compare(a, b) &gt; 0 {
+    <span class="com">// a greater b</span>
+}
+if bytes.Compare(a, b) &gt;= 0 {
+    <span class="com">// a greater or equal b</span>
+}
+<span class="com">// Prefer Equal to Compare for equality comparisons.</span>
+if bytes.Equal(a, b) {
+    <span class="com">// a equal b</span>
+}
+if !bytes.Equal(a, b) {
+    <span class="com">// a not equal b</span>
+}
+</pre>
+                </div>
+            </div>
+        </div>
+        <div class="panel panel-default" id="example-Compare--Search">
+            <div class="panel-heading" onclick="document.getElementById('ex-Compare--Search').style.display = document.getElementById('ex-Compare--Search').style.display=='none'?'block':'none';">Example (Search)</div>
+            <div id="ex-Compare--Search" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre>
+<span class="com">// Binary search to find a matching byte slice.</span>
+var needle []byte
+var haystack [][]byte <span class="com">// Assume sorted</span>
+i := sort.Search(len(haystack), func(i int) bool {
+    <span class="com">// Return haystack[i] &gt;= needle.</span>
+    return bytes.Compare(haystack[i], needle) &gt;= 0
+})
+if i &lt; len(haystack) &amp;&amp; bytes.Equal(haystack[i], needle) {
+    <span class="com">// Found it!</span>
+}
+</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    <h3 id="Equal">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/bytes/bytes_decl.go?name=release#17">Equal</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Equal(a, b []<a href="builtin.htm#byte">byte</a>) <a href="builtin.htm#bool">bool</a></pre>
+    <p>判断两个切片的内容是否完全相同。</p>
+    <h3 id="EqualFold">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/bytes/bytes.go?name=release#646">EqualFold</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func EqualFold(s, t []<a href="builtin.htm#byte">byte</a>) <a href="builtin.htm#bool">bool</a></pre>
+    <p>判断两个utf-8编码切片（将unicode大写、小写、标题三种格式字符视为相同）是否相同。</p>
+    <h3 id="Runes">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/bytes/bytes.go?name=release#593">Runes</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Runes(s []<a href="builtin.htm#byte">byte</a>) []<a href="builtin.htm#rune">rune</a></pre>
+    <p>Runes函数返回和s等价的[]rune切片。（将utf-8编码的unicode码值分别写入单个rune）</p>
+    <h3 id="HasPrefix">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/bytes/bytes.go?name=release#331">HasPrefix</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func HasPrefix(s, prefix []<a href="builtin.htm#byte">byte</a>) <a href="builtin.htm#bool">bool</a></pre>
+    <p>判断s是否有前缀切片prefix。</p>
+    <h3 id="HasSuffix">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/bytes/bytes.go?name=release#336">HasSuffix</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func HasSuffix(s, suffix []<a href="builtin.htm#byte">byte</a>) <a href="builtin.htm#bool">bool</a></pre>
+    <p>判断s是否有后缀切片suffix。</p>
+    <h3 id="Contains">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/bytes/bytes.go?name=release#81">Contains</a></h3>
+<pre class="funcdecl">func Contains(b, subslice []<a href="builtin.htm#byte">byte</a>) <a href="builtin.htm#bool">bool</a></pre>
+    <p>判断切片b是否包含子切片subslice。</p>
+    <h3 id="Count">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/bytes/bytes.go?name=release#50">Count</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Count(s, sep []<a href="builtin.htm#byte">byte</a>) <a href="builtin.htm#int">int</a></pre>
+    <p>Count计算s中有多少个不重叠的sep子切片。</p>
+    <h3 id="Index">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/bytes/bytes.go?name=release#86">Index</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Index(s, sep []<a href="builtin.htm#byte">byte</a>) <a href="builtin.htm#int">int</a></pre>
+    <p>子切片sep在s中第一次出现的位置，不存在则返回-1。</p>
+    <h3 id="IndexByte">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/bytes/bytes_decl.go?name=release#10">IndexByte</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func IndexByte(s []<a href="builtin.htm#byte">byte</a>, c <a href="builtin.htm#byte">byte</a>) <a href="builtin.htm#int">int</a></pre>
+    <p>字符c在s中第一次出现的位置，不存在则返回-1。</p>
+    <h3 id="IndexRune">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/bytes/bytes.go?name=release#143">IndexRune</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func IndexRune(s []<a href="builtin.htm#byte">byte</a>, r <a href="builtin.htm#rune">rune</a>) <a href="builtin.htm#int">int</a></pre>
+    <p>unicode字符r的utf-8编码在s中第一次出现的位置，不存在则返回-1。</p>
+    <h3 id="IndexAny">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/bytes/bytes.go?name=release#158">IndexAny</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func IndexAny(s []<a href="builtin.htm#byte">byte</a>, chars <a href="builtin.htm#string">string</a>) <a href="builtin.htm#int">int</a></pre>
+    <p>字符串chars中的任一utf-8编码在s中第一次出现的位置，如不存在或者chars为空字符串则返回-1</p>
+    <h3 id="IndexFunc">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/bytes/bytes.go?name=release#510">IndexFunc</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func IndexFunc(s []<a href="builtin.htm#byte">byte</a>, f func(r <a href="builtin.htm#rune">rune</a>) <a href="builtin.htm#bool">bool</a>) <a href="builtin.htm#int">int</a></pre>
+    <p>s中第一个满足函数f的位置i（该处的utf-8码值r满足f(r)==true），不存在则返回-1</p>
+    <h3 id="LastIndex">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/bytes/bytes.go?name=release#126">LastIndex</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func LastIndex(s, sep []<a href="builtin.htm#byte">byte</a>) <a href="builtin.htm#int">int</a></pre>
+    <p>切片sep在字符串s中最后一次出现的位置，不存在则返回-1。</p>
+    <h3 id="LastIndexAny">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/bytes/bytes.go?name=release#183">LastIndexAny</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func LastIndexAny(s []<a href="builtin.htm#byte">byte</a>, chars <a href="builtin.htm#string">string</a>) <a href="builtin.htm#int">int</a></pre>
+    <p>字符串chars中的任一utf-8字符在s中最后一次出现的位置，如不存在或者chars为空字符串则返回-1。</p>
+    <h3 id="LastIndexFunc">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/bytes/bytes.go?name=release#517">LastIndexFunc</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func LastIndexFunc(s []<a href="builtin.htm#byte">byte</a>, f func(r <a href="builtin.htm#rune">rune</a>) <a href="builtin.htm#bool">bool</a>) <a href="builtin.htm#int">int</a></pre>
+    <p>s中最后一个满足函数f的unicode码值的位置i，不存在则返回-1。</p>
+    <h3 id="Title">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/bytes/bytes.go?name=release#443">Title</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Title(s []<a href="builtin.htm#byte">byte</a>) []<a href="builtin.htm#byte">byte</a></pre>
+    <p align="left">返回s中每个单词的首字母都改为标题格式的拷贝。</p>
+    <p align="left">BUG: Title用于划分单词的规则不能很好的处理Unicode标点符号。</p>
+    <h3 id="ToLower">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/bytes/bytes.go?name=release#391">ToLower</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func ToLower(s []<a href="builtin.htm#byte">byte</a>) []<a href="builtin.htm#byte">byte</a></pre>
+    <p>返回将所有字母都转为对应的小写版本的拷贝。</p>
+    <h3 id="ToLowerSpecial">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/bytes/bytes.go?name=release#404">ToLowerSpecial</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func ToLowerSpecial(_case <a href="unicode.htm">unicode</a>.<a href="unicode.htm#SpecialCase">SpecialCase</a>, s []<a href="builtin.htm#byte">byte</a>) []<a href="builtin.htm#byte">byte</a></pre>
+    <p>使用_case规定的字符映射，返回将所有字母都转为对应的小写版本的拷贝。</p>
+    <h3 id="ToUpper">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/bytes/bytes.go?name=release#388">ToUpper</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func ToUpper(s []<a href="builtin.htm#byte">byte</a>) []<a href="builtin.htm#byte">byte</a></pre>
+    <p>返回将所有字母都转为对应的大写版本的拷贝。</p>
+    <h3 id="ToUpperSpecial">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/bytes/bytes.go?name=release#398">ToUpperSpecial</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func ToUpperSpecial(_case <a href="unicode.htm">unicode</a>.<a href="unicode.htm#SpecialCase">SpecialCase</a>, s []<a href="builtin.htm#byte">byte</a>) []<a href="builtin.htm#byte">byte</a></pre>
+    <p>使用_case规定的字符映射，返回将所有字母都转为对应的大写版本的拷贝。</p>
+    <h3 id="ToTitle">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/bytes/bytes.go?name=release#394">ToTitle</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func ToTitle(s []<a href="builtin.htm#byte">byte</a>) []<a href="builtin.htm#byte">byte</a></pre>
+    <p>返回将所有字母都转为对应的标题版本的拷贝。</p>
+    <h3 id="ToTitleSpecial">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/bytes/bytes.go?name=release#410">ToTitleSpecial</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func ToTitleSpecial(_case <a href="unicode.htm">unicode</a>.<a href="unicode.htm#SpecialCase">SpecialCase</a>, s []<a href="builtin.htm#byte">byte</a>) []<a href="builtin.htm#byte">byte</a></pre>
+    <p>使用_case规定的字符映射，返回将所有字母都转为对应的标题版本的拷贝。</p>
+    <h3 id="Repeat">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/bytes/bytes.go?name=release#378">Repeat</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Repeat(b []<a href="builtin.htm#byte">byte</a>, count <a href="builtin.htm#int">int</a>) []<a href="builtin.htm#byte">byte</a></pre>
+    <p>返回count个b串联形成的新的切片。</p>
+    <h3 id="Replace">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/bytes/bytes.go?name=release#608">Replace</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Replace(s, old, new []<a href="builtin.htm#byte">byte</a>, n <a href="builtin.htm#int">int</a>) []<a href="builtin.htm#byte">byte</a></pre>
+    <p>返回将s中前n个不重叠old切片序列都替换为new的新的切片拷贝，如果n&lt;0会替换所有old子切片。</p>
+    <h3 id="Map">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/bytes/bytes.go?name=release#344">Map</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Map(mapping func(r <a href="builtin.htm#rune">rune</a>) <a href="builtin.htm#rune">rune</a>, s []<a href="builtin.htm#byte">byte</a>) []<a href="builtin.htm#byte">byte</a></pre>
+    <p>将s的每一个unicode码值r都替换为mapping(r)，返回这些新码值组成的切片拷贝。如果mapping返回一个负值，将会丢弃该码值而不会被替换（返回值中对应位置将没有码值）。</p>
+    <h3 id="Trim">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/bytes/bytes.go?name=release#570">Trim</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Trim(s []<a href="builtin.htm#byte">byte</a>, cutset <a href="builtin.htm#string">string</a>) []<a href="builtin.htm#byte">byte</a></pre>
+    <p>返回将s前后端所有cutset包含的unicode码值都去掉的子切片。（共用底层数组）</p>
+    <h3 id="TrimSpace">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/bytes/bytes.go?name=release#588">TrimSpace</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func TrimSpace(s []<a href="builtin.htm#byte">byte</a>) []<a href="builtin.htm#byte">byte</a></pre>
+    <p>返回将s前后端所有空白（unicode.IsSpace指定）都去掉的子切片。（共用底层数组）</p>
+    <h3 id="TrimFunc">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/bytes/bytes.go?name=release#485">TrimFunc</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func TrimFunc(s []<a href="builtin.htm#byte">byte</a>, f func(r <a href="builtin.htm#rune">rune</a>) <a href="builtin.htm#bool">bool</a>) []<a href="builtin.htm#byte">byte</a></pre>
+    <p>返回将s前后端所有满足f的unicode码值都去掉的子切片。（共用底层数组）</p>
+    <h3 id="TrimLeft">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/bytes/bytes.go?name=release#576">TrimLeft</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func TrimLeft(s []<a href="builtin.htm#byte">byte</a>, cutset <a href="builtin.htm#string">string</a>) []<a href="builtin.htm#byte">byte</a></pre>
+    <p>返回将s前端所有cutset包含的unicode码值都去掉的子切片。（共用底层数组）</p>
+    <h3 id="TrimLeftFunc">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/bytes/bytes.go?name=release#462">TrimLeftFunc</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func TrimLeftFunc(s []<a href="builtin.htm#byte">byte</a>, f func(r <a href="builtin.htm#rune">rune</a>) <a href="builtin.htm#bool">bool</a>) []<a href="builtin.htm#byte">byte</a></pre>
+    <p>返回将s前端所有满足f的unicode码值都去掉的子切片。（共用底层数组）</p>
+    <h3 id="TrimPrefix">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/bytes/bytes.go?name=release#491">TrimPrefix</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func TrimPrefix(s, prefix []<a href="builtin.htm#byte">byte</a>) []<a href="builtin.htm#byte">byte</a></pre>
+    <p>返回去除s可能的前缀prefix的子切片。（共用底层数组）</p>
+    <div class="panel-group">
+        <div class="panel panel-default" id="example-TrimPrefix">
+            <div class="panel-heading" onclick="document.getElementById('ex-TrimPrefix').style.display = document.getElementById('ex-TrimPrefix').style.display=='none'?'block':'none';">Example</div>
+            <div id="ex-TrimPrefix" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre>var b = []byte(&#34;Goodbye,, world!&#34;)
+b = bytes.TrimPrefix(b, []byte(&#34;Goodbye,&#34;))
+b = bytes.TrimPrefix(b, []byte(&#34;See ya,&#34;))
+fmt.Printf(&#34;Hello%s&#34;, b)</pre>
+                    <p>Output:
+                    <pre>Hello, world!
+</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    <h3 id="TrimRight">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/bytes/bytes.go?name=release#582">TrimRight</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func TrimRight(s []<a href="builtin.htm#byte">byte</a>, cutset <a href="builtin.htm#string">string</a>) []<a href="builtin.htm#byte">byte</a></pre>
+    <p>返回将s后端所有cutset包含的unicode码值都去掉的子切片。（共用底层数组）</p>
+    <h3 id="TrimRightFunc">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/bytes/bytes.go?name=release#472">TrimRightFunc</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func TrimRightFunc(s []<a href="builtin.htm#byte">byte</a>, f func(r <a href="builtin.htm#rune">rune</a>) <a href="builtin.htm#bool">bool</a>) []<a href="builtin.htm#byte">byte</a></pre>
+    <p>返回将s后端所有满足f的unicode码值都去掉的子切片。（共用底层数组）</p>
+    <h3 id="TrimSuffix">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/bytes/bytes.go?name=release#500">TrimSuffix</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func TrimSuffix(s, suffix []<a href="builtin.htm#byte">byte</a>) []<a href="builtin.htm#byte">byte</a></pre>
+    <p>返回去除s可能的后缀suffix的子切片。（共用底层数组）</p>
+    <div class="panel-group">
+        <div class="panel panel-default" id="example-TrimSuffix">
+            <div class="panel-heading" onclick="document.getElementById('ex-TrimSuffix').style.display = document.getElementById('ex-TrimSuffix').style.display=='none'?'block':'none';">Example</div>
+            <div id="ex-TrimSuffix" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre>var b = []byte(&#34;Hello, goodbye, etc!&#34;)
+b = bytes.TrimSuffix(b, []byte(&#34;goodbye, etc!&#34;))
+b = bytes.TrimSuffix(b, []byte(&#34;gopher&#34;))
+b = append(b, bytes.TrimSuffix([]byte(&#34;world!&#34;), []byte(&#34;x!&#34;))...)
+os.Stdout.Write(b)</pre>
+                    <p>Output:
+                    <pre>Hello, world!
+</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    <h3 id="Fields">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/bytes/bytes.go?name=release#262">Fields</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Fields(s []<a href="builtin.htm#byte">byte</a>) [][]<a href="builtin.htm#byte">byte</a></pre>
+    <p>返回将字符串按照空白（unicode.IsSpace确定，可以是一到多个连续的空白字符）分割的多个子切片。如果字符串全部是空白或者是空字符串的话，会返回空切片。</p>
+    <h3 id="FieldsFunc">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/bytes/bytes.go?name=release#270">FieldsFunc</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func FieldsFunc(s []<a href="builtin.htm#byte">byte</a>, f func(<a href="builtin.htm#rune">rune</a>) <a href="builtin.htm#bool">bool</a>) [][]<a href="builtin.htm#byte">byte</a></pre>
+    <p>类似Fields，但使用函数f来确定分割符（满足f的utf-8码值）。如果字符串全部是分隔符或者是空字符串的话，会返回空切片。</p>
+    <h3 id="Split">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/bytes/bytes.go?name=release#250">Split</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Split(s, sep []<a href="builtin.htm#byte">byte</a>) [][]<a href="builtin.htm#byte">byte</a></pre>
+    <p>用去掉s中出现的sep的方式进行分割，会分割到结尾，并返回生成的所有[]byte切片组成的切片（每一个sep都会进行一次切割，即使两个sep相邻，也会进行两次切割）。如果sep为空字符，Split会将s切分成每一个unicode码值一个[]byte切片。</p>
+    <h3 id="SplitN">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/bytes/bytes.go?name=release#233">SplitN</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func SplitN(s, sep []<a href="builtin.htm#byte">byte</a>, n <a href="builtin.htm#int">int</a>) [][]<a href="builtin.htm#byte">byte</a></pre>
+    <p>用去掉s中出现的sep的方式进行分割，会分割到最多n个子切片，并返回生成的所有[]byte切片组成的切片（每一个sep都会进行一次切割，即使两个sep相邻，也会进行两次切割）。如果sep为空字符，Split会将s切分成每一个unicode码值一个[]byte切片。参数n决定返回的切片的数目：</p>
+    <pre>n &gt; 0 : 返回的切片最多n个子字符串；最后一个子字符串包含未进行切割的部分。
+n == 0: 返回nil
+n &lt; 0 : 返回所有的子字符串组成的切片
+</pre>
+    <h3 id="SplitAfter">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/bytes/bytes.go?name=release#256">SplitAfter</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func SplitAfter(s, sep []<a href="builtin.htm#byte">byte</a>) [][]<a href="builtin.htm#byte">byte</a></pre>
+    <p>用从s中出现的sep后面切断的方式进行分割，会分割到结尾，并返回生成的所有[]byte切片组成的切片（每一个sep都会进行一次切割，即使两个sep相邻，也会进行两次切割）。如果sep为空字符，Split会将s切分成每一个unicode码值一个[]byte切片。</p>
+    <h3 id="SplitAfterN">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/bytes/bytes.go?name=release#242">SplitAfterN</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func SplitAfterN(s, sep []<a href="builtin.htm#byte">byte</a>, n <a href="builtin.htm#int">int</a>) [][]<a href="builtin.htm#byte">byte</a></pre>
+    <p>用从s中出现的sep后面切断的方式进行分割，会分割到最多n个子切片，并返回生成的所有[]byte切片组成的切片（每一个sep都会进行一次切割，即使两个sep相邻，也会进行两次切割）。如果sep为空字符，Split会将s切分成每一个unicode码值一个[]byte切片。参数n决定返回的切片的数目：</p>
+    <pre>n &gt; 0 : 返回的切片最多n个子字符串；最后一个子字符串包含未进行切割的部分。
+n == 0: 返回nil
+n &lt; 0 : 返回所有的子字符串组成的切片
+</pre>
+    <h3 id="Join">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/bytes/bytes.go?name=release#308">Join</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Join(s [][]<a href="builtin.htm#byte">byte</a>, sep []<a href="builtin.htm#byte">byte</a>) []<a href="builtin.htm#byte">byte</a></pre>
+    <p>将一系列[]byte切片连接为一个[]byte切片，之间用sep来分隔，返回生成的新切片。</p>
+    <h3 id="Reader">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/bytes/reader.go?name=release#17">Reader</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Reader struct {
+    <span class="com">// 内含隐藏或非导出字段</span>
+}</pre>
+    <p>Reader类型通过从一个[]byte读取数据，实现了io.Reader、io.Seeker、io.ReaderAt、io.WriterTo、io.ByteScanner、io.RuneScanner接口。</p>
+    <h4 id="NewReader">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/bytes/reader.go?name=release#144">NewReader</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func NewReader(b []<a href="builtin.htm#byte">byte</a>) *<a href="#Reader">Reader</a></pre>
+    <p>NewReader创建一个从s读取数据的Reader。</p>
+    <h4 id="Reader.Len">func (*Reader) <a title="View Source" href="https://github.com/golang/go/blob/master/src/bytes/reader.go?name=release#25">Len</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (r *<a href="#Reader">Reader</a>) Len() <a href="builtin.htm#int">int</a></pre>
+    <p>Len返回r包含的切片中还没有被读取的部分。</p>
+    <h4 id="Reader.Read">func (*Reader) <a title="View Source" href="https://github.com/golang/go/blob/master/src/bytes/reader.go?name=release#32">Read</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (r *<a href="#Reader">Reader</a>) Read(b []<a href="builtin.htm#byte">byte</a>) (n <a href="builtin.htm#int">int</a>, err <a href="builtin.htm#error">error</a>)</pre>
+    <h4 id="Reader.ReadByte">func (*Reader) <a title="View Source" href="https://github.com/golang/go/blob/master/src/bytes/reader.go?name=release#60">ReadByte</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (r *<a href="#Reader">Reader</a>) ReadByte() (b <a href="builtin.htm#byte">byte</a>, err <a href="builtin.htm#error">error</a>)</pre>
+    <h4 id="Reader.UnreadByte">func (*Reader) <a title="View Source" href="https://github.com/golang/go/blob/master/src/bytes/reader.go?name=release#70">UnreadByte</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (r *<a href="#Reader">Reader</a>) UnreadByte() <a href="builtin.htm#error">error</a></pre>
+    <h4 id="Reader.ReadRune">func (*Reader) <a title="View Source" href="https://github.com/golang/go/blob/master/src/bytes/reader.go?name=release#79">ReadRune</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (r *<a href="#Reader">Reader</a>) ReadRune() (ch <a href="builtin.htm#rune">rune</a>, size <a href="builtin.htm#int">int</a>, err <a href="builtin.htm#error">error</a>)</pre>
+    <h4 id="Reader.UnreadRune">func (*Reader) <a title="View Source" href="https://github.com/golang/go/blob/master/src/bytes/reader.go?name=release#94">UnreadRune</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (r *<a href="#Reader">Reader</a>) UnreadRune() <a href="builtin.htm#error">error</a></pre>
+    <h4 id="Reader.Seek">func (*Reader) <a title="View Source" href="https://github.com/golang/go/blob/master/src/bytes/reader.go?name=release#104">Seek</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (r *<a href="#Reader">Reader</a>) Seek(offset <a href="builtin.htm#int64">int64</a>, whence <a href="builtin.htm#int">int</a>) (<a href="builtin.htm#int64">int64</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>Seek实现了io.Seeker接口。</p>
+    <h4 id="Reader.ReadAt">func (*Reader) <a title="View Source" href="https://github.com/golang/go/blob/master/src/bytes/reader.go?name=release#45">ReadAt</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (r *<a href="#Reader">Reader</a>) ReadAt(b []<a href="builtin.htm#byte">byte</a>, off <a href="builtin.htm#int64">int64</a>) (n <a href="builtin.htm#int">int</a>, err <a href="builtin.htm#error">error</a>)</pre>
+    <h4 id="Reader.WriteTo">func (*Reader) <a title="View Source" href="https://github.com/golang/go/blob/master/src/bytes/reader.go?name=release#125">WriteTo</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (r *<a href="#Reader">Reader</a>) WriteTo(w <a href="io.htm">io</a>.<a href="io.htm#Writer">Writer</a>) (n <a href="builtin.htm#int64">int64</a>, err <a href="builtin.htm#error">error</a>)</pre>
+    <p>WriteTo实现了io.WriterTo接口。</p>
+    <h3 id="Buffer">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/bytes/buffer.go?name=release#17">Buffer</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Buffer struct {
+    <span class="com">// 内含隐藏或非导出字段</span>
+}</pre>
+    <p>Buffer是一个实现了读写方法的可变大小的字节缓冲。本类型的零值是一个空的可用于读写的缓冲。</p>
+    <div class="panel-group">
+        <div class="panel panel-default" id="example-Buffer">
+            <div class="panel-heading" onclick="document.getElementById('ex-Buffer').style.display = document.getElementById('ex-Buffer').style.display=='none'?'block':'none';">Example</div>
+            <div id="ex-Buffer" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre>var b bytes.Buffer <span class="com">// A Buffer needs no initialization.</span>
+b.Write([]byte(&#34;Hello &#34;))
+fmt.Fprintf(&amp;b, &#34;world!&#34;)
+b.WriteTo(os.Stdout)</pre>
+                    <p>Output:
+                    <pre>Hello world!
+</pre>
+                </div>
+            </div>
+        </div>
+        <div class="panel panel-default" id="example-Buffer--Reader">
+            <div class="panel-heading" onclick="document.getElementById('ex-Buffer--Reader').style.display = document.getElementById('ex-Buffer--Reader').style.display=='none'?'block':'none';">Example (Reader)</div>
+            <div id="ex-Buffer--Reader" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre><span class="com">// A Buffer can turn a string or a []byte into an io.Reader.</span>
+buf := bytes.NewBufferString(&#34;R29waGVycyBydWxlIQ==&#34;)
+dec := base64.NewDecoder(base64.StdEncoding, buf)
+io.Copy(os.Stdout, dec)</pre>
+                    <p>Output:
+                    <pre>Gophers rule!
+</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    <h4 id="NewBuffer">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/bytes/buffer.go?name=release#402">NewBuffer</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func NewBuffer(buf []<a href="builtin.htm#byte">byte</a>) *<a href="#Buffer">Buffer</a></pre>
+    <p>NewBuffer使用buf作为初始内容创建并初始化一个Buffer。本函数用于创建一个用于读取已存在数据的buffer；也用于指定用于写入的内部缓冲的大小，此时，buf应为一个具有指定容量但长度为0的切片。buf会被作为返回值的底层缓冲切片。</p>
+    <p>大多数情况下，new(Buffer)（或只是声明一个Buffer类型变量）就足以初始化一个Buffer了。</p>
+    <h4 id="NewBufferString">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/bytes/buffer.go?name=release#410">NewBufferString</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func NewBufferString(s <a href="builtin.htm#string">string</a>) *<a href="#Buffer">Buffer</a></pre>
+    <p>NewBuffer使用s作为初始内容创建并初始化一个Buffer。本函数用于创建一个用于读取已存在数据的buffer。</p>
+    <p>大多数情况下，new(Buffer)（或只是声明一个Buffer类型变量）就足以初始化一个Buffer了。</p>
+    <h4 id="Buffer.Reset">func (*Buffer) <a title="View Source" href="https://github.com/golang/go/blob/master/src/bytes/buffer.go?name=release#75">Reset</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (b *<a href="#Buffer">Buffer</a>) Reset()</pre>
+    <p>Reset重设缓冲，因此会丢弃全部内容，等价于b.Truncate(0)。</p>
+    <h4 id="Buffer.Len">func (*Buffer) <a title="View Source" href="https://github.com/golang/go/blob/master/src/bytes/buffer.go?name=release#57">Len</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (b *<a href="#Buffer">Buffer</a>) Len() <a href="builtin.htm#int">int</a></pre>
+    <p>返回缓冲中未读取部分的字节长度；b.Len() == len(b.Bytes())。</p>
+    <h4 id="Buffer.Bytes">func (*Buffer) <a title="View Source" href="https://github.com/golang/go/blob/master/src/bytes/buffer.go?name=release#43">Bytes</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (b *<a href="#Buffer">Buffer</a>) Bytes() []<a href="builtin.htm#byte">byte</a></pre>
+    <p>返回未读取部分字节数据的切片，len(b.Bytes()) == b.Len()。如果中间没有调用其他方法，修改返回的切片的内容会直接改变Buffer的内容。</p>
+    <h4 id="Buffer.String">func (*Buffer) <a title="View Source" href="https://github.com/golang/go/blob/master/src/bytes/buffer.go?name=release#47">String</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (b *<a href="#Buffer">Buffer</a>) String() <a href="builtin.htm#string">string</a></pre>
+    <p>将未读取部分的字节数据作为字符串返回，如果b是nil指针，会返回"&lt;nil&gt;"。</p>
+    <h4 id="Buffer.Truncate">func (*Buffer) <a title="View Source" href="https://github.com/golang/go/blob/master/src/bytes/buffer.go?name=release#61">Truncate</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (b *<a href="#Buffer">Buffer</a>) Truncate(n <a href="builtin.htm#int">int</a>)</pre>
+    <p>丢弃缓冲中除前n字节数据外的其它数据，如果n小于零或者大于缓冲容量将panic。</p>
+    <h4 id="Buffer.Grow">func (*Buffer) <a title="View Source" href="https://github.com/golang/go/blob/master/src/bytes/buffer.go?name=release#114">Grow</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (b *<a href="#Buffer">Buffer</a>) Grow(n <a href="builtin.htm#int">int</a>)</pre>
+    <p>必要时会增加缓冲的容量，以保证n字节的剩余空间。调用Grow(n)后至少可以向缓冲中写入n字节数据而无需申请内存。如果n小于零或者不能增加容量都会panic。</p>
+    <h4 id="Buffer.Read">func (*Buffer) <a title="View Source" href="https://github.com/golang/go/blob/master/src/bytes/buffer.go?name=release#251">Read</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (b *<a href="#Buffer">Buffer</a>) Read(p []<a href="builtin.htm#byte">byte</a>) (n <a href="builtin.htm#int">int</a>, err <a href="builtin.htm#error">error</a>)</pre>
+    <p>Read方法从缓冲中读取数据直到缓冲中没有数据或者读取了len(p)字节数据，将读取的数据写入p。返回值n是读取的字节数，除非缓冲中完全没有数据可以读取并写入p，此时返回值err为io.EOF；否则err总是nil。</p>
+    <h4 id="Buffer.Next">func (*Buffer) <a title="View Source" href="https://github.com/golang/go/blob/master/src/bytes/buffer.go?name=release#273">Next</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (b *<a href="#Buffer">Buffer</a>) Next(n <a href="builtin.htm#int">int</a>) []<a href="builtin.htm#byte">byte</a></pre>
+    <p>返回未读取部分前n字节数据的切片，并且移动读取位置，就像调用了Read方法一样。如果缓冲内数据不足，会返回整个数据的切片。切片只在下一次调用b的读/写方法前才合法。</p>
+    <h4 id="Buffer.ReadByte">func (*Buffer) <a title="View Source" href="https://github.com/golang/go/blob/master/src/bytes/buffer.go?name=release#289">ReadByte</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (b *<a href="#Buffer">Buffer</a>) ReadByte() (c <a href="builtin.htm#byte">byte</a>, err <a href="builtin.htm#error">error</a>)</pre>
+    <p>ReadByte读取并返回缓冲中的下一个字节。如果没有数据可用，返回值err为io.EOF。</p>
+    <h4 id="Buffer.UnreadByte">func (*Buffer) <a title="View Source" href="https://github.com/golang/go/blob/master/src/bytes/buffer.go?name=release#345">UnreadByte</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (b *<a href="#Buffer">Buffer</a>) UnreadByte() <a href="builtin.htm#error">error</a></pre>
+    <p>UnreadByte吐出最近一次读取操作读取的最后一个字节。如果最后一次读取操作之后进行了写入，本方法会返回错误。</p>
+    <h4 id="Buffer.ReadRune">func (*Buffer) <a title="View Source" href="https://github.com/golang/go/blob/master/src/bytes/buffer.go?name=release#307">ReadRune</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (b *<a href="#Buffer">Buffer</a>) ReadRune() (r <a href="builtin.htm#rune">rune</a>, size <a href="builtin.htm#int">int</a>, err <a href="builtin.htm#error">error</a>)</pre>
+    <p>ReadRune读取并返回缓冲中的下一个utf-8码值。如果没有数据可用，返回值err为io.EOF。如果缓冲中的数据是错误的utf-8编码，本方法会吃掉一字节并返回(U+FFFD, 1, nil)。</p>
+    <h4 id="Buffer.UnreadRune">func (*Buffer) <a title="View Source" href="https://github.com/golang/go/blob/master/src/bytes/buffer.go?name=release#330">UnreadRune</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (b *<a href="#Buffer">Buffer</a>) UnreadRune() <a href="builtin.htm#error">error</a></pre>
+    <p>UnreadRune吐出最近一次调用ReadRune方法读取的unicode码值。如果最近一次读写操作不是ReadRune，本方法会返回错误。（这里就能看出来UnreadRune比UnreadByte严格多了）</p>
+    <h4 id="Buffer.ReadBytes">func (*Buffer) <a title="View Source" href="https://github.com/golang/go/blob/master/src/bytes/buffer.go?name=release#362">ReadBytes</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (b *<a href="#Buffer">Buffer</a>) ReadBytes(delim <a href="builtin.htm#byte">byte</a>) (line []<a href="builtin.htm#byte">byte</a>, err <a href="builtin.htm#error">error</a>)</pre>
+    <p>ReadBytes读取直到第一次遇到delim字节，返回一个包含已读取的数据和delim字节的切片。如果ReadBytes方法在读取到delim之前遇到了错误，它会返回在错误之前读取的数据以及该错误（一般是io.EOF）。当且仅当ReadBytes方法返回的切片不以delim结尾时，会返回一个非nil的错误。</p>
+    <h4 id="Buffer.ReadString">func (*Buffer) <a title="View Source" href="https://github.com/golang/go/blob/master/src/bytes/buffer.go?name=release#390">ReadString</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (b *<a href="#Buffer">Buffer</a>) ReadString(delim <a href="builtin.htm#byte">byte</a>) (line <a href="builtin.htm#string">string</a>, err <a href="builtin.htm#error">error</a>)</pre>
+    <p>ReadString读取直到第一次遇到delim字节，返回一个包含已读取的数据和delim字节的字符串。如果ReadString方法在读取到delim之前遇到了错误，它会返回在错误之前读取的数据以及该错误（一般是io.EOF）。当且仅当ReadString方法返回的切片不以delim结尾时，会返回一个非nil的错误。</p>
+    <h4 id="Buffer.Write">func (*Buffer) <a title="View Source" href="https://github.com/golang/go/blob/master/src/bytes/buffer.go?name=release#125">Write</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (b *<a href="#Buffer">Buffer</a>) Write(p []<a href="builtin.htm#byte">byte</a>) (n <a href="builtin.htm#int">int</a>, err <a href="builtin.htm#error">error</a>)</pre>
+    <p>Write将p的内容写入缓冲中，如必要会增加缓冲容量。返回值n为len(p)，err总是nil。如果缓冲变得太大，Write会采用错误值ErrTooLarge引发panic。</p>
+    <h4 id="Buffer.WriteString">func (*Buffer) <a title="View Source" href="https://github.com/golang/go/blob/master/src/bytes/buffer.go?name=release#134">WriteString</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (b *<a href="#Buffer">Buffer</a>) WriteString(s <a href="builtin.htm#string">string</a>) (n <a href="builtin.htm#int">int</a>, err <a href="builtin.htm#error">error</a>)</pre>
+    <p>Write将s的内容写入缓冲中，如必要会增加缓冲容量。返回值n为len(p)，err总是nil。如果缓冲变得太大，Write会采用错误值ErrTooLarge引发panic。</p>
+    <h4 id="Buffer.WriteByte">func (*Buffer) <a title="View Source" href="https://github.com/golang/go/blob/master/src/bytes/buffer.go?name=release#226">WriteByte</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (b *<a href="#Buffer">Buffer</a>) WriteByte(c <a href="builtin.htm#byte">byte</a>) <a href="builtin.htm#error">error</a></pre>
+    <p>WriteByte将字节c写入缓冲中，如必要会增加缓冲容量。返回值总是nil，但仍保留以匹配bufio.Writer的WriteByte方法。如果缓冲太大，WriteByte会采用错误值ErrTooLarge引发panic。</p>
+    <h4 id="Buffer.WriteRune">func (*Buffer) <a title="View Source" href="https://github.com/golang/go/blob/master/src/bytes/buffer.go?name=release#237">WriteRune</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (b *<a href="#Buffer">Buffer</a>) WriteRune(r <a href="builtin.htm#rune">rune</a>) (n <a href="builtin.htm#int">int</a>, err <a href="builtin.htm#error">error</a>)</pre>
+    <p>WriteByte将unicode码值r的utf-8编码写入缓冲中，如必要会增加缓冲容量。返回值总是nil，但仍保留以匹配bufio.Writer的WriteRune方法。如果缓冲太大，WriteRune会采用错误值ErrTooLarge引发panic。</p>
+    <h4 id="Buffer.ReadFrom">func (*Buffer) <a title="View Source" href="https://github.com/golang/go/blob/master/src/bytes/buffer.go?name=release#150">ReadFrom</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (b *<a href="#Buffer">Buffer</a>) ReadFrom(r <a href="io.htm">io</a>.<a href="io.htm#Reader">Reader</a>) (n <a href="builtin.htm#int64">int64</a>, err <a href="builtin.htm#error">error</a>)</pre>
+    <p>ReadFrom从r中读取数据直到结束并将读取的数据写入缓冲中，如必要会增加缓冲容量。返回值n为从r读取并写入b的字节数；会返回读取时遇到的除了io.EOF之外的错误。如果缓冲太大，ReadFrom会采用错误值ErrTooLarge引发panic。</p>
+    <h4 id="Buffer.WriteTo">func (*Buffer) <a title="View Source" href="https://github.com/golang/go/blob/master/src/bytes/buffer.go?name=release#198">WriteTo</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (b *<a href="#Buffer">Buffer</a>) WriteTo(w <a href="io.htm">io</a>.<a href="io.htm#Writer">Writer</a>) (n <a href="builtin.htm#int64">int64</a>, err <a href="builtin.htm#error">error</a>)</pre>
+    <p>WriteTo从缓冲中读取数据直到缓冲内没有数据或遇到错误，并将这些数据写入w。返回值n为从b读取并写入w的字节数；返回值总是可以无溢出的写入int类型，但为了匹配io.WriterTo接口设为int64类型。从b读取是遇到的非io.EOF错误及写入w时遇到的错误都会终止本方法并返回该错误。</p>
+</div>
+
+<div id="x-footer" class="clearfix">
+  <div class="container">
+    <a href="http://studygolang.com/">Go语言中文网</a>
+    <span class="text-muted">|</span> <a href="http://golang.org/">Go Language</a>
+    <span class="pull-right"><a href="#">Back to top</a></span>
+  </div>
+</div>
+<script src="../assets/jquery-2.0.3.min.js"></script>
+<script src="../bootstrap.min.js"></script>
+<script src="../site.js"></script>
+</body>
+</html>

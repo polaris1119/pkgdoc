@@ -1,0 +1,110 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="./site.css" rel="stylesheet">
+<title>crypto/elliptic</title>
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package elliptic</h2>
+    <p><code>import "crypto/elliptic"</code>
+    <p>elliptic包实现了几条覆盖素数有限域的标准椭圆曲线。</p>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#Curve">type Curve</a></li>
+        <ul>
+            <li><a href="#P224">func P224() Curve</a></li>
+            <li><a href="#P256">func P256() Curve</a></li>
+            <li><a href="#P384">func P384() Curve</a></li>
+            <li><a href="#P521">func P521() Curve</a></li>
+        </ul>
+        <li><a href="#CurveParams">type CurveParams</a></li>
+        <ul>
+            <li><a href="#CurveParams.Add">func (curve *CurveParams) Add(x1, y1, x2, y2 *big.Int) (*big.Int, *big.Int)</a></li>
+            <li><a href="#CurveParams.Double">func (curve *CurveParams) Double(x1, y1 *big.Int) (*big.Int, *big.Int)</a></li>
+            <li><a href="#CurveParams.IsOnCurve">func (curve *CurveParams) IsOnCurve(x, y *big.Int) bool</a></li>
+            <li><a href="#CurveParams.Params">func (curve *CurveParams) Params() *CurveParams</a></li>
+            <li><a href="#CurveParams.ScalarBaseMult">func (curve *CurveParams) ScalarBaseMult(k []byte) (*big.Int, *big.Int)</a></li>
+            <li><a href="#CurveParams.ScalarMult">func (curve *CurveParams) ScalarMult(Bx, By *big.Int, k []byte) (*big.Int, *big.Int)</a></li>
+        </ul>
+        <li><a href="#GenerateKey">func GenerateKey(curve Curve, rand io.Reader) (priv []byte, x, y *big.Int, err error)</a></li>
+        <li><a href="#Marshal">func Marshal(curve Curve, x, y *big.Int) []byte</a></li>
+        <li><a href="#Unmarshal">func Unmarshal(curve Curve, data []byte) (x, y *big.Int)</a></li>
+    </ul>
+    <h3 id="Curve">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/elliptic/elliptic.go?name=release#24">Curve</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Curve interface {
+    <span class="com">// Params返回椭圆曲线的参数</span>
+    <span id="Curve.Params">Params</span>() *<a href="#CurveParams">CurveParams</a>
+    <span class="com">// IsOnCurve判断一个点是否在椭圆曲线上</span>
+    <span id="Curve.IsOnCurve">IsOnCurve</span>(x, y *<a href="math/big.htm">big</a>.<a href="math/big.htm#Int">Int</a>) <a href="builtin.htm#bool">bool</a>
+    <span class="com">// 返回点(x1,y1)和点(x2,y2)相加的结果</span>
+    <span id="Curve.Add">Add</span>(x1, y1, x2, y2 *<a href="math/big.htm">big</a>.<a href="math/big.htm#Int">Int</a>) (x, y *<a href="math/big.htm">big</a>.<a href="math/big.htm#Int">Int</a>)
+    <span class="com">// 返回2*(x,y)，即(x,y)+(x,y)</span>
+    <span id="Curve.Double">Double</span>(x1, y1 *<a href="math/big.htm">big</a>.<a href="math/big.htm#Int">Int</a>) (x, y *<a href="math/big.htm">big</a>.<a href="math/big.htm#Int">Int</a>)
+    <span class="com">// k是一个大端在前格式的数字，返回k*(Bx,By)</span>
+    <span id="Curve.ScalarMult">ScalarMult</span>(x1, y1 *<a href="math/big.htm">big</a>.<a href="math/big.htm#Int">Int</a>, k []<a href="builtin.htm#byte">byte</a>) (x, y *<a href="math/big.htm">big</a>.<a href="math/big.htm#Int">Int</a>)
+    <span class="com">// k是一个大端在前格式的数字，返回k*G，G是本椭圆曲线的基点</span>
+    <span id="Curve.ScalarBaseMult">ScalarBaseMult</span>(k []<a href="builtin.htm#byte">byte</a>) (x, y *<a href="math/big.htm">big</a>.<a href="math/big.htm#Int">Int</a>)
+}</pre>
+    <p align="left">Curve代表一个短格式的Weierstrass椭圆曲线，其中a=-3。</p>
+    <p align="left">Weierstrass椭圆曲线的格式：y**2 = x**3 + a*x + b</p>
+    <p align="left">参见<a href="http://www.hyperelliptic.org/EFD/g1p/auto-shortw.html">http://www.hyperelliptic.org/EFD/g1p/auto-shortw.html</a></p>
+    <h4 id="P224">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/elliptic/p224.go?name=release#39">P224</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func P224() <a href="#Curve">Curve</a></pre>
+    <p>返回一个实现了P-224的曲线。（参见FIPS 186-3, section D.2.2）</p>
+    <h4 id="P256">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/elliptic/elliptic.go?name=release#358">P256</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func P256() <a href="#Curve">Curve</a></pre>
+    <p>返回一个实现了P-256的曲线。（参见FIPS 186-3, section D.2.3）</p>
+    <h4 id="P384">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/elliptic/elliptic.go?name=release#364">P384</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func P384() <a href="#Curve">Curve</a></pre>
+    <p>返回一个实现了P-384的曲线。（参见FIPS 186-3, section D.2.4）</p>
+    <h4 id="P521">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/elliptic/elliptic.go?name=release#370">P521</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func P521() <a href="#Curve">Curve</a></pre>
+    <p>返回一个实现了P-512的曲线。（参见FIPS 186-3, section D.2.5）</p>
+    <h3 id="CurveParams">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/elliptic/elliptic.go?name=release#42">CurveParams</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type CurveParams struct {
+    <span id="CurveParams.P">P</span>       *<a href="math/big.htm">big</a>.<a href="math/big.htm#Int">Int</a> <span class="com">// 决定有限域的p的值（必须是素数）</span>
+    <span id="CurveParams.N">N</span>       *<a href="math/big.htm">big</a>.<a href="math/big.htm#Int">Int</a> <span class="com">// 基点的阶（必须是素数）</span>
+    <span id="CurveParams.B">B</span>       *<a href="math/big.htm">big</a>.<a href="math/big.htm#Int">Int</a> <span class="com">// 曲线公式的常量（B!=2）</span>
+    <span id="CurveParams.Gx">Gx</span>, <span id="CurveParams.Gy">Gy</span>  *<a href="math/big.htm">big</a>.<a href="math/big.htm#Int">Int</a> <span class="com">// 基点的坐标</span>
+    <span id="CurveParams.BitSize">BitSize</span> <a href="builtin.htm#int">int</a>      <span class="com">// 决定有限域的p的字位数</span>
+}</pre>
+    <p>CurveParams包含一个椭圆曲线的所有参数，也可提供一般的、非常数时间实现的椭圆曲线。</p>
+    <h4 id="CurveParams.Params">func (*CurveParams) <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/elliptic/elliptic.go?name=release#50">Params</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (curve *<a href="#CurveParams">CurveParams</a>) Params() *<a href="#CurveParams">CurveParams</a></pre>
+    <h4 id="CurveParams.IsOnCurve">func (*CurveParams) <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/elliptic/elliptic.go?name=release#54">IsOnCurve</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (curve *<a href="#CurveParams">CurveParams</a>) IsOnCurve(x, y *<a href="math/big.htm">big</a>.<a href="math/big.htm#Int">Int</a>) <a href="builtin.htm#bool">bool</a></pre>
+    <h4 id="CurveParams.Add">func (*CurveParams) <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/elliptic/elliptic.go?name=release#101">Add</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (curve *<a href="#CurveParams">CurveParams</a>) Add(x1, y1, x2, y2 *<a href="math/big.htm">big</a>.<a href="math/big.htm#Int">Int</a>) (*<a href="math/big.htm">big</a>.<a href="math/big.htm#Int">Int</a>, *<a href="math/big.htm">big</a>.<a href="math/big.htm#Int">Int</a>)</pre>
+    <h4 id="CurveParams.Double">func (*CurveParams) <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/elliptic/elliptic.go?name=release#185">Double</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (curve *<a href="#CurveParams">CurveParams</a>) Double(x1, y1 *<a href="math/big.htm">big</a>.<a href="math/big.htm#Int">Int</a>) (*<a href="math/big.htm">big</a>.<a href="math/big.htm#Int">Int</a>, *<a href="math/big.htm">big</a>.<a href="math/big.htm#Int">Int</a>)</pre>
+    <h4 id="CurveParams.ScalarMult">func (*CurveParams) <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/elliptic/elliptic.go?name=release#250">ScalarMult</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (curve *<a href="#CurveParams">CurveParams</a>) ScalarMult(Bx, By *<a href="math/big.htm">big</a>.<a href="math/big.htm#Int">Int</a>, k []<a href="builtin.htm#byte">byte</a>) (*<a href="math/big.htm">big</a>.<a href="math/big.htm#Int">Int</a>, *<a href="math/big.htm">big</a>.<a href="math/big.htm#Int">Int</a>)</pre>
+    <h4 id="CurveParams.ScalarBaseMult">func (*CurveParams) <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/elliptic/elliptic.go?name=release#267">ScalarBaseMult</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (curve *<a href="#CurveParams">CurveParams</a>) ScalarBaseMult(k []<a href="builtin.htm#byte">byte</a>) (*<a href="math/big.htm">big</a>.<a href="math/big.htm#Int">Int</a>, *<a href="math/big.htm">big</a>.<a href="math/big.htm#Int">Int</a>)</pre>
+    <h3 id="GenerateKey">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/elliptic/elliptic.go?name=release#275">GenerateKey</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func GenerateKey(curve <a href="#Curve">Curve</a>, rand <a href="io.htm">io</a>.<a href="io.htm#Reader">Reader</a>) (priv []<a href="builtin.htm#byte">byte</a>, x, y *<a href="math/big.htm">big</a>.<a href="math/big.htm#Int">Int</a>, err <a href="builtin.htm#error">error</a>)</pre>
+    <p>GenerateKey返回一个公钥/私钥对。priv是私钥，而(x,y)是公钥。密钥对是通过提供的随机数读取器来生成的，该io.Reader接口必须返回随机数据。</p>
+    <h3 id="Marshal">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/elliptic/elliptic.go?name=release#297">Marshal</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Marshal(curve <a href="#Curve">Curve</a>, x, y *<a href="math/big.htm">big</a>.<a href="math/big.htm#Int">Int</a>) []<a href="builtin.htm#byte">byte</a></pre>
+    <p>Marshal将一个点编码为ANSI X9.62指定的格式。</p>
+    <h3 id="Unmarshal">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/elliptic/elliptic.go?name=release#311">Unmarshal</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Unmarshal(curve <a href="#Curve">Curve</a>, data []<a href="builtin.htm#byte">byte</a>) (x, y *<a href="math/big.htm">big</a>.<a href="math/big.htm#Int">Int</a>)</pre>
+    <p>将一个Marshal编码后的点还原；如果出错，x会被设为nil。</p>
+</div>
+
+<div id="x-footer" class="clearfix">
+  <div class="container">
+    <a href="http://studygolang.com/">Go语言中文网</a>
+    <span class="text-muted">|</span> <a href="http://golang.org/">Go Language</a>
+    <span class="pull-right"><a href="#">Back to top</a></span>
+  </div>
+</div>
+<script src="../assets/jquery-2.0.3.min.js"></script>
+<script src="../bootstrap.min.js"></script>
+<script src="../site.js"></script>
+</body>
+</html>

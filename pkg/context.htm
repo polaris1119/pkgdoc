@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="../assets/site.css" rel="stylesheet">
+  <title>context</title>
+  <meta name="twitter:title" content="Package context">
+  <meta property="og:title" content="Package context">
+  <meta name="description" content="Package context defines the Context type, which carries deadlines, cancelation signals, and other request-scoped values across API boundaries and between processes.">
+  <meta name="twitter:description" content="Package context defines the Context type, which carries deadlines, cancelation signals, and other request-scoped values across API boundaries and between processes.">
+  <meta property="og:description" content="Package context defines the Context type, which carries deadlines, cancelation signals, and other request-scoped values across API boundaries and between processes.">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:site" content="@golang">
+
+</head>
+<body>
+<div class="container">
+  <h2 id="pkg-overview">package context</h2>
+
+  <p><code>import "context"</code>
+
+  <p>
+Package context defines the Context type, which carries deadlines,
+cancelation signals, and other request-scoped values across API boundaries
+and between processes.
+</p>
+<p>
+Incoming requests to a server should create a Context, and outgoing
+calls to servers should accept a Context. The chain of function
+calls between them must propagate the Context, optionally replacing
+it with a derived Context created using WithCancel, WithDeadline,
+WithTimeout, or WithValue. When a Context is canceled, all
+Contexts derived from it are also canceled.
+</p>
+<p>
+The WithCancel, WithDeadline, and WithTimeout functions take a
+Context (the parent) and return a derived Context (the child) and a
+CancelFunc. Calling the CancelFunc cancels the child and its
+children, removes the parent&#39;s reference to the child, and stops
+any associated timers. Failing to call the CancelFunc leaks the
+child and its children until the parent is canceled or the timer
+fires. The go vet tool checks that CancelFuncs are used on all
+control-flow paths.
+</p>
+<p>
+Programs that use Contexts should follow these rules to keep interfaces
+consistent across packages and enable static analysis tools to check context
+propagation:
+</p>
+<p>
+Do not store Contexts inside a struct type; instead, pass a Context
+explicitly to each function that needs it. The Context should be the first
+parameter, typically named ctx:
+</p>
+<pre>func DoSomething(ctx context.Context, arg Arg) error {
+	// ... use ctx ...
+}
+</pre>
+<p>
+Do not pass a nil Context, even if a function permits it. Pass context.TODO
+if you are unsure about which Context to use.
+</p>
+<p>
+Use context Values only for request-scoped data that transits processes and
+APIs, not for passing optional parameters to functions.
+</p>
+<p>
+The same Context may be passed to functions running in different goroutines;
+Contexts are safe for simultaneous use by multiple goroutines.
+</p>
+<p>
+See <a href="https://blog.golang.org/context">https://blog.golang.org/context</a> for example code for a server that uses
+Contexts.</p>
+
+
+        
+  
+
+
+        
+  <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+  <a href="../main.html"><h3>返回首页</h3></a>
+        
+
+        <ul class="list-unstyled">
+          
+          <li><a href="#pkg-variables">Variables</a></li>
+          
+          
+            <li><a href="#CancelFunc">type CancelFunc</a></li>
+            
+            
+            
+            
+          
+            <li><a href="#Context">type Context</a></li>
+            <ul>
+            <li><a href="#Background">func Background() Context</a></li><li><a href="#TODO">func TODO() Context</a></li><li><a href="#WithCancel">func WithCancel(parent Context) (ctx Context, cancel CancelFunc)</a></li><li><a href="#WithDeadline">func WithDeadline(parent Context, deadline time.Time) (Context, CancelFunc)</a></li><li><a href="#WithTimeout">func WithTimeout(parent Context, timeout time.Duration) (Context, CancelFunc)</a></li><li><a href="#WithValue">func WithValue(parent Context, key, val interface{}) Context</a></li>
+            
+            </ul>
+          
+          
+        </ul>
+
+        
+        
+          <h4 id="pkg-examples">Examples <a class="permalink" href="#pkg-examples">&para;</a></h4>
+          <ul class="list-unstyled">
+            <li><a href="#example-WithCancel" onclick="$('#ex-WithCancel').addClass('in').removeClass('collapse').height('auto')">WithCancel</a></li><li><a href="#example-WithDeadline" onclick="$('#ex-WithDeadline').addClass('in').removeClass('collapse').height('auto')">WithDeadline</a></li><li><a href="#example-WithTimeout" onclick="$('#ex-WithTimeout').addClass('in').removeClass('collapse').height('auto')">WithTimeout</a></li><li><a href="#example-WithValue" onclick="$('#ex-WithValue').addClass('in').removeClass('collapse').height('auto')">WithValue</a></li>
+          </ul>
+        
+
+        
+        
+<h4 id="pkg-files">
+  <a href="https://github.com/golang/go/blob/master/src/context/">Package Files</a>
+  <a class="permalink" href="#pkg-files">&para;</a>
+</h4>
+
+<p><a href="https://github.com/golang/go/blob/master/src/context/context.go">context.go</a> </p>
+
+        
+        
+
+        
+        
+          <h3 id="pkg-variables">Variables <a class="permalink" href="#pkg-variables">&para;</a></h3>
+          <div class="decl" data-kind="v"><a title="View Source" href="https://github.com/golang/go/blob/master/src/context/context.go#L154">❖</a><pre>var <span id="Canceled">Canceled</span> = <a href="/errors">errors</a>.<a href="/errors#New">New</a>(&#34;context canceled&#34;)</pre></div><p>
+Canceled is the error returned by Context.Err when the context is canceled.
+</p>
+<div class="decl" data-kind="v"><a title="View Source" href="https://github.com/golang/go/blob/master/src/context/context.go#L158">❖</a><pre>var <span id="DeadlineExceeded">DeadlineExceeded</span> <a href="/builtin#error">error</a> = deadlineExceededError{}</pre></div><p>
+DeadlineExceeded is the error returned by Context.Err when the context&#39;s
+deadline passes.
+</p>
+
+        
+        
+          <h3 id="CancelFunc" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/context/context.go#L221">CancelFunc</a> <a class="permalink" href="#CancelFunc">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=CancelFunc&amp;pkg=context&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/context/context.go#L221">❖</a><pre>type CancelFunc func()</pre></div><p>
+A CancelFunc tells an operation to abandon its work.
+A CancelFunc does not wait for the work to stop.
+After the first call, subsequent calls to a CancelFunc do nothing.
+</p>
+
+          
+        
+          <h3 id="Context" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/context/context.go#L62">Context</a> <a class="permalink" href="#Context">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=Context&amp;pkg=context&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="m"><a title="View Source" href="https://github.com/golang/go/blob/master/src/context/context.go#L62">❖</a><pre>type Context interface {
+    <span class="com">// Deadline returns the time when work done on behalf of this context
+    // should be canceled. Deadline returns ok==false when no deadline is
+    // set. Successive calls to Deadline return the same results.</span>
+    <span id="Context.Deadline">Deadline</span>() (deadline <a href="/time">time</a>.<a href="/time#Time">Time</a>, ok <a href="/builtin#bool">bool</a>)
+
+    <span class="com">// Done returns a channel that&#39;s closed when work done on behalf of this
+    // context should be canceled. Done may return nil if this context can
+    // never be canceled. Successive calls to Done return the same value.
+    //
+    // WithCancel arranges for Done to be closed when cancel is called;
+    // WithDeadline arranges for Done to be closed when the deadline
+    // expires; WithTimeout arranges for Done to be closed when the timeout
+    // elapses.
+    //
+    // Done is provided for use in select statements:
+    //
+    //  // Stream generates values with DoSomething and sends them to out
+    //  // until DoSomething returns an error or ctx.Done is closed.
+    //  func Stream(ctx context.Context, out chan&lt;- Value) error {
+    //  	for {
+    //  		v, err := DoSomething(ctx)
+    //  		if err != nil {
+    //  			return err
+    //  		}
+    //  		select {
+    //  		case &lt;-ctx.Done():
+    //  			return ctx.Err()
+    //  		case out &lt;- v:
+    //  		}
+    //  	}
+    //  }
+    //
+    // See https://blog.golang.org/pipelines for more examples of how to use
+    // a Done channel for cancelation.</span>
+    <span id="Context.Done">Done</span>() &lt;-chan struct{}
+
+    <span class="com">// Err returns a non-nil error value after Done is closed. Err returns
+    // Canceled if the context was canceled or DeadlineExceeded if the
+    // context&#39;s deadline passed. No other values for Err are defined.
+    // After Done is closed, successive calls to Err return the same value.</span>
+    <span id="Context.Err">Err</span>() <a href="/builtin#error">error</a>
+
+    <span class="com">// Value returns the value associated with this context for key, or nil
+    // if no value is associated with key. Successive calls to Value with
+    // the same key returns the same result.
+    //
+    // Use context values only for request-scoped data that transits
+    // processes and API boundaries, not for passing optional parameters to
+    // functions.
+    //
+    // A key identifies a specific value in a Context. Functions that wish
+    // to store values in Context typically allocate a key in a global
+    // variable then use that key as the argument to context.WithValue and
+    // Context.Value. A key can be any type that supports equality;
+    // packages should define keys as an unexported type to avoid
+    // collisions.
+    //
+    // Packages that define a Context key should provide type-safe accessors
+    // for the values stored using that key:
+    //
+    // 	// Package user defines a User type that&#39;s stored in Contexts.
+    // 	package user
+    //
+    // 	import &#34;context&#34;
+    //
+    // 	// User is the type of value stored in the Contexts.
+    // 	type User struct {...}
+    //
+    // 	// key is an unexported type for keys defined in this package.
+    // 	// This prevents collisions with keys defined in other packages.
+    // 	type key int
+    //
+    // 	// userKey is the key for user.User values in Contexts. It is
+    // 	// unexported; clients use user.NewContext and user.FromContext
+    // 	// instead of using this key directly.
+    // 	var userKey key = 0
+    //
+    // 	// NewContext returns a new Context that carries value u.
+    // 	func NewContext(ctx context.Context, u *User) context.Context {
+    // 		return context.WithValue(ctx, userKey, u)
+    // 	}
+    //
+    // 	// FromContext returns the User value stored in ctx, if any.
+    // 	func FromContext(ctx context.Context) (*User, bool) {
+    // 		u, ok := ctx.Value(userKey).(*User)
+    // 		return u, ok
+    // 	}</span>
+    <span id="Context.Value">Value</span>(key interface{}) interface{}
+}</pre></div><p>
+A Context carries a deadline, a cancelation signal, and other values across
+API boundaries.
+</p>
+<p>
+Context&#39;s methods may be called by multiple goroutines simultaneously.
+</p>
+
+          
+          
+          
+  
+
+
+          
+            <h4 id="Background" data-kind="f">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/context/context.go#L205">Background</a> <a class="permalink" href="#Background">&para;</a> <a class="uses" title="List Function Callers" href="https://sourcegraph.com/-/godoc/refs?def=Background&amp;pkg=context&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/context/context.go#L205">❖</a><pre>func Background() <a href="#Context">Context</a></pre></div><p>
+Background returns a non-nil, empty Context. It is never canceled, has no
+values, and has no deadline. It is typically used by the main function,
+initialization, and tests, and as the top-level Context for incoming
+requests.
+</p>
+
+            
+  
+
+          
+            <h4 id="TODO" data-kind="f">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/context/context.go#L214">TODO</a> <a class="permalink" href="#TODO">&para;</a> <a class="uses" title="List Function Callers" href="https://sourcegraph.com/-/godoc/refs?def=TODO&amp;pkg=context&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/context/context.go#L214">❖</a><pre>func TODO() <a href="#Context">Context</a></pre></div><p>
+TODO returns a non-nil, empty Context. Code should use context.TODO when
+it&#39;s unclear which Context to use or it is not yet available (because the
+surrounding function has not yet been extended to accept a Context
+parameter). TODO is recognized by static analysis tools that determine
+whether Contexts are propagated correctly in a program.
+</p>
+
+            
+  
+
+          
+            <h4 id="WithCancel" data-kind="f">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/context/context.go#L229">WithCancel</a> <a class="permalink" href="#WithCancel">&para;</a> <a class="uses" title="List Function Callers" href="https://sourcegraph.com/-/godoc/refs?def=WithCancel&amp;pkg=context&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/context/context.go#L229">❖</a><pre>func WithCancel(parent <a href="#Context">Context</a>) (ctx <a href="#Context">Context</a>, cancel <a href="#CancelFunc">CancelFunc</a>)</pre></div><p>
+WithCancel returns a copy of parent with a new Done channel. The returned
+context&#39;s Done channel is closed when the returned cancel function is called
+or when the parent context&#39;s Done channel is closed, whichever happens first.
+</p>
+<p>
+Canceling this context releases resources associated with it, so code should
+call cancel as soon as the operations running in this Context complete.
+</p>
+
+            
+  
+    <div class="panel-group">
+    
+      <div class="panel panel-default" id="example-WithCancel">
+        <div class="panel-heading"><a class="accordion-toggle" data-toggle="collapse" href="#ex-WithCancel">Example</a></div>
+        <div id="ex-WithCancel" class="panel-collapse collapse"><div class="panel-body">
+          <p><p>
+This example demonstrates the use of a cancelable context to prevent a
+goroutine leak. By the end of the example function, the goroutine started
+by gen will return without leaking.
+</p>
+
+          <p>Code:<span class="pull-right"><a href="?play=WithCancel">play</a>&nbsp;</span>
+          <pre><span class="com">// gen generates integers in a separate goroutine and
+// sends them to the returned channel.
+// The callers of gen need to cancel the context once
+// they are done consuming generated integers not to leak
+// the internal goroutine started by gen.</span>
+gen := func(ctx context.Context) &lt;-chan int {
+    dst := make(chan int)
+    n := 1
+    go func() {
+        for {
+            select {
+            case &lt;-ctx.Done():
+                return <span class="com">// returning not to leak the goroutine</span>
+            case dst &lt;- n:
+                n++
+            }
+        }
+    }()
+    return dst
+}
+
+ctx, cancel := context.WithCancel(context.Background())
+defer cancel() <span class="com">// cancel when we are finished consuming integers</span>
+
+for n := range gen(ctx) {
+    fmt.Println(n)
+    if n == 5 {
+        break
+    }
+}</pre>
+          <p>Output:<pre>1
+2
+3
+4
+5
+</pre>
+        </div></div>
+      </div>
+    
+    </div>
+  
+
+          
+            <h4 id="WithDeadline" data-kind="f">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/context/context.go#L369">WithDeadline</a> <a class="permalink" href="#WithDeadline">&para;</a> <a class="uses" title="List Function Callers" href="https://sourcegraph.com/-/godoc/refs?def=WithDeadline&amp;pkg=context&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/context/context.go#L369">❖</a><pre>func WithDeadline(parent <a href="#Context">Context</a>, deadline <a href="/time">time</a>.<a href="/time#Time">Time</a>) (<a href="#Context">Context</a>, <a href="#CancelFunc">CancelFunc</a>)</pre></div><p>
+WithDeadline returns a copy of the parent context with the deadline adjusted
+to be no later than d. If the parent&#39;s deadline is already earlier than d,
+WithDeadline(parent, d) is semantically equivalent to parent. The returned
+context&#39;s Done channel is closed when the deadline expires, when the returned
+cancel function is called, or when the parent context&#39;s Done channel is
+closed, whichever happens first.
+</p>
+<p>
+Canceling this context releases resources associated with it, so code should
+call cancel as soon as the operations running in this Context complete.
+</p>
+
+            
+  
+    <div class="panel-group">
+    
+      <div class="panel panel-default" id="example-WithDeadline">
+        <div class="panel-heading"><a class="accordion-toggle" data-toggle="collapse" href="#ex-WithDeadline">Example</a></div>
+        <div id="ex-WithDeadline" class="panel-collapse collapse"><div class="panel-body">
+          <p><p>
+This example passes a context with a arbitrary deadline to tell a blocking
+function that it should abandon its work as soon as it gets to it.
+</p>
+
+          <p>Code:<span class="pull-right"><a href="?play=WithDeadline">play</a>&nbsp;</span>
+          <pre>d := time.Now().Add(50 * time.Millisecond)
+ctx, cancel := context.WithDeadline(context.Background(), d)
+
+<span class="com">// Even though ctx will be expired, it is good practice to call its
+// cancelation function in any case. Failure to do so may keep the
+// context and its parent alive longer than necessary.</span>
+defer cancel()
+
+select {
+case &lt;-time.After(1 * time.Second):
+    fmt.Println(&#34;overslept&#34;)
+case &lt;-ctx.Done():
+    fmt.Println(ctx.Err())
+}</pre>
+          <p>Output:<pre>context deadline exceeded
+</pre>
+        </div></div>
+      </div>
+    
+    </div>
+  
+
+          
+            <h4 id="WithTimeout" data-kind="f">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/context/context.go#L436">WithTimeout</a> <a class="permalink" href="#WithTimeout">&para;</a> <a class="uses" title="List Function Callers" href="https://sourcegraph.com/-/godoc/refs?def=WithTimeout&amp;pkg=context&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/context/context.go#L436">❖</a><pre>func WithTimeout(parent <a href="#Context">Context</a>, timeout <a href="/time">time</a>.<a href="/time#Duration">Duration</a>) (<a href="#Context">Context</a>, <a href="#CancelFunc">CancelFunc</a>)</pre></div><p>
+WithTimeout returns WithDeadline(parent, time.Now().Add(timeout)).
+</p>
+<p>
+Canceling this context releases resources associated with it, so code should
+call cancel as soon as the operations running in this Context complete:
+</p>
+<pre>func slowOperationWithTimeout(ctx context.Context) (Result, error) {
+	ctx, cancel := context.WithTimeout(ctx, 100*time.Millisecond)
+	defer cancel()  // releases resources if slowOperation completes before timeout elapses
+	return slowOperation(ctx)
+}
+</pre>
+
+            
+  
+    <div class="panel-group">
+    
+      <div class="panel panel-default" id="example-WithTimeout">
+        <div class="panel-heading"><a class="accordion-toggle" data-toggle="collapse" href="#ex-WithTimeout">Example</a></div>
+        <div id="ex-WithTimeout" class="panel-collapse collapse"><div class="panel-body">
+          <p><p>
+This example passes a context with a timeout to tell a blocking function that
+it should abandon its work after the timeout elapses.
+</p>
+
+          <p>Code:<span class="pull-right"><a href="?play=WithTimeout">play</a>&nbsp;</span>
+          <pre><span class="com">// Pass a context with a timeout to tell a blocking function that it
+// should abandon its work after the timeout elapses.</span>
+ctx, cancel := context.WithTimeout(context.Background(), 50*time.Millisecond)
+defer cancel()
+
+select {
+case &lt;-time.After(1 * time.Second):
+    fmt.Println(&#34;overslept&#34;)
+case &lt;-ctx.Done():
+    fmt.Println(ctx.Err()) <span class="com">// prints &#34;context deadline exceeded&#34;</span>
+}</pre>
+          <p>Output:<pre>context deadline exceeded
+</pre>
+        </div></div>
+      </div>
+    
+    </div>
+  
+
+          
+            <h4 id="WithValue" data-kind="f">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/context/context.go#L453">WithValue</a> <a class="permalink" href="#WithValue">&para;</a> <a class="uses" title="List Function Callers" href="https://sourcegraph.com/-/godoc/refs?def=WithValue&amp;pkg=context&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/context/context.go#L453">❖</a><pre>func WithValue(parent <a href="#Context">Context</a>, key, val interface{}) <a href="#Context">Context</a></pre></div><p>
+WithValue returns a copy of parent in which the value associated with key is
+val.
+</p>
+<p>
+Use context Values only for request-scoped data that transits processes and
+APIs, not for passing optional parameters to functions.
+</p>
+<p>
+The provided key must be comparable and should not be of type
+string or any other built-in type to avoid collisions between
+packages using context. Users of WithValue should define their own
+types for keys. To avoid allocating when assigning to an
+interface{}, context keys often have concrete type
+struct{}. Alternatively, exported context key variables&#39; static
+type should be a pointer or interface.
+</p>
+
+            
+  
+    <div class="panel-group">
+    
+      <div class="panel panel-default" id="example-WithValue">
+        <div class="panel-heading"><a class="accordion-toggle" data-toggle="collapse" href="#ex-WithValue">Example</a></div>
+        <div id="ex-WithValue" class="panel-collapse collapse"><div class="panel-body">
+          
+          <p>Code:
+          <pre>type favContextKey string
+
+f := func(ctx context.Context, k favContextKey) {
+    if v := ctx.Value(k); v != nil {
+        fmt.Println(&#34;found value:&#34;, v)
+        return
+    }
+    fmt.Println(&#34;key not found:&#34;, k)
+}
+
+k := favContextKey(&#34;language&#34;)
+ctx := context.WithValue(context.Background(), k, &#34;Go&#34;)
+
+f(ctx, k)
+f(ctx, favContextKey(&#34;color&#34;))</pre>
+          <p>Output:<pre>found value: Go
+key not found: color
+</pre>
+        </div></div>
+      </div>
+    
+</div>
+<div id="x-footer" class="clearfix">
+  <div class="container">
+    <a href="http://studygolang.com/">Go语言中文网</a>
+    <span class="text-muted">|</span> <a href="http://golang.org/">Go Language</a>
+    <span class="pull-right"><a href="#">Back to top</a></span>
+  </div>
+</div>
+<script type="text/javascript" src="../assets/jquery-2.0.3.min.js"></script>
+<script type="text/javascript" src="../assets/bootstrap.min.js"></script>
+<script type="text/javascript" src="../assets/site.js"></script>
+</body>
+</html>

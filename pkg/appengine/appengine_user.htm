@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="../site.css" rel="stylesheet">
+<title>appengine/user</title>
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package user</h2>
+    <p><code>import "code.google.com/p/appengine-go/appengine/user"</code>
+    <p align="left">user提供App Engine用户认证服务。</p>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <ul class="list-unstyled">
+        <li><a href="#IsAdmin">func IsAdmin(c appengine.Context) bool</a></li>
+        <li><a href="#LoginURL">func LoginURL(c appengine.Context, dest string) (string, error)</a></li>
+        <li><a href="#LoginURLFederated">func LoginURLFederated(c appengine.Context, dest, identity string) (string, error)</a></li>
+        <li><a href="#LogoutURL">func LogoutURL(c appengine.Context, dest string) (string, error)</a></li>
+        <li><a href="#OAuthConsumerKey">func OAuthConsumerKey(c appengine.Context) (string, error)</a></li>
+        <li><a href="#User">type User</a></li>
+        <ul>
+            <li><a href="#Current">func Current(c appengine.Context) *User</a></li>
+            <li><a href="#CurrentOAuth">func CurrentOAuth(c appengine.Context, scope string) (*User, error)</a></li>
+            <li><a href="#User.String">func (u *User) String() string</a></li>
+        </ul>
+    </ul>
+    <h3 id="IsAdmin">func <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/user/user.go#90">IsAdmin</a> <a class="permalink" href="#IsAdmin">&para;</a></h3>
+    <pre class="funcdecl">func IsAdmin(c <a href="https://godoc.org/appengine">appengine</a>.<a href="https://godoc.org/appengine#Context">Context</a>) <a href="https://godoc.org/builtin#bool">bool</a></pre>
+    <p>返回当前用户是否为该app的管理员。</p>
+    <h3 id="LoginURL">func <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/user/user.go#46">LoginURL</a> <a class="permalink" href="#LoginURL">&para;</a></h3>
+    <pre class="funcdecl">func LoginURL(c <a href="https://godoc.org/appengine">appengine</a>.<a href="https://godoc.org/appengine#Context">Context</a>, dest <a href="https://godoc.org/builtin#string">string</a>) (<a href="https://godoc.org/builtin#string">string</a>, <a href="https://godoc.org/builtin#error">error</a>)</pre>
+    <p>返回一个URL，访问该网址时，会要求用户登录，并在登录后重定向到dest页面。</p>
+    <h3 id="LoginURLFederated">func <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/user/user.go#51">LoginURLFederated</a> <a class="permalink" href="#LoginURLFederated">&para;</a></h3>
+    <pre class="funcdecl">func LoginURLFederated(c <a href="https://godoc.org/appengine">appengine</a>.<a href="https://godoc.org/appengine#Context">Context</a>, dest, identity <a href="https://godoc.org/builtin#string">string</a>) (<a href="https://godoc.org/builtin#string">string</a>, <a href="https://godoc.org/builtin#error">error</a>)</pre>
+    <p>类似LoginURL，但接受用户的OpenID识别码。</p>
+    <h3 id="LogoutURL">func <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/user/user.go#67">LogoutURL</a> <a class="permalink" href="#LogoutURL">&para;</a></h3>
+    <pre class="funcdecl">func LogoutURL(c <a href="https://godoc.org/appengine">appengine</a>.<a href="https://godoc.org/appengine#Context">Context</a>, dest <a href="https://godoc.org/builtin#string">string</a>) (<a href="https://godoc.org/builtin#string">string</a>, <a href="https://godoc.org/builtin#error">error</a>)</pre>
+    <p>返回一个URL，访问该网址时，会要求用户注销，并在登录后重定向到dest页面。</p>
+    <h3 id="OAuthConsumerKey">func <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/user/oauth.go#38">OAuthConsumerKey</a> <a class="permalink" href="#OAuthConsumerKey">&para;</a></h3>
+    <pre class="funcdecl">func OAuthConsumerKey(c <a href="https://godoc.org/appengine">appengine</a>.<a href="https://godoc.org/appengine#Context">Context</a>) (<a href="https://godoc.org/builtin#string">string</a>, <a href="https://godoc.org/builtin#error">error</a>)</pre>
+    <p>返回当前请求的Oauth用户密码（consumer key），如果Oauth请求非法会返回错误。</p>
+    <h3 id="User">type <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/user/user.go#19">User</a> <a class="permalink" href="#User">&para;</a></h3>
+    <pre>type User struct {
+    <span id="User.Email">Email</span>      <a href="https://godoc.org/builtin#string">string</a>
+    <span id="User.AuthDomain">AuthDomain</span> <a href="https://godoc.org/builtin#string">string</a>
+    <span id="User.Admin">Admin</span>      <a href="https://godoc.org/builtin#bool">bool</a>
+    <span class="com">// 用户专有且常驻的ID，如果Email关联了google帐户将会设置它，否则设为空</span>
+    <span id="User.ID">ID</span>  <a href="https://godoc.org/builtin#string">string</a>
+    <span id="User.FederatedIdentity">FederatedIdentity</span> <a href="https://godoc.org/builtin#string">string</a>
+    <span id="User.FederatedProvider">FederatedProvider</span> <a href="https://godoc.org/builtin#string">string</a>
+}</pre>
+    <p>User代表某app的一个用户。</p>
+    <h4 id="Current">func <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/user/user.go#80">Current</a> <a class="permalink" href="#Current">&para;</a></h4>
+    <pre class="funcdecl">func Current(c <a href="https://godoc.org/appengine">appengine</a>.<a href="https://godoc.org/appengine#Context">Context</a>) *<a href="#User">User</a></pre>
+    <p>返回当前用户，如果当前用户未登录则返回nil。</p>
+    <h4 id="CurrentOAuth">func <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/user/oauth.go#17">CurrentOAuth</a> <a class="permalink" href="#CurrentOAuth">&para;</a></h4>
+    <pre class="funcdecl">func CurrentOAuth(c <a href="https://godoc.org/appengine">appengine</a>.<a href="https://godoc.org/appengine#Context">Context</a>, scope <a href="https://godoc.org/builtin#string">string</a>) (*<a href="#User">User</a>, <a href="https://godoc.org/builtin#error">error</a>)</pre>
+    <p>返回产生该请求的用户（关联到Oauth用户）的信息，如果Oauth用户未提供合法的请求，或者scope非空而当前的用户没有该作用域的权限，方法会返回错误。</p>
+    <h4 id="User.String">func (*User) <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/user/user.go#34">String</a> <a class="permalink" href="#User.String">&para;</a></h4>
+    <pre class="funcdecl">func (u *<a href="#User">User</a>) String() <a href="https://godoc.org/builtin#string">string</a></pre>
+    <p>返回当前用户的可显示的名字。</p>
+</div>
+</body>
+</html>

@@ -1,0 +1,681 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="./site.css" rel="stylesheet">
+<title>time</title>
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package time</h2>
+    <p><code>import "time"</code>
+    <p>time包提供了时间的显示和测量用的函数。日历的计算采用的是公历。</p>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#pkg-constants">Constants</a></li>
+        <li><a href="#ParseError">type ParseError</a></li>
+        <ul>
+            <li><a href="#ParseError.Error">func (e *ParseError) Error() string</a></li>
+        </ul>
+        <li><a href="#Weekday">type Weekday</a></li>
+        <ul>
+            <li><a href="#Weekday.String">func (d Weekday) String() string</a></li>
+        </ul>
+        <li><a href="#Month">type Month</a></li>
+        <ul>
+            <li><a href="#Month.String">func (m Month) String() string</a></li>
+        </ul>
+        <li><a href="#Location">type Location</a></li>
+        <ul>
+            <li><a href="#LoadLocation">func LoadLocation(name string) (*Location, error)</a></li>
+            <li><a href="#FixedZone">func FixedZone(name string, offset int) *Location</a></li>
+            <li><a href="#Location.String">func (l *Location) String() string</a></li>
+        </ul>
+        <li><a href="#Time">type Time</a></li>
+        <ul>
+            <li><a href="#Date">func Date(year int, month Month, day, hour, min, sec, nsec int, loc *Location) Time</a></li>
+            <li><a href="#Parse">func Parse(layout, value string) (Time, error)</a></li>
+            <li><a href="#ParseInLocation">func ParseInLocation(layout, value string, loc *Location) (Time, error)</a></li>
+            <li><a href="#Now">func Now() Time</a></li>
+            <li><a href="#Unix">func Unix(sec int64, nsec int64) Time</a></li>
+            <li><a href="#Time.Location">func (t Time) Location() *Location</a></li>
+            <li><a href="#Time.Zone">func (t Time) Zone() (name string, offset int)</a></li>
+            <li><a href="#Time.IsZero">func (t Time) IsZero() bool</a></li>
+            <li><a href="#Time.Local">func (t Time) Local() Time</a></li>
+            <li><a href="#Time.UTC">func (t Time) UTC() Time</a></li>
+            <li><a href="#Time.In">func (t Time) In(loc *Location) Time</a></li>
+            <li><a href="#Time.Unix">func (t Time) Unix() int64</a></li>
+            <li><a href="#Time.UnixNano">func (t Time) UnixNano() int64</a></li>
+            <li><a href="#Time.Equal">func (t Time) Equal(u Time) bool</a></li>
+            <li><a href="#Time.Before">func (t Time) Before(u Time) bool</a></li>
+            <li><a href="#Time.After">func (t Time) After(u Time) bool</a></li>
+            <li><a href="#Time.Date">func (t Time) Date() (year int, month Month, day int)</a></li>
+            <li><a href="#Time.Clock">func (t Time) Clock() (hour, min, sec int)</a></li>
+            <li><a href="#Time.Year">func (t Time) Year() int</a></li>
+            <li><a href="#Time.Month">func (t Time) Month() Month</a></li>
+            <li><a href="#Time.ISOWeek">func (t Time) ISOWeek() (year, week int)</a></li>
+            <li><a href="#Time.YearDay">func (t Time) YearDay() int</a></li>
+            <li><a href="#Time.Day">func (t Time) Day() int</a></li>
+            <li><a href="#Time.Weekday">func (t Time) Weekday() Weekday</a></li>
+            <li><a href="#Time.Hour">func (t Time) Hour() int</a></li>
+            <li><a href="#Time.Minute">func (t Time) Minute() int</a></li>
+            <li><a href="#Time.Second">func (t Time) Second() int</a></li>
+            <li><a href="#Time.Nanosecond">func (t Time) Nanosecond() int</a></li>
+            <li><a href="#Time.Add">func (t Time) Add(d Duration) Time</a></li>
+            <li><a href="#Time.AddDate">func (t Time) AddDate(years int, months int, days int) Time</a></li>
+            <li><a href="#Time.Sub">func (t Time) Sub(u Time) Duration</a></li>
+            <li><a href="#Time.Round">func (t Time) Round(d Duration) Time</a></li>
+            <li><a href="#Time.Truncate">func (t Time) Truncate(d Duration) Time</a></li>
+            <li><a href="#Time.Format">func (t Time) Format(layout string) string</a></li>
+            <li><a href="#Time.String">func (t Time) String() string</a></li>
+            <li><a href="#Time.GobEncode">func (t Time) GobEncode() ([]byte, error)</a></li>
+            <li><a href="#Time.GobDecode">func (t *Time) GobDecode(data []byte) error</a></li>
+            <li><a href="#Time.MarshalBinary">func (t Time) MarshalBinary() ([]byte, error)</a></li>
+            <li><a href="#Time.UnmarshalBinary">func (t *Time) UnmarshalBinary(data []byte) error</a></li>
+            <li><a href="#Time.MarshalJSON">func (t Time) MarshalJSON() ([]byte, error)</a></li>
+            <li><a href="#Time.UnmarshalJSON">func (t *Time) UnmarshalJSON(data []byte) error</a></li>
+            <li><a href="#Time.MarshalText">func (t Time) MarshalText() ([]byte, error)</a></li>
+            <li><a href="#Time.UnmarshalText">func (t *Time) UnmarshalText(data []byte) error</a></li>
+        </ul>
+        <li><a href="#Duration">type Duration</a></li>
+        <ul>
+            <li><a href="#ParseDuration">func ParseDuration(s string) (Duration, error)</a></li>
+            <li><a href="#Since">func Since(t Time) Duration</a></li>
+            <li><a href="#Duration.Hours">func (d Duration) Hours() float64</a></li>
+            <li><a href="#Duration.Minutes">func (d Duration) Minutes() float64</a></li>
+            <li><a href="#Duration.Seconds">func (d Duration) Seconds() float64</a></li>
+            <li><a href="#Duration.Nanoseconds">func (d Duration) Nanoseconds() int64</a></li>
+            <li><a href="#Duration.String">func (d Duration) String() string</a></li>
+        </ul>
+        <li><a href="#Timer">type Timer</a></li>
+        <ul>
+            <li><a href="#NewTimer">func NewTimer(d Duration) *Timer</a></li>
+            <li><a href="#AfterFunc">func AfterFunc(d Duration, f func()) *Timer</a></li>
+            <li><a href="#Timer.Reset">func (t *Timer) Reset(d Duration) bool</a></li>
+            <li><a href="#Timer.Stop">func (t *Timer) Stop() bool</a></li>
+        </ul>
+        <li><a href="#Ticker">type Ticker</a></li>
+        <ul>
+            <li><a href="#NewTicker">func NewTicker(d Duration) *Ticker</a></li>
+            <li><a href="#Ticker.Stop">func (t *Ticker) Stop()</a></li>
+        </ul>
+        <li><a href="#Sleep">func Sleep(d Duration)</a></li>
+        <li><a href="#After">func After(d Duration) &lt;-chan Time</a></li>
+        <li><a href="#Tick">func Tick(d Duration) &lt;-chan Time</a></li>
+    </ul>
+    <h4 id="pkg-examples">Examples <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#example-After" onclick="$('#ex-After').addClass('in').removeClass('collapse').height('auto')">After</a></li>
+        <li><a href="#example-Date" onclick="$('#ex-Date').addClass('in').removeClass('collapse').height('auto')">Date</a></li>
+        <li><a href="#example-Duration" onclick="$('#ex-Duration').addClass('in').removeClass('collapse').height('auto')">Duration</a></li>
+        <li><a href="#example-Month" onclick="$('#ex-Month').addClass('in').removeClass('collapse').height('auto')">Month</a></li>
+        <li><a href="#example-Parse" onclick="$('#ex-Parse').addClass('in').removeClass('collapse').height('auto')">Parse</a></li>
+        <li><a href="#example-ParseInLocation" onclick="$('#ex-ParseInLocation').addClass('in').removeClass('collapse').height('auto')">ParseInLocation</a></li>
+        <li><a href="#example-Sleep" onclick="$('#ex-Sleep').addClass('in').removeClass('collapse').height('auto')">Sleep</a></li>
+        <li><a href="#example-Tick" onclick="$('#ex-Tick').addClass('in').removeClass('collapse').height('auto')">Tick</a></li>
+        <li><a href="#example-Time-Format" onclick="$('#ex-Time-Format').addClass('in').removeClass('collapse').height('auto')">Time.Format</a></li>
+        <li><a href="#example-Time-Round" onclick="$('#ex-Time-Round').addClass('in').removeClass('collapse').height('auto')">Time.Round</a></li>
+        <li><a href="#example-Time-Truncate" onclick="$('#ex-Time-Truncate').addClass('in').removeClass('collapse').height('auto')">Time.Truncate</a></li>
+    </ul>
+    <h3 id="pkg-constants">Constants <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>const (
+    <span id="ANSIC">ANSIC</span>       = &#34;Mon Jan _2 15:04:05 2006&#34;
+    <span id="UnixDate">UnixDate</span>    = &#34;Mon Jan _2 15:04:05 MST 2006&#34;
+    <span id="RubyDate">RubyDate</span>    = &#34;Mon Jan 02 15:04:05 -0700 2006&#34;
+    <span id="RFC822">RFC822</span>      = &#34;02 Jan 06 15:04 MST&#34;
+    <span id="RFC822Z">RFC822Z</span>     = &#34;02 Jan 06 15:04 -0700&#34; <span class="com">// 使用数字表示时区的RFC822</span>
+    <span id="RFC850">RFC850</span>      = &#34;Monday, 02-Jan-06 15:04:05 MST&#34;
+    <span id="RFC1123">RFC1123</span>     = &#34;Mon, 02 Jan 2006 15:04:05 MST&#34;
+    <span id="RFC1123Z">RFC1123Z</span>    = &#34;Mon, 02 Jan 2006 15:04:05 -0700&#34; <span class="com">// 使用数字表示时区的RFC1123</span>
+    <span id="RFC3339">RFC3339</span>     = &#34;2006-01-02T15:04:05Z07:00&#34;
+    <span id="RFC3339Nano">RFC3339Nano</span> = &#34;2006-01-02T15:04:05.999999999Z07:00&#34;
+    <span id="Kitchen">Kitchen</span>     = &#34;3:04PM&#34;
+    <span class="com">// 方便的时间戳</span>
+    <span id="Stamp">Stamp</span>      = &#34;Jan _2 15:04:05&#34;
+    <span id="StampMilli">StampMilli</span> = &#34;Jan _2 15:04:05.000&#34;
+    <span id="StampMicro">StampMicro</span> = &#34;Jan _2 15:04:05.000000&#34;
+    <span id="StampNano">StampNano</span>  = &#34;Jan _2 15:04:05.000000000&#34;
+)</pre>
+    <p>这些预定义的版式用于Time.Format和Time.Parse函数。用在版式中的参考时间是：</p>
+    <pre>Mon Jan 2 15:04:05 MST 2006
+</pre>
+    <p>对应的Unix时间是1136239445。因为MST的时区是GMT-0700，参考时间也可以表示为如下：</p>
+    <pre>01/02 03:04:05PM &#39;06 -0700
+</pre>
+    <p align="left">要定义你自己的格式，写下该参考时间应用于你的格式的情况；例子请参见ANSIC、StampMicro或Kitchen等常数的值。该模型是为了演示参考时间的格式化效果，如此一来Format和Parse方法可以将相同的转换规则用于一个普通的时间值。</p>
+    <p align="left">在格式字符串中，用前置的'0'表示一个可以被可以被数字替换的'0'（如果它后面的数字有两位）；使用下划线表示一个可以被数字替换的空格（如果它后面的数字有两位）；以便兼容Unix定长时间格式。</p>
+    <p align="left">小数点后跟0到多个'0'，表示秒数的小数部分，输出时会生成和'0'一样多的小数位；小数点后跟0到多个'9'，表示秒数的小数部分，输出时会生成和'9'一样多的小数位但会将拖尾的'0'去掉。（只有）解析时，输入可以在秒字段后面紧跟一个小数部分，即使格式字符串里没有指明该部分。此时，小数点及其后全部的数字都会成为秒的小数部分。</p>
+<p align="left">数字表示的时区格式如下：</p>
+<pre>-0700  ±hhmm
+-07:00 ±hh:mm</pre>
+    <p>将格式字符串中的负号替换为Z会触发ISO 8601行为（当时区是UTC时，输出Z而不是时区偏移量），这样：</p>
+    <pre>Z0700  Z or ±hhmm
+Z07:00 Z or ±hh:mm</pre>
+    <h3 id="ParseError">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/time/format.go?name=release#598">ParseError</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type ParseError struct {
+    <span id="ParseError.Layout">Layout</span>     <a href="builtin.htm#string">string</a>
+    <span id="ParseError.Value">Value</span>      <a href="builtin.htm#string">string</a>
+    <span id="ParseError.LayoutElem">LayoutElem</span> <a href="builtin.htm#string">string</a>
+    <span id="ParseError.ValueElem">ValueElem</span>  <a href="builtin.htm#string">string</a>
+    <span id="ParseError.Message">Message</span>    <a href="builtin.htm#string">string</a>
+}</pre>
+    <p>ParseError描述解析时间字符串时出现的错误。</p>
+    <h4 id="ParseError.Error">func (*ParseError) <a title="View Source" href="https://github.com/golang/go/blob/master/src/time/format.go?name=release#611">Error</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (e *<a href="#ParseError">ParseError</a>) Error() <a href="builtin.htm#string">string</a></pre>
+    <p>Error返回ParseError的字符串表示。</p>
+    <h3 id="Weekday">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/time/time.go?name=release#115">Weekday</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Weekday <a href="builtin.htm#int">int</a></pre>
+    <p>Weekday代表一周的某一天。</p>
+    <pre>const (
+    <span id="Sunday">Sunday</span> <a href="#Weekday">Weekday</a> = <a href="builtin.htm#iota">iota</a>
+    <span id="Monday">Monday</span>
+    <span id="Tuesday">Tuesday</span>
+    <span id="Wednesday">Wednesday</span>
+    <span id="Thursday">Thursday</span>
+    <span id="Friday">Friday</span>
+    <span id="Saturday">Saturday</span>
+)</pre>
+    <h4 id="Weekday.String">func (Weekday) <a title="View Source" href="https://github.com/golang/go/blob/master/src/time/time.go?name=release#138">String</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (d <a href="#Weekday">Weekday</a>) String() <a href="builtin.htm#string">string</a></pre>
+    <p>String返回该日（周几）的英文名（"Sunday"、"Monday"，……）</p>
+    <h3 id="Month">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/time/time.go?name=release#79">Month</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Month <a href="builtin.htm#int">int</a></pre>
+    <p>Month代表一年的某个月。</p>
+    <pre>const (
+    <span id="January">January</span> <a href="#Month">Month</a> = 1 + <a href="builtin.htm#iota">iota</a>
+    <span id="February">February</span>
+    <span id="March">March</span>
+    <span id="April">April</span>
+    <span id="May">May</span>
+    <span id="June">June</span>
+    <span id="July">July</span>
+    <span id="August">August</span>
+    <span id="September">September</span>
+    <span id="October">October</span>
+    <span id="November">November</span>
+    <span id="December">December</span>
+)</pre>
+    <div class="panel-group">
+        <div class="panel panel-default" id="example-Month">
+            <div class="panel-heading" onclick="document.getElementById('ex-Month').style.display = document.getElementById('ex-Month').style.display=='none'?'block':'none';">Example</div>
+            <div id="ex-Month" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre>
+_, month, day := time.Now().Date()
+if month == time.November &amp;&amp; day == 10 {
+    fmt.Println(&#34;Happy Go day!&#34;)
+}
+</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    <h4 id="Month.String">func (Month) <a title="View Source" href="https://github.com/golang/go/blob/master/src/time/time.go?name=release#112">String</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (m <a href="#Month">Month</a>) String() <a href="builtin.htm#string">string</a></pre>
+    <p>String返回月份的英文名（"January"，"February"，……）</p>
+    <h3 id="Location">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/time/zoneinfo.go?name=release#15">Location</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Location struct {
+    <span class="com">// 内含隐藏或非导出字段</span>
+}</pre>
+    <p>Location代表一个（关联到某个时间点的）地点，以及该地点所在的时区。</p>
+    <pre>var <span id="Local">Local</span> *<a href="#Location">Location</a> = &amp;localLoc</pre>
+    <p>Local代表系统本地，对应本地时区。</p>
+    <pre>var <span id="UTC">UTC</span> *<a href="#Location">Location</a> = &amp;utcLoc</pre>
+    <p>UTC代表通用协调时间，对应零时区。</p>
+    <h4 id="LoadLocation">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/time/zoneinfo.go?name=release#273">LoadLocation</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func LoadLocation(name <a href="builtin.htm#string">string</a>) (*<a href="#Location">Location</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p align="left">LoadLocation返回使用给定的名字创建的Location。</p>
+    <p align="left">如果name是""或"UTC"，返回UTC；如果name是"Local"，返回Local；否则name应该是IANA时区数据库里有记录的地点名（该数据库记录了地点和对应的时区），如"America/New_York"。</p>
+    <p align="left">LoadLocation函数需要的时区数据库可能不是所有系统都提供，特别是非Unix系统。此时LoadLocation会查找环境变量ZONEINFO指定目录或解压该变量指定的zip文件（如果有该环境变量）；然后查找Unix系统的惯例时区数据安装位置，最后查找$GOROOT/lib/time/zoneinfo.zip。</p>
+    <h4 id="FixedZone">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/time/zoneinfo.go?name=release#89">FixedZone</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func FixedZone(name <a href="builtin.htm#string">string</a>, offset <a href="builtin.htm#int">int</a>) *<a href="#Location">Location</a></pre>
+    <p>FixedZone使用给定的地点名name和时间偏移量offset（单位秒）创建并返回一个Location</p>
+    <h4 id="Location.String">func (*Location) <a title="View Source" href="https://github.com/golang/go/blob/master/src/time/zoneinfo.go?name=release#83">String</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (l *<a href="#Location">Location</a>) String() <a href="builtin.htm#string">string</a></pre>
+    <p>String返回对时区信息的描述，返回值绑定为LoadLocation或FixedZone函数创建l时的name参数。</p>
+    <h3 id="Time">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/time/time.go?name=release#34">Time</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Time struct {
+    <span class="com">// 内含隐藏或非导出字段</span>
+}</pre>
+    <p align="left">Time代表一个纳秒精度的时间点。</p>
+    <p align="left">程序中应使用Time类型值来保存和传递时间，而不能用指针。就是说，表示时间的变量和字段，应为time.Time类型，而不是*time.Time.类型。一个Time类型值可以被多个go程同时使用。时间点可以使用Before、After和Equal方法进行比较。Sub方法让两个时间点相减，生成一个Duration类型值（代表时间段）。Add方法给一个时间点加上一个时间段，生成一个新的Time类型时间点。</p>
+    <p align="left">Time零值代表时间点January 1, year 1, 00:00:00.000000000 UTC。因为本时间点一般不会出现在使用中，IsZero方法提供了检验时间是否显式初始化的一个简单途径。</p>
+    <p align="left">每一个时间都具有一个地点信息（及对应地点的时区信息），当计算时间的表示格式时，如Format、Hour和Year等方法，都会考虑该信息。Local、UTC和In方法返回一个指定时区（但指向同一时间点）的Time。修改地点/时区信息只是会改变其表示；不会修改被表示的时间点，因此也不会影响其计算。</p>
+    <h4 id="Date">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/time/time.go?name=release#1022">Date</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func Date(year <a href="builtin.htm#int">int</a>, month <a href="#Month">Month</a>, day, hour, min, sec, nsec <a href="builtin.htm#int">int</a>, loc *<a href="#Location">Location</a>) <a href="#Time">Time</a></pre>
+    <p>Date返回一个时区为loc、当地时间为：</p>
+    <pre>year-month-day hour:min:sec + nsec nanoseconds
+</pre>
+    <p align="left">的时间点。</p>
+    <p align="left">month、day、hour、min、sec和nsec的值可能会超出它们的正常范围，在转换前函数会自动将之规范化。如October 32被修正为November 1。</p>
+    <p align="left">夏时制的时区切换会跳过或重复时间。如，在美国，March 13, 2011 2:15am从来不会出现，而November 6, 2011 1:15am 会出现两次。此时，时区的选择和时间是没有良好定义的。Date会返回在时区切换的两个时区其中一个时区</p>
+    <p align="left">正确的时间，但本函数不会保证在哪一个时区正确。</p>
+    <p align="left">如果loc为nil会panic。</p>
+    <div class="panel-group">
+        <div class="panel panel-default" id="example-Date">
+            <div class="panel-heading" onclick="document.getElementById('ex-Date').style.display = document.getElementById('ex-Date').style.display=='none'?'block':'none';">Example</div>
+            <div id="ex-Date" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre>t := time.Date(2009, time.November, 10, 23, 0, 0, 0, time.UTC)
+fmt.Printf(&#34;Go launched at %s\n&#34;, t.Local())</pre>
+                    <p>Output:
+                    <pre>Go launched at 2009-11-10 15:00:00 -0800 PST
+</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    <h4 id="Now">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/time/time.go?name=release#784">Now</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func Now() <a href="#Time">Time</a></pre>
+    <p>Now返回当前本地时间。</p>
+    <h4 id="Parse">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/time/format.go?name=release#711">Parse</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func Parse(layout, value <a href="builtin.htm#string">string</a>) (<a href="#Time">Time</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>Parse解析一个格式化的时间字符串并返回它代表的时间。layout定义了参考时间：</p>
+    <pre>Mon Jan 2 15:04:05 -0700 MST 2006
+</pre>
+    <p align="left">在输入格式下的字符串表示，作为输入的格式的示例。同样的格式规则会被用于输入字符串。</p>
+    <p align="left">预定义的ANSIC、UnixDate、RFC3339和其他版式描述了参考时间的标准或便捷表示。要获得更多参考时间的定义和格式，参见本包的ANSIC和其他版式常量。</p>
+    <p align="left">value中漏掉的元素会被视为0；如果不能是0，会被视为1。因此，解析"3:04pm"会返回对应时间点：Jan 1, year 0, 15:04:00 UTC的Time（注意因为year为0，该时间在Time零值之前）。年份必须在0000..9999范围内。周几会被检查其语法，但是会被忽略。</p>
+    <p align="left">如果缺少表示时区的信息，Parse会将时区设置为UTC。</p>
+    <p align="left">当解析具有时区偏移量的时间字符串时，如果该时区偏移量和本地时区相同，Parse会在返回值中将Location设置为本地和本地时区。否则，它会将Location设置为一个虚构的具有该时区偏移量的值。</p>
+    <p align="left">当解析具有时区缩写的时间字符串时，如果该时区缩写具有已定义的时间偏移量，会使用该偏移量。如果时区缩写是"UTC"，会将该时间视为UTC时间，不考虑Location。如果时区缩写是未知的，Parse会将Location设置为一个虚构的地点为时区缩写，时间偏移量为0的值。这种做法是为了让一个时间可以在同一版式下不丢失信息的被解析和重新格式化；但字符串表示和具体表示的时间点会因为实际时区偏移量而不同。为了避免这些问题，请使用数字表示的时区偏移量，或者使用ParseInLocation函数。</p>
+    <div class="panel-group">
+        <div class="panel panel-default" id="example-Parse">
+            <div class="panel-heading" onclick="document.getElementById('ex-Parse').style.display = document.getElementById('ex-Parse').style.display=='none'?'block':'none';">Example</div>
+            <div id="ex-Parse" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre><span class="com">// longForm shows by example how the reference time would be represented in</span>
+<span class="com">// the desired layout.</span>
+const longForm = &#34;Jan 2, 2006 at 3:04pm (MST)&#34;
+t, _ := time.Parse(longForm, &#34;Feb 3, 2013 at 7:54pm (PST)&#34;)
+fmt.Println(t)
+<span class="com">// shortForm is another way the reference time would be represented</span>
+<span class="com">// in the desired layout; it has no time zone present.</span>
+<span class="com">// Note: without explicit zone, returns time in UTC.</span>
+const shortForm = &#34;2006-Jan-02&#34;
+t, _ = time.Parse(shortForm, &#34;2013-Feb-03&#34;)
+fmt.Println(t)</pre>
+                    <p>Output:
+                    <pre>2013-02-03 19:54:00 -0800 PST
+2013-02-03 00:00:00 &#43;0000 UTC
+</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    <h4 id="ParseInLocation">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/time/format.go?name=release#720">ParseInLocation</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func ParseInLocation(layout, value <a href="builtin.htm#string">string</a>, loc *<a href="#Location">Location</a>) (<a href="#Time">Time</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>ParseInLocation类似Parse但有两个重要的不同之处。第一，当缺少时区信息时，Parse将时间解释为UTC时间，而ParseInLocation将返回值的Location设置为loc；第二，当时间字符串提供了时区偏移量信息时，Parse会尝试去匹配本地时区，而ParseInLocation会去匹配loc。</p>
+    <div class="panel-group">
+        <div class="panel panel-default" id="example-ParseInLocation">
+            <div class="panel-heading" onclick="document.getElementById('ex-ParseInLocation').style.display = document.getElementById('ex-ParseInLocation').style.display=='none'?'block':'none';">Example</div>
+            <div id="ex-ParseInLocation" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre>loc, _ := time.LoadLocation(&#34;Europe/Berlin&#34;)
+const longForm = &#34;Jan 2, 2006 at 3:04pm (MST)&#34;
+t, _ := time.ParseInLocation(longForm, &#34;Jul 9, 2012 at 5:02am (CEST)&#34;, loc)
+fmt.Println(t)
+<span class="com">// Note: without explicit zone, returns time in given location.</span>
+const shortForm = &#34;2006-Jan-02&#34;
+t, _ = time.ParseInLocation(shortForm, &#34;2012-Jul-09&#34;, loc)
+fmt.Println(t)</pre>
+                    <p>Output:
+                    <pre>2012-07-09 05:02:00 &#43;0200 CEST
+2012-07-09 00:00:00 &#43;0200 CEST
+</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    <h4 id="Unix">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/time/time.go?name=release#972">Unix</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func Unix(sec <a href="builtin.htm#int64">int64</a>, nsec <a href="builtin.htm#int64">int64</a>) <a href="#Time">Time</a></pre>
+    <p align="left">Unix创建一个本地时间，对应sec和nsec表示的Unix时间（从January 1, 1970 UTC至该时间的秒数和纳秒数）。</p>
+    <p align="left">nsec的值在[0, 999999999]范围外是合法的。</p>
+    <h4 id="Time.Location">func (Time) <a title="View Source" href="https://github.com/golang/go/blob/master/src/time/time.go?name=release#813">Location</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (t <a href="#Time">Time</a>) Location() *<a href="#Location">Location</a></pre>
+    <p>Location返回t的地点和时区信息。</p>
+    <h4 id="Time.Zone">func (Time) <a title="View Source" href="https://github.com/golang/go/blob/master/src/time/time.go?name=release#823">Zone</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (t <a href="#Time">Time</a>) Zone() (name <a href="builtin.htm#string">string</a>, offset <a href="builtin.htm#int">int</a>)</pre>
+    <p>Zone计算t所在的时区，返回该时区的规范名（如"CET"）和该时区相对于UTC的时间偏移量（单位秒）。</p>
+    <h4 id="Time.IsZero">func (Time) <a title="View Source" href="https://github.com/golang/go/blob/master/src/time/time.go?name=release#243">IsZero</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (t <a href="#Time">Time</a>) IsZero() <a href="builtin.htm#bool">bool</a></pre>
+    <p>IsZero报告t是否代表Time零值的时间点，January 1, year 1, 00:00:00 UTC。</p>
+    <h4 id="Time.Local">func (Time) <a title="View Source" href="https://github.com/golang/go/blob/master/src/time/time.go?name=release#796">Local</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (t <a href="#Time">Time</a>) Local() <a href="#Time">Time</a></pre>
+    <p>Local返回采用本地和本地时区，但指向同一时间点的Time。</p>
+    <h4 id="Time.UTC">func (Time) <a title="View Source" href="https://github.com/golang/go/blob/master/src/time/time.go?name=release#790">UTC</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (t <a href="#Time">Time</a>) UTC() <a href="#Time">Time</a></pre>
+    <p>UTC返回采用UTC和零时区，但指向同一时间点的Time。</p>
+    <h4 id="Time.In">func (Time) <a title="View Source" href="https://github.com/golang/go/blob/master/src/time/time.go?name=release#804">In</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (t <a href="#Time">Time</a>) In(loc *<a href="#Location">Location</a>) <a href="#Time">Time</a></pre>
+    <p>In返回采用loc指定的地点和时区，但指向同一时间点的Time。如果loc为nil会panic。</p>
+    <h4 id="Time.Unix">func (Time) <a title="View Source" href="https://github.com/golang/go/blob/master/src/time/time.go?name=release#830">Unix</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (t <a href="#Time">Time</a>) Unix() <a href="builtin.htm#int64">int64</a></pre>
+    <p>Unix将t表示为Unix时间，即从时间点January 1, 1970 UTC到时间点t所经过的时间（单位秒）。</p>
+    <h4 id="Time.UnixNano">func (Time) <a title="View Source" href="https://github.com/golang/go/blob/master/src/time/time.go?name=release#838">UnixNano</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (t <a href="#Time">Time</a>) UnixNano() <a href="builtin.htm#int64">int64</a></pre>
+    <p>UnixNano将t表示为Unix时间，即从时间点January 1, 1970 UTC到时间点t所经过的时间（单位纳秒）。如果纳秒为单位的unix时间超出了int64能表示的范围，结果是未定义的。注意这就意味着Time零值调用UnixNano方法的话，结果是未定义的。</p>
+    <h4 id="Time.Equal">func (Time) <a title="View Source" href="https://github.com/golang/go/blob/master/src/time/time.go?name=release#74">Equal</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (t <a href="#Time">Time</a>) Equal(u <a href="#Time">Time</a>) <a href="builtin.htm#bool">bool</a></pre>
+    <p>判断两个时间是否相同，会考虑时区的影响，因此不同时区标准的时间也可以正确比较。本方法和用t==u不同，这种方法还会比较地点和时区信息。</p>
+    <h4 id="Time.Before">func (Time) <a title="View Source" href="https://github.com/golang/go/blob/master/src/time/time.go?name=release#65">Before</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (t <a href="#Time">Time</a>) Before(u <a href="#Time">Time</a>) <a href="builtin.htm#bool">bool</a></pre>
+    <p>如果t代表的时间点在u之前，返回真；否则返回假。</p>
+    <h4 id="Time.After">func (Time) <a title="View Source" href="https://github.com/golang/go/blob/master/src/time/time.go?name=release#60">After</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (t <a href="#Time">Time</a>) After(u <a href="#Time">Time</a>) <a href="builtin.htm#bool">bool</a></pre>
+    <p>如果t代表的时间点在u之后，返回真；否则返回假。</p>
+    <h4 id="Time.Date">func (Time) <a title="View Source" href="https://github.com/golang/go/blob/master/src/time/time.go?name=release#292">Date</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (t <a href="#Time">Time</a>) Date() (year <a href="builtin.htm#int">int</a>, month <a href="#Month">Month</a>, day <a href="builtin.htm#int">int</a>)</pre>
+    <p>返回时间点t对应的年、月、日。</p>
+    <h4 id="Time.Clock">func (Time) <a title="View Source" href="https://github.com/golang/go/blob/master/src/time/time.go?name=release#387">Clock</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (t <a href="#Time">Time</a>) Clock() (hour, min, sec <a href="builtin.htm#int">int</a>)</pre>
+    <p>返回t对应的那一天的时、分、秒。</p>
+    <h4 id="Time.Year">func (Time) <a title="View Source" href="https://github.com/golang/go/blob/master/src/time/time.go?name=release#298">Year</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (t <a href="#Time">Time</a>) Year() <a href="builtin.htm#int">int</a></pre>
+    <p>返回时间点t对应的年份。</p>
+    <h4 id="Time.Month">func (Time) <a title="View Source" href="https://github.com/golang/go/blob/master/src/time/time.go?name=release#304">Month</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (t <a href="#Time">Time</a>) Month() <a href="#Month">Month</a></pre>
+    <p>返回时间点t对应那一年的第几月。</p>
+    <h4 id="Time.ISOWeek">func (Time) <a title="View Source" href="https://github.com/golang/go/blob/master/src/time/time.go?name=release#331">ISOWeek</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (t <a href="#Time">Time</a>) ISOWeek() (year, week <a href="builtin.htm#int">int</a>)</pre>
+    <p>返回时间点t对应的ISO 9601标准下的年份和星期编号。星期编号范围[1,53]，1月1号到1月3号可能属于上一年的最后一周，12月29号到12月31号可能属于下一年的第一周。</p>
+    <h4 id="Time.YearDay">func (Time) <a title="View Source" href="https://github.com/golang/go/blob/master/src/time/time.go?name=release#424">YearDay</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (t <a href="#Time">Time</a>) YearDay() <a href="builtin.htm#int">int</a></pre>
+    <p>返回时间点t对应的那一年的第几天，平年的返回值范围[1,365]，闰年[1,366]。</p>
+    <h4 id="Time.Day">func (Time) <a title="View Source" href="https://github.com/golang/go/blob/master/src/time/time.go?name=release#310">Day</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (t <a href="#Time">Time</a>) Day() <a href="builtin.htm#int">int</a></pre>
+    <p>返回时间点t对应那一月的第几日。</p>
+    <h4 id="Time.Weekday">func (Time) <a title="View Source" href="https://github.com/golang/go/blob/master/src/time/time.go?name=release#316">Weekday</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (t <a href="#Time">Time</a>) Weekday() <a href="#Weekday">Weekday</a></pre>
+    <p>返回时间点t对应的那一周的周几。</p>
+    <h4 id="Time.Hour">func (Time) <a title="View Source" href="https://github.com/golang/go/blob/master/src/time/time.go?name=release#402">Hour</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (t <a href="#Time">Time</a>) Hour() <a href="builtin.htm#int">int</a></pre>
+    <p>返回t对应的那一天的第几小时，范围[0, 23]。</p>
+    <h4 id="Time.Minute">func (Time) <a title="View Source" href="https://github.com/golang/go/blob/master/src/time/time.go?name=release#407">Minute</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (t <a href="#Time">Time</a>) Minute() <a href="builtin.htm#int">int</a></pre>
+    <p>返回t对应的那一小时的第几分种，范围[0, 59]。</p>
+    <h4 id="Time.Second">func (Time) <a title="View Source" href="https://github.com/golang/go/blob/master/src/time/time.go?name=release#412">Second</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (t <a href="#Time">Time</a>) Second() <a href="builtin.htm#int">int</a></pre>
+    <p>返回t对应的那一分钟的第几秒，范围[0, 59]。</p>
+    <h4 id="Time.Nanosecond">func (Time) <a title="View Source" href="https://github.com/golang/go/blob/master/src/time/time.go?name=release#418">Nanosecond</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (t <a href="#Time">Time</a>) Nanosecond() <a href="builtin.htm#int">int</a></pre>
+    <p>返回t对应的那一秒内的纳秒偏移量，范围[0, 999999999]。</p>
+    <h4 id="Time.Add">func (Time) <a title="View Source" href="https://github.com/golang/go/blob/master/src/time/time.go?name=release#613">Add</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (t <a href="#Time">Time</a>) Add(d <a href="#Duration">Duration</a>) <a href="#Time">Time</a></pre>
+    <p>Add返回时间点t+d。</p>
+    <h4 id="Time.AddDate">func (Time) <a title="View Source" href="https://github.com/golang/go/blob/master/src/time/time.go?name=release#658">AddDate</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (t <a href="#Time">Time</a>) AddDate(years <a href="builtin.htm#int">int</a>, months <a href="builtin.htm#int">int</a>, days <a href="builtin.htm#int">int</a>) <a href="#Time">Time</a></pre>
+    <p align="left">AddDate返回增加了给出的年份、月份和天数的时间点Time。例如，时间点January 1, 2011调用AddDate(-1, 2, 3)会返回March 4, 2010。</p>
+    <p align="left">AddDate会将结果规范化，类似Date函数的做法。因此，举个例子，给时间点October 31添加一个月，会生成时间点December 1。（从时间点November 31规范化而来）</p>
+    <h4 id="Time.Sub">func (Time) <a title="View Source" href="https://github.com/golang/go/blob/master/src/time/time.go?name=release#631">Sub</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (t <a href="#Time">Time</a>) Sub(u <a href="#Time">Time</a>) <a href="#Duration">Duration</a></pre>
+    <p>返回一个时间段t-u。如果结果超出了Duration可以表示的最大值/最小值，将返回最大值/最小值。要获取时间点t-d（d为Duration），可以使用t.Add(-d)。</p>
+    <h4 id="Time.Round">func (Time) <a title="View Source" href="https://github.com/golang/go/blob/master/src/time/time.go?name=release#1107">Round</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (t <a href="#Time">Time</a>) Round(d <a href="#Duration">Duration</a>) <a href="#Time">Time</a></pre>
+    <p>返回距离t最近的时间点，该时间点应该满足从Time零值到该时间点的时间段能整除d；如果有两个满足要求的时间点，距离t相同，会向上舍入；如果d &lt;= 0，会返回t的拷贝。</p>
+    <div class="panel-group">
+        <div class="panel panel-default" id="example-Time-Round">
+            <div class="panel-heading" onclick="document.getElementById('ex-Time-Round').style.display = document.getElementById('ex-Time-Round').style.display=='none'?'block':'none';">Example</div>
+            <div id="ex-Time-Round" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre>t := time.Date(0, 0, 0, 12, 15, 30, 918273645, time.UTC)
+round := []time.Duration{
+    time.Nanosecond,
+    time.Microsecond,
+    time.Millisecond,
+    time.Second,
+    2 * time.Second,
+    time.Minute,
+    10 * time.Minute,
+    time.Hour,
+}
+for _, d := range round {
+    fmt.Printf(&#34;t.Round(%6s) = %s\n&#34;, d, t.Round(d).Format(&#34;15:04:05.999999999&#34;))
+}</pre>
+                    <p>Output:
+                    <pre>t.Round(   1ns) = 12:15:30.918273645
+t.Round(   1us) = 12:15:30.918274
+t.Round(   1ms) = 12:15:30.918
+t.Round(    1s) = 12:15:31
+t.Round(    2s) = 12:15:30
+t.Round(  1m0s) = 12:16:00
+t.Round( 10m0s) = 12:20:00
+t.Round(1h0m0s) = 12:00:00
+</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    <h4 id="Time.Truncate">func (Time) <a title="View Source" href="https://github.com/golang/go/blob/master/src/time/time.go?name=release#1096">Truncate</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (t <a href="#Time">Time</a>) Truncate(d <a href="#Duration">Duration</a>) <a href="#Time">Time</a></pre>
+    <p>类似Round，但是返回的是最接近但早于t的时间点；如果d &lt;= 0，会返回t的拷贝。</p>
+    <div class="panel-group">
+        <div class="panel panel-default" id="example-Time-Truncate">
+            <div class="panel-heading" onclick="document.getElementById('ex-Time-Truncate').style.display = document.getElementById('ex-Time-Truncate').style.display=='none'?'block':'none';">Example</div>
+            <div id="ex-Time-Truncate" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre>t, _ := time.Parse(&#34;2006 Jan 02 15:04:05&#34;, &#34;2012 Dec 07 12:15:30.918273645&#34;)
+trunc := []time.Duration{
+    time.Nanosecond,
+    time.Microsecond,
+    time.Millisecond,
+    time.Second,
+    2 * time.Second,
+    time.Minute,
+    10 * time.Minute,
+    time.Hour,
+}
+for _, d := range trunc {
+    fmt.Printf(&#34;t.Truncate(%6s) = %s\n&#34;, d, t.Truncate(d).Format(&#34;15:04:05.999999999&#34;))
+}</pre>
+                    <p>Output:
+                    <pre>t.Truncate(   1ns) = 12:15:30.918273645
+t.Truncate(   1us) = 12:15:30.918273
+t.Truncate(   1ms) = 12:15:30.918
+t.Truncate(    1s) = 12:15:30
+t.Truncate(    2s) = 12:15:30
+t.Truncate(  1m0s) = 12:15:00
+t.Truncate( 10m0s) = 12:10:00
+t.Truncate(1h0m0s) = 12:00:00
+</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    <h4 id="Time.Format">func (Time) <a title="View Source" href="https://github.com/golang/go/blob/master/src/time/format.go?name=release#414">Format</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (t <a href="#Time">Time</a>) Format(layout <a href="builtin.htm#string">string</a>) <a href="builtin.htm#string">string</a></pre>
+    <p>Format根据layout指定的格式返回t代表的时间点的格式化文本表示。layout定义了参考时间：</p>
+    <pre>Mon Jan 2 15:04:05 -0700 MST 2006
+</pre>
+    <p>格式化后的字符串表示，它作为期望输出的例子。同样的格式规则会被用于格式化时间。</p>
+    <p>预定义的ANSIC、UnixDate、RFC3339和其他版式描述了参考时间的标准或便捷表示。要获得更多参考时间的定义和格式，参见本包的ANSIC和其他版式常量。</p>
+    <div class="panel-group">
+        <div class="panel panel-default" id="example-Time-Format">
+            <div class="panel-heading" onclick="document.getElementById('ex-Time-Format').style.display = document.getElementById('ex-Time-Format').style.display=='none'?'block':'none';">Example</div>
+            <div id="ex-Time-Format" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre><span class="com">// layout shows by example how the reference time should be represented.</span>
+const layout = &#34;Jan 2, 2006 at 3:04pm (MST)&#34;
+t := time.Date(2009, time.November, 10, 15, 0, 0, 0, time.Local)
+fmt.Println(t.Format(layout))
+fmt.Println(t.UTC().Format(layout))</pre>
+                    <p>Output:
+                    <pre>Nov 10, 2009 at 3:00pm (PST)
+Nov 10, 2009 at 11:00pm (UTC)
+</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    <h4 id="Time.String">func (Time) <a title="View Source" href="https://github.com/golang/go/blob/master/src/time/format.go?name=release#399">String</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (t <a href="#Time">Time</a>) String() <a href="builtin.htm#string">string</a></pre>
+    <p>String返回采用如下格式字符串的格式化时间。</p>
+    <pre>&#34;2006-01-02 15:04:05.999999999 -0700 MST&#34;
+</pre>
+    <h4 id="Time.GobEncode">func (Time) <a title="View Source" href="https://github.com/golang/go/blob/master/src/time/time.go?name=release#924">GobEncode</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (t <a href="#Time">Time</a>) GobEncode() ([]<a href="builtin.htm#byte">byte</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>GobEncode实现了gob.GobEncoder接口。</p>
+    <h4 id="Time.GobDecode">func (*Time) <a title="View Source" href="https://github.com/golang/go/blob/master/src/time/time.go?name=release#929">GobDecode</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (t *<a href="#Time">Time</a>) GobDecode(data []<a href="builtin.htm#byte">byte</a>) <a href="builtin.htm#error">error</a></pre>
+    <p>GobEncode实现了gob.GobDecoder接口。</p>
+    <h4 id="Time.MarshalBinary">func (Time) <a title="View Source" href="https://github.com/golang/go/blob/master/src/time/time.go?name=release#845">MarshalBinary</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (t <a href="#Time">Time</a>) MarshalBinary() ([]<a href="builtin.htm#byte">byte</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>MarshalBinary实现了encoding.BinaryMarshaler接口。</p>
+    <h4 id="Time.UnmarshalBinary">func (*Time) <a title="View Source" href="https://github.com/golang/go/blob/master/src/time/time.go?name=release#884">UnmarshalBinary</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (t *<a href="#Time">Time</a>) UnmarshalBinary(data []<a href="builtin.htm#byte">byte</a>) <a href="builtin.htm#error">error</a></pre>
+    <p>UnmarshalBinary实现了encoding.BinaryUnmarshaler接口。</p>
+    <h4 id="Time.MarshalJSON">func (Time) <a title="View Source" href="https://github.com/golang/go/blob/master/src/time/time.go?name=release#935">MarshalJSON</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (t <a href="#Time">Time</a>) MarshalJSON() ([]<a href="builtin.htm#byte">byte</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>MarshalJSON实现了json.Marshaler接口。返回值是用双引号括起来的采用<a href="http://tools.ietf.org/html/rfc3339">RFC 3339</a>格式进行格式化的时间表示，如果需要会提供小于秒的精度。</p>
+    <h4 id="Time.UnmarshalJSON">func (*Time) <a title="View Source" href="https://github.com/golang/go/blob/master/src/time/time.go?name=release#946">UnmarshalJSON</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (t *<a href="#Time">Time</a>) UnmarshalJSON(data []<a href="builtin.htm#byte">byte</a>) (err <a href="builtin.htm#error">error</a>)</pre>
+    <p>UnmarshalJSON实现了json.Unmarshaler接口。时间被期望是双引号括起来的<a href="http://tools.ietf.org/html/rfc3339">RFC 3339</a>格式。</p>
+    <h4 id="Time.MarshalText">func (Time) <a title="View Source" href="https://github.com/golang/go/blob/master/src/time/time.go?name=release#954">MarshalText</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (t <a href="#Time">Time</a>) MarshalText() ([]<a href="builtin.htm#byte">byte</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>MarshalText实现了encoding.TextMarshaler接口。返回值是采用<a href="http://tools.ietf.org/html/rfc3339">RFC 3339</a>格式进行格式化的时间表示，如果需要会提供小于秒的精度。</p>
+    <h4 id="Time.UnmarshalText">func (*Time) <a title="View Source" href="https://github.com/golang/go/blob/master/src/time/time.go?name=release#963">UnmarshalText</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (t *<a href="#Time">Time</a>) UnmarshalText(data []<a href="builtin.htm#byte">byte</a>) (err <a href="builtin.htm#error">error</a>)</pre>
+    <p>UnmarshalText实现了encoding.TextUnmarshaler接口。时间被期望采用<a href="http://tools.ietf.org/html/rfc3339">RFC 3339</a>格式。</p>
+    <h3 id="Duration">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/time/time.go?name=release#432">Duration</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Duration <a href="builtin.htm#int64">int64</a></pre>
+    <p>Duration类型代表两个时间点之间经过的时间，以纳秒为单位。可表示的最长时间段大约290年。</p>
+    <pre>const (
+    <span id="Nanosecond">Nanosecond</span>  <a href="#Duration">Duration</a> = 1
+    <span id="Microsecond">Microsecond</span>          = 1000 * <a href="#Nanosecond">Nanosecond</a>
+    <span id="Millisecond">Millisecond</span>          = 1000 * <a href="#Microsecond">Microsecond</a>
+    <span id="Second">Second</span>               = 1000 * <a href="#Millisecond">Millisecond</a>
+    <span id="Minute">Minute</span>               = 60 * <a href="#Second">Second</a>
+    <span id="Hour">Hour</span>                 = 60 * <a href="#Minute">Minute</a>
+)</pre>
+    <p align="left">常用的时间段。没有定义一天或超过一天的单元，以避免夏时制的时区切换的混乱。</p>
+    <p align="left">要将Duration类型值表示为某时间单元的个数，用除法：</p>
+    <pre>second := time.Second
+fmt.Print(int64(second/time.Millisecond)) // prints 1000</pre>
+    <p>要将整数个某时间单元表示为Duration类型值，用乘法：</p>
+    <pre>seconds := 10
+fmt.Print(time.Duration(seconds)*time.Second) // prints 10s</pre>
+    <div class="panel-group">
+        <div class="panel panel-default" id="example-Duration">
+            <div class="panel-heading" onclick="document.getElementById('ex-Duration').style.display = document.getElementById('ex-Duration').style.display=='none'?'block':'none';">Example</div>
+            <div id="ex-Duration" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre>
+t0 := time.Now()
+expensiveCall()
+t1 := time.Now()
+fmt.Printf(&#34;The call took %v to run.\n&#34;, t1.Sub(t0))
+</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    <h4 id="ParseDuration">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/time/format.go?name=release#1158">ParseDuration</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func ParseDuration(s <a href="builtin.htm#string">string</a>) (<a href="#Duration">Duration</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>ParseDuration解析一个时间段字符串。一个时间段字符串是一个序列，每个片段包含可选的正负号、十进制数、可选的小数部分和单位后缀，如"300ms"、"-1.5h"、"2h45m"。合法的单位有"ns"、"us" /"µs"、"ms"、"s"、"m"、"h"。</p>
+    <h4 id="Since">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/time/time.go?name=release#646">Since</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func Since(t <a href="#Time">Time</a>) <a href="#Duration">Duration</a></pre>
+    <p>Since返回从t到现在经过的时间，等价于time.Now().Sub(t)。</p>
+    <h4 id="Duration.Hours">func (Duration) <a title="View Source" href="https://github.com/golang/go/blob/master/src/time/time.go?name=release#606">Hours</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (d <a href="#Duration">Duration</a>) Hours() <a href="builtin.htm#float64">float64</a></pre>
+    <p>Hours将时间段表示为float64类型的小时数。</p>
+    <h4 id="Duration.Minutes">func (Duration) <a title="View Source" href="https://github.com/golang/go/blob/master/src/time/time.go?name=release#599">Minutes</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (d <a href="#Duration">Duration</a>) Minutes() <a href="builtin.htm#float64">float64</a></pre>
+    <p>Hours将时间段表示为float64类型的分钟数。</p>
+    <h4 id="Duration.Seconds">func (Duration) <a title="View Source" href="https://github.com/golang/go/blob/master/src/time/time.go?name=release#592">Seconds</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (d <a href="#Duration">Duration</a>) Seconds() <a href="builtin.htm#float64">float64</a></pre>
+    <p>Hours将时间段表示为float64类型的秒数。</p>
+    <h4 id="Duration.Nanoseconds">func (Duration) <a title="View Source" href="https://github.com/golang/go/blob/master/src/time/time.go?name=release#580">Nanoseconds</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (d <a href="#Duration">Duration</a>) Nanoseconds() <a href="builtin.htm#int64">int64</a></pre>
+    <p>Hours将时间段表示为int64类型的纳秒数，等价于int64(d)。</p>
+    <h4 id="Duration.String">func (Duration) <a title="View Source" href="https://github.com/golang/go/blob/master/src/time/time.go?name=release#464">String</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (d <a href="#Duration">Duration</a>) String() <a href="builtin.htm#string">string</a></pre>
+    <p>返回时间段采用"72h3m0.5s"格式的字符串表示。最前面可以有符号，数字+单位为一个单元，开始部分的0值单元会被省略；如果时间段&lt;1s，会使用"ms"、"us"、"ns"来保证第一个单元的数字不是0；如果时间段为0，会返回"0"。</p>
+    <h3 id="Timer">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/time/sleep.go?name=release#45">Timer</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Timer struct {
+    <span id="Timer.C">C</span> &lt;-chan <a href="#Time">Time</a>
+    <span class="com">// 内含隐藏或非导出字段</span>
+}</pre>
+    <p>Timer类型代表单次时间事件。当Timer到期时，当时的时间会被发送给C，除非Timer是被AfterFunc函数创建的。</p>
+    <h4 id="NewTimer">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/time/sleep.go?name=release#61">NewTimer</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func NewTimer(d <a href="#Duration">Duration</a>) *<a href="#Timer">Timer</a></pre>
+    <p>NewTimer创建一个Timer，它会在最少过去时间段d后到期，向其自身的C字段发送当时的时间。</p>
+    <h4 id="AfterFunc">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/time/sleep.go?name=release#108">AfterFunc</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func AfterFunc(d <a href="#Duration">Duration</a>, f func()) *<a href="#Timer">Timer</a></pre>
+    <p>AfterFunc另起一个go程等待时间段d过去，然后调用f。它返回一个Timer，可以通过调用其Stop方法来取消等待和对f的调用。</p>
+    <h4 id="Timer.Reset">func (*Timer) <a title="View Source" href="https://github.com/golang/go/blob/master/src/time/sleep.go?name=release#78">Reset</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (t *<a href="#Timer">Timer</a>) Reset(d <a href="#Duration">Duration</a>) <a href="builtin.htm#bool">bool</a></pre>
+    <p>Reset使t重新开始计时，（本方法返回后再）等待时间段d过去后到期。如果调用时t还在等待中会返回真；如果t已经到期或者被停止了会返回假。</p>
+    <h4 id="Timer.Stop">func (*Timer) <a title="View Source" href="https://github.com/golang/go/blob/master/src/time/sleep.go?name=release#55">Stop</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (t *<a href="#Timer">Timer</a>) Stop() <a href="builtin.htm#bool">bool</a></pre>
+    <p>Stop停止Timer的执行。如果停止了t会返回真；如果t已经被停止或者过期了会返回假。Stop不会关闭通道t.C，以避免从该通道的读取不正确的成功。</p>
+<h3 id="Ticker">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/time/tick.go?name=release#11">Ticker</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Ticker struct {
+    <span id="Ticker.C">C</span> &lt;-chan <a href="#Time">Time</a> <span class="com">// 周期性传递时间信息的通道</span>
+    <span class="com">// 内含隐藏或非导出字段</span>
+}</pre>
+    <p>Ticker保管一个通道，并每隔一段时间向其传递"tick"。</p>
+    <h4 id="NewTicker">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/time/tick.go?name=release#21">NewTicker</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func NewTicker(d <a href="#Duration">Duration</a>) *<a href="#Ticker">Ticker</a></pre>
+    <p>NewTicker返回一个新的Ticker，该Ticker包含一个通道字段，并会每隔时间段d就向该通道发送当时的时间。它会调整时间间隔或者丢弃tick信息以适应反应慢的接收者。如果d&lt;=0会panic。关闭该Ticker可以释放相关资源。</p>
+    <h4 id="Ticker.Stop">func (*Ticker) <a title="View Source" href="https://github.com/golang/go/blob/master/src/time/tick.go?name=release#45">Stop</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (t *<a href="#Ticker">Ticker</a>) Stop()</pre>
+    <p>Stop关闭一个Ticker。在关闭后，将不会发送更多的tick信息。Stop不会关闭通道t.C，以避免从该通道的读取不正确的成功。</p>
+    <h3 id="Sleep">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/time/sleep.go?name=release#9">Sleep</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Sleep(d <a href="#Duration">Duration</a>)</pre>
+    <p>Sleep阻塞当前go程至少d代表的时间段。d&lt;=0时，Sleep会立刻返回。</p>
+    <div class="panel-group">
+        <div class="panel panel-default" id="example-Sleep">
+            <div class="panel-heading" onclick="document.getElementById('ex-Sleep').style.display = document.getElementById('ex-Sleep').style.display=='none'?'block':'none';">Example</div>
+            <div id="ex-Sleep" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre>
+time.Sleep(100 * time.Millisecond)
+</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    <h3 id="After">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/time/sleep.go?name=release#101">After</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func After(d <a href="#Duration">Duration</a>) &lt;-chan <a href="#Time">Time</a></pre>
+    <p>After会在另一线程经过时间段d后向返回值发送当时的时间。等价于NewTimer(d).C。</p>
+    <div class="panel-group">
+        <div class="panel panel-default" id="example-After">
+            <div class="panel-heading" onclick="document.getElementById('ex-After').style.display = document.getElementById('ex-After').style.display=='none'?'block':'none';">Example</div>
+            <div id="ex-After" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre>
+select {
+case m := &lt;-c:
+    handle(m)
+case &lt;-time.After(5 * time.Minute):
+    fmt.Println(&#34;timed out&#34;)
+}
+</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    <h3 id="Tick">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/time/tick.go?name=release#51">Tick</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Tick(d <a href="#Duration">Duration</a>) &lt;-chan <a href="#Time">Time</a></pre>
+    <p>Tick是NewTicker的封装，只提供对Ticker的通道的访问。如果不需要关闭Ticker，本函数就很方便。</p>
+    <div class="panel-group">
+        <div class="panel panel-default" id="example-Tick">
+            <div class="panel-heading" onclick="document.getElementById('ex-Tick').style.display = document.getElementById('ex-Tick').style.display=='none'?'block':'none';">Example</div>
+            <div id="ex-Tick" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre>
+c := time.Tick(1 * time.Minute)
+for now := range c {
+    fmt.Printf(&#34;%v %s\n&#34;, now, statusUpdate())
+}
+</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,64 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="./site.css" rel="stylesheet">
+<title>go/format</title>
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package format</h2>
+    <p><code>import "go/format"</code>
+    <p>Package format implements standard formatting of Go source.。</p>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#Node">func Node(dst io.Writer, fset *token.FileSet, node interface{}) error</a></li>
+        <li><a href="#Source">func Source(src []byte) ([]byte, error)</a></li>
+    </ul>
+    
+    <h3 id="Node">func Node</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>func Node(dst <a href="./io.htm">io</a>.<a href="./io.htm#Writer">Writer</a>, fset *<a href="./go_token.htm">token</a>.<a href="./go_token.htm#FileSet">FileSet</a>, node interface{}) <a href="./builtin.htm#error">error</a></pre>
+    <p>
+Node formats node in canonical gofmt style and writes the result to dst.
+</p>
+<p>
+The node type must be *ast.File, *printer.CommentedNode, []ast.Decl,
+[]ast.Stmt, or assignment-compatible to ast.Expr, ast.Decl, ast.Spec,
+or ast.Stmt. Node does not modify node. Imports are not sorted for
+nodes representing partial source files (i.e., if the node is not an
+*ast.File or a *printer.CommentedNode not wrapping an *ast.File).
+</p>
+<p>
+The function may return early (before the entire result is written)
+and return a formatting error, for instance due to an incorrect AST.
+</p>
+
+    <h3 id="Source">func Source <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>func Source(src []<a href="./builtin.htm#byte">byte</a>) ([]<a href="./builtin.htm#byte">byte</a>, <a href="./builtin.htm#error">error</a>)</pre>
+    <p>
+Source formats src in canonical gofmt style and returns the result
+or an (I/O or syntax) error. src is expected to be a syntactically
+correct Go source file, or a list of Go declarations or statements.
+</p>
+<p>
+If src is a partial source file, the leading and trailing space of src
+is applied to the result (such that it has the same leading and trailing
+space as src), and the result is indented by the same amount as the first
+line of src containing code. Imports are not sorted for partial source files.
+</p>
+</div>
+
+<div id="x-footer" class="clearfix">
+  <div class="container">
+    <a href="http://studygolang.com/">Go语言中文网</a>
+    <span class="text-muted">|</span> <a href="http://golang.org/">Go Language</a>
+    <span class="pull-right"><a href="#">Back to top</a></span>
+  </div>
+</div>
+<script src="../assets/jquery-2.0.3.min.js"></script>
+<script src="../bootstrap.min.js"></script>
+<script src="../site.js"></script>
+</body>
+</html>

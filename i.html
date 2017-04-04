@@ -1,0 +1,139 @@
+<html>
+<head>
+<meta charset="utf-8">
+<title>Golang Package Document</title>
+<!--<style type = "text/css">   
+a {font-size:16px}   
+a:link {color: blue; text-decoration:none;} //未访问：蓝色、无下划线   
+a:active:{color: red; } //激活：红色   
+a:visited {color:purple;text-decoration:none;} //已访问：紫色、无下划线   
+a:hover {color: red; text-decoration:underline;} //鼠标移近：红色、下划线   
+</style>-->
+</head>
+<body bgcolor="#EEEEEE">
+<strong>
+<a href="http://studygolang.com" target="_blank">Go语言中文网</a>
+<hr>
+<a href="main.html" target="main">首页</a><br/>
+<a href="main.html" target="_top">不显示目录</a><br/>
+目录<br>
+<a href="pkg/archive_zip.htm" target ="main">archive/zip</a><br/>
+<a href="pkg/bufio.htm" target ="main">bufio</a><br/>
+<a href="pkg/builtin.htm" target ="main">builtin</a><br/>
+<a href="pkg/bytes.htm" target ="main">bytes</a><br/>
+<a href="pkg/compress_bzip2.htm" target ="main">compress/bzip2</a><br/>
+<a href="pkg/compress_flate.htm" target ="main">compress/flate</a><br/>
+<a href="pkg/compress_gzip.htm" target ="main">compress/gzip</a><br/>
+<a href="pkg/compress_lzw.htm" target ="main">compress/lzw</a><br/>
+<a href="pkg/compress_zlib.htm" target ="main">compress/zlib</a><br/>
+<a href="pkg/container_heap.htm" target ="main">container/heap</a><br/>
+<a href="pkg/container_list.htm" target ="main">container/list</a><br/>
+<a href="pkg/container_ring.htm" target ="main">container/ring</a><br/>
+<a href="pkg/crypto.htm" target ="main">crypto</a><br/>
+<a href="pkg/crypto_aes.htm" target ="main">crypto/aes</a><br/>
+<a href="pkg/crypto_cipher.htm" target ="main">crypto/cipher</a><br/>
+<a href="pkg/crypto_des.htm" target ="main">crypto/des</a><br/>
+<a href="pkg/crypto_dsa.htm" target ="main">crypto/dsa</a><br/>
+<a href="pkg/crypto_ecdsa.htm" target ="main">crypto/ecdsa</a><br/>
+<a href="pkg/crypto_elliptic.htm" target ="main">crypto/elliptic</a><br/>
+<a href="pkg/crypto_hmac.htm" target ="main">crypto/hmac</a><br/>
+<a href="pkg/crypto_md5.htm" target ="main">crypto/md5</a><br/>
+<a href="pkg/crypto_rand.htm" target ="main">crypto/rand</a><br/>
+<a href="pkg/crypto_rc4.htm" target ="main">crypto/rc4</a><br/>
+<a href="pkg/crypto_rsa.htm" target ="main">crypto/rsa</a><br/>
+<a href="pkg/crypto_sha1.htm" target ="main">crypto/sha1</a><br/>
+<a href="pkg/crypto_sha256.htm" target ="main">crypto/sha256</a><br/>
+<a href="pkg/crypto_sha512.htm" target ="main">crypto/sha512</a><br/>
+<a href="pkg/crypto_subtle.htm" target ="main">crypto/subtle</a><br/>
+<a href="pkg/crypto_tls.htm" target ="main">crypto/tls</a><br/>
+<a href="pkg/crypto_x509.htm" target ="main">crypto/x509</a><br/>
+<a href="pkg/crypto_x509_pkix.htm" target ="main">crypto/x509/pkix</a><br/>
+<a href="pkg/database_sql.htm" target ="main">database/sql</a><br/>
+<a href="pkg/database_sql_driver.htm" target ="main">database/sql/driver</a><br/>
+<a href="pkg/encoding.htm" target ="main">encoding</a><br/>
+<a href="pkg/encoding_ascii85.htm" target ="main">encoding/ascii85</a><br/>
+<a href="pkg/encoding_asn1.htm" target ="main">encoding/asn1</a><br/>
+<a href="pkg/encoding_base32.htm" target ="main">encoding/base32</a><br/>
+<a href="pkg/encoding_base64.htm" target ="main">encoding/base64</a><br/>
+<a href="pkg/encoding_binary.htm" target ="main">encoding/binary</a><br/>
+<a href="pkg/encoding_csv.htm" target ="main">encoding/csv</a><br/>
+<a href="pkg/encoding_gob.htm" target ="main">encoding/gob</a><br/>
+<a href="pkg/encoding_hex.htm" target ="main">encoding/hex</a><br/>
+<a href="pkg/encoding_json.htm" target ="main">encoding/json</a><br/>
+<a href="pkg/encoding_pem.htm" target ="main">encoding/pem</a><br/>
+<a href="pkg/encoding_xml.htm" target ="main">encoding/xml</a><br/>
+<a href="pkg/errors.htm" target ="main">errors</a><br/>
+<a href="pkg/expvar.htm" target ="main">expvar</a><br/>
+<a href="pkg/flag.htm" target ="main">flag</a><br/>
+<a href="pkg/fmt.htm" target ="main">fmt</a><br/>
+<a href="pkg/hash.htm" target ="main">hash</a><br/>
+<a href="pkg/hash_adler32.htm" target ="main">hash/adler32</a><br/>
+<a href="pkg/hash_crc32.htm" target ="main">hash/crc32</a><br/>
+<a href="pkg/hash_crc64.htm" target ="main">hash/crc64</a><br/>
+<a href="pkg/hash_fnv.htm" target ="main">hash/fnv</a><br/>
+<a href="pkg/html.htm" target ="main">html</a><br/>
+<a href="pkg/html_template.htm" target ="main">html/template</a><br/>
+<a href="pkg/image.htm" target ="main">image</a><br/>
+<a href="pkg/image_color.htm" target ="main">image/color</a><br/>
+<a href="pkg/image_color_palette.htm" target ="main">image/color/palette</a><br/>
+<a href="pkg/image_draw.htm" target ="main">image/draw</a><br/>
+<a href="pkg/image_gif.htm" target ="main">image/gif</a><br/>
+<a href="pkg/image_jpeg.htm" target ="main">image/jpeg</a><br/>
+<a href="pkg/image_png.htm" target ="main">image/png</a><br/>
+<a href="pkg/index_suffixarray.htm" target ="main">index/suffixarray</a><br/>
+<a href="pkg/io.htm" target ="main">io</a><br/>
+<a href="pkg/io_ioutil.htm" target ="main">io/ioutil</a><br/>
+<a href="pkg/log.htm" target ="main">log</a><br/>
+<a href="pkg/math.htm" target ="main">math</a><br/>
+<a href="pkg/math_big.htm" target ="main">math/big</a><br/>
+<a href="pkg/math_cmplx.htm" target ="main">math/cmplx</a><br/>
+<a href="pkg/math_rand.htm" target ="main">math/rand</a><br/>
+<a href="pkg/mime.htm" target ="main">mime</a><br/>
+<a href="pkg/mime_multipart.htm" target ="main">mime/multipart</a><br/>
+<a href="pkg/net.htm" target ="main">net</a><br/>
+<a href="pkg/net_http.htm" target ="main">net/http</a><br/>
+<a href="pkg/net_http_cgi.htm" target ="main">net/http/cgi</a><br/>
+<a href="pkg/net_http_cookiejar.htm" target ="main">net/http/cookiejar</a><br/>
+<a href="pkg/net_http_fcgi.htm" target ="main">net/http/fcgi</a><br/>
+<a href="pkg/net_http_httptest.htm" target ="main">net/http/httptest</a><br/>
+<a href="pkg/net_http_httputil.htm" target ="main">net/http/httputil</a><br/>
+<a href="pkg/net_http_pprof.htm" target ="main">net/http/pprof</a><br/>
+<a href="pkg/net_mail.htm" target ="main">net/mail</a><br/>
+<a href="pkg/net_rpc.htm" target ="main">net/rpc</a><br/>
+<a href="pkg/net_rpc_jsonrpc.htm" target ="main">net/rpc/jsonrpc</a><br/>
+<a href="pkg/net_smtp.htm" target ="main">net/smtp</a><br/>
+<a href="pkg/net_textproto.htm" target ="main">net/textproto</a><br/>
+<a href="pkg/net_url.htm" target ="main">net/url</a><br/>
+<a href="pkg/os.htm" target ="main">os</a><br/>
+<a href="pkg/os_exec.htm" target ="main">os/exec</a><br/>
+<a href="pkg/os_signal.htm" target ="main">os/signal</a><br/>
+<a href="pkg/os_user.htm" target ="main">os/user</a><br/>
+<a href="pkg/path.htm" target ="main">path</a><br/>
+<a href="pkg/path_filepath.htm" target ="main">path/filepath</a><br/>
+<a href="pkg/reflect.htm" target ="main">reflect</a><br/>
+<a href="pkg/regexp.htm" target ="main">regexp</a><br/>
+<a href="pkg/runtime.htm" target ="main">runtime</a><br/>
+<a href="pkg/runtime_debug.htm" target ="main">runtime/debug</a><br/>
+<a href="pkg/runtime_pprof.htm" target ="main">runtime/pprof</a><br/>
+<a href="pkg/sort.htm" target ="main">sort</a><br/>
+<a href="pkg/strconv.htm" target ="main">strconv</a><br/>
+<a href="pkg/strings.htm" target ="main">strings</a><br/>
+<a href="pkg/sync.htm" target ="main">sync</a><br/>
+<a href="pkg/sync_atomic.htm" target ="main">sync/atomic</a><br/>
+<a href="pkg/text_scanner.htm" target ="main">text/scanner</a><br/>
+<a href="pkg/text_tabwriter.htm" target ="main">text/tabwriter</a><br/>
+<a href="pkg/text_template.htm" target ="main">text/template</a><br/>
+<a href="pkg/time.htm" target ="main">time</a><br/>
+<a href="pkg/unicode.htm" target ="main">unicode</a><br/>
+<a href="pkg/unicode_utf16.htm" target ="main">unicode/utf16</a><br/>
+<a href="pkg/unicode_utf8.htm" target ="main">unicode/utf8</a><br/>
+<a href="pkg/unsafe.htm" target ="main">unsafe</a><br/>
+</strong>
+<div style="display:none;">
+	<script type="text/javascript">
+	var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+	document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F224c227cd9239761ec770bc8c1fb134c' type='text/javascript'%3E%3C/script%3E"));
+	</script>
+</div>
+</body>
+</html>

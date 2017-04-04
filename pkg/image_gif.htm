@@ -1,0 +1,72 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="./site.css" rel="stylesheet">
+<title>image/gif</title>
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package gif</h2>
+    <p><code>import "image/gif"</code>
+    <p>gif包实现了gif文件的编码器和解码器。gif格式参见：<a href="http://www.w3.org/Graphics/GIF/spec-gif89a.txt">http://www.w3.org/Graphics/GIF/spec-gif89a.txt</a></p>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#Options">type Options</a></li>
+        <li><a href="#Decode">func Decode(r io.Reader) (image.Image, error)</a></li>
+        <li><a href="#DecodeConfig">func DecodeConfig(r io.Reader) (image.Config, error)</a></li>
+        <li><a href="#Encode">func Encode(w io.Writer, m image.Image, o *Options) error</a></li>
+        <li><a href="#GIF">type GIF</a></li>
+        <ul>
+            <li><a href="#DecodeAll">func DecodeAll(r io.Reader) (*GIF, error)</a></li>
+            <li><a href="#EncodeAll">func EncodeAll(w io.Writer, g *GIF) error</a></li>
+        </ul>
+    </ul>
+    <h3 id="Options">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/gif/writer.go?name=release#246">Options</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Options struct {
+    <span class="com">// NumColors是图像中的最多颜色数，范围[1, 256]</span>
+    <span id="Options.NumColors">NumColors</span> <a href="builtin.htm#int">int</a>
+    <span class="com">// Quantizer用于生成NumColors大小的调色板，为nil时默认使用palette.Plan9</span>
+    <span id="Options.Quantizer">Quantizer</span> <a href="image/draw.htm">draw</a>.<a href="image/draw.htm#Quantizer">Quantizer</a>
+    <span class="com">// Drawer用于将图像写入期望的调色板格式的图像，为nil时会使用draw.FloydSteinberg</span>
+    <span id="Options.Drawer">Drawer</span> <a href="image/draw.htm">draw</a>.<a href="image/draw.htm#Drawer">Drawer</a>
+}</pre>
+    <p>Options是编码参数。</p>
+    <h3 id="Decode">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/gif/reader.go?name=release#414">Decode</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Decode(r <a href="io.htm">io</a>.<a href="io.htm#Reader">Reader</a>) (<a href="image.htm">image</a>.<a href="image.htm#Image">Image</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>从文件流解码并返回GIF文件中的第一幅图像。</p>
+    <h3 id="DecodeConfig">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/gif/reader.go?name=release#446">DecodeConfig</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func DecodeConfig(r <a href="io.htm">io</a>.<a href="io.htm#Reader">Reader</a>) (<a href="image.htm">image</a>.<a href="image.htm#Config">Config</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>返回GIF图像的色彩模型和尺寸；函数不会解码整个图像文件。</p>
+    <h3 id="Encode">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/gif/writer.go?name=release#291">Encode</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Encode(w <a href="io.htm">io</a>.<a href="io.htm#Writer">Writer</a>, m <a href="image.htm">image</a>.<a href="image.htm#Image">Image</a>, o *<a href="#Options">Options</a>) <a href="builtin.htm#error">error</a></pre>
+    <p>函数将图像以GIF格式写入w中。</p>
+    <h3 id="GIF">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/gif/reader.go?name=release#423">GIF</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type GIF struct {
+    <span id="GIF.Image">Image</span>     []*<a href="image.htm">image</a>.<a href="image.htm#Paletted">Paletted</a> <span class="com">// 连续的图像</span>
+    <span id="GIF.Delay">Delay</span>     []<a href="builtin.htm#int">int</a>             <span class="com">// 每一帧延迟时间，单位是0.01s</span>
+    <span id="GIF.LoopCount">LoopCount</span> <a href="builtin.htm#int">int</a>               <span class="com">// 总的循环时间</span>
+}</pre>
+    <p>GIF类型代表可能保存在GIF文件里的多幅图像。</p>
+    <h4 id="DecodeAll">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/gif/reader.go?name=release#431">DecodeAll</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func DecodeAll(r <a href="io.htm">io</a>.<a href="io.htm#Reader">Reader</a>) (*<a href="#GIF">GIF</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>函数从r中读取一个GIF格式文件；返回值中包含了连续的图帧和时间信息。</p>
+    <h4 id="EncodeAll">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/image/gif/writer.go?name=release#262">EncodeAll</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func EncodeAll(w <a href="io.htm">io</a>.<a href="io.htm#Writer">Writer</a>, g *<a href="#GIF">GIF</a>) <a href="builtin.htm#error">error</a></pre>
+    <p>函数将g中所有的图像按指定的每帧延迟和累计循环时间写入w中。</p>
+</div>
+
+<div id="x-footer" class="clearfix">
+  <div class="container">
+    <a href="http://studygolang.com/">Go语言中文网</a>
+    <span class="text-muted">|</span> <a href="http://golang.org/">Go Language</a>
+    <span class="pull-right"><a href="#">Back to top</a></span>
+  </div>
+</div>
+<script src="../assets/jquery-2.0.3.min.js"></script>
+<script src="../bootstrap.min.js"></script>
+<script src="../site.js"></script>
+</body>
+</html>

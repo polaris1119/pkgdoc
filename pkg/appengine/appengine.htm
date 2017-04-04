@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="../site.css" rel="stylesheet">
+<title>appengine</title>
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package appengine</h2>
+    <p><code>import "code.google.com/p/appengine-go/appengine"</code>
+    <p>appengine包提供Google App Engine的基本函数服务。</p>
+    <p>更多细节参见：<a href="https://developers.google.com/appengine/docs/go/">https://developers.google.com/appengine/docs/go/</a></p>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <ul class="list-unstyled">
+        <li><a href="#MultiError">type MultiError</a></li>
+        <ul>
+            <li><a href="#MultiError.Error">func (m MultiError) Error() string</a></li>
+        </ul>
+        <li><a href="#IsCapabilityDisabled">func IsCapabilityDisabled(err error) bool</a></li>
+        <li><a href="#IsTimeoutError">func IsTimeoutError(err error) bool</a></li>
+        <li><a href="#IsOverQuota">func IsOverQuota(err error) bool</a></li>
+        <li><a href="#GeoPoint">type GeoPoint</a></li>
+        <ul>
+            <li><a href="#GeoPoint.Valid">func (g GeoPoint) Valid() bool</a></li>
+        </ul>
+        <li><a href="#Context">type Context</a></li>
+        <ul>
+            <li><a href="#NewContext">func NewContext(req *http.Request) Context</a></li>
+            <li><a href="#Namespace">func Namespace(c Context, namespace string) (Context, error)</a></li>
+            <li><a href="#Timeout">func Timeout(c Context, d time.Duration) Context</a></li>
+        </ul>
+        <li><a href="#Certificate">type Certificate</a></li>
+        <li><a href="#PublicCertificates">func PublicCertificates(c Context) ([]Certificate, error)</a></li>
+        <li><a href="#SignBytes">func SignBytes(c Context, bytes []byte) (string, []byte, error)</a></li>
+        <li><a href="#IsDevAppServer">func IsDevAppServer() bool</a></li>
+        <li><a href="#ServerSoftware">func ServerSoftware() string</a></li>
+        <li><a href="#VersionID">func VersionID(c Context) string</a></li>
+        <li><a href="#AppID">func AppID(c Context) string</a></li>
+        <li><a href="#InstanceID">func InstanceID() string</a></li>
+        <li><a href="#RequestID">func RequestID(c Context) string</a></li>
+        <li><a href="#Datacenter">func Datacenter() string</a></li>
+        <li><a href="#ServiceAccount">func ServiceAccount(c Context) (string, error)</a></li>
+        <li><a href="#DefaultVersionHostname">func DefaultVersionHostname(c Context) string</a></li>
+        <li><a href="#ModuleName">func ModuleName(c Context) string</a></li>
+        <li><a href="#ModuleHostname">func ModuleHostname(c Context, module, version, instance string) (string, error)</a></li>
+        <li><a href="#AccessToken">func AccessToken(c Context, scopes ...string) (token string, expiry time.Time, err error)</a></li>
+        <li><a href="#BackendHostname">func BackendHostname(c Context, name string, index int) string</a></li>
+        <li><a href="#BackendInstance">func BackendInstance(c Context) (name string, index int)</a></li>
+        <li><a href="#BlobKey">type BlobKey</a></li>
+    </ul>
+    <h3 id="MultiError">type <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/errors.go#46">MultiError</a> <a class="permalink" href="#MultiError">&para;</a></h3>
+    <p>MutiError由批处理返回，包含每个条目的返回错误，错误一一对应与执行的条目，成功的条目对应的错误为nil。</p>
+    <pre>type MultiError []<a href="https://godoc.org/builtin#error">error</a></pre>
+<h4 id="MultiError.Error">func (MultiError) <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/errors.go#48">Error</a> <a class="permalink" href="#MultiError.Error">&para;</a></h4>
+    <pre class="funcdecl">func (m <a href="#MultiError">MultiError</a>) Error() <a href="https://godoc.org/builtin#string">string</a></pre>
+    <h3 id="IsCapabilityDisabled">func <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/errors.go#25">IsCapabilityDisabled</a> <a class="permalink" href="#IsCapabilityDisabled">&para;</a></h3>
+    <pre class="funcdecl">func IsCapabilityDisabled(err <a href="https://godoc.org/builtin#error">error</a>) <a href="https://godoc.org/builtin#bool">bool</a></pre>
+    <p>返回错误是否是因为API调用被禁止导致。</p>
+    <h3 id="IsTimeoutError">func <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/timeout.go#14">IsTimeoutError</a> <a class="permalink" href="#IsTimeoutError">&para;</a></h3>
+    <pre class="funcdecl">func IsTimeoutError(err <a href="https://godoc.org/builtin#error">error</a>) <a href="https://godoc.org/builtin#bool">bool</a></pre>
+    <p>返回错误是否是超时错误。</p>
+    <h3 id="IsOverQuota">func <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/errors.go#17">IsOverQuota</a> <a class="permalink" href="#IsOverQuota">&para;</a></h3>
+    <pre class="funcdecl">func IsOverQuota(err <a href="https://godoc.org/builtin#error">error</a>) <a href="https://godoc.org/builtin#bool">bool</a></pre>
+    <p>返回错误是否是因为超出API服务的配额限制所导致。</p>
+    <h3 id="GeoPoint">type <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/appengine.go#66">GeoPoint</a> <a class="permalink" href="#GeoPoint">&para;</a></h3>
+    <pre>type GeoPoint struct {
+    <span id="GeoPoint.Lat">Lat</span>, <span id="GeoPoint.Lng">Lng</span> <a href="https://godoc.org/builtin#float64">float64</a>
+}</pre>
+    <p>GeoPoint代表一个位置，使用经度值和维度值表示。</p>
+    <h4 id="GeoPoint.Valid">func (GeoPoint) <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/appengine.go#71">Valid</a> <a class="permalink" href="#GeoPoint.Valid">&para;</a></h4>
+    <pre class="funcdecl">func (g <a href="#GeoPoint">GeoPoint</a>) Valid() <a href="https://godoc.org/builtin#bool">bool</a></pre>
+    <p>返回该位置是否合法，纬度值范围[-90, 90]，经度值返回[-180, 180]。</p>
+    <h3 id="Context">type <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/appengine.go#24">Context</a> <a class="permalink" href="#Context">&para;</a></h3>
+    <pre>type Context interface {
+    <span class="com">// 将数据组织为字符串，并记录为Debug水平的日志</span>
+    <span id="Context.Debugf">Debugf</span>(format <a href="https://godoc.org/builtin#string">string</a>, args ...interface{})
+    <span class="com">// 类似Debugf，记录为Info水平的日志</span>
+    <span id="Context.Infof">Infof</span>(format <a href="https://godoc.org/builtin#string">string</a>, args ...interface{})
+    <span class="com">// 类似Debugf，记录为Warning水平的日志</span>
+    <span id="Context.Warningf">Warningf</span>(format <a href="https://godoc.org/builtin#string">string</a>, args ...interface{})
+    <span class="com">// 类似Debugf，记录为Error水平的日志</span>
+    <span id="Context.Errorf">Errorf</span>(format <a href="https://godoc.org/builtin#string">string</a>, args ...interface{})
+    <span class="com">// 类似Debugf，记录为Critical水平的日志</span>
+    <span id="Context.Criticalf">Criticalf</span>(format <a href="https://godoc.org/builtin#string">string</a>, args ...interface{})
+    <span class="com">// 仅供内部使用</span>
+    <span id="Context.Call">Call</span>(service, method <a href="https://godoc.org/builtin#string">string</a>, in, out <a href="https://godoc.org/appengine_internal">appengine_internal</a>.<a href="https://godoc.org/appengine_internal#ProtoMessage">ProtoMessage</a>, opts *<a href="https://godoc.org/appengine_internal">appengine_internal</a>.<a href="https://godoc.org/appengine_internal#CallOptions">CallOptions</a>) <a href="https://godoc.org/builtin#error">error</a>
+    <span class="com">// 仅供内部使用，请使用AppID代替</span>
+    <span id="Context.FullyQualifiedAppID">FullyQualifiedAppID</span>() <a href="https://godoc.org/builtin#string">string</a>
+    <span class="com">// 仅供内部使用</span>
+    <span id="Context.Request">Request</span>() interface{}
+}</pre>
+    <p>Context代表一个正在执行中的HTTP请求的上下文环境。</p>
+    <h4 id="NewContext">func <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/appengine.go#54">NewContext</a> <a class="permalink" href="#NewContext">&para;</a></h4>
+    <pre class="funcdecl">func NewContext(req *<a href="https://godoc.org/net/http">http</a>.<a href="https://godoc.org/net/http#Request">Request</a>) <a href="#Context">Context</a></pre>
+    <p>返回正在运行中的HTTP请求的Context，多次调用的返回值是相同的。</p>
+    <h4 id="Namespace">func <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/namespace.go#17">Namespace</a> <a class="permalink" href="#Namespace">&para;</a></h4>
+    <pre class="funcdecl">func Namespace(c <a href="#Context">Context</a>, namespace <a href="https://godoc.org/builtin#string">string</a>) (<a href="#Context">Context</a>, <a href="https://godoc.org/builtin#error">error</a>)</pre>
+    <p>返回一个在指定的命名空间内运行的替代用Context 。</p>
+    <h4 id="Timeout">func <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/timeout.go#24">Timeout</a> <a class="permalink" href="#Timeout">&para;</a></h4>
+    <pre class="funcdecl">func Timeout(c <a href="#Context">Context</a>, d <a href="https://godoc.org/time">time</a>.<a href="https://godoc.org/time#Duration">Duration</a>) <a href="#Context">Context</a></pre>
+    <p>返回一个在指定的时间后超时的替代用Context。</p>
+    <h3 id="Certificate">type <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/identity.go#112">Certificate</a> <a class="permalink" href="#Certificate">&para;</a></h3>
+    <pre>type Certificate struct {
+    <span id="Certificate.KeyName">KeyName</span> <a href="https://godoc.org/builtin#string">string</a>
+    <span id="Certificate.Data">Data</span>    []<a href="https://godoc.org/builtin#byte">byte</a> <span class="com">// PEM编码X.509证书</span>
+}</pre>
+    <p align="left">Certificate代表一个app的公开证书。</p>
+    <h3 id="PublicCertificates">func <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/identity.go#119">PublicCertificates</a> <a class="permalink" href="#PublicCertificates">&para;</a></h3>
+    <pre class="funcdecl">func PublicCertificates(c <a href="#Context">Context</a>) ([]<a href="#Certificate">Certificate</a>, <a href="https://godoc.org/builtin#error">error</a>)</pre>
+    <p>检索app的公证书，用于核实SignBytes返回的签名。</p>
+    <h3 id="SignBytes">func <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/identity.go#149">SignBytes</a> <a class="permalink" href="#SignBytes">&para;</a></h3>
+    <pre class="funcdecl">func SignBytes(c <a href="#Context">Context</a>, bytes []<a href="https://godoc.org/builtin#byte">byte</a>) (<a href="https://godoc.org/builtin#string">string</a>, []<a href="https://godoc.org/builtin#byte">byte</a>, <a href="https://godoc.org/builtin#error">error</a>)</pre>
+    <p>使用你的app专有的一个私钥对数据进行签名。</p>
+    <h3 id="IsDevAppServer">func <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/appengine.go#19">IsDevAppServer</a> <a class="permalink" href="#IsDevAppServer">&para;</a></h3>
+    <pre class="funcdecl">func IsDevAppServer() <a href="https://godoc.org/builtin#bool">bool</a></pre>
+    <p>返回当前app是否运行在开发版本上。</p>
+    <h3 id="ServerSoftware">func <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/identity.go#92">ServerSoftware</a> <a class="permalink" href="#ServerSoftware">&para;</a></h3>
+    <pre class="funcdecl">func ServerSoftware() <a href="https://godoc.org/builtin#string">string</a></pre>
+    <p>返回当前app的App Engine版本，生产版本形如"Google App Engine/X.Y.Z"，开发版本形如"Development/X.Y"。</p>
+    <h3 id="VersionID">func <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/identity.go#81">VersionID</a> <a class="permalink" href="#VersionID">&para;</a></h3>
+    <pre class="funcdecl">func VersionID(c <a href="#Context">Context</a>) <a href="https://godoc.org/builtin#string">string</a></pre>
+    <p>返回当前app的版本ID，格式为"X.Y"，其中X是app.yaml指定的，而Y是在上传每次该版本app时累加的数字。</p>
+    <h3 id="AppID">func <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/identity.go#19">AppID</a> <a class="permalink" href="#AppID">&para;</a></h3>
+    <pre class="funcdecl">func AppID(c <a href="#Context">Context</a>) <a href="https://godoc.org/builtin#string">string</a></pre>
+    <p>返回当前app的AppID。</p>
+    <p>一般只返回ID(如"appid")，部署在自定义域名的会包含域名前缀(如"example.com:appid")。</p>
+    <h3 id="InstanceID">func <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/identity.go#84">InstanceID</a> <a class="permalink" href="#InstanceID">&para;</a></h3>
+    <pre class="funcdecl">func InstanceID() <a href="https://godoc.org/builtin#string">string</a></pre>
+    <p>返回当前实例的一个基本独有的识别码。</p>
+    <h3 id="RequestID">func <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/identity.go#95">RequestID</a> <a class="permalink" href="#RequestID">&para;</a></h3>
+    <pre class="funcdecl">func RequestID(c <a href="#Context">Context</a>) <a href="https://godoc.org/builtin#string">string</a></pre>
+    <p>返回当前请求的专有识别码。</p>
+    <h3 id="Datacenter">func <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/identity.go#87">Datacenter</a> <a class="permalink" href="#Datacenter">&para;</a></h3>
+    <pre class="funcdecl">func Datacenter() <a href="https://godoc.org/builtin#string">string</a></pre>
+    <p>返回当前实例运作在数据中心的识别码。</p>
+    <h3 id="DefaultVersionHostname">func <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/identity.go#45">DefaultVersionHostname</a> <a class="permalink" href="#DefaultVersionHostname">&para;</a></h3>
+    <pre class="funcdecl">func DefaultVersionHostname(c <a href="#Context">Context</a>) <a href="https://godoc.org/builtin#string">string</a></pre>
+    <p>返回当前app默认版本的标准主机名(形如 "my-app.appspot.com")，用于构造URL。</p>
+    <h3 id="ServiceAccount">func <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/identity.go#137">ServiceAccount</a> <a class="permalink" href="#ServiceAccount">&para;</a></h3>
+    <pre class="funcdecl">func ServiceAccount(c <a href="#Context">Context</a>) (<a href="https://godoc.org/builtin#string">string</a>, <a href="https://godoc.org/builtin#error">error</a>)</pre>
+    <p>返回一个代表服务帐户名的字符串，采用email地址格式(如 app_id@appspot.gserviceaccount.com)。</p>
+    <h3 id="ModuleName">func <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/identity.go#50">ModuleName</a> <a class="permalink" href="#ModuleName">&para;</a></h3>
+    <pre class="funcdecl">func ModuleName(c <a href="#Context">Context</a>) <a href="https://godoc.org/builtin#string">string</a></pre>
+    <p>返回当前实例的模块名。</p>
+    <h3 id="ModuleHostname">func <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/identity.go#59">ModuleHostname</a> <a class="permalink" href="#ModuleHostname">&para;</a></h3>
+    <pre class="funcdecl">func ModuleHostname(c <a href="#Context">Context</a>, module, version, instance <a href="https://godoc.org/builtin#string">string</a>) (<a href="https://godoc.org/builtin#string">string</a>, <a href="https://godoc.org/builtin#error">error</a>)</pre>
+    <p>返回一个模块实例的主机名，module为空的话，使用当前实例的模块，version为空则使用当前实例的版本（如不合法则使用当前实例的默认版本），如果实例为空，函数返回负载平衡主机名。</p>
+    <h3 id="AccessToken">func <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/identity.go#100">AccessToken</a> <a class="permalink" href="#AccessToken">&para;</a></h3>
+    <pre class="funcdecl">func AccessToken(c <a href="#Context">Context</a>, scopes ...<a href="https://godoc.org/builtin#string">string</a>) (token <a href="https://godoc.org/builtin#string">string</a>, expiry <a href="https://godoc.org/time">time</a>.<a href="https://godoc.org/time#Time">Time</a>, err <a href="https://godoc.org/builtin#error">error</a>)</pre>
+    <p>生成一个代表当前app的服务帐户的指定作用域的Oauth2通行令牌，令牌会在时间超过expiry后过期。</p>
+    <h3 id="BackendHostname">func <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/identity.go#38">BackendHostname</a> <a class="permalink" href="#BackendHostname">&para;</a></h3>
+    <pre class="funcdecl">func BackendHostname(c <a href="#Context">Context</a>, name <a href="https://godoc.org/builtin#string">string</a>, index <a href="https://godoc.org/builtin#int">int</a>) <a href="https://godoc.org/builtin#string">string</a></pre>
+    <p>返回指定后端的标准主机名。如果index为-1，函数返回端主的负载平衡后机名。</p>
+    <h3 id="BackendInstance">func <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/identity.go#23">BackendInstance</a> <a class="permalink" href="#BackendInstance">&para;</a></h3>
+    <pre class="funcdecl">func BackendInstance(c <a href="#Context">Context</a>) (name <a href="https://godoc.org/builtin#string">string</a>, index <a href="https://godoc.org/builtin#int">int</a>)</pre>
+    <p>返回当前后端实例的名称和索引，如果不是后端实例，会返回&#34;&#34;, -1。</p>
+    <h3 id="BlobKey">type <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/appengine.go#63">BlobKey</a> <a class="permalink" href="#BlobKey">&para;</a></h3>
+    <pre>type BlobKey <a href="https://godoc.org/builtin#string">string</a></pre>
+    <p>BlobKey是blobstore的键的类型。定义在这里是为了避免blobstore和datastore的循环依赖。</p>
+</div>
+</body>
+</html>

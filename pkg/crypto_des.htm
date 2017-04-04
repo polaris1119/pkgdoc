@@ -1,0 +1,74 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="./site.css" rel="stylesheet">
+<title>crypto/des</title>
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package des</h2>
+    <p><code>import "crypto/des"</code>
+    <p>des包实现了DES标准和TDEA算法，参见U.S. Federal Information Processing Standards Publication 46-3。</p>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#pkg-constants">Constants</a></li>
+        <li><a href="#KeySizeError">type KeySizeError</a></li>
+        <ul>
+            <li><a href="#KeySizeError.Error">func (k KeySizeError) Error() string</a></li>
+        </ul>
+        <li><a href="#NewCipher">func NewCipher(key []byte) (cipher.Block, error)</a></li>
+        <li><a href="#NewTripleDESCipher">func NewTripleDESCipher(key []byte) (cipher.Block, error)</a></li>
+    </ul>
+    <h3 id="pkg-constants">Constants <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>const <span id="BlockSize">BlockSize</span> = 8</pre>
+    <p>DES字节块的大小。</p>
+    <h3 id="KeySizeError">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/des/cipher.go?name=release#15">KeySizeError</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type KeySizeError <a href="builtin.htm#int">int</a></pre>
+    <h4 id="KeySizeError.Error">func (KeySizeError) <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/des/cipher.go?name=release#17">Error</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (k <a href="#KeySizeError">KeySizeError</a>) Error() <a href="builtin.htm#string">string</a></pre>
+    <h3 id="NewCipher">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/des/cipher.go?name=release#27">NewCipher</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func NewCipher(key []<a href="builtin.htm#byte">byte</a>) (<a href="crypto/cipher.htm">cipher</a>.<a href="crypto/cipher.htm#Block">Block</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>创建并返回一个使用DES算法的cipher.Block接口。</p>
+    <h3 id="NewTripleDESCipher">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/des/cipher.go?name=release#49">NewTripleDESCipher</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func NewTripleDESCipher(key []<a href="builtin.htm#byte">byte</a>) (<a href="crypto/cipher.htm">cipher</a>.<a href="crypto/cipher.htm#Block">Block</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>创建并返回一个使用TDEA算法的cipher.Block接口。</p>
+    <div class="panel-group">
+        <div class="panel panel-default" id="example-NewTripleDESCipher">
+            <div class="panel-heading" onclick="document.getElementById('ex-NewTripleDESCipher').style.display = document.getElementById('ex-NewTripleDESCipher').style.display=='none'?'block':'none';">Example</div>
+            <div id="ex-NewTripleDESCipher" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre>
+<span class="com">// NewTripleDESCipher can also be used when EDE2 is required by</span>
+<span class="com">// duplicating the first 8 bytes of the 16-byte key.</span>
+ede2Key := []byte(&#34;example key 1234&#34;)
+var tripleDESKey []byte
+tripleDESKey = append(tripleDESKey, ede2Key[:16]...)
+tripleDESKey = append(tripleDESKey, ede2Key[:8]...)
+_, err := des.NewTripleDESCipher(tripleDESKey)
+if err != nil {
+    panic(err)
+}
+<span class="com">// See crypto/cipher for how to use a cipher.Block for encryption and</span>
+<span class="com">// decryption.</span>
+</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="x-footer" class="clearfix">
+  <div class="container">
+    <a href="http://studygolang.com/">Go语言中文网</a>
+    <span class="text-muted">|</span> <a href="http://golang.org/">Go Language</a>
+    <span class="pull-right"><a href="#">Back to top</a></span>
+  </div>
+</div>
+<script src="../assets/jquery-2.0.3.min.js"></script>
+<script src="../bootstrap.min.js"></script>
+<script src="../site.js"></script>
+</body>
+</html>

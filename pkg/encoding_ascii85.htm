@@ -1,0 +1,61 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="./site.css" rel="stylesheet">
+<title>encoding/ascii85</title>
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package ascii85</h2>
+    <p><code>import "encoding/ascii85"</code>
+    <p>ascii85包实现了ascii85数据编码（5个ascii字符表示4个字节），该编码用于btoa工具和Adobe的PostScript语言和PDF文档格式。</p>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#CorruptInputError">type CorruptInputError</a></li>
+        <ul>
+            <li><a href="#CorruptInputError.Error">func (e CorruptInputError) Error() string</a></li>
+        </ul>
+        <li><a href="#MaxEncodedLen">func MaxEncodedLen(n int) int</a></li>
+        <li><a href="#Encode">func Encode(dst, src []byte) int</a></li>
+        <li><a href="#Decode">func Decode(dst, src []byte, flush bool) (ndst, nsrc int, err error)</a></li>
+        <li><a href="#NewEncoder">func NewEncoder(w io.Writer) io.WriteCloser</a></li>
+        <li><a href="#NewDecoder">func NewDecoder(r io.Reader) io.Reader</a></li>
+    </ul>
+    <h3 id="CorruptInputError">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/ascii85/ascii85.go?name=release#169">CorruptInputError</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type CorruptInputError <a href="builtin.htm#int64">int64</a></pre>
+    <h4 id="CorruptInputError.Error">func (CorruptInputError) <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/ascii85/ascii85.go?name=release#171">Error</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (e <a href="#CorruptInputError">CorruptInputError</a>) Error() <a href="builtin.htm#string">string</a></pre>
+    <h3 id="MaxEncodedLen">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/ascii85/ascii85.go?name=release#86">MaxEncodedLen</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func MaxEncodedLen(n <a href="builtin.htm#int">int</a>) <a href="builtin.htm#int">int</a></pre>
+    <p>返回n字节源数据编码后的最大字节数。</p>
+    <h3 id="Encode">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/ascii85/ascii85.go?name=release#27">Encode</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Encode(dst, src []<a href="builtin.htm#byte">byte</a>) <a href="builtin.htm#int">int</a></pre>
+    <p align="left">将src编码成最多MaxEncodedLen(len(src))数据写入dst，返回实际写入的字节数。编码每4字节一段进行一次，最后一个片段采用特殊的处理方式，因此不应将本函数用于处理大数据流的某一独立数据块。</p>
+    <p align="left">一般来说ascii85编码数据会被'&lt;~'和'~&gt;'包括起来，函数并未添加上它们。</p>
+    <h3 id="Decode">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/ascii85/ascii85.go?name=release#189">Decode</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Decode(dst, src []<a href="builtin.htm#byte">byte</a>, flush <a href="builtin.htm#bool">bool</a>) (ndst, nsrc <a href="builtin.htm#int">int</a>, err <a href="builtin.htm#error">error</a>)</pre>
+    <p align="left">将src解码后写入dst，返回写入dst的字节数、从src解码的字节数。如果src含有非法数据，函数将返回成功执行的数据（两个数字）和CorruptInputError。如果flush为真，则函数会认为src代表输入流的结尾，完全处理src，而不会等待另一个32字节的数据块。</p>
+    <p align="left">函数会忽略src中的空格和控制字符，一般来说ascii85编码数据会被'&lt;~'和'~&gt;'包括起来，但是调用者应自行去掉它们。</p>
+    <h3 id="NewEncoder">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/ascii85/ascii85.go?name=release#93">NewEncoder</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func NewEncoder(w <a href="io.htm">io</a>.<a href="io.htm#Writer">Writer</a>) <a href="io.htm">io</a>.<a href="io.htm#WriteCloser">WriteCloser</a></pre>
+    <p>创建一个将数据编码为ascii85流写入w的编码器。Ascii85编码算法操作32位块，写入结束后，必须调用Close方法将缓存中保留的不完整块刷新到w里。</p>
+    <h3 id="NewDecoder">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/ascii85/ascii85.go?name=release#246">NewDecoder</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func NewDecoder(r <a href="io.htm">io</a>.<a href="io.htm#Reader">Reader</a>) <a href="io.htm">io</a>.<a href="io.htm#Reader">Reader</a></pre>
+    <p>创建一个从r解码ascii85流的解码器。</p>
+</div>
+
+<div id="x-footer" class="clearfix">
+  <div class="container">
+    <a href="http://studygolang.com/">Go语言中文网</a>
+    <span class="text-muted">|</span> <a href="http://golang.org/">Go Language</a>
+    <span class="pull-right"><a href="#">Back to top</a></span>
+  </div>
+</div>
+<script src="../assets/jquery-2.0.3.min.js"></script>
+<script src="../bootstrap.min.js"></script>
+<script src="../site.js"></script>
+</body>
+</html>

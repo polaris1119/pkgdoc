@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="../site.css" rel="stylesheet">
+<title>appengine/memcache</title>
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package memcache</h2>
+    <p><code>import "code.google.com/p/appengine-go/appengine/memcache"</code>
+    <p align="left">memcache包提供了App Engine的分布式内存键值对模式的对小块任意数据的存储服务。 </p>
+    <p align="left">基本操作是获取和设定item，键为字符串：</p>
+    <pre>item0, err := memcache.Get(c, &#34;key&#34;)
+if err != nil &amp;&amp; err != memcache.ErrCacheMiss {
+	return err
+}
+if err == nil {
+	fmt.Fprintf(w, &#34;memcache hit: Key=%q Val=[% x]\n&#34;, item0.Key, item0.Value)
+} else {
+	fmt.Fprintf(w, &#34;memcache miss\n&#34;)
+}
+</pre>
+    <p>和：</p>
+    <pre>item1 := &amp;memcache.Item{
+	Key:   &#34;foo&#34;,
+	Value: []byte(&#34;bar&#34;),
+}
+if err := memcache.Set(c, item1); err != nil {
+	return err
+}</pre>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <ul class="list-unstyled">
+        <li><a href="#pkg-variables">Variables</a></li>
+        <li><a href="#Statistics">type Statistics</a></li>
+        <ul>
+            <li><a href="#Stats">func Stats(c appengine.Context) (*Statistics, error)</a></li>
+        </ul>
+        <li><a href="#Item">type Item</a></li>
+        <li><a href="#Get">func Get(c appengine.Context, key string) (*Item, error)</a></li>
+        <li><a href="#GetMulti">func GetMulti(c appengine.Context, key []string) (map[string]*Item, error)</a></li>
+        <li><a href="#Set">func Set(c appengine.Context, item *Item) error</a></li>
+        <li><a href="#SetMulti">func SetMulti(c appengine.Context, item []*Item) error</a></li>
+        <li><a href="#Add">func Add(c appengine.Context, item *Item) error</a></li>
+        <li><a href="#AddMulti">func AddMulti(c appengine.Context, item []*Item) error</a></li>
+        <li><a href="#Delete">func Delete(c appengine.Context, key string) error</a></li>
+        <li><a href="#DeleteMulti">func DeleteMulti(c appengine.Context, key []string) error</a></li>
+        <li><a href="#CompareAndSwap">func CompareAndSwap(c appengine.Context, item *Item) error</a></li>
+        <li><a href="#CompareAndSwapMulti">func CompareAndSwapMulti(c appengine.Context, item []*Item) error</a></li>
+        <li><a href="#Flush">func Flush(c appengine.Context) error</a></li>
+        <li><a href="#Increment">func Increment(c appengine.Context, key string, delta int64, initialValue uint64) (newValue uint64, err error)</a></li>
+        <li><a href="#IncrementExisting">func IncrementExisting(c appengine.Context, key string, delta int64) (newValue uint64, err error)</a></li>
+        <li><a href="#Codec">type Codec</a></li>
+        <ul>
+            <li><a href="#Codec.Get">func (cd Codec) Get(c appengine.Context, key string, v interface{}) (*Item, error)</a></li>
+            <li><a href="#Codec.Set">func (cd Codec) Set(c appengine.Context, item *Item) error</a></li>
+            <li><a href="#Codec.SetMulti">func (cd Codec) SetMulti(c appengine.Context, items []*Item) error</a></li>
+            <li><a href="#Codec.Add">func (cd Codec) Add(c appengine.Context, item *Item) error</a></li>
+            <li><a href="#Codec.AddMulti">func (cd Codec) AddMulti(c appengine.Context, items []*Item) error</a></li>
+            <li><a href="#Codec.CompareAndSwap">func (cd Codec) CompareAndSwap(c appengine.Context, item *Item) error</a></li>
+            <li><a href="#Codec.CompareAndSwapMulti">func (cd Codec) CompareAndSwapMulti(c appengine.Context, items []*Item) error</a></li>
+        </ul>
+    </ul>
+    <h3 id="pkg-variables">Variables <a class="permalink" href="#pkg-variables">&para;</a></h3>
+    <pre>var (
+    <span class="com">// 表示因item不存在而操作失败</span>
+    <span id="ErrCacheMiss">ErrCacheMiss</span> = <a href="https://godoc.org/errors">errors</a>.<a href="https://godoc.org/errors#New">New</a>(&#34;memcache: cache miss&#34;)
+    <span class="com">// 表示CompareAndSwap调用因为在Get和CompareAndSwap调用之间修改了缓存值而失败</span>
+    <span class="com">// 如果缓存值是被删除而不是替换，将返回ErrNotStored</span>
+    <span id="ErrCASConflict">ErrCASConflict</span> = <a href="https://godoc.org/errors">errors</a>.<a href="https://godoc.org/errors#New">New</a>(&#34;memcache: compare-and-swap conflict&#34;)
+    <span class="com">// 表示没有可用的统计信息</span>
+    <span id="ErrNoStats">ErrNoStats</span> = <a href="https://godoc.org/errors">errors</a>.<a href="https://godoc.org/errors#New">New</a>(&#34;memcache: no statistics available&#34;)
+    <span class="com">// 表示某个有条件的写操作（如Add 或 CompareAndSwap）因为条件不满足而失败</span>
+    <span id="ErrNotStored">ErrNotStored</span> = <a href="https://godoc.org/errors">errors</a>.<a href="https://godoc.org/errors#New">New</a>(&#34;memcache: item not stored&#34;)
+    <span class="com">// 表示出现了服务端错误</span>
+    <span id="ErrServerError">ErrServerError</span> = <a href="https://godoc.org/errors">errors</a>.<a href="https://godoc.org/errors#New">New</a>(&#34;memcache: server error&#34;)
+)</pre>
+    <pre>var (
+    <span class="com">// 使用gob包的编解码器</span>
+    <span id="Gob">Gob</span> = <a href="#Codec">Codec</a>{gobMarshal, gobUnmarshal}
+    <span class="com">// 使用json包的编解码器</span>
+    <span id="JSON">JSON</span> = <a href="#Codec">Codec</a>{<a href="https://godoc.org/encoding/json">json</a>.<a href="https://godoc.org/encoding/json#Marshal">Marshal</a>, <a href="https://godoc.org/encoding/json">json</a>.<a href="https://godoc.org/encoding/json#Unmarshal">Unmarshal</a>}
+)</pre>
+    <h3 id="Statistics">type <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/memcache/memcache.go#452">Statistics</a> <a class="permalink" href="#Statistics">&para;</a></h3>
+    <pre>type Statistics struct {
+    <span id="Statistics.Hits">Hits</span>     <a href="https://godoc.org/builtin#uint64">uint64</a> <span class="com">// 缓存命中计数器</span>
+    <span id="Statistics.Misses">Misses</span>   <a href="https://godoc.org/builtin#uint64">uint64</a> <span class="com">// 缓存遗漏计数器</span>
+    <span id="Statistics.ByteHits">ByteHits</span> <a href="https://godoc.org/builtin#uint64">uint64</a> <span class="com">// 获取转移计数器</span>
+    <span id="Statistics.Items">Items</span> <a href="https://godoc.org/builtin#uint64">uint64</a> <span class="com">// 当前缓存中的Item的数量</span>
+    <span id="Statistics.Bytes">Bytes</span> <a href="https://godoc.org/builtin#uint64">uint64</a> <span class="com">// 当前缓存中的所有Item的大小</span>
+    <span id="Statistics.Oldest">Oldest</span> <a href="https://godoc.org/builtin#int64">int64</a> <span class="com">// 最老Item的存在时间，以秒为单位</span>
+}</pre>
+    <p>Statistics代表一个memcache缓存的统计数据集。</p>
+    <h4 id="Stats">func <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/memcache/memcache.go#464">Stats</a> <a class="permalink" href="#Stats">&para;</a></h4>
+    <pre class="funcdecl">func Stats(c <a href="https://godoc.org/appengine">appengine</a>.<a href="https://godoc.org/appengine#Context">Context</a>) (*<a href="#Statistics">Statistics</a>, <a href="https://godoc.org/builtin#error">error</a>)</pre>
+    <p>Stats获取当前memcache缓存的统计数据。</p>
+    <h3 id="Item">type <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/memcache/memcache.go#64">Item</a> <a class="permalink" href="#Item">&para;</a></h3>
+    <pre>type Item struct {
+    <span class="com">// Key是Item的键（最大250字节）。</span>
+    <span id="Item.Key">Key</span> <a href="https://godoc.org/builtin#string">string</a>
+    <span class="com">// Value是Item的值。</span>
+    <span id="Item.Value">Value</span> []<a href="https://godoc.org/builtin#byte">byte</a>
+    <span class="com">// Object是Item的值，用于Codec。</span>
+    <span id="Item.Object">Object</span> interface{}
+    <span class="com">// Flags是用于服务端的不透明操作项，其意义完全取决于App Engine服务。</span>
+    <span id="Item.Flags">Flags</span> <a href="https://godoc.org/builtin#uint32">uint32</a>
+    <span class="com">// Expiration是该Item的最大缓存时间，零值表示无过期时间，小于1秒的精度被忽略。</span>
+    <span class="com">// 获取Item时不设置该项。</span>
+    <span id="Item.Expiration">Expiration</span> <a href="https://godoc.org/time">time</a>.<a href="https://godoc.org/time#Duration">Duration</a>
+    <span class="com">// 内含隐藏或非导出字段</span>
+}</pre>
+    <p>Item是memcache存取的基本单元。</p>
+    <h3 id="Get">func <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/memcache/memcache.go#110">Get</a> <a class="permalink" href="#Get">&para;</a></h3>
+    <pre class="funcdecl">func Get(c <a href="https://godoc.org/appengine">appengine</a>.<a href="https://godoc.org/appengine#Context">Context</a>, key <a href="https://godoc.org/builtin#string">string</a>) (*<a href="#Item">Item</a>, <a href="https://godoc.org/builtin#error">error</a>)</pre>
+    <p>使用给定的键获取对应的Item，当item不存在时返回ErrCacheMiss，key最长250字节。</p>
+    <h3 id="GetMulti">func <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/memcache/memcache.go#124">GetMulti</a> <a class="permalink" href="#GetMulti">&para;</a></h3>
+    <pre class="funcdecl">func GetMulti(c <a href="https://godoc.org/appengine">appengine</a>.<a href="https://godoc.org/appengine#Context">Context</a>, key []<a href="https://godoc.org/builtin#string">string</a>) (map[<a href="https://godoc.org/builtin#string">string</a>]*<a href="#Item">Item</a>, <a href="https://godoc.org/builtin#error">error</a>)</pre>
+    <p>Get的批处理版本。返回字典可能会因为缓存中没有对应item而导致键值对数比key的数目少。</p>
+    <h3 id="Set">func <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/memcache/memcache.go#307">Set</a> <a class="permalink" href="#Set">&para;</a></h3>
+    <pre class="funcdecl">func Set(c <a href="https://godoc.org/appengine">appengine</a>.<a href="https://godoc.org/appengine#Context">Context</a>, item *<a href="#Item">Item</a>) <a href="https://godoc.org/builtin#error">error</a></pre>
+    <p>无条件的写入给定的Item。</p>
+    <h3 id="SetMulti">func <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/memcache/memcache.go#313">SetMulti</a> <a class="permalink" href="#SetMulti">&para;</a></h3>
+    <pre class="funcdecl">func SetMulti(c <a href="https://godoc.org/appengine">appengine</a>.<a href="https://godoc.org/appengine#Context">Context</a>, item []*<a href="#Item">Item</a>) <a href="https://godoc.org/builtin#error">error</a></pre>
+    <p>Set的批处理版本，可能返回appengine.MultiError类型的错误。</p>
+    <h3 id="Add">func <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/memcache/memcache.go#319">Add</a> <a class="permalink" href="#Add">&para;</a></h3>
+    <pre class="funcdecl">func Add(c <a href="https://godoc.org/appengine">appengine</a>.<a href="https://godoc.org/appengine#Context">Context</a>, item *<a href="#Item">Item</a>) <a href="https://godoc.org/builtin#error">error</a></pre>
+    <p>如果item的键没有存在对应的item，则写入该item，否则返回ErrNotStored。</p>
+    <h3 id="AddMulti">func <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/memcache/memcache.go#325">AddMulti</a> <a class="permalink" href="#AddMulti">&para;</a></h3>
+    <pre class="funcdecl">func AddMulti(c <a href="https://godoc.org/appengine">appengine</a>.<a href="https://godoc.org/appengine#Context">Context</a>, item []*<a href="#Item">Item</a>) <a href="https://godoc.org/builtin#error">error</a></pre>
+    <p>Add的批处理版本，可能返回appengine.MultiError类型的错误。</p>
+    <h3 id="Delete">func <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/memcache/memcache.go#148">Delete</a> <a class="permalink" href="#Delete">&para;</a></h3>
+    <pre class="funcdecl">func Delete(c <a href="https://godoc.org/appengine">appengine</a>.<a href="https://godoc.org/appengine#Context">Context</a>, key <a href="https://godoc.org/builtin#string">string</a>) <a href="https://godoc.org/builtin#error">error</a></pre>
+    <p>删除key对应的Item，如果未找到该Item返回ErrCacheMiss。</p>
+    <h3 id="DeleteMulti">func <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/memcache/memcache.go#155">DeleteMulti</a> <a class="permalink" href="#DeleteMulti">&para;</a></h3>
+    <pre class="funcdecl">func DeleteMulti(c <a href="https://godoc.org/appengine">appengine</a>.<a href="https://godoc.org/appengine#Context">Context</a>, key []<a href="https://godoc.org/builtin#string">string</a>) <a href="https://godoc.org/builtin#error">error</a></pre>
+    <p>Delete的批处理版本。</p>
+    <h3 id="CompareAndSwap">func <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/memcache/memcache.go#335">CompareAndSwap</a> <a class="permalink" href="#CompareAndSwap">&para;</a></h3>
+    <pre class="funcdecl">func CompareAndSwap(c <a href="https://godoc.org/appengine">appengine</a>.<a href="https://godoc.org/appengine#Context">Context</a>, item *<a href="#Item">Item</a>) <a href="https://godoc.org/builtin#error">error</a></pre>
+    <p>函数修改Get函数之前返回的Item，Item的键不可改变，但其它字段都可以修改。在本次CompareAndSwap和Get之间，如果有其它对该Item的修改被写入缓存，会返回ErrCASConflict错误；如果两者中间该Item被删除了，会返回ErrNotStored错误。</p>
+    <h3 id="CompareAndSwapMulti">func <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/memcache/memcache.go#341">CompareAndSwapMulti</a> <a class="permalink" href="#CompareAndSwapMulti">&para;</a></h3>
+    <pre class="funcdecl">func CompareAndSwapMulti(c <a href="https://godoc.org/appengine">appengine</a>.<a href="https://godoc.org/appengine#Context">Context</a>, item []*<a href="#Item">Item</a>) <a href="https://godoc.org/builtin#error">error</a></pre>
+    <p>CompareAndSwap的批处理版本，可能返回appengine.MultiError类型的错误。</p>
+    <h3 id="Flush">func <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/memcache/memcache.go#484">Flush</a> <a class="permalink" href="#Flush">&para;</a></h3>
+    <pre class="funcdecl">func Flush(c <a href="https://godoc.org/appengine">appengine</a>.<a href="https://godoc.org/appengine#Context">Context</a>) <a href="https://godoc.org/builtin#error">error</a></pre>
+    <p>清空缓存中的所有Item。</p>
+    <h3 id="Increment">func <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/memcache/memcache.go#195">Increment</a> <a class="permalink" href="#Increment">&para;</a></h3>
+    <pre class="funcdecl">func Increment(c <a href="https://godoc.org/appengine">appengine</a>.<a href="https://godoc.org/appengine#Context">Context</a>, key <a href="https://godoc.org/builtin#string">string</a>, delta <a href="https://godoc.org/builtin#int64">int64</a>, initialValue <a href="https://godoc.org/builtin#uint64">uint64</a>) (newValue <a href="https://godoc.org/builtin#uint64">uint64</a>, err <a href="https://godoc.org/builtin#error">error</a>)</pre>
+    <p>让key表示的十进制value加上delta，并返回新的value。Value应能用int64表示，上溢会截断，下溢则置为0。Delta可以是负数。如果缓存中不存在键key，则会使用initalValue原子性的创建它，在之后才加上delta。</p>
+    <h3 id="IncrementExisting">func <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/memcache/memcache.go#204">IncrementExisting</a> <a class="permalink" href="#IncrementExisting">&para;</a></h3>
+    <pre class="funcdecl">func IncrementExisting(c <a href="https://godoc.org/appengine">appengine</a>.<a href="https://godoc.org/appengine#Context">Context</a>, key <a href="https://godoc.org/builtin#string">string</a>, delta <a href="https://godoc.org/builtin#int64">int64</a>) (newValue <a href="https://godoc.org/builtin#uint64">uint64</a>, err <a href="https://godoc.org/builtin#error">error</a>)</pre>
+    <p>函数类似Increment但假设key已经存在于缓存中，以便节省工作量。如果没有找到key对应的Item会返回错误。</p>
+    <h3 id="Codec">type <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/memcache/memcache.go#351">Codec</a> <a class="permalink" href="#Codec">&para;</a></h3>
+    <pre>type Codec struct {
+    <span id="Codec.Marshal">Marshal</span>   func(interface{}) ([]<a href="https://godoc.org/builtin#byte">byte</a>, <a href="https://godoc.org/builtin#error">error</a>)
+    <span id="Codec.Unmarshal">Unmarshal</span> func([]<a href="https://godoc.org/builtin#byte">byte</a>, interface{}) <a href="https://godoc.org/builtin#error">error</a>
+}</pre>
+    <p>Codec代表两个对称的实现了编解码器的函数。Item从memcache中恢复或者存入memcache都会使用Codec对值进行序列化和反序列化。Codec提供的所有方法都和包水平的同名方法效果类似。</p>
+    <h4 id="Codec.Get">func (Codec) <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/memcache/memcache.go#359">Get</a> <a class="permalink" href="#Codec.Get">&para;</a></h4>
+    <pre class="funcdecl">func (cd <a href="#Codec">Codec</a>) Get(c <a href="https://godoc.org/appengine">appengine</a>.<a href="https://godoc.org/appengine#Context">Context</a>, key <a href="https://godoc.org/builtin#string">string</a>, v interface{}) (*<a href="#Item">Item</a>, <a href="https://godoc.org/builtin#error">error</a>)</pre>
+    <p>获取key对应的Item并解码数据填写入v。如果没找到Item会返回ErrCacheMiss错误。</p>
+    <h4 id="Codec.Set">func (Codec) <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/memcache/memcache.go#394">Set</a> <a class="permalink" href="#Codec.Set">&para;</a></h4>
+    <pre class="funcdecl">func (cd <a href="#Codec">Codec</a>) Set(c <a href="https://godoc.org/appengine">appengine</a>.<a href="https://godoc.org/appengine#Context">Context</a>, item *<a href="#Item">Item</a>) <a href="https://godoc.org/builtin#error">error</a></pre>
+    <p>无条件的存入Item。</p>
+    <h4 id="Codec.SetMulti">func (Codec) <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/memcache/memcache.go#400">SetMulti</a> <a class="permalink" href="#Codec.SetMulti">&para;</a></h4>
+    <pre class="funcdecl">func (cd <a href="#Codec">Codec</a>) SetMulti(c <a href="https://godoc.org/appengine">appengine</a>.<a href="https://godoc.org/appengine#Context">Context</a>, items []*<a href="#Item">Item</a>) <a href="https://godoc.org/builtin#error">error</a></pre>
+    <p>Set的批处理版本，可能返回appengine.MultiError类型的错误。</p>
+    <h4 id="Codec.Add">func (Codec) <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/memcache/memcache.go#406">Add</a> <a class="permalink" href="#Codec.Add">&para;</a></h4>
+    <pre class="funcdecl">func (cd <a href="#Codec">Codec</a>) Add(c <a href="https://godoc.org/appengine">appengine</a>.<a href="https://godoc.org/appengine#Context">Context</a>, item *<a href="#Item">Item</a>) <a href="https://godoc.org/builtin#error">error</a></pre>
+    <p>当item的Key字段在缓存中没有对应的值时，存入item；否则返回ErrNotStored错误。</p>
+    <h4 id="Codec.AddMulti">func (Codec) <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/memcache/memcache.go#412">AddMulti</a> <a class="permalink" href="#Codec.AddMulti">&para;</a></h4>
+    <pre class="funcdecl">func (cd <a href="#Codec">Codec</a>) AddMulti(c <a href="https://godoc.org/appengine">appengine</a>.<a href="https://godoc.org/appengine#Context">Context</a>, items []*<a href="#Item">Item</a>) <a href="https://godoc.org/builtin#error">error</a></pre>
+    <p>Add的批处理版本，可能返回appengine.MultiError类型的错误。</p>
+    <h4 id="Codec.CompareAndSwap">func (Codec) <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/memcache/memcache.go#422">CompareAndSwap</a> <a class="permalink" href="#Codec.CompareAndSwap">&para;</a></h4>
+    <pre class="funcdecl">func (cd <a href="#Codec">Codec</a>) CompareAndSwap(c <a href="https://godoc.org/appengine">appengine</a>.<a href="https://godoc.org/appengine#Context">Context</a>, item *<a href="#Item">Item</a>) <a href="https://godoc.org/builtin#error">error</a></pre>
+    <p>方法修改Get方法之前返回的Item，Item的键不可改变，但其它字段都可以修改。在本次CompareAndSwap和Get之间，如果有其它对该Item的修改被写入缓存，会返回ErrCASConflict错误；如果两者中间该Item被删除了，会返回ErrNotStored错误。</p>
+    <h4 id="Codec.CompareAndSwapMulti">func (Codec) <a title="View Source" href="http://code.google.com/p/appengine-go/source/browse/appengine/memcache/memcache.go#428">CompareAndSwapMulti</a> <a class="permalink" href="#Codec.CompareAndSwapMulti">&para;</a></h4>
+    <pre class="funcdecl">func (cd <a href="#Codec">Codec</a>) CompareAndSwapMulti(c <a href="https://godoc.org/appengine">appengine</a>.<a href="https://godoc.org/appengine#Context">Context</a>, items []*<a href="#Item">Item</a>) <a href="https://godoc.org/builtin#error">error</a></pre>
+    <p>CompareAndSwap的批处理版本，可能返回appengine.MultiError类型的错误。</p>
+</div>
+</body>
+</html>

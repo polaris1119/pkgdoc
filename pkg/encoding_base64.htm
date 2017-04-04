@@ -1,0 +1,150 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="./site.css" rel="stylesheet">
+<title>encoding/base64</title>
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package base64</h2>
+    <p><code>import "encoding/base64"</code>
+    <p>base64实现了<a href="http://tools.ietf.org/html/rfc4648">RFC 4648</a>规定的base64编码。</p>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#pkg-variables">Variables</a></li>
+        <li><a href="#CorruptInputError">type CorruptInputError</a></li>
+        <ul>
+            <li><a href="#CorruptInputError.Error">func (e CorruptInputError) Error() string</a></li>
+        </ul>
+        <li><a href="#Encoding">type Encoding</a></li>
+        <ul>
+            <li><a href="#NewEncoding">func NewEncoding(encoder string) *Encoding</a></li>
+            <li><a href="#Encoding.DecodedLen">func (enc *Encoding) DecodedLen(n int) int</a></li>
+            <li><a href="#Encoding.Decode">func (enc *Encoding) Decode(dst, src []byte) (n int, err error)</a></li>
+            <li><a href="#Encoding.DecodeString">func (enc *Encoding) DecodeString(s string) ([]byte, error)</a></li>
+            <li><a href="#Encoding.EncodedLen">func (enc *Encoding) EncodedLen(n int) int</a></li>
+            <li><a href="#Encoding.Encode">func (enc *Encoding) Encode(dst, src []byte)</a></li>
+            <li><a href="#Encoding.EncodeToString">func (enc *Encoding) EncodeToString(src []byte) string</a></li>
+        </ul>
+        <li><a href="#NewDecoder">func NewDecoder(enc *Encoding, r io.Reader) io.Reader</a></li>
+        <li><a href="#NewEncoder">func NewEncoder(enc *Encoding, w io.Writer) io.WriteCloser</a></li>
+    </ul>
+    <h4 id="pkg-examples">Examples <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#example-Encoding-DecodeString" onclick="$('#ex-Encoding-DecodeString').addClass('in').removeClass('collapse').height('auto')">Encoding.DecodeString</a></li>
+        <li><a href="#example-Encoding-EncodeToString" onclick="$('#ex-Encoding-EncodeToString').addClass('in').removeClass('collapse').height('auto')">Encoding.EncodeToString</a></li>
+        <li><a href="#example-NewEncoder" onclick="$('#ex-NewEncoder').addClass('in').removeClass('collapse').height('auto')">NewEncoder</a></li>
+    </ul>
+    <h3 id="pkg-variables">Variables <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>var <span id="StdEncoding">StdEncoding</span> = <a href="#NewEncoding">NewEncoding</a>(encodeStd)</pre>
+    <p>RFC 4648定义的标准base64编码字符集。</p>
+    <pre>var <span id="URLEncoding">URLEncoding</span> = <a href="#NewEncoding">NewEncoding</a>(encodeURL)</pre>
+    <p>RFC 4648定义的另一base64编码字符集，用于URL和文件名。</p>
+    <h3 id="CorruptInputError">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/base64/base64.go?name=release#210">CorruptInputError</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type CorruptInputError <a href="builtin.htm#int64">int64</a></pre>
+    <h4 id="CorruptInputError.Error">func (CorruptInputError) <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/base64/base64.go?name=release#212">Error</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (e <a href="#CorruptInputError">CorruptInputError</a>) Error() <a href="builtin.htm#string">string</a></pre>
+    <h3 id="Encoding">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/base64/base64.go?name=release#24">Encoding</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Encoding struct {
+    <span class="com">// 内含隐藏或非导出字段</span>
+}</pre>
+    <p>双向的编码/解码协议，根据一个64字符的字符集定义，<a href="http://tools.ietf.org/html/rfc4648">RFC 4648</a>标准化了两种字符集。默认字符集用于MIME（<a href="http://tools.ietf.org/html/rfc2045">RFC 2045</a>）和PEM（<a href="http://tools.ietf.org/html/rfc1421">RFC 1421</a>）编码；另一种用于URL和文件名，用'-'和'_'替换了'+'和'/'。</p>
+<h4 id="NewEncoding">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/base64/base64.go?name=release#34">NewEncoding</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func NewEncoding(encoder <a href="builtin.htm#string">string</a>) *<a href="#Encoding">Encoding</a></pre>
+    <p>使用给出的字符集生成一个*Encoding，字符集必须是64字节的字符串。</p>
+    <h4 id="Encoding.DecodedLen">func (*Encoding) <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/base64/base64.go?name=release#393">DecodedLen</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (enc *<a href="#Encoding">Encoding</a>) DecodedLen(n <a href="builtin.htm#int">int</a>) <a href="builtin.htm#int">int</a></pre>
+    <p>返回n字节base64编码的数据解码后的最大长度。</p>
+    <h4 id="Encoding.Decode">func (*Encoding) <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/base64/base64.go?name=release#288">Decode</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (enc *<a href="#Encoding">Encoding</a>) Decode(dst, src []<a href="builtin.htm#byte">byte</a>) (n <a href="builtin.htm#int">int</a>, err <a href="builtin.htm#error">error</a>)</pre>
+    <p>将src的数据解码后存入dst，最多写DecodedLen(len(src))字节数据到dst，并返回写入的字节数。 如果src包含非法字符，将返回成功写入的字符数和CorruptInputError。换行符（\r、\n）会被忽略。</p>
+    <h4 id="Encoding.DecodeString">func (*Encoding) <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/base64/base64.go?name=release#295">DecodeString</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (enc *<a href="#Encoding">Encoding</a>) DecodeString(s <a href="builtin.htm#string">string</a>) ([]<a href="builtin.htm#byte">byte</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>返回base64编码的字符串s代表的数据。</p>
+    <div class="panel-group">
+        <div class="panel panel-default" id="example-Encoding-DecodeString">
+            <div class="panel-heading" onclick="document.getElementById('ex-Encoding-DecodeString').style.display = document.getElementById('ex-Encoding-DecodeString').style.display=='none'?'block':'none';">Example</div>
+            <div id="ex-Encoding-DecodeString" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre>str := &#34;c29tZSBkYXRhIHdpdGggACBhbmQg77u/&#34;
+data, err := base64.StdEncoding.DecodeString(str)
+if err != nil {
+    fmt.Println(&#34;error:&#34;, err)
+    return
+}
+fmt.Printf(&#34;%q\n&#34;, data)</pre>
+                    <p>Output:
+                    <pre>&#34;some data with \x00 and \ufeff&#34;
+</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    <h4 id="Encoding.EncodedLen">func (*Encoding) <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/base64/base64.go?name=release#204">EncodedLen</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (enc *<a href="#Encoding">Encoding</a>) EncodedLen(n <a href="builtin.htm#int">int</a>) <a href="builtin.htm#int">int</a></pre>
+    <p>返回n字节数据进行base64编码后的最大长度。</p>
+    <h4 id="Encoding.Encode">func (*Encoding) <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/base64/base64.go?name=release#71">Encode</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (enc *<a href="#Encoding">Encoding</a>) Encode(dst, src []<a href="builtin.htm#byte">byte</a>)</pre>
+    <p>将src的数据编码后存入dst，最多写EncodedLen(len(src))字节数据到dst，并返回写入的字节数。</p>
+    <p> 函数会把输出设置为4的倍数，因此不建议对大数据流的独立数据块执行此方法，使用NewEncoder()代替。</p>
+    <h4 id="Encoding.EncodeToString">func (*Encoding) <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/base64/base64.go?name=release#118">EncodeToString</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (enc *<a href="#Encoding">Encoding</a>) EncodeToString(src []<a href="builtin.htm#byte">byte</a>) <a href="builtin.htm#string">string</a></pre>
+    <p>返回将src编码后的字符串。</p>
+    <div class="panel-group">
+        <div class="panel panel-default" id="example-Encoding-EncodeToString">
+            <div class="panel-heading" onclick="document.getElementById('ex-Encoding-EncodeToString').style.display = document.getElementById('ex-Encoding-EncodeToString').style.display=='none'?'block':'none';">Example</div>
+            <div id="ex-Encoding-EncodeToString" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre>data := []byte(&#34;any + old &amp; data&#34;)
+str := base64.StdEncoding.EncodeToString(data)
+fmt.Println(str)</pre>
+                    <p>Output:
+                    <pre>YW55ICsgb2xkICYgZGF0YQ==
+</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    <h3 id="NewDecoder">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/base64/base64.go?name=release#387">NewDecoder</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func NewDecoder(enc *<a href="#Encoding">Encoding</a>, r <a href="io.htm">io</a>.<a href="io.htm#Reader">Reader</a>) <a href="io.htm">io</a>.<a href="io.htm#Reader">Reader</a></pre>
+    <p>创建一个新的base64流解码器。</p>
+    <h3 id="NewEncoder">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/base64/base64.go?name=release#198">NewEncoder</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func NewEncoder(enc *<a href="#Encoding">Encoding</a>, w <a href="io.htm">io</a>.<a href="io.htm#Writer">Writer</a>) <a href="io.htm">io</a>.<a href="io.htm#WriteCloser">WriteCloser</a></pre>
+    <p>创建一个新的base64流编码器。写入的数据会在编码后再写入w，base32编码每3字节执行一次编码操作；写入完毕后，使用者必须调用Close方法以便将未写入的数据从缓存中刷新到w中。</p>
+    <div class="panel-group">
+        <div class="panel panel-default" id="example-NewEncoder">
+            <div class="panel-heading" onclick="document.getElementById('ex-NewEncoder').style.display = document.getElementById('ex-NewEncoder').style.display=='none'?'block':'none';">Example</div>
+            <div id="ex-NewEncoder" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre>input := []byte(&#34;foo\x00bar&#34;)
+encoder := base64.NewEncoder(base64.StdEncoding, os.Stdout)
+encoder.Write(input)
+<span class="com">// Must close the encoder when finished to flush any partial blocks.</span>
+<span class="com">// If you comment out the following line, the last partial block &#34;r&#34;</span>
+<span class="com">// won&#39;t be encoded.</span>
+encoder.Close()</pre>
+                    <p>Output:
+                    <pre>Zm9vAGJhcg==
+</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="x-footer" class="clearfix">
+  <div class="container">
+    <a href="http://studygolang.com/">Go语言中文网</a>
+    <span class="text-muted">|</span> <a href="http://golang.org/">Go Language</a>
+    <span class="pull-right"><a href="#">Back to top</a></span>
+  </div>
+</div>
+<script src="../assets/jquery-2.0.3.min.js"></script>
+<script src="../bootstrap.min.js"></script>
+<script src="../site.js"></script>
+</body>
+</html>

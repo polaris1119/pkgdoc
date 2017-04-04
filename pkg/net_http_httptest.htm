@@ -1,0 +1,154 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="./site.css" rel="stylesheet">
+<title>net/http/httptest</title>
+<meta name="private:description" content="刘志曦翻译于2014年夏，Go 1.3版本">
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package httptest</h2>
+    <p><code>import "net/http/httptest"</code>
+    <p>httptest包提供了HTTP测试的常用函数。</p>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#pkg-constants">Constants</a></li>
+        <li><a href="#ResponseRecorder">type ResponseRecorder</a></li>
+        <ul>
+            <li><a href="#NewRecorder">func NewRecorder() *ResponseRecorder</a></li>
+            <li><a href="#ResponseRecorder.Header">func (rw *ResponseRecorder) Header() http.Header</a></li>
+            <li><a href="#ResponseRecorder.WriteHeader">func (rw *ResponseRecorder) WriteHeader(code int)</a></li>
+            <li><a href="#ResponseRecorder.Write">func (rw *ResponseRecorder) Write(buf []byte) (int, error)</a></li>
+            <li><a href="#ResponseRecorder.Flush">func (rw *ResponseRecorder) Flush()</a></li>
+        </ul>
+        <li><a href="#Server">type Server</a></li>
+        <ul>
+            <li><a href="#NewServer">func NewServer(handler http.Handler) *Server</a></li>
+            <li><a href="#NewTLSServer">func NewTLSServer(handler http.Handler) *Server</a></li>
+            <li><a href="#NewUnstartedServer">func NewUnstartedServer(handler http.Handler) *Server</a></li>
+            <li><a href="#Server.Start">func (s *Server) Start()</a></li>
+            <li><a href="#Server.StartTLS">func (s *Server) StartTLS()</a></li>
+            <li><a href="#Server.CloseClientConnections">func (s *Server) CloseClientConnections()</a></li>
+            <li><a href="#Server.Close">func (s *Server) Close()</a></li>
+        </ul>
+    </ul>
+    <h4 id="pkg-examples">Examples <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#example-ResponseRecorder" onclick="$('#ex-ResponseRecorder').addClass('in').removeClass('collapse').height('auto')">ResponseRecorder</a></li>
+        <li><a href="#example-Server" onclick="$('#ex-Server').addClass('in').removeClass('collapse').height('auto')">Server</a></li>
+    </ul>
+    <h3 id="pkg-constants">Constants <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>const <span id="DefaultRemoteAddr">DefaultRemoteAddr</span> = &#34;1.2.3.4&#34;</pre>
+    <p>DefaultRemoteAddr是默认的远端地址。如果ResponseRecorder未显式的设置该属性，RemoteAddr方法就会返回该值。</p>
+    <h3 id="ResponseRecorder">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/httptest/recorder.go?name=release#15">ResponseRecorder</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type ResponseRecorder struct {
+    <span id="ResponseRecorder.Code">Code</span>      <a href="builtin.htm#int">int</a>           <span class="com">// HTTP回复的状态码</span>
+    <span id="ResponseRecorder.HeaderMap">HeaderMap</span> <a href="net/http.htm">http</a>.<a href="net/http.htm#Header">Header</a>   <span class="com">// HTTP回复的头域</span>
+    <span id="ResponseRecorder.Body">Body</span>      *<a href="bytes.htm">bytes</a>.<a href="bytes.htm#Buffer">Buffer</a> <span class="com">// 如非nil，会将Write方法写入的数据写入bytes.Buffer</span>
+    <span id="ResponseRecorder.Flushed">Flushed</span>   <a href="builtin.htm#bool">bool</a>
+    <span class="com">// 内含隐藏或非导出字段</span>
+}</pre>
+    <p>ResponseRecorder实现了http.ResponseWriter接口，它记录了其修改，用于之后的检查。</p>
+    <div class="panel-group">
+        <div class="panel panel-default" id="example-ResponseRecorder">
+            <div class="panel-heading" onclick="document.getElementById('ex-ResponseRecorder').style.display = document.getElementById('ex-ResponseRecorder').style.display=='none'?'block':'none';">Example</div>
+            <div id="ex-ResponseRecorder" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre>handler := func(w http.ResponseWriter, r *http.Request) {
+    http.Error(w, &#34;something failed&#34;, http.StatusInternalServerError)
+}
+req, err := http.NewRequest(&#34;GET&#34;, &#34;http://example.com/foo&#34;, nil)
+if err != nil {
+    log.Fatal(err)
+}
+w := httptest.NewRecorder()
+handler(w, req)
+fmt.Printf(&#34;%d - %s&#34;, w.Code, w.Body.String())</pre>
+                    <p>Output:
+                    <pre>500 - something failed
+</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    <h4 id="NewRecorder">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/httptest/recorder.go?name=release#25">NewRecorder</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func NewRecorder() *<a href="#ResponseRecorder">ResponseRecorder</a></pre>
+    <p>NewRecorder返回一个初始化了的ResponseRecorder.</p>
+    <h4 id="ResponseRecorder.Header">func (*ResponseRecorder) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/httptest/recorder.go?name=release#38">Header</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (rw *<a href="#ResponseRecorder">ResponseRecorder</a>) Header() <a href="net/http.htm">http</a>.<a href="net/http.htm#Header">Header</a></pre>
+    <p>Header返回回复的头域，即Header字段。</p>
+    <h4 id="ResponseRecorder.WriteHeader">func (*ResponseRecorder) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/httptest/recorder.go?name=release#59">WriteHeader</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (rw *<a href="#ResponseRecorder">ResponseRecorder</a>) WriteHeader(code <a href="builtin.htm#int">int</a>)</pre>
+    <p>WriteHeader设置rw.Code。</p>
+    <h4 id="ResponseRecorder.Write">func (*ResponseRecorder) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/httptest/recorder.go?name=release#48">Write</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (rw *<a href="#ResponseRecorder">ResponseRecorder</a>) Write(buf []<a href="builtin.htm#byte">byte</a>) (<a href="builtin.htm#int">int</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>Write总是成功，如果rw.Body非nil会把数据写入该字段。</p>
+    <h4 id="ResponseRecorder.Flush">func (*ResponseRecorder) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/httptest/recorder.go?name=release#67">Flush</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (rw *<a href="#ResponseRecorder">ResponseRecorder</a>) Flush()</pre>
+    <p>Flush将rw.Flushed设置为真。</p>
+    <h3 id="Server">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/httptest/server.go?name=release#21">Server</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Server struct {
+    <span id="Server.URL">URL</span>      <a href="builtin.htm#string">string</a> <span class="com">// 格式为http://ipaddr:port，没有末尾斜杠的基地址</span>
+    <span id="Server.Listener">Listener</span> <a href="net.htm">net</a>.<a href="net.htm#Listener">Listener</a>
+    <span class="com">// TLS是可选的TLS配置，在TLS开始后会填写为新的配置。</span>
+    <span class="com">// 如果在未启动的Server调用StartTLS方法前设置，已经存在的字段会拷贝进新配置里。</span>
+    <span id="Server.TLS">TLS</span> *<a href="crypto/tls.htm">tls</a>.<a href="crypto/tls.htm#Config">Config</a>
+    <span class="com">// Config可能会在调用Start/StartTLS方法之前调用NewUnstartedServer时被修改。</span>
+    <span id="Server.Config">Config</span> *<a href="net/http.htm">http</a>.<a href="net/http.htm#Server">Server</a>
+    <span class="com">// 内含隐藏或非导出字段</span>
+}</pre>
+    <p>Server是一个HTTP服务端，在本地环回接口的某个系统选择的端口监听，用于点对点HTTP测试。</p>
+    <div class="panel-group">
+        <div class="panel panel-default" id="example-Server">
+            <div class="panel-heading" onclick="document.getElementById('ex-Server').style.display = document.getElementById('ex-Server').style.display=='none'?'block':'none';">Example</div>
+            <div id="ex-Server" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre>ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+    fmt.Fprintln(w, &#34;Hello, client&#34;)
+}))
+defer ts.Close()
+res, err := http.Get(ts.URL)
+if err != nil {
+    log.Fatal(err)
+}
+greeting, err := ioutil.ReadAll(res.Body)
+res.Body.Close()
+if err != nil {
+    log.Fatal(err)
+}
+fmt.Printf(&#34;%s&#34;, greeting)</pre>
+                    <p>Output:
+                    <pre>Hello, client
+</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    <h4 id="NewServer">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/httptest/server.go?name=release#82">NewServer</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func NewServer(handler <a href="net/http.htm">http</a>.<a href="net/http.htm#Handler">Handler</a>) *<a href="#Server">Server</a></pre>
+    <p>NewServer返回一个新的、已启动的Server。调用者必须在用完时调用Close方法关闭它。</p>
+    <h4 id="NewTLSServer">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/httptest/server.go?name=release#158">NewTLSServer</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func NewTLSServer(handler <a href="net/http.htm">http</a>.<a href="net/http.htm#Handler">Handler</a>) *<a href="#Server">Server</a></pre>
+    <p>NewTLSServer返回一个新的、使用TLS的、已启动的Server。调用者必须在用完时调用Close方法关闭它。</p>
+    <h4 id="NewUnstartedServer">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/httptest/server.go?name=release#94">NewUnstartedServer</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func NewUnstartedServer(handler <a href="net/http.htm">http</a>.<a href="net/http.htm#Handler">Handler</a>) *<a href="#Server">Server</a></pre>
+    <p>NewUnstartedServer返回一个新的、未启动的Server。在修改其配置后，调用者应该调用Start或StartTLS启动它；调在用完时用者必须调用Close方法关闭它。</p>
+<h4 id="Server.Start">func (*Server) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/httptest/server.go?name=release#102">Start</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (s *<a href="#Server">Server</a>) Start()</pre>
+    <p>Start启动NewUnstartedServer返回的服务端。</p>
+    <h4 id="Server.StartTLS">func (*Server) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/httptest/server.go?name=release#117">StartTLS</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (s *<a href="#Server">Server</a>) StartTLS()</pre>
+    <p>StartTLS启动NewUnstartedServer函数返回的服务端的TLS监听。</p>
+    <h4 id="Server.CloseClientConnections">func (*Server) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/httptest/server.go?name=release#177">CloseClientConnections</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (s *<a href="#Server">Server</a>) CloseClientConnections()</pre>
+    <p>CloseClientConnections关闭当前任何与该服务端建立的HTTP连接。</p>
+    <h4 id="Server.Close">func (*Server) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/httptest/server.go?name=release#166">Close</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (s *<a href="#Server">Server</a>) Close()</pre>
+    <p>Close关闭服务端，并阻塞直到所有该服务端未完成的请求都结束为止。</p>
+</div>
+</body>
+</html>

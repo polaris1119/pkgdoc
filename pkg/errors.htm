@@ -1,0 +1,108 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="./site.css" rel="stylesheet">
+<title>errors</title>
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package errors</h2>
+    <p><code>import "errors"</code>
+    <p>errors包实现了创建错误值的函数。</p>
+    <div class="panel-group">
+        <div class="panel panel-default" id="example-package">
+            <div class="panel-heading" onclick="document.getElementById('ex-package').style.display = document.getElementById('ex-package').style.display=='none'?'block':'none';">Example</div>
+            <div id="ex-package" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre>package errors_test
+import (
+    &#34;fmt&#34;
+    &#34;time&#34;
+)
+<span class="com">// MyError is an error implementation that includes a time and message.</span>
+type MyError struct {
+    When time.Time
+    What string
+}
+func (e MyError) Error() string {
+    return fmt.Sprintf(&#34;%v: %v&#34;, e.When, e.What)
+}
+func oops() error {
+    return MyError{
+        time.Date(1989, 3, 15, 22, 30, 0, 0, time.UTC),
+        &#34;the file system has gone away&#34;,
+    }
+}
+func Example() {
+    if err := oops(); err != nil {
+        fmt.Println(err)
+    }
+    <span class="com">// Output: 1989-03-15 22:30:00 +0000 UTC: the file system has gone away</span>
+}
+</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#New">func New(text string) error</a></li>
+    </ul>
+    <h4 id="pkg-examples">Examples <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#example-New" onclick="$('#ex-New').addClass('in').removeClass('collapse').height('auto')">New</a></li>
+        <li><a href="#example-New--Errorf" onclick="$('#ex-New--Errorf').addClass('in').removeClass('collapse').height('auto')">New (Errorf)</a></li>
+        <li><a href="#example-package" onclick="$('#ex-package').addClass('in').removeClass('collapse').height('auto')">package</a></li>
+    </ul>
+    <h3 id="New">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/errors/errors.go?name=release#9">New</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func New(text <a href="builtin.htm#string">string</a>) <a href="builtin.htm#error">error</a></pre>
+    <p>使用字符串创建一个错误,请类比fmt包的Errorf方法，差不多可以认为是New(fmt.Sprintf(...))。</p>
+    <div class="panel-group">
+        <div class="panel panel-default" id="example-New">
+            <div class="panel-heading" onclick="document.getElementById('ex-New').style.display = document.getElementById('ex-New').style.display=='none'?'block':'none';">Example</div>
+            <div id="ex-New" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre>err := errors.New(&#34;emit macho dwarf: elf header corrupted&#34;)
+if err != nil {
+    fmt.Print(err)
+}</pre>
+                    <p>Output:
+                    <pre>emit macho dwarf: elf header corrupted
+</pre>
+                </div>
+            </div>
+        </div>
+        <div class="panel panel-default" id="example-New--Errorf">
+            <div class="panel-heading" onclick="document.getElementById('ex-New--Errorf').style.display = document.getElementById('ex-New--Errorf').style.display=='none'?'block':'none';">Example (Errorf)</div>
+            <div id="ex-New--Errorf" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre>const name, id = &#34;bimmler&#34;, 17
+err := fmt.Errorf(&#34;user %q (id %d) not found&#34;, name, id)
+if err != nil {
+    fmt.Print(err)
+}</pre>
+                    <p>Output:
+                    <pre>user &#34;bimmler&#34; (id 17) not found
+</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="x-footer" class="clearfix">
+  <div class="container">
+    <a href="http://studygolang.com/">Go语言中文网</a>
+    <span class="text-muted">|</span> <a href="http://golang.org/">Go Language</a>
+    <span class="pull-right"><a href="#">Back to top</a></span>
+  </div>
+</div>
+<script src="../assets/jquery-2.0.3.min.js"></script>
+<script src="../bootstrap.min.js"></script>
+<script src="../site.js"></script>
+</body>
+</html>

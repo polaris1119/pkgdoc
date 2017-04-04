@@ -1,0 +1,55 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="./site.css" rel="stylesheet">
+<title>crypto/sha512</title>
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package sha512</h2>
+    <p><code>import "crypto/sha512"</code>
+    <p>sha512包实现了SHA384和SHA512哈希算法，参见FIPS 180-2。</p>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#pkg-constants">Constants</a></li>
+        <li><a href="#Sum512">func Sum512(data []byte) [Size]byte</a></li>
+        <li><a href="#New">func New() hash.Hash</a></li>
+        <li><a href="#Sum384">func Sum384(data []byte) (sum384 [Size384]byte)</a></li>
+        <li><a href="#New384">func New384() hash.Hash</a></li>
+    </ul>
+    <h3 id="pkg-constants">Constants <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>const <span id="BlockSize">BlockSize</span> = 128</pre>
+    <p>SHA384和SHA512的字节块大小。</p>
+    <pre>const <span id="Size">Size</span> = 64</pre>
+    <p>SHA512校验和的字节长度。</p>
+    <pre>const <span id="Size384">Size384</span> = 48</pre>
+    <p>SHA384校验和的字节长度。</p>
+    <h3 id="Sum512">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/sha512/sha512.go?name=release#182">Sum512</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Sum512(data []<a href="builtin.htm#byte">byte</a>) [<a href="#Size">Size</a>]<a href="builtin.htm#byte">byte</a></pre>
+    <p>返回数据的SHA512校验和。</p>
+    <h3 id="New">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/sha512/sha512.go?name=release#82">New</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func New() <a href="hash.htm">hash</a>.<a href="hash.htm#Hash">Hash</a></pre>
+    <p>返回一个新的使用SHA512校验算法的hash.Hash接口。</p>
+    <h3 id="Sum384">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/sha512/sha512.go?name=release#190">Sum384</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Sum384(data []<a href="builtin.htm#byte">byte</a>) (sum384 [<a href="#Size384">Size384</a>]<a href="builtin.htm#byte">byte</a>)</pre>
+    <p>返回数据的SHA384校验和。</p>
+    <h3 id="New384">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/sha512/sha512.go?name=release#89">New384</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func New384() <a href="hash.htm">hash</a>.<a href="hash.htm#Hash">Hash</a></pre>
+    <p>返回一个新的使用SHA384校验算法的hash.Hash接口。</p>
+</div>
+
+<div id="x-footer" class="clearfix">
+  <div class="container">
+    <a href="http://studygolang.com/">Go语言中文网</a>
+    <span class="text-muted">|</span> <a href="http://golang.org/">Go Language</a>
+    <span class="pull-right"><a href="#">Back to top</a></span>
+  </div>
+</div>
+<script src="../assets/jquery-2.0.3.min.js"></script>
+<script src="../bootstrap.min.js"></script>
+<script src="../site.js"></script>
+</body>
+</html>

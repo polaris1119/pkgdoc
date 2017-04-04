@@ -1,0 +1,66 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="./site.css" rel="stylesheet">
+<title>hash/crc64</title>
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package crc64</h2>
+    <p><code>import "hash/crc64"</code>
+    <p>Package crc64 implements the 64-bit cyclic redundancy check, or CRC-64,
+        checksum. See <a href="http://en.wikipedia.org/wiki/Cyclic_redundancy_check">http://en.wikipedia.org/wiki/Cyclic_redundancy_check</a> for
+        information.</p>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#pkg-constants">Constants</a></li>
+        <li><a href="#Table">type Table</a></li>
+        <ul>
+            <li><a href="#MakeTable">func MakeTable(poly uint64) *Table</a></li>
+        </ul>
+        <li><a href="#Checksum">func Checksum(data []byte, tab *Table) uint64</a></li>
+        <li><a href="#Update">func Update(crc uint64, tab *Table, p []byte) uint64</a></li>
+        <li><a href="#New">func New(tab *Table) hash.Hash64</a></li>
+    </ul>
+    <h3 id="pkg-constants">Constants <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>const (
+    <span class="com">// ISO 3309定义的ISO多项式，用于HDLC</span>
+    <span id="ISO">ISO</span> = 0xD800000000000000
+    <span class="com">// ECMA 182定义的ECMA多项式</span>
+    <span id="ECMA">ECMA</span> = 0xC96C5795D7870F42
+)</pre>
+    <p>预定义的多项式。</p>
+    <pre>const <span id="Size">Size</span> = 8</pre>
+    <p>CRC-64校验和的字节数。</p>
+    <h3 id="Table">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/hash/crc64/crc64.go?name=release#25">Table</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Table [256]<a href="builtin.htm#uint64">uint64</a></pre>
+    <p>长度256的uint64切片，代表一个用于高效运作的多项式。</p>
+    <h4 id="MakeTable">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/hash/crc64/crc64.go?name=release#28">MakeTable</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func MakeTable(poly <a href="builtin.htm#uint64">uint64</a>) *<a href="#Table">Table</a></pre>
+    <p>返回一个代表poly指定的多项式的*Table。</p>
+    <h3 id="Checksum">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/hash/crc64/crc64.go?name=release#87">Checksum</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Checksum(data []<a href="builtin.htm#byte">byte</a>, tab *<a href="#Table">Table</a>) <a href="builtin.htm#uint64">uint64</a></pre>
+    <p>返回数据data使用tab代表的多项式计算出的CRC-64校验和。</p>
+    <h3 id="Update">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/hash/crc64/crc64.go?name=release#69">Update</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Update(crc <a href="builtin.htm#uint64">uint64</a>, tab *<a href="#Table">Table</a>, p []<a href="builtin.htm#byte">byte</a>) <a href="builtin.htm#uint64">uint64</a></pre>
+    <p>返回将切片p的数据采用tab表示的多项式添加到crc之后计算出的新校验和。</p>
+    <h3 id="New">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/hash/crc64/crc64.go?name=release#52">New</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func New(tab *<a href="#Table">Table</a>) <a href="hash.htm">hash</a>.<a href="hash.htm#Hash64">Hash64</a></pre>
+    <p>创建一个使用tab代表的多项式计算CRC-64校验和的hash.Hash64接口。</p>
+</div>
+
+<div id="x-footer" class="clearfix">
+  <div class="container">
+    <a href="http://studygolang.com/">Go语言中文网</a>
+    <span class="text-muted">|</span> <a href="http://golang.org/">Go Language</a>
+    <span class="pull-right"><a href="#">Back to top</a></span>
+  </div>
+</div>
+<script src="../assets/jquery-2.0.3.min.js"></script>
+<script src="../bootstrap.min.js"></script>
+<script src="../site.js"></script>
+</body>
+</html>

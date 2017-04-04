@@ -1,0 +1,61 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="./site.css" rel="stylesheet">
+<title>net_http_pprof</title>
+<meta name="private:description" content="刘志曦翻译于2014年夏,Go 1.3版本">
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package pprof</h2>
+    <p><code>import "net/http/pprof"</code>
+    <p align="left">pprof包通过它的HTTP服务端提供pprof可视化工具期望格式的运行时剖面文件数据服务。关于pprof的更多信息，参见<a href="http://code.google.com/p/google-perftools/">http://code.google.com/p/google-perftools/</a>。</p>
+    <p align="left">本包一般只需导入获取其注册HTTP处理器的副作用。处理器的路径以/debug/pprof/开始。</p>
+    <p align="left">要使用pprof，在你的程序里导入本包：</p>
+    <pre>import _ &#34;net/http/pprof&#34;
+</pre>
+    <p>如果你的应用还没有运行http服务器，你需要开始一个http服务器。添加"net/http"包和"log"包到你的导入列表，然后在main函数开始处添加如下代码：</p>
+    <pre>go func() {
+	log.Println(http.ListenAndServe(&#34;localhost:6060&#34;, nil))
+}()
+</pre>
+    <p>然后使用pprof工具查看堆剖面：</p>
+    <pre>go tool pprof <a href="http://localhost:6060/debug/pprof/heap">http://localhost:6060/debug/pprof/heap</a>
+</pre>
+    <p>或查看周期30秒的CPU剖面：</p>
+    <pre>go tool pprof <a href="http://localhost:6060/debug/pprof/profile">http://localhost:6060/debug/pprof/profile</a>
+</pre>
+    <p>或查看go程阻塞剖面：</p>
+    <pre>go tool pprof <a href="http://localhost:6060/debug/pprof/block">http://localhost:6060/debug/pprof/block</a>
+</pre>
+    <p>要查看所有可用的剖面，在你的浏览器阅读<a href="http://localhost:6060/debug/pprof/">http://localhost:6060/debug/pprof/</a>。要学习这些运转的设施，访问：</p>
+    <pre><a href="http://blog.golang.org/2011/06/profiling-go-programs.html">http://blog.golang.org/2011/06/profiling-go-programs.html</a></pre>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#Handler">func Handler(name string) http.Handler</a></li>
+        <li><a href="#Cmdline">func Cmdline(w http.ResponseWriter, r *http.Request)</a></li>
+        <li><a href="#Index">func Index(w http.ResponseWriter, r *http.Request)</a></li>
+        <li><a href="#Profile">func Profile(w http.ResponseWriter, r *http.Request)</a></li>
+        <li><a href="#Symbol">func Symbol(w http.ResponseWriter, r *http.Request)</a></li>
+    </ul>
+    <h3 id="Handler">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/pprof/pprof.go?name=release#150">Handler</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Handler(name <a href="builtin.htm#string">string</a>) <a href="net/http.htm">http</a>.<a href="net/http.htm#Handler">Handler</a></pre>
+    <p>Handler返回一个提供name指定的剖面文件的服务的HTTP处理器。</p>
+    <h3 id="Cmdline">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/pprof/pprof.go?name=release#72">Cmdline</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Cmdline(w <a href="net/http.htm">http</a>.<a href="net/http.htm#ResponseWriter">ResponseWriter</a>, r *<a href="net/http.htm">http</a>.<a href="net/http.htm#Request">Request</a>)</pre>
+    <p>Cmdline回应执行中程序的命令行，采用NUL字节分隔的参数。本包将它注册在/debug/pprof/cmdline。</p>
+    <h3 id="Index">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/pprof/pprof.go?name=release#173">Index</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Index(w <a href="net/http.htm">http</a>.<a href="net/http.htm#ResponseWriter">ResponseWriter</a>, r *<a href="net/http.htm">http</a>.<a href="net/http.htm#Request">Request</a>)</pre>
+    <p>Index回复请求要求的pprof格式的剖面。例如，"/debug/pprof/heap"会回复"heap"剖面。Index会回复"/debug/pprof/" 请求一个列出所有可用的剖面的HTML页面。</p>
+    <h3 id="Profile">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/pprof/pprof.go?name=release#79">Profile</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Profile(w <a href="net/http.htm">http</a>.<a href="net/http.htm#ResponseWriter">ResponseWriter</a>, r *<a href="net/http.htm">http</a>.<a href="net/http.htm#Request">Request</a>)</pre>
+    <p>Profile回复pprof格式的CPU剖面。本包将它注册在/debug/pprof/profile。</p>
+    <h3 id="Symbol">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/pprof/pprof.go?name=release#104">Symbol</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Symbol(w <a href="net/http.htm">http</a>.<a href="net/http.htm#ResponseWriter">ResponseWriter</a>, r *<a href="net/http.htm">http</a>.<a href="net/http.htm#Request">Request</a>)</pre>
+    <p>Symbol查看请求中列出的程序计数器，回复一个映射程序计数器到函数名的表格。本包将它注册在/debug/pprof/symbol。</p>
+</div>
+</body>
+</html>

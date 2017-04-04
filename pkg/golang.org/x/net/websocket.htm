@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="../../../site.css" rel="stylesheet">
+<title>go.net/websocket</title>
+<meta name="private:description" content="刘志曦翻译于2014年夏，Go 1.3版本">
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package websocket</h2>
+    <p><code>import "code.google.com/p/go.net/websocket"</code>
+    <p>websocket包实现了WebSocket协议的客户端和服务端，参见<a href="http://tools.ietf.org/html/rfc6455">RFC 6455</a>。</p>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <ul class="list-unstyled">
+        <li><a href="#pkg-constants">Constants</a></li>
+        <li><a href="#pkg-variables">Variables</a></li>
+        <li><a href="#ProtocolError">type ProtocolError</a></li>
+        <ul>
+            <li><a href="#ProtocolError.Error">func (err *ProtocolError) Error() string</a></li>
+        </ul>
+        <li><a href="#DialError">type DialError</a></li>
+        <ul>
+            <li><a href="#DialError.Error">func (e *DialError) Error() string</a></li>
+        </ul>
+        <li><a href="#Origin">func Origin(config *Config, req *http.Request) (*url.URL, error)</a></li>
+        <li><a href="#Config">type Config</a></li>
+        <ul>
+            <li><a href="#NewConfig">func NewConfig(server, origin string) (config *Config, err error)</a></li>
+        </ul>
+        <li><a href="#Addr">type Addr</a></li>
+        <ul>
+            <li><a href="#Addr.Network">func (addr *Addr) Network() string</a></li>
+        </ul>
+        <li><a href="#Conn">type Conn</a></li>
+        <ul>
+            <li><a href="#Dial">func Dial(url_, protocol, origin string) (ws *Conn, err error)</a></li>
+            <li><a href="#DialConfig">func DialConfig(config *Config) (ws *Conn, err error)</a></li>
+            <li><a href="#NewClient">func NewClient(config *Config, rwc io.ReadWriteCloser) (ws *Conn, err error)</a></li>
+            <li><a href="#Conn.IsClientConn">func (ws *Conn) IsClientConn() bool</a></li>
+            <li><a href="#Conn.IsServerConn">func (ws *Conn) IsServerConn() bool</a></li>
+            <li><a href="#Conn.LocalAddr">func (ws *Conn) LocalAddr() net.Addr</a></li>
+            <li><a href="#Conn.RemoteAddr">func (ws *Conn) RemoteAddr() net.Addr</a></li>
+            <li><a href="#Conn.Config">func (ws *Conn) Config() *Config</a></li>
+            <li><a href="#Conn.Request">func (ws *Conn) Request() *http.Request</a></li>
+            <li><a href="#Conn.SetDeadline">func (ws *Conn) SetDeadline(t time.Time) error</a></li>
+            <li><a href="#Conn.SetReadDeadline">func (ws *Conn) SetReadDeadline(t time.Time) error</a></li>
+            <li><a href="#Conn.SetWriteDeadline">func (ws *Conn) SetWriteDeadline(t time.Time) error</a></li>
+            <li><a href="#Conn.Read">func (ws *Conn) Read(msg []byte) (n int, err error)</a></li>
+            <li><a href="#Conn.Write">func (ws *Conn) Write(msg []byte) (n int, err error)</a></li>
+            <li><a href="#Conn.Close">func (ws *Conn) Close() error</a></li>
+        </ul>
+        <li><a href="#Codec">type Codec</a></li>
+        <ul>
+            <li><a href="#Codec.Receive">func (cd Codec) Receive(ws *Conn, v interface{}) (err error)</a></li>
+            <li><a href="#Codec.Send">func (cd Codec) Send(ws *Conn, v interface{}) (err error)</a></li>
+        </ul>
+        <li><a href="#Server">type Server</a></li>
+        <ul>
+            <li><a href="#Server.ServeHTTP">func (s Server) ServeHTTP(w http.ResponseWriter, req *http.Request)</a></li>
+        </ul>
+        <li><a href="#Handler">type Handler</a></li>
+        <ul>
+            <li><a href="#Handler.ServeHTTP">func (h Handler) ServeHTTP(w http.ResponseWriter, req *http.Request)</a></li>
+        </ul>
+    </ul>
+    <h4 id="pkg-examples">Examples <a class="permalink" href="#pkg-examples">&para;</a></h4>
+    <ul class="list-unstyled">
+        <li><a href="#example-Dial" onclick="$('#ex-Dial').addClass('in').removeClass('collapse').height('auto')">Dial</a></li>
+        <li><a href="#example-Handler" onclick="$('#ex-Handler').addClass('in').removeClass('collapse').height('auto')">Handler</a></li>
+    </ul>
+<pre>const (
+    <span id="ProtocolVersionHybi13">ProtocolVersionHybi13</span>    = 13
+    <span id="ProtocolVersionHybi">ProtocolVersionHybi</span>      = <a href="#ProtocolVersionHybi13">ProtocolVersionHybi13</a>
+    <span id="SupportedProtocolVersion">SupportedProtocolVersion</span> = &#34;13&#34;
+    <span id="ContinuationFrame">ContinuationFrame</span> = 0
+    <span id="TextFrame">TextFrame</span>         = 1
+    <span id="BinaryFrame">BinaryFrame</span>       = 2
+    <span id="CloseFrame">CloseFrame</span>        = 8
+    <span id="PingFrame">PingFrame</span>         = 9
+    <span id="PongFrame">PongFrame</span>         = 10
+    <span id="UnknownFrame">UnknownFrame</span>      = 255
+)</pre>
+    <h3 id="pkg-variables">Variables <a class="permalink" href="#pkg-variables">&para;</a></h3>
+    <pre>var (
+    <span id="ErrBadMaskingKey">ErrBadMaskingKey</span>         = &amp;<a href="#ProtocolError">ProtocolError</a>{&#34;bad masking key&#34;}
+    <span id="ErrBadPongMessage">ErrBadPongMessage</span>        = &amp;<a href="#ProtocolError">ProtocolError</a>{&#34;bad pong message&#34;}
+    <span id="ErrBadClosingStatus">ErrBadClosingStatus</span>      = &amp;<a href="#ProtocolError">ProtocolError</a>{&#34;bad closing status&#34;}
+    <span id="ErrUnsupportedExtensions">ErrUnsupportedExtensions</span> = &amp;<a href="#ProtocolError">ProtocolError</a>{&#34;unsupported extensions&#34;}
+    <span id="ErrNotImplemented">ErrNotImplemented</span>        = &amp;<a href="#ProtocolError">ProtocolError</a>{&#34;not implemented&#34;}
+)</pre>
+    <pre>var (
+    <span id="ErrBadProtocolVersion">ErrBadProtocolVersion</span>   = &amp;<a href="#ProtocolError">ProtocolError</a>{&#34;bad protocol version&#34;}
+    <span id="ErrBadScheme">ErrBadScheme</span>            = &amp;<a href="#ProtocolError">ProtocolError</a>{&#34;bad scheme&#34;}
+    <span id="ErrBadStatus">ErrBadStatus</span>            = &amp;<a href="#ProtocolError">ProtocolError</a>{&#34;bad status&#34;}
+    <span id="ErrBadUpgrade">ErrBadUpgrade</span>           = &amp;<a href="#ProtocolError">ProtocolError</a>{&#34;missing or bad upgrade&#34;}
+    <span id="ErrBadWebSocketOrigin">ErrBadWebSocketOrigin</span>   = &amp;<a href="#ProtocolError">ProtocolError</a>{&#34;missing or bad WebSocket-Origin&#34;}
+    <span id="ErrBadWebSocketLocation">ErrBadWebSocketLocation</span> = &amp;<a href="#ProtocolError">ProtocolError</a>{&#34;missing or bad WebSocket-Location&#34;}
+    <span id="ErrBadWebSocketProtocol">ErrBadWebSocketProtocol</span> = &amp;<a href="#ProtocolError">ProtocolError</a>{&#34;missing or bad WebSocket-Protocol&#34;}
+    <span id="ErrBadWebSocketVersion">ErrBadWebSocketVersion</span>  = &amp;<a href="#ProtocolError">ProtocolError</a>{&#34;missing or bad WebSocket Version&#34;}
+    <span id="ErrChallengeResponse">ErrChallengeResponse</span>    = &amp;<a href="#ProtocolError">ProtocolError</a>{&#34;mismatch challenge/response&#34;}
+    <span id="ErrBadFrame">ErrBadFrame</span>             = &amp;<a href="#ProtocolError">ProtocolError</a>{&#34;bad frame&#34;}
+    <span id="ErrBadFrameBoundary">ErrBadFrameBoundary</span>     = &amp;<a href="#ProtocolError">ProtocolError</a>{&#34;not on frame boundary&#34;}
+    <span id="ErrNotWebSocket">ErrNotWebSocket</span>         = &amp;<a href="#ProtocolError">ProtocolError</a>{&#34;not websocket protocol&#34;}
+    <span id="ErrBadRequestMethod">ErrBadRequestMethod</span>     = &amp;<a href="#ProtocolError">ProtocolError</a>{&#34;bad method&#34;}
+    <span id="ErrNotSupported">ErrNotSupported</span>         = &amp;<a href="#ProtocolError">ProtocolError</a>{&#34;not supported&#34;}
+)</pre>
+    <pre>var <span id="JSON">JSON</span> = <a href="#Codec">Codec</a>{jsonMarshal, jsonUnmarshal}</pre>
+    <p>JSON是从WebSocket连接中发送/接受json数据的编解码器。</p>
+    <p>简单用法举例：</p>
+    <pre>import &#34;websocket&#34;
+type T struct {
+	Msg string
+	Count int
+}
+// receive JSON type T
+var data T
+websocket.JSON.Receive(ws, &amp;data)
+// send JSON type T
+websocket.JSON.Send(ws, data)
+</pre>
+    <pre>var <span id="Message">Message</span> = <a href="#Codec">Codec</a>{marshal, unmarshal}</pre>
+    <p>Message是从WebSocket连接中发送/接受文本和二进制数据的编解码器。要发送/接收文本数据，应使用string类型；要发送/接收二进制数据，应使用[]byte类型。</p>
+    <p>简单用法举例：</p>
+    <pre>import &#34;websocket&#34;
+// receive text frame
+var message string
+websocket.Message.Receive(ws, &amp;message)
+// send text frame
+message = &#34;hello&#34;
+websocket.Message.Send(ws, message)
+// receive binary frame
+var data []byte
+websocket.Message.Receive(ws, &amp;data)
+// send binary frame
+data = []byte{0, 1, 2}
+websocket.Message.Send(ws, data)
+</pre>
+    <h3 id="ProtocolError">type <a title="View Source" href="http://code.google.com/p/go/source/browse/websocket/websocket.go?repo=net#38">ProtocolError</a> <a class="permalink" href="#ProtocolError">&para;</a></h3>
+    <pre>type ProtocolError struct {
+    <span id="ProtocolError.ErrorString">ErrorString</span> <a href="http://godoc.org/builtin#string">string</a>
+}</pre>
+    <p>ProtocolError代表WebSocket协议错误。</p>
+    <h4 id="ProtocolError.Error">func (*ProtocolError) <a title="View Source" href="http://code.google.com/p/go/source/browse/websocket/websocket.go?repo=net#42">Error</a> <a class="permalink" href="#ProtocolError.Error">&para;</a></h4>
+    <pre class="funcdecl">func (err *<a href="#ProtocolError">ProtocolError</a>) Error() <a href="http://godoc.org/builtin#string">string</a></pre>
+    <h3 id="DialError">type <a title="View Source" href="http://code.google.com/p/go/source/browse/websocket/client.go?repo=net#17">DialError</a> <a class="permalink" href="#DialError">&para;</a></h3>
+    <pre>type DialError struct {
+    *<a href="#Config">Config</a>
+    <span id="DialError.Err">Err</span> <a href="http://godoc.org/builtin#error">error</a>
+}</pre>
+    <p>DialError代表与WebSocket服务端建立连接时出现的错误。</p>
+    <h4 id="DialError.Error">func (*DialError) <a title="View Source" href="http://code.google.com/p/go/source/browse/websocket/client.go?repo=net#22">Error</a> <a class="permalink" href="#DialError.Error">&para;</a></h4>
+    <pre class="funcdecl">func (e *<a href="#DialError">DialError</a>) Error() <a href="http://godoc.org/builtin#string">string</a></pre>
+    <h3 id="Origin">func <a title="View Source" href="http://code.google.com/p/go/source/browse/websocket/hybi.go?repo=net#520">Origin</a> <a class="permalink" href="#Origin">&para;</a></h3>
+    <pre class="funcdecl">func Origin(config *<a href="#Config">Config</a>, req *<a href="http://godoc.org/net/http">http</a>.<a href="http://godoc.org/net/http#Request">Request</a>) (*<a href="http://godoc.org/net/url">url</a>.<a href="http://godoc.org/net/url#URL">URL</a>, <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p>Origin解析req的头域的Origin头，如果没有该头，会返回(nil, nil)。</p>
+    <h3 id="Config">type <a title="View Source" href="http://code.google.com/p/go/source/browse/websocket/websocket.go?repo=net#70">Config</a> <a class="permalink" href="#Config">&para;</a></h3>
+    <pre>type Config struct {
+    <span class="com">// WebSocket服务端的地址</span>
+    <span id="Config.Location">Location</span> *<a href="http://godoc.org/net/url">url</a>.<a href="http://godoc.org/net/url#URL">URL</a>
+    <span class="com">// Websocket客户端的起点</span>
+    <span id="Config.Origin">Origin</span> *<a href="http://godoc.org/net/url">url</a>.<a href="http://godoc.org/net/url#URL">URL</a>
+    <span class="com">// WebSocket的子协议</span>
+    <span id="Config.Protocol">Protocol</span> []<a href="http://godoc.org/builtin#string">string</a>
+    <span class="com">// WebSocket协议的版本</span>
+    <span id="Config.Version">Version</span> <a href="http://godoc.org/builtin#int">int</a>
+    <span class="com">// 安全WebSocket（wss）的TLS配置</span>
+    <span id="Config.TlsConfig">TlsConfig</span> *<a href="http://godoc.org/crypto/tls">tls</a>.<a href="http://godoc.org/crypto/tls#Config">Config</a>
+    <span class="com">// 启用WebSocket的握手应额外发送的头域</span>
+    <span id="Config.Header">Header</span> <a href="http://godoc.org/net/http">http</a>.<a href="http://godoc.org/net/http#Header">Header</a>
+    <span class="com">// 内含隐藏或非导出字段</span>
+}</pre>
+    <p>Config代表一个WebSocket配置。</p>
+    <h4 id="NewConfig">func <a title="View Source" href="http://code.google.com/p/go/source/browse/websocket/client.go?repo=net#27">NewConfig</a> <a class="permalink" href="#NewConfig">&para;</a></h4>
+    <pre class="funcdecl">func NewConfig(server, origin <a href="http://godoc.org/builtin#string">string</a>) (config *<a href="#Config">Config</a>, err <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p>NewConfig创建一个用于客户端连接的新WebSocket配置。</p>
+    <h3 id="Addr">type <a title="View Source" href="http://code.google.com/p/go/source/browse/websocket/websocket.go?repo=net#62">Addr</a> <a class="permalink" href="#Addr">&para;</a></h3>
+    <pre>type Addr struct {
+    *<a href="http://godoc.org/net/url">url</a>.<a href="http://godoc.org/net/url#URL">URL</a>
+}</pre>
+    <p>Addr实现了net.Addr接口，用于WebSocket。</p>
+    <h4 id="Addr.Network">func (*Addr) <a title="View Source" href="http://code.google.com/p/go/source/browse/websocket/websocket.go?repo=net#67">Network</a> <a class="permalink" href="#Addr.Network">&para;</a></h4>
+    <pre class="funcdecl">func (addr *<a href="#Addr">Addr</a>) Network() <a href="http://godoc.org/builtin#string">string</a></pre>
+    <p>Network返回WebSocket的网络类型：&#34;websocket&#34;。</p>
+    <h3 id="Conn">type <a title="View Source" href="http://code.google.com/p/go/source/browse/websocket/websocket.go?repo=net#147">Conn</a> <a class="permalink" href="#Conn">&para;</a></h3>
+    <pre>type Conn struct {
+    <span id="Conn.PayloadType">PayloadType</span> <a href="http://godoc.org/builtin#byte">byte</a>
+    <span class="com">// 内含隐藏或非导出字段</span>
+}</pre>
+    <p>Conn代表一个WebSocket连接。</p>
+    <h4 id="Dial">func <a title="View Source" href="http://code.google.com/p/go/source/browse/websocket/client.go?repo=net#56">Dial</a> <a class="permalink" href="#Dial">&para;</a></h4>
+    <pre class="funcdecl">func Dial(url_, protocol, origin <a href="http://godoc.org/builtin#string">string</a>) (ws *<a href="#Conn">Conn</a>, err <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p>Dial打开一个新的WebSocket的客户端连接。</p>
+    <div class="panel-group">
+        <div class="panel panel-default" id="example-Dial">
+            <div class="panel-heading" onclick="document.getElementById('ex-Dial').style.display = document.getElementById('ex-Dial').style.display=='none'?'block':'none';">Example</div>
+            <div id="ex-Dial" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre>
+origin := &#34;http://localhost/&#34;
+url := &#34;ws://localhost:12345/ws&#34;
+ws, err := websocket.Dial(url, &#34;&#34;, origin)
+if err != nil {
+    log.Fatal(err)
+}
+if _, err := ws.Write([]byte(&#34;hello, world!\n&#34;)); err != nil {
+    log.Fatal(err)
+}
+var msg = make([]byte, 512)
+var n int
+if n, err = ws.Read(msg); err != nil {
+    log.Fatal(err)
+}
+fmt.Printf(&#34;Received: %s.\n&#34;, msg[:n])
+</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    <h4 id="DialConfig">func <a title="View Source" href="http://code.google.com/p/go/source/browse/websocket/client.go?repo=net#68">DialConfig</a> <a class="permalink" href="#DialConfig">&para;</a></h4>
+    <pre class="funcdecl">func DialConfig(config *<a href="#Config">Config</a>) (ws *<a href="#Conn">Conn</a>, err <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p>DialConfig使用配置config打开一个新的WebSocket的客户端连接。</p>
+    <h4 id="NewClient">func <a title="View Source" href="http://code.google.com/p/go/source/browse/websocket/client.go?repo=net#43">NewClient</a> <a class="permalink" href="#NewClient">&para;</a></h4>
+    <pre class="funcdecl">func NewClient(config *<a href="#Config">Config</a>, rwc <a href="http://godoc.org/io">io</a>.<a href="http://godoc.org/io#ReadWriteCloser">ReadWriteCloser</a>) (ws *<a href="#Conn">Conn</a>, err <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p>NewClient使用配置config通过包装rwc接口创建一个新的WebSocket的客户端连接。</p>
+    <h4 id="Conn.IsClientConn">func (*Conn) <a title="View Source" href="http://code.google.com/p/go/source/browse/websocket/websocket.go?repo=net#225">IsClientConn</a> <a class="permalink" href="#Conn.IsClientConn">&para;</a></h4>
+    <pre class="funcdecl">func (ws *<a href="#Conn">Conn</a>) IsClientConn() <a href="http://godoc.org/builtin#bool">bool</a></pre>
+    <h4 id="Conn.IsServerConn">func (*Conn) <a title="View Source" href="http://code.google.com/p/go/source/browse/websocket/websocket.go?repo=net#226">IsServerConn</a> <a class="permalink" href="#Conn.IsServerConn">&para;</a></h4>
+    <pre class="funcdecl">func (ws *<a href="#Conn">Conn</a>) IsServerConn() <a href="http://godoc.org/builtin#bool">bool</a></pre>
+    <h4 id="Conn.LocalAddr">func (*Conn) <a title="View Source" href="http://code.google.com/p/go/source/browse/websocket/websocket.go?repo=net#230">LocalAddr</a> <a class="permalink" href="#Conn.LocalAddr">&para;</a></h4>
+    <pre class="funcdecl">func (ws *<a href="#Conn">Conn</a>) LocalAddr() <a href="http://godoc.org/net">net</a>.<a href="http://godoc.org/net#Addr">Addr</a></pre>
+    <p>LocalAddr在客户端会返回配置的Origin字段值，在服务端会返回配置的Location字段值。</p>
+    <h4 id="Conn.RemoteAddr">func (*Conn) <a title="View Source" href="http://code.google.com/p/go/source/browse/websocket/websocket.go?repo=net#239">RemoteAddr</a> <a class="permalink" href="#Conn.RemoteAddr">&para;</a></h4>
+    <pre class="funcdecl">func (ws *<a href="#Conn">Conn</a>) RemoteAddr() <a href="http://godoc.org/net">net</a>.<a href="http://godoc.org/net#Addr">Addr</a></pre>
+    <p>RemoteAddr在客户端会返回配置的Location字段值，在服务端会返回配置的Origin字段值。</p>
+    <h4 id="Conn.Config">func (*Conn) <a title="View Source" href="http://code.google.com/p/go/source/browse/websocket/websocket.go?repo=net#273">Config</a> <a class="permalink" href="#Conn.Config">&para;</a></h4>
+    <pre class="funcdecl">func (ws *<a href="#Conn">Conn</a>) Config() *<a href="#Config">Config</a></pre>
+    <p>Config返回WebSocket的配置。</p>
+    <h4 id="Conn.Request">func (*Conn) <a title="View Source" href="http://code.google.com/p/go/source/browse/websocket/websocket.go?repo=net#277">Request</a> <a class="permalink" href="#Conn.Request">&para;</a></h4>
+    <pre class="funcdecl">func (ws *<a href="#Conn">Conn</a>) Request() *<a href="http://godoc.org/net/http">http</a>.<a href="http://godoc.org/net/http#Request">Request</a></pre>
+    <p>Request返回升级到WebSocket协议的请求；在客户端，会返回nil。</p>
+    <h4 id="Conn.SetDeadline">func (*Conn) <a title="View Source" href="http://code.google.com/p/go/source/browse/websocket/websocket.go?repo=net#249">SetDeadline</a> <a class="permalink" href="#Conn.SetDeadline">&para;</a></h4>
+    <pre class="funcdecl">func (ws *<a href="#Conn">Conn</a>) SetDeadline(t <a href="http://godoc.org/time">time</a>.<a href="http://godoc.org/time#Time">Time</a>) <a href="http://godoc.org/builtin#error">error</a></pre>
+    <p>SetDeadline设置该连接的网络读写期限。</p>
+    <h4 id="Conn.SetReadDeadline">func (*Conn) <a title="View Source" href="http://code.google.com/p/go/source/browse/websocket/websocket.go?repo=net#257">SetReadDeadline</a> <a class="permalink" href="#Conn.SetReadDeadline">&para;</a></h4>
+    <pre class="funcdecl">func (ws *<a href="#Conn">Conn</a>) SetReadDeadline(t <a href="http://godoc.org/time">time</a>.<a href="http://godoc.org/time#Time">Time</a>) <a href="http://godoc.org/builtin#error">error</a></pre>
+    <p>SetReadDeadline设置该连接的网络读期限。</p>
+    <h4 id="Conn.SetWriteDeadline">func (*Conn) <a title="View Source" href="http://code.google.com/p/go/source/browse/websocket/websocket.go?repo=net#265">SetWriteDeadline</a> <a class="permalink" href="#Conn.SetWriteDeadline">&para;</a></h4>
+    <pre class="funcdecl">func (ws *<a href="#Conn">Conn</a>) SetWriteDeadline(t <a href="http://godoc.org/time">time</a>.<a href="http://godoc.org/time#Time">Time</a>) <a href="http://godoc.org/builtin#error">error</a></pre>
+    <p>SetWriteDeadline设置该连接的网络写期限。</p>
+    <h4 id="Conn.Read">func (*Conn) <a title="View Source" href="http://code.google.com/p/go/source/browse/websocket/websocket.go?repo=net#171">Read</a> <a class="permalink" href="#Conn.Read">&para;</a></h4>
+    <pre class="funcdecl">func (ws *<a href="#Conn">Conn</a>) Read(msg []<a href="http://godoc.org/builtin#byte">byte</a>) (n <a href="http://godoc.org/builtin#int">int</a>, err <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p>Read实现了io.Reader接口：它从WebSocket连接读取框架数据。如果msg不能放入全部框架数据，它会 写满msg，下一次调用Read会写入剩下的框架数据。本方法可以读取文本框架数据和二进制框架数据。</p>
+    <h4 id="Conn.Write">func (*Conn) <a title="View Source" href="http://code.google.com/p/go/source/browse/websocket/websocket.go?repo=net#201">Write</a> <a class="permalink" href="#Conn.Write">&para;</a></h4>
+    <pre class="funcdecl">func (ws *<a href="#Conn">Conn</a>) Write(msg []<a href="http://godoc.org/builtin#byte">byte</a>) (n <a href="http://godoc.org/builtin#int">int</a>, err <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p>Write实现了io.Writer接口：它将数据编码为框架数据写入WebSocket连接。</p>
+    <h4 id="Conn.Close">func (*Conn) <a title="View Source" href="http://code.google.com/p/go/source/browse/websocket/websocket.go?repo=net#217">Close</a> <a class="permalink" href="#Conn.Close">&para;</a></h4>
+    <pre class="funcdecl">func (ws *<a href="#Conn">Conn</a>) Close() <a href="http://godoc.org/builtin#error">error</a></pre>
+    <p>Close实现了io.Closer接口。</p>
+    <h3 id="Codec">type <a title="View Source" href="http://code.google.com/p/go/source/browse/websocket/websocket.go?repo=net#280">Codec</a> <a class="permalink" href="#Codec">&para;</a></h3>
+    <pre>type Codec struct {
+    <span id="Codec.Marshal">Marshal</span>   func(v interface{}) (data []<a href="http://godoc.org/builtin#byte">byte</a>, payloadType <a href="http://godoc.org/builtin#byte">byte</a>, err <a href="http://godoc.org/builtin#error">error</a>)
+    <span id="Codec.Unmarshal">Unmarshal</span> func(data []<a href="http://godoc.org/builtin#byte">byte</a>, payloadType <a href="http://godoc.org/builtin#byte">byte</a>, v interface{}) (err <a href="http://godoc.org/builtin#error">error</a>)
+}</pre>
+    <p>Codec代表一个编解码器，它有两个对称的用于编解码的函数类型字段。</p>
+    <h4 id="Codec.Receive">func (Codec) <a title="View Source" href="http://code.google.com/p/go/source/browse/websocket/websocket.go?repo=net#303">Receive</a> <a class="permalink" href="#Codec.Receive">&para;</a></h4>
+    <pre class="funcdecl">func (cd <a href="#Codec">Codec</a>) Receive(ws *<a href="#Conn">Conn</a>, v interface{}) (err <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p>Receive从ws获取单个框架，使用cd.Unmarshal反序列化数据并填充进v。</p>
+    <h4 id="Codec.Send">func (Codec) <a title="View Source" href="http://code.google.com/p/go/source/browse/websocket/websocket.go?repo=net#286">Send</a> <a class="permalink" href="#Codec.Send">&para;</a></h4>
+    <pre class="funcdecl">func (cd <a href="#Codec">Codec</a>) Send(ws *<a href="#Conn">Conn</a>, v interface{}) (err <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p>Send使用cd.Marshal将v序列化后编码为单个框架写入ws。</p>
+    <h3 id="Server">type <a title="View Source" href="http://code.google.com/p/go/source/browse/websocket/server.go?repo=net#55">Server</a> <a class="permalink" href="#Server">&para;</a></h3>
+    <pre>type Server struct {
+    <span class="com">// Config是建立新WebSocket连接的WebSocket配置。</span>
+    <a href="#Config">Config</a>
+    <span class="com">// Handshake是可选的握手（检验）函数。</span>
+    <span class="com">// 例如，你可以检查或者不检查请求的Origin头。</span>
+    <span class="com">// 另一个例子，你可以选择config的协议。</span>
+    <span id="Server.Handshake">Handshake</span> func(*<a href="#Config">Config</a>, *<a href="http://godoc.org/net/http">http</a>.<a href="http://godoc.org/net/http#Request">Request</a>) <a href="http://godoc.org/builtin#error">error</a>
+    <span class="com">// Handler处理单个WebSocket连接。</span>
+    <a href="#Handler">Handler</a>
+}</pre>
+    <p>Server代表一个WebSocket的服务端。</p>
+    <h4 id="Server.ServeHTTP">func (Server) <a title="View Source" href="http://code.google.com/p/go/source/browse/websocket/server.go?repo=net#69">ServeHTTP</a> <a class="permalink" href="#Server.ServeHTTP">&para;</a></h4>
+    <pre class="funcdecl">func (s <a href="#Server">Server</a>) ServeHTTP(w <a href="http://godoc.org/net/http">http</a>.<a href="http://godoc.org/net/http#ResponseWriter">ResponseWriter</a>, req *<a href="http://godoc.org/net/http">http</a>.<a href="http://godoc.org/net/http#Request">Request</a>)</pre>
+    <p>ServeHTTP实现了用于WebSocket连接的http.Handler接口。</p>
+    <h3 id="Handler">type <a title="View Source" href="http://code.google.com/p/go/source/browse/websocket/server.go?repo=net#100">Handler</a> <a class="permalink" href="#Handler">&para;</a></h3>
+    <pre>type Handler func(*<a href="#Conn">Conn</a>)</pre>
+    <p>Handler是一个简单的服务浏览器WebSocket客户端的接口。它默认会检查请求的Origin头是否是合法的URL。如果你使用Server代替Handler，你可以在Handshake函数类型字段里检查请求的Origin头。因此，如果你想要接受非浏览器的客户端（不发送Origin头），你可以使用Server，它在握手时不会检查Origin。</p>
+    <div class="panel-group">
+        <div class="panel panel-default" id="example-Handler">
+            <div class="panel-heading" onclick="document.getElementById('ex-Handler').style.display = document.getElementById('ex-Handler').style.display=='none'?'block':'none';">Example</div>
+            <div id="ex-Handler" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre>package websocket_test
+import (
+    &#34;io&#34;
+    &#34;net/http&#34;
+    &#34;code.google.com/p/go.net/websocket&#34;
+)
+<span class="com">// Echo the data received on the WebSocket.</span>
+func EchoServer(ws *websocket.Conn) {
+    io.Copy(ws, ws)
+}
+<span class="com">// This example demonstrates a trivial echo server.</span>
+func ExampleHandler() {
+    http.Handle(&#34;/echo&#34;, websocket.Handler(EchoServer))
+    err := http.ListenAndServe(&#34;:12345&#34;, nil)
+    if err != nil {
+        panic(&#34;ListenAndServe: &#34; + err.Error())
+    }
+}
+</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    <h4 id="Handler.ServeHTTP">func (Handler) <a title="View Source" href="http://code.google.com/p/go/source/browse/websocket/server.go?repo=net#111">ServeHTTP</a> <a class="permalink" href="#Handler.ServeHTTP">&para;</a></h4>
+    <pre class="funcdecl">func (h <a href="#Handler">Handler</a>) ServeHTTP(w <a href="http://godoc.org/net/http">http</a>.<a href="http://godoc.org/net/http#ResponseWriter">ResponseWriter</a>, req *<a href="http://godoc.org/net/http">http</a>.<a href="http://godoc.org/net/http#Request">Request</a>)</pre>
+    <p>ServeHTTP实现了用于WebSocket连接的http.Handler接口。</p>
+</div>
+</body>
+</html>

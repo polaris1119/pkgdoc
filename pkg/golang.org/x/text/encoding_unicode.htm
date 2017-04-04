@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="../../../site.css" rel="stylesheet">
+<title>encoding/unicode</title>
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package unicode</h2>
+    <p><code>import "code.google.com/p/go.text/encoding/unicode"</code>
+    <p>unicode包提供了UTF-16文本的编解码服务。</p>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <ul class="list-unstyled">
+        <li><a href="#pkg-variables">Variables</a></li>
+        <li><a href="#Endianness">type Endianness</a></li>
+        <li><a href="#BOMPolicy">type BOMPolicy</a></li>
+        <li><a href="#UTF16">func UTF16(e Endianness, b BOMPolicy) encoding.Encoding</a></li>
+    </ul>
+    <h3 id="pkg-variables">Variables <a class="permalink" href="#pkg-variables">&para;</a></h3>
+    <pre>var <span id="ErrMissingBOM">ErrMissingBOM</span> = <a href="/errors">errors</a>.<a href="/errors#New">New</a>(&#34;encoding: missing byte order mark&#34;)</pre>
+    <p>ErrMissingBOM表示采用ExpectBOM策略解码输入的UTF-16文本时，没有在开始处找到字节序标记（BOM）。</p>
+    <h3 id="Endianness">type <a title="View Source" href="http://code.google.com/p/go/source/browse/encoding/unicode/unicode.go?repo=text#60">Endianness</a> <a class="permalink" href="#Endianness">&para;</a></h3>
+    <pre>type Endianness <a href="/builtin#bool">bool</a></pre>
+    <p>Endianness是UTF-16的默认编码末端方向。</p>
+    <pre>const (
+    <span class="com">// BigEndian即UTF-16BE</span>
+    <span id="BigEndian">BigEndian</span> <a href="#Endianness">Endianness</a> = <a href="/builtin#false">false</a>
+    <span class="com">// LittleEndian即UTF-16LE</span>
+    <span id="LittleEndian">LittleEndian</span> <a href="#Endianness">Endianness</a> = <a href="/builtin#true">true</a>
+)</pre>
+    <h3 id="BOMPolicy">type <a title="View Source" href="http://code.google.com/p/go/source/browse/encoding/unicode/unicode.go?repo=text#49">BOMPolicy</a> <a class="permalink" href="#BOMPolicy">&para;</a></h3>
+    <pre>type BOMPolicy <a href="/builtin#bool">bool</a></pre>
+    <p>BOMPolicy是UTF-16编码针对BOM标志的策略。</p>
+    <pre>const (
+    <span class="com">// IgnoreBOM表示忽略任何字节序标志</span>
+    <span id="IgnoreBOM">IgnoreBOM</span> <a href="#BOMPolicy">BOMPolicy</a> = <a href="/builtin#false">false</a>
+    <span class="com">// ExpectBOM表示期望输入以字节序标志开始</span>
+    <span id="ExpectBOM">ExpectBOM</span> <a href="#BOMPolicy">BOMPolicy</a> = <a href="/builtin#true">true</a>
+)</pre>
+    <h3 id="UTF16">func <a title="View Source" href="http://code.google.com/p/go/source/browse/encoding/unicode/unicode.go?repo=text#44">UTF16</a> <a class="permalink" href="#UTF16">&para;</a></h3>
+    <pre class="funcdecl">func UTF16(e <a href="#Endianness">Endianness</a>, b <a href="#BOMPolicy">BOMPolicy</a>) <a href="/code.google.com/p/go.text/encoding">encoding</a>.<a href="/code.google.com/p/go.text/encoding#Encoding">Encoding</a></pre>
+    <p>UTF16使用提供的默认字节序方向和字节序BOM策略返回一个UTF-16编解码器。</p>
+    <p>当解码UTF-16到UTF-8时，如果参数b为IgnoreBOM，则不管输入流起始处的BOM是U+FEFF还是U+FFFE，都不会影响用于解码的末端方向设置；相反，它们会被解码为标准的UTF-8编码&#34;\xef\xbb\xbf&#34;和&#34;\xef\xbf\xbe&#34;。如果参数p是ExpectBOM，则解码器会期望输入流的起始处有BOM，如果没有，解码器就会以错误值ErrMissingBOM 直接返回；起始处的BOM不会写入UTF-8文本中，相反，会根据BOM重设解码的末端方向；之后序列中的U+FEFF 或非法字符U+FFFE不会影响使用中的编码末端方向，而会当成普通字符解码并写入UTF-8文本。</p>
+    <p>当编码UTF-8到UTF-16时，如果参数p为ExpectBOM，会在文本开始出添加相应的BOM；否则不会插入BOM。要编码的UTF-8文本中不需要包含BOM。</p>
+    <p>没有所谓的'本地'末端方向的概念。如果UTF-16数据是在一个很大范围内使用、且保证确定而统一的编码末端方向，参数p可使用IgnoreBOM。否则，使用ExpectBOM，并总是在编解码时生成或者使用BOM。</p>
+</div>
+</body>
+</html>

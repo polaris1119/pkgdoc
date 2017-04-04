@@ -1,0 +1,60 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="./site.css" rel="stylesheet">
+<title>crypto/ecdsa</title>
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package ecdsa</h2>
+    <p><code>import "crypto/ecdsa"</code>
+    <p>ecdsa包实现了椭圆曲线数字签名算法，参见FIPS 186-3。</p>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#PublicKey">type PublicKey</a></li>
+        <li><a href="#PrivateKey">type PrivateKey</a></li>
+        <ul>
+            <li><a href="#GenerateKey">func GenerateKey(c elliptic.Curve, rand io.Reader) (priv *PrivateKey, err error)</a></li>
+        </ul>
+        <li><a href="#Sign">func Sign(rand io.Reader, priv *PrivateKey, hash []byte) (r, s *big.Int, err error)</a></li>
+        <li><a href="#Verify">func Verify(pub *PublicKey, hash []byte, r, s *big.Int) bool</a></li>
+    </ul>
+    <h3 id="PublicKey">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/ecdsa/ecdsa.go?name=release#22">PublicKey</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type PublicKey struct {
+    <a href="crypto/elliptic.htm">elliptic</a>.<a href="crypto/elliptic.htm#Curve">Curve</a>
+    <span id="PublicKey.X">X</span>, <span id="PublicKey.Y">Y</span> *<a href="math/big.htm">big</a>.<a href="math/big.htm#Int">Int</a>
+}</pre>
+    <p>PrivateKey代表一个ECDSA公钥。</p>
+    <h3 id="PrivateKey">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/ecdsa/ecdsa.go?name=release#28">PrivateKey</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type PrivateKey struct {
+    <a href="#PublicKey">PublicKey</a>
+    <span id="PrivateKey.D">D</span>   *<a href="math/big.htm">big</a>.<a href="math/big.htm#Int">Int</a>
+}</pre>
+    <p>PrivateKey代表一个ECDSA私钥。</p>
+    <h4 id="GenerateKey">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/ecdsa/ecdsa.go?name=release#53">GenerateKey</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <p>GenerateKey函数生成一对</p>
+    <pre class="funcdecl">func GenerateKey(c <a href="crypto/elliptic.htm">elliptic</a>.<a href="crypto/elliptic.htm#Curve">Curve</a>, rand <a href="io.htm">io</a>.<a href="io.htm#Reader">Reader</a>) (priv *<a href="#PrivateKey">PrivateKey</a>, err <a href="builtin.htm#error">error</a>)</pre>
+    <p>公钥/私钥。</p>
+    <h3 id="Sign">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/ecdsa/ecdsa.go?name=release#101">Sign</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Sign(rand <a href="io.htm">io</a>.<a href="io.htm#Reader">Reader</a>, priv *<a href="#PrivateKey">PrivateKey</a>, hash []<a href="builtin.htm#byte">byte</a>) (r, s *<a href="math/big.htm">big</a>.<a href="math/big.htm#Int">Int</a>, err <a href="builtin.htm#error">error</a>)</pre>
+    <p>使用私钥对任意长度的hash值（必须是较大信息的hash结果）进行签名，返回签名结果（一对大整数）。私钥的安全性取决于密码读取器的熵度（随机程度）。</p>
+    <h3 id="Verify">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/ecdsa/ecdsa.go?name=release#138">Verify</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Verify(pub *<a href="#PublicKey">PublicKey</a>, hash []<a href="builtin.htm#byte">byte</a>, r, s *<a href="math/big.htm">big</a>.<a href="math/big.htm#Int">Int</a>) <a href="builtin.htm#bool">bool</a></pre>
+    <p>使用公钥验证hash值和两个大整数r、s构成的签名，并返回签名是否合法。</p>
+</div>
+
+<div id="x-footer" class="clearfix">
+  <div class="container">
+    <a href="http://studygolang.com/">Go语言中文网</a>
+    <span class="text-muted">|</span> <a href="http://golang.org/">Go Language</a>
+    <span class="pull-right"><a href="#">Back to top</a></span>
+  </div>
+</div>
+<script src="../assets/jquery-2.0.3.min.js"></script>
+<script src="../bootstrap.min.js"></script>
+<script src="../site.js"></script>
+</body>
+</html>

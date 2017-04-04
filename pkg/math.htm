@@ -1,0 +1,501 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="./site.css" rel="stylesheet">
+<title>math</title>
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package math</h2>
+    <p><code>import "math"</code>
+    <p>math包提供了基本的数学常数和数学函数。</p>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#pkg-constants">Constants</a></li>
+        <li><a href="#NaN">func NaN() float64</a></li>
+        <li><a href="#IsNaN">func IsNaN(f float64) (is bool)</a></li>
+        <li><a href="#Inf">func Inf(sign int) float64</a></li>
+        <li><a href="#IsInf">func IsInf(f float64, sign int) bool</a></li>
+        <li><a href="#Float32bits">func Float32bits(f float32) uint32</a></li>
+        <li><a href="#Float32frombits">func Float32frombits(b uint32) float32</a></li>
+        <li><a href="#Float64bits">func Float64bits(f float64) uint64</a></li>
+        <li><a href="#Float64frombits">func Float64frombits(b uint64) float64</a></li>
+        <li><a href="#Signbit">func Signbit(x float64) bool</a></li>
+        <li><a href="#Copysign">func Copysign(x, y float64) float64</a></li>
+        <li><a href="#Ceil">func Ceil(x float64) float64</a></li>
+        <li><a href="#Floor">func Floor(x float64) float64</a></li>
+        <li><a href="#Trunc">func Trunc(x float64) float64</a></li>
+        <li><a href="#Modf">func Modf(f float64) (int float64, frac float64)</a></li>
+        <li><a href="#Nextafter">func Nextafter(x, y float64) (r float64)</a></li>
+        <li><a href="#Abs">func Abs(x float64) float64</a></li>
+        <li><a href="#Max">func Max(x, y float64) float64</a></li>
+        <li><a href="#Min">func Min(x, y float64) float64</a></li>
+        <li><a href="#Dim">func Dim(x, y float64) float64</a></li>
+        <li><a href="#Mod">func Mod(x, y float64) float64</a></li>
+        <li><a href="#Remainder">func Remainder(x, y float64) float64</a></li>
+        <li><a href="#Sqrt">func Sqrt(x float64) float64</a></li>
+        <li><a href="#Cbrt">func Cbrt(x float64) float64</a></li>
+        <li><a href="#Hypot">func Hypot(p, q float64) float64</a></li>
+        <li><a href="#Sin">func Sin(x float64) float64</a></li>
+        <li><a href="#Cos">func Cos(x float64) float64</a></li>
+        <li><a href="#Tan">func Tan(x float64) float64</a></li>
+        <li><a href="#Sincos">func Sincos(x float64) (sin, cos float64)</a></li>
+        <li><a href="#Asin">func Asin(x float64) float64</a></li>
+        <li><a href="#Acos">func Acos(x float64) float64</a></li>
+        <li><a href="#Atan">func Atan(x float64) float64</a></li>
+        <li><a href="#Atan2">func Atan2(y, x float64) float64</a></li>
+        <li><a href="#Sinh">func Sinh(x float64) float64</a></li>
+        <li><a href="#Cosh">func Cosh(x float64) float64</a></li>
+        <li><a href="#Tanh">func Tanh(x float64) float64</a></li>
+        <li><a href="#Asinh">func Asinh(x float64) float64</a></li>
+        <li><a href="#Acosh">func Acosh(x float64) float64</a></li>
+        <li><a href="#Atanh">func Atanh(x float64) float64</a></li>
+        <li><a href="#Log">func Log(x float64) float64</a></li>
+        <li><a href="#Log1p">func Log1p(x float64) float64</a></li>
+        <li><a href="#Log2">func Log2(x float64) float64</a></li>
+        <li><a href="#Log10">func Log10(x float64) float64</a></li>
+        <li><a href="#Logb">func Logb(x float64) float64</a></li>
+        <li><a href="#Ilogb">func Ilogb(x float64) int</a></li>
+        <li><a href="#Frexp">func Frexp(f float64) (frac float64, exp int)</a></li>
+        <li><a href="#Ldexp">func Ldexp(frac float64, exp int) float64</a></li>
+        <li><a href="#Exp">func Exp(x float64) float64</a></li>
+        <li><a href="#Expm1">func Expm1(x float64) float64</a></li>
+        <li><a href="#Exp2">func Exp2(x float64) float64</a></li>
+        <li><a href="#Pow">func Pow(x, y float64) float64</a></li>
+        <li><a href="#Pow10">func Pow10(e int) float64</a></li>
+        <li><a href="#Gamma">func Gamma(x float64) float64</a></li>
+        <li><a href="#Lgamma">func Lgamma(x float64) (lgamma float64, sign int)</a></li>
+        <li><a href="#Erf">func Erf(x float64) float64</a></li>
+        <li><a href="#Erfc">func Erfc(x float64) float64</a></li>
+        <li><a href="#J0">func J0(x float64) float64</a></li>
+        <li><a href="#J1">func J1(x float64) float64</a></li>
+        <li><a href="#Jn">func Jn(n int, x float64) float64</a></li>
+        <li><a href="#Y0">func Y0(x float64) float64</a></li>
+        <li><a href="#Y1">func Y1(x float64) float64</a></li>
+        <li><a href="#Yn">func Yn(n int, x float64) float64</a></li>
+    </ul>
+    <h3 id="pkg-constants">Constants <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>const (
+    <span id="E">E</span>   = 2.71828182845904523536028747135266249775724709369995957496696763 <span class="com">// A001113</span>
+    <span id="Pi">Pi</span>  = 3.14159265358979323846264338327950288419716939937510582097494459 <span class="com">// A000796</span>
+    <span id="Phi">Phi</span> = 1.61803398874989484820458683436563811772030917980576286213544862 <span class="com">// A001622</span>
+    <span id="Sqrt2">Sqrt2</span>   = 1.41421356237309504880168872420969807856967187537694807317667974 <span class="com">// A002193</span>
+    <span id="SqrtE">SqrtE</span>   = 1.64872127070012814684865078781416357165377610071014801157507931 <span class="com">// A019774</span>
+    <span id="SqrtPi">SqrtPi</span>  = 1.77245385090551602729816748334114518279754945612238712821380779 <span class="com">// A002161</span>
+    <span id="SqrtPhi">SqrtPhi</span> = 1.27201964951406896425242246173749149171560804184009624861664038 <span class="com">// A139339</span>
+    <span id="Ln2">Ln2</span>    = 0.693147180559945309417232121458176568075500134360255254120680009 <span class="com">// A002162</span>
+    <span id="Log2E">Log2E</span>  = 1 / <a href="#Ln2">Ln2</a>
+    <span id="Ln10">Ln10</span>   = 2.30258509299404568401799145468436420760110148862877297603332790 <span class="com">// A002392</span>
+    <span id="Log10E">Log10E</span> = 1 / <a href="#Ln10">Ln10</a>
+)</pre>
+    <p>数学常数，参见：<a href="http://oeis.org/Axxxxxx">http://oeis.org/Axxxxxx</a></p>
+    <pre>const (
+    <span id="MaxFloat32">MaxFloat32</span>             = 3.40282346638528859811704183484516925440e+38  <span class="com">// 2**127 * (2**24 - 1) / 2**23</span>
+    <span id="SmallestNonzeroFloat32">SmallestNonzeroFloat32</span> = 1.401298464324817070923729583289916131280e-45 <span class="com">// 1 / 2**(127 - 1 + 23)</span>
+    <span id="MaxFloat64">MaxFloat64</span>             = 1.797693134862315708145274237317043567981e+308 <span class="com">// 2**1023 * (2**53 - 1) / 2**52</span>
+    <span id="SmallestNonzeroFloat64">SmallestNonzeroFloat64</span> = 4.940656458412465441765687928682213723651e-324 <span class="com">// 1 / 2**(1023 - 1 + 52)</span>
+)</pre>
+    <p>浮点数的取值极限。Max是该类型所能表示的最大有限值；SmallestNonzero是该类型所能表示的最小非零正数值。</p>
+    <pre>const (
+    <span id="MaxInt8">MaxInt8</span>   = 1&lt;&lt;7 - 1
+    <span id="MinInt8">MinInt8</span>   = -1 &lt;&lt; 7
+    <span id="MaxInt16">MaxInt16</span>  = 1&lt;&lt;15 - 1
+    <span id="MinInt16">MinInt16</span>  = -1 &lt;&lt; 15
+    <span id="MaxInt32">MaxInt32</span>  = 1&lt;&lt;31 - 1
+    <span id="MinInt32">MinInt32</span>  = -1 &lt;&lt; 31
+    <span id="MaxInt64">MaxInt64</span>  = 1&lt;&lt;63 - 1
+    <span id="MinInt64">MinInt64</span>  = -1 &lt;&lt; 63
+    <span id="MaxUint8">MaxUint8</span>  = 1&lt;&lt;8 - 1
+    <span id="MaxUint16">MaxUint16</span> = 1&lt;&lt;16 - 1
+    <span id="MaxUint32">MaxUint32</span> = 1&lt;&lt;32 - 1
+    <span id="MaxUint64">MaxUint64</span> = 1&lt;&lt;64 - 1
+)</pre>
+    <p>整数的取值极限。</p>
+    <h3 id="NaN">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/bits.go?name=release#28">NaN</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func NaN() <a href="builtin.htm#float64">float64</a></pre>
+    <p>函数返回一个IEEE 754&ldquo;这不是一个数字&rdquo;值。</p>
+    <h3 id="IsNaN">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/bits.go?name=release#31">IsNaN</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func IsNaN(f <a href="builtin.htm#float64">float64</a>) (is <a href="builtin.htm#bool">bool</a>)</pre>
+    <p>报告f是否表示一个NaN（Not A Number）值。</p>
+    <h3 id="Inf">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/bits.go?name=release#17">Inf</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Inf(sign <a href="builtin.htm#int">int</a>) <a href="builtin.htm#float64">float64</a></pre>
+    <p>如果sign&gt;=0函数返回正无穷大，否则返回负无穷大。</p>
+    <h3 id="IsInf">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/bits.go?name=release#43">IsInf</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func IsInf(f <a href="builtin.htm#float64">float64</a>, sign <a href="builtin.htm#int">int</a>) <a href="builtin.htm#bool">bool</a></pre>
+    <p>如果sign &gt; 0，f是正无穷大时返回真；如果sign&lt;0，f是负无穷大时返回真；sign==0则f是两种无穷大时都返回真。</p>
+    <h3 id="Float32bits">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/unsafe.go?name=release#10">Float32bits</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Float32bits(f <a href="builtin.htm#float32">float32</a>) <a href="builtin.htm#uint32">uint32</a></pre>
+    <p>函数返回浮点数f的IEEE 754格式二进制表示对应的4字节无符号整数。</p>
+    <h3 id="Float32frombits">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/unsafe.go?name=release#14">Float32frombits</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Float32frombits(b <a href="builtin.htm#uint32">uint32</a>) <a href="builtin.htm#float32">float32</a></pre>
+    <p>函数返回无符号整数b对应的IEEE 754格式二进制表示的4字节浮点数。</p>
+    <h3 id="Float64bits">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/unsafe.go?name=release#17">Float64bits</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Float64bits(f <a href="builtin.htm#float64">float64</a>) <a href="builtin.htm#uint64">uint64</a></pre>
+    <p>函数返回浮点数f的IEEE 754格式二进制表示对应的8字节无符号整数。</p>
+    <h3 id="Float64frombits">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/unsafe.go?name=release#21">Float64frombits</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Float64frombits(b <a href="builtin.htm#uint64">uint64</a>) <a href="builtin.htm#float64">float64</a></pre>
+    <p>函数返回无符号整数b对应的IEEE 754格式二进制表示的8字节浮点数。</p>
+    <h3 id="Signbit">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/signbit.go?name=release#8">Signbit</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Signbit(x <a href="builtin.htm#float64">float64</a>) <a href="builtin.htm#bool">bool</a></pre>
+    <p>如果x是一个负数或者负零，返回真。</p>
+    <h3 id="Copysign">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/copysign.go?name=release#9">Copysign</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Copysign(x, y <a href="builtin.htm#float64">float64</a>) <a href="builtin.htm#float64">float64</a></pre>
+    <p>返回拥有x的量值（绝对值）和y的标志位（正负号）的浮点数。</p>
+    <h3 id="Ceil">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/floor.go?name=release#36">Ceil</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Ceil(x <a href="builtin.htm#float64">float64</a>) <a href="builtin.htm#float64">float64</a></pre>
+    <p>返回不小于x的最小整数（的浮点值），特例如下：</p>
+    <pre>Ceil(±0) = ±0
+Ceil(±Inf) = ±Inf
+Ceil(NaN) = NaN</pre>
+    <h3 id="Floor">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/floor.go?name=release#13">Floor</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Floor(x <a href="builtin.htm#float64">float64</a>) <a href="builtin.htm#float64">float64</a></pre>
+    <p>返回不大于x的最小整数（的浮点值），特例如下：</p>
+    <pre>Floor(±0) = ±0
+Floor(±Inf) = ±Inf
+Floor(NaN) = NaN</pre>
+    <h3 id="Trunc">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/floor.go?name=release#48">Trunc</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Trunc(x <a href="builtin.htm#float64">float64</a>) <a href="builtin.htm#float64">float64</a></pre>
+    <p>返回x的整数部分（的浮点值）。特例如下：</p>
+    <pre>Trunc(±0) = ±0
+Trunc(±Inf) = ±Inf
+Trunc(NaN) = NaN</pre>
+    <h3 id="Modf">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/modf.go?name=release#13">Modf</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Modf(f <a href="builtin.htm#float64">float64</a>) (int <a href="builtin.htm#float64">float64</a>, frac <a href="builtin.htm#float64">float64</a>)</pre>
+    <p>返回f的整数部分和小数部分，结果的正负号和都x相同；特例如下：</p>
+    <pre>Modf(±Inf) = ±Inf, NaN
+Modf(NaN) = NaN, NaN</pre>
+    <h3 id="Nextafter">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/nextafter.go?name=release#13">Nextafter</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Nextafter(x, y <a href="builtin.htm#float64">float64</a>) (r <a href="builtin.htm#float64">float64</a>)</pre>
+    <p>参数x到参数y的方向上，下一个可表示的数值；如果x==y将返回x。特例如下：</p>
+    <pre>Nextafter(NaN, y) = NaN
+Nextafter(x, NaN) = NaN</pre>
+    <h3 id="Abs">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/abs.go?name=release#12">Abs</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Abs(x <a href="builtin.htm#float64">float64</a>) <a href="builtin.htm#float64">float64</a></pre>
+    <p>返回x的绝对值；特例如下：</p>
+    <pre>Abs(±Inf) = +Inf
+Abs(NaN) = NaN</pre>
+    <h3 id="Max">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/dim.go?name=release#26">Max</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Max(x, y <a href="builtin.htm#float64">float64</a>) <a href="builtin.htm#float64">float64</a></pre>
+    <p>返回x和y中最大值，特例如下：</p>
+    <pre>Max(x, +Inf) = Max(+Inf, x) = +Inf
+Max(x, NaN) = Max(NaN, x) = NaN
+Max(+0, ±0) = Max(±0, +0) = +0
+Max(-0, -0) = -0</pre>
+    <h3 id="Min">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/dim.go?name=release#53">Min</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Min(x, y <a href="builtin.htm#float64">float64</a>) <a href="builtin.htm#float64">float64</a></pre>
+    <p>返回x和y中最小值，特例如下：</p>
+    <pre>Min(x, -Inf) = Min(-Inf, x) = -Inf
+Min(x, NaN) = Min(NaN, x) = NaN
+Min(-0, ±0) = Min(±0, -0) = -0</pre>
+    <h3 id="Dim">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/dim.go?name=release#13">Dim</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Dim(x, y <a href="builtin.htm#float64">float64</a>) <a href="builtin.htm#float64">float64</a></pre>
+    <p>函数返回x-y和0中的最大值，特殊情况：</p>
+    <pre>Dim(+Inf, +Inf) = NaN
+Dim(-Inf, -Inf) = NaN
+Dim(x, NaN) = Dim(NaN, x) = NaN</pre>
+    <h3 id="Mod">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/mod.go?name=release#21">Mod</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Mod(x, y <a href="builtin.htm#float64">float64</a>) <a href="builtin.htm#float64">float64</a></pre>
+    <p>取余运算，可以理解为 x-Trunc(x/y)*y，结果的正负号和x相同；特例如下：</p>
+    <pre>Mod(±Inf, y) = NaN
+Mod(NaN, y) = NaN
+Mod(x, 0) = NaN
+Mod(x, ±Inf) = x
+Mod(x, NaN) = NaN</pre>
+    <h3 id="Remainder">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/remainder.go?name=release#37">Remainder</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Remainder(x, y <a href="builtin.htm#float64">float64</a>) <a href="builtin.htm#float64">float64</a></pre>
+    <p>IEEE 754差数求值，即x减去最接近x/y的整数值（如果有两个整数与x/y距离相同，则取其中的偶数）与y的乘积。特例如下：</p>
+    <pre>Remainder(±Inf, y) = NaN
+Remainder(NaN, y) = NaN
+Remainder(x, 0) = NaN
+Remainder(x, ±Inf) = x
+Remainder(x, NaN) = NaN</pre>
+    <h3 id="Sqrt">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/sqrt.go?name=release#92">Sqrt</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Sqrt(x <a href="builtin.htm#float64">float64</a>) <a href="builtin.htm#float64">float64</a></pre>
+    <p>返回x的二次方根，特例如下：</p>
+    <pre>Sqrt(+Inf) = +Inf
+Sqrt(±0) = ±0
+Sqrt(x &lt; 0) = NaN
+Sqrt(NaN) = NaN</pre>
+    <h3 id="Cbrt">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/cbrt.go?name=release#21">Cbrt</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Cbrt(x <a href="builtin.htm#float64">float64</a>) <a href="builtin.htm#float64">float64</a></pre>
+    <p>返回x的三次方根，特例如下：</p>
+    <pre>Cbrt(±0) = ±0
+Cbrt(±Inf) = ±Inf
+Cbrt(NaN) = NaN</pre>
+    <h3 id="Hypot">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/hypot.go?name=release#19">Hypot</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Hypot(p, q <a href="builtin.htm#float64">float64</a>) <a href="builtin.htm#float64">float64</a></pre>
+    <p>返回Sqrt(p*p + q*q)，注意要避免不必要的溢出或下溢。特例如下：</p>
+    <pre>Hypot(±Inf, q) = +Inf
+Hypot(p, ±Inf) = +Inf
+Hypot(NaN, q) = NaN
+Hypot(p, NaN) = NaN</pre>
+    <h3 id="Sin">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/sin.go?name=release#174">Sin</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Sin(x <a href="builtin.htm#float64">float64</a>) <a href="builtin.htm#float64">float64</a></pre>
+    <p>求正弦。特例如下：</p>
+    <pre>Sin(±0) = ±0
+Sin(±Inf) = NaN
+Sin(NaN) = NaN</pre>
+    <h3 id="Cos">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/sin.go?name=release#117">Cos</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Cos(x <a href="builtin.htm#float64">float64</a>) <a href="builtin.htm#float64">float64</a></pre>
+    <p>求余弦。特例如下：</p>
+    <pre>Cos(±Inf) = NaN
+Cos(NaN) = NaN</pre>
+    <h3 id="Tan">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/tan.go?name=release#82">Tan</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Tan(x <a href="builtin.htm#float64">float64</a>) <a href="builtin.htm#float64">float64</a></pre>
+    <p>求正切。特例如下：</p>
+    <pre>Tan(±0) = ±0
+Tan(±Inf) = NaN
+Tan(NaN) = NaN</pre>
+    <h3 id="Sincos">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/sincos.go?name=release#15">Sincos</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Sincos(x <a href="builtin.htm#float64">float64</a>) (sin, cos <a href="builtin.htm#float64">float64</a>)</pre>
+    <p>函数返回Sin(x), Cos(x)。特例如下：</p>
+    <pre>Sincos(±0) = ±0, 1
+Sincos(±Inf) = NaN, NaN
+Sincos(NaN) = NaN, NaN</pre>
+    <h3 id="Asin">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/asin.go?name=release#19">Asin</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Asin(x <a href="builtin.htm#float64">float64</a>) <a href="builtin.htm#float64">float64</a></pre>
+    <p>求反正弦（x是弧度）。特例如下：</p>
+    <pre>Asin(±0) = ±0
+Asin(x) = NaN if x &lt; -1 or x &gt; 1
+</pre>
+    <h3 id="Acos">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/asin.go?name=release#51">Acos</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Acos(x <a href="builtin.htm#float64">float64</a>) <a href="builtin.htm#float64">float64</a></pre>
+    <p>求反余弦（x是弧度）。特例如下：</p>
+    <pre>Acos(x) = NaN if x &lt; -1 or x &gt; 1
+</pre>
+    <h3 id="Atan">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/atan.go?name=release#95">Atan</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Atan(x <a href="builtin.htm#float64">float64</a>) <a href="builtin.htm#float64">float64</a></pre>
+    <p>求反正切（x是弧度）。特例如下：</p>
+    <pre>Atan(±0) = ±0
+Atan(±Inf) = ±Pi/2</pre>
+    <h3 id="Atan2">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/atan2.go?name=release#29">Atan2</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Atan2(y, x <a href="builtin.htm#float64">float64</a>) <a href="builtin.htm#float64">float64</a></pre>
+    <p>类似Atan(y/x)，但会根据x，y的正负号确定象限。特例如下（前面的优先）：</p>
+    <pre>Atan2(y, NaN) = NaN
+Atan2(NaN, x) = NaN
+Atan2(+0, x&gt;=0) = +0
+Atan2(-0, x&gt;=0) = -0
+Atan2(+0, x&lt;=-0) = +Pi
+Atan2(-0, x&lt;=-0) = -Pi
+Atan2(y&gt;0, 0) = +Pi/2
+Atan2(y&lt;0, 0) = -Pi/2
+Atan2(+Inf, +Inf) = +Pi/4
+Atan2(-Inf, +Inf) = -Pi/4
+Atan2(+Inf, -Inf) = 3Pi/4
+Atan2(-Inf, -Inf) = -3Pi/4
+Atan2(y, +Inf) = 0
+Atan2(y&gt;0, -Inf) = +Pi
+Atan2(y&lt;0, -Inf) = -Pi
+Atan2(+Inf, x) = +Pi/2
+Atan2(-Inf, x) = -Pi/2</pre>
+    <h3 id="Sinh">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/sinh.go?name=release#25">Sinh</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Sinh(x <a href="builtin.htm#float64">float64</a>) <a href="builtin.htm#float64">float64</a></pre>
+    <p>求双曲正弦，特例如下：</p>
+    <pre>Sinh(±0) = ±0
+Sinh(±Inf) = ±Inf
+Sinh(NaN) = NaN</pre>
+    <h3 id="Cosh">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/sinh.go?name=release#69">Cosh</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Cosh(x <a href="builtin.htm#float64">float64</a>) <a href="builtin.htm#float64">float64</a></pre>
+    <p>求双曲余弦，特例如下：</p>
+    <pre>Cosh(±0) = 1
+Cosh(±Inf) = +Inf
+Cosh(NaN) = NaN</pre>
+    <h3 id="Tanh">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/tanh.go?name=release#74">Tanh</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Tanh(x <a href="builtin.htm#float64">float64</a>) <a href="builtin.htm#float64">float64</a></pre>
+    <p>求双曲正切，特例如下：</p>
+    <pre>Tanh(±0) = ±0
+Tanh(±Inf) = ±1
+Tanh(NaN) = NaN</pre>
+    <h3 id="Asinh">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/asinh.go?name=release#39">Asinh</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Asinh(x <a href="builtin.htm#float64">float64</a>) <a href="builtin.htm#float64">float64</a></pre>
+    <p>求反双曲正弦，特例如下：</p>
+    <pre>Asinh(±0) = ±0
+Asinh(±Inf) = ±Inf
+Asinh(NaN) = NaN</pre>
+    <h3 id="Acosh">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/acosh.go?name=release#42">Acosh</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Acosh(x <a href="builtin.htm#float64">float64</a>) <a href="builtin.htm#float64">float64</a></pre>
+    <p>求反双曲余弦，特例如下：</p>
+    <pre>Acosh(+Inf) = +Inf
+Acosh(x) = NaN if x &lt; 1
+Acosh(NaN) = NaN</pre>
+    <h3 id="Atanh">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/atanh.go?name=release#47">Atanh</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Atanh(x <a href="builtin.htm#float64">float64</a>) <a href="builtin.htm#float64">float64</a></pre>
+    <p>求反双曲正切，特例如下：</p>
+    <pre>Atanh(1) = +Inf
+Atanh(±0) = ±0
+Atanh(-1) = -Inf
+Atanh(x) = NaN if x &lt; -1 or x &gt; 1
+Atanh(NaN) = NaN</pre>
+    <h3 id="Log">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/log.go?name=release#80">Log</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Log(x <a href="builtin.htm#float64">float64</a>) <a href="builtin.htm#float64">float64</a></pre>
+    <p>求自然对数，特例如下：</p>
+    <pre>Log(+Inf) = +Inf
+Log(0) = -Inf
+Log(x &lt; 0) = NaN
+Log(NaN) = NaN</pre>
+    <h3 id="Log1p">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/log1p.go?name=release#95">Log1p</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Log1p(x <a href="builtin.htm#float64">float64</a>) <a href="builtin.htm#float64">float64</a></pre>
+    <p>等价于Log(1+x)。但是在x接近0时，本函数更加精确；特例如下：</p>
+    <pre>Log1p(+Inf) = +Inf
+Log1p(±0) = ±0
+Log1p(-1) = -Inf
+Log1p(x &lt; -1) = NaN
+Log1p(NaN) = NaN</pre>
+    <h3 id="Log2">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/log10.go?name=release#17">Log2</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Log2(x <a href="builtin.htm#float64">float64</a>) <a href="builtin.htm#float64">float64</a></pre>
+    <p>求2为底的对数；特例和Log相同。</p>
+    <h3 id="Log10">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/log10.go?name=release#9">Log10</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Log10(x <a href="builtin.htm#float64">float64</a>) <a href="builtin.htm#float64">float64</a></pre>
+    <p>求10为底的对数；特例和Log相同。</p>
+    <h3 id="Logb">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/logb.go?name=release#13">Logb</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Logb(x <a href="builtin.htm#float64">float64</a>) <a href="builtin.htm#float64">float64</a></pre>
+    <p>返回x的二进制指数值，可以理解为Trunc(Log2(x))；特例如下：</p>
+    <pre>Logb(±Inf) = +Inf
+Logb(0) = -Inf
+Logb(NaN) = NaN</pre>
+    <h3 id="Ilogb">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/logb.go?name=release#32">Ilogb</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Ilogb(x <a href="builtin.htm#float64">float64</a>) <a href="builtin.htm#int">int</a></pre>
+    <p>类似Logb，但返回值是整型；特例如下：</p>
+    <pre>Ilogb(±Inf) = MaxInt32
+Ilogb(0) = MinInt32
+Ilogb(NaN) = MaxInt32</pre>
+    <h3 id="Frexp">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/frexp.go?name=release#16">Frexp</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Frexp(f <a href="builtin.htm#float64">float64</a>) (frac <a href="builtin.htm#float64">float64</a>, exp <a href="builtin.htm#int">int</a>)</pre>
+    <p>返回一个标准化小数frac和2的整型指数exp，满足f == frac * 2**exp，且0.5 &lt;= Abs(frac) &lt; 1；特例如下：</p>
+    <pre>Frexp(±0) = ±0, 0
+Frexp(±Inf) = ±Inf, 0
+Frexp(NaN) = NaN, 0</pre>
+    <h3 id="Ldexp">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/ldexp.go?name=release#14">Ldexp</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Ldexp(frac <a href="builtin.htm#float64">float64</a>, exp <a href="builtin.htm#int">int</a>) <a href="builtin.htm#float64">float64</a></pre>
+    <p>Frexp的反函数，返回 frac * 2**exp。特例如下：</p>
+    <pre>Ldexp(±0, exp) = ±0
+Ldexp(±Inf, exp) = ±Inf
+Ldexp(NaN, exp) = NaN</pre>
+    <h3 id="Exp">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/exp.go?name=release#14">Exp</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Exp(x <a href="builtin.htm#float64">float64</a>) <a href="builtin.htm#float64">float64</a></pre>
+    <p>返回E**x；x绝对值很大时可能会溢出为0或者+Inf，x绝对值很小时可能会下溢为1。特例如下：</p>
+    <pre>Exp(+Inf) = +Inf
+Exp(NaN) = NaN</pre>
+    <h3 id="Expm1">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/expm1.go?name=release#124">Expm1</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Expm1(x <a href="builtin.htm#float64">float64</a>) <a href="builtin.htm#float64">float64</a></pre>
+    <p>等价于Exp(x)-1，但是在x接近零时更精确；x绝对值很大时可能会溢出为-1或+Inf。特例如下：</p>
+    <pre>Expm1(+Inf) = +Inf
+Expm1(-Inf) = -1
+Expm1(NaN) = NaN</pre>
+    <h3 id="Exp2">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/exp.go?name=release#135">Exp2</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Exp2(x <a href="builtin.htm#float64">float64</a>) <a href="builtin.htm#float64">float64</a></pre>
+    <p>返回2**x；特例和Exp相同。</p>
+    <h3 id="Pow">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/pow.go?name=release#38">Pow</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Pow(x, y <a href="builtin.htm#float64">float64</a>) <a href="builtin.htm#float64">float64</a></pre>
+    <p>返回x**y；特例如下（前面的优先）：</p>
+    <pre>Pow(x, ±0) = 1 for any x
+Pow(1, y) = 1 for any y
+Pow(x, 1) = x for any x
+Pow(NaN, y) = NaN
+Pow(x, NaN) = NaN
+Pow(±0, y) = ±Inf for y an odd integer &lt; 0
+Pow(±0, -Inf) = +Inf
+Pow(±0, +Inf) = +0
+Pow(±0, y) = +Inf for finite y &lt; 0 and not an odd integer
+Pow(±0, y) = ±0 for y an odd integer &gt; 0
+Pow(±0, y) = +0 for finite y &gt; 0 and not an odd integer
+Pow(-1, ±Inf) = 1
+Pow(x, +Inf) = +Inf for |x| &gt; 1
+Pow(x, -Inf) = +0 for |x| &gt; 1
+Pow(x, +Inf) = +0 for |x| &lt; 1
+Pow(x, -Inf) = +Inf for |x| &lt; 1
+Pow(+Inf, y) = +Inf for y &gt; 0
+Pow(+Inf, y) = +0 for y &lt; 0
+Pow(-Inf, y) = Pow(-0, -y)
+Pow(x, y) = NaN for finite x &lt; 0 and finite non-integer y
+</pre>
+    <h3 id="Pow10">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/pow10.go?name=release#16">Pow10</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Pow10(e <a href="builtin.htm#int">int</a>) <a href="builtin.htm#float64">float64</a></pre>
+    <p>返回10**e；特例如下：</p>
+    <pre>Pow10(e) = +Inf for e &gt; 309
+Pow10(e) = 0 for e &lt; -324
+</pre>
+    <h3 id="Gamma">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/gamma.go?name=release#122">Gamma</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Gamma(x <a href="builtin.htm#float64">float64</a>) <a href="builtin.htm#float64">float64</a></pre>
+    <p>伽玛函数（当x为正整数时，值为(x-1)!）。特例如下：</p>
+    <pre>Gamma(+Inf) = +Inf
+Gamma(+0) = +Inf
+Gamma(-0) = -Inf
+Gamma(x) = NaN for integer x &lt; 0
+Gamma(-Inf) = NaN
+Gamma(NaN) = NaN</pre>
+    <h3 id="Lgamma">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/lgamma.go?name=release#174">Lgamma</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Lgamma(x <a href="builtin.htm#float64">float64</a>) (lgamma <a href="builtin.htm#float64">float64</a>, sign <a href="builtin.htm#int">int</a>)</pre>
+    <p>返回Gamma(x)的自然对数和正负号。特例如下：</p>
+    <pre>Lgamma(+Inf) = +Inf
+Lgamma(0) = +Inf
+Lgamma(-integer) = +Inf
+Lgamma(-Inf) = -Inf
+Lgamma(NaN) = NaN</pre>
+    <h3 id="Erf">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/erf.go?name=release#188">Erf</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Erf(x <a href="builtin.htm#float64">float64</a>) <a href="builtin.htm#float64">float64</a></pre>
+    <p>误差函数，特例如下：</p>
+    <pre>Erf(+Inf) = 1
+Erf(-Inf) = -1
+Erf(NaN) = NaN</pre>
+    <h3 id="Erfc">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/erf.go?name=release#265">Erfc</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Erfc(x <a href="builtin.htm#float64">float64</a>) <a href="builtin.htm#float64">float64</a></pre>
+    <p>余补误差函数，特例如下：</p>
+    <pre>Erfc(+Inf) = 0
+Erfc(-Inf) = 2
+Erfc(NaN) = NaN</pre>
+    <h3 id="J0">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/j0.go?name=release#76">J0</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func J0(x <a href="builtin.htm#float64">float64</a>) <a href="builtin.htm#float64">float64</a></pre>
+    <p>第一类贝塞尔函数，0阶。特例如下：</p>
+    <pre>J0(±Inf) = 0
+J0(0) = 1
+J0(NaN) = NaN</pre>
+    <h3 id="J1">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/j1.go?name=release#74">J1</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func J1(x <a href="builtin.htm#float64">float64</a>) <a href="builtin.htm#float64">float64</a></pre>
+    <p>第一类贝塞尔函数，1阶。特例如下：</p>
+    <pre>J1(±Inf) = 0
+J1(NaN) = NaN</pre>
+    <h3 id="Jn">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/jn.go?name=release#53">Jn</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Jn(n <a href="builtin.htm#int">int</a>, x <a href="builtin.htm#float64">float64</a>) <a href="builtin.htm#float64">float64</a></pre>
+    <p>第一类贝塞尔函数，n阶。特例如下：</p>
+    <pre>Jn(n, ±Inf) = 0
+Jn(n, NaN) = NaN</pre>
+    <h3 id="Y0">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/j0.go?name=release#156">Y0</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Y0(x <a href="builtin.htm#float64">float64</a>) <a href="builtin.htm#float64">float64</a></pre>
+    <p>第二类贝塞尔函数，0阶。特例如下：</p>
+    <pre>Y0(+Inf) = 0
+Y0(0) = -Inf
+Y0(x &lt; 0) = NaN
+Y0(NaN) = NaN</pre>
+    <h3 id="Y1">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/j1.go?name=release#154">Y1</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Y1(x <a href="builtin.htm#float64">float64</a>) <a href="builtin.htm#float64">float64</a></pre>
+    <p>第二类贝塞尔函数，1阶。特例如下：</p>
+    <pre>Y1(+Inf) = 0
+Y1(0) = -Inf
+Y1(x &lt; 0) = NaN
+Y1(NaN) = NaN</pre>
+    <h3 id="Yn">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/jn.go?name=release#235">Yn</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Yn(n <a href="builtin.htm#int">int</a>, x <a href="builtin.htm#float64">float64</a>) <a href="builtin.htm#float64">float64</a></pre>
+    <p>第二类贝塞尔函数，n阶。特例如下：</p>
+    <pre>Yn(n, +Inf) = 0
+Yn(n &gt; 0, 0) = -Inf
+Yn(n &lt; 0, 0) = +Inf if n is odd, -Inf if n is even
+Y1(n, x &lt; 0) = NaN
+Y1(n, NaN) = NaN</pre>
+</div>
+
+<div id="x-footer" class="clearfix">
+  <div class="container">
+    <a href="http://studygolang.com/">Go语言中文网</a>
+    <span class="text-muted">|</span> <a href="http://golang.org/">Go Language</a>
+    <span class="pull-right"><a href="#">Back to top</a></span>
+  </div>
+</div>
+<script src="../assets/jquery-2.0.3.min.js"></script>
+<script src="../bootstrap.min.js"></script>
+<script src="../site.js"></script>
+</body>
+</html>

@@ -1,0 +1,121 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="./site.css" rel="stylesheet">
+<title>go/printer</title>
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package printer</h2>
+    <p><code>import "go/printer"</code>
+    <p>Package printer implements printing of AST nodes..</p>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#Fprint">func Fprint(output io.Writer, fset *token.FileSet, node interface{}) error</a></li>
+        <li><a href="#CommentedNode">type CommentedNode</a></li>
+        <li><a href="#Config">type Config</a></li>
+        <ul>
+            <li><a href="#Config.Fprint">func (cfg *Config) Fprint(output io.Writer, fset *token.FileSet, node interface{}) error</a></li>
+        </ul>
+        <li><a href="#Mode">type Mode</a></li>
+    </ul>
+    
+    <h3 id="Fprint">func Fprint</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>func Fprint(output <a href="./io.htm">io</a>.<a href="./io.htm#Writer">Writer</a>, fset *<a href="./go_token.htm">token</a>.<a href="./go_token.htm#FileSet">FileSet</a>, node interface{}) <a href="./builtin.htm#error">error</a></pre>
+    <p>
+Fprint "pretty-prints" an AST node to output.
+It calls Config.Fprint with default settings.
+</p>
+<pre class="code"><span class="comment">// Parse source file and extract the AST without comments for</span>
+<span class="comment">// this function, with position information referring to the</span>
+<span class="comment">// file set fset.</span>
+funcAST, fset := parseFunc("example_test.go", "ExampleFprint")
+
+<span class="comment">// Print the function body into buffer buf.</span>
+<span class="comment">// The file set is provided to the printer so that it knows</span>
+<span class="comment">// about the original source formatting and can add additional</span>
+<span class="comment">// line breaks where they were present in the source.</span>
+var buf bytes.Buffer
+printer.Fprint(&amp;buf, fset, funcAST.Body)
+
+<span class="comment">// Remove braces {} enclosing the function body, unindent,</span>
+<span class="comment">// and trim leading and trailing white space.</span>
+s := buf.String()
+s = s[1 : len(s)-1]
+s = strings.TrimSpace(strings.Replace(s, "\n\t", "\n", -1))
+
+<span class="comment">// Print the cleaned-up body text to stdout.</span>
+fmt.Println(s)
+
+<span class="comment"></span></pre>
+<p>Output:</p>
+<pre class="output">funcAST, fset := parseFunc("example_test.go", "ExampleFprint")
+
+var buf bytes.Buffer
+printer.Fprint(&amp;buf, fset, funcAST.Body)
+
+s := buf.String()
+s = s[1 : len(s)-1]
+s = strings.TrimSpace(strings.Replace(s, "\n\t", "\n", -1))
+
+fmt.Println(s)
+</pre>
+
+
+    <h3 id="CommentedNode">type CommentedNode <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type CommentedNode struct {
+    Node     interface{} <span class="comment">// *ast.File, or ast.Expr, ast.Decl, ast.Spec, or ast.Stmt</span>
+    Comments []*<a href="./go_ast.htm">ast</a>.<a href="./go_ast.htm#CommentGroup">CommentGroup</a>
+}</pre>
+<p>
+A CommentedNode bundles an AST node and corresponding comments.
+It may be provided as argument to any of the Fprint functions.
+</p>
+
+<h3 id="Config">type Config <a class="permalink" href="#pkg-index">&para;</a></h3>
+<pre>type Config struct {
+    Mode     <a href="#Mode">Mode</a> <span class="comment">// default: 0</span>
+    Tabwidth <a href="./builtin.htm#int">int</a>  <span class="comment">// default: 8</span>
+    Indent   <a href="./builtin.htm#int">int</a>  <span class="comment">// default: 0 (all code is indented at least by this much)</span>
+}</pre>
+<p>
+A Config node controls the output of Fprint.
+</p>
+
+<h3 id="Config.Fprint">func (*Config) Fprint <a class="permalink" href="#pkg-index">&para;</a></h3>
+<pre>func (cfg *<a href="#Config">Config</a>) Fprint(output <a href="./io.htm">io</a>.<a href="./io.htm#Writer">Writer</a>, fset *<a href="./go_token.htm">token</a>.<a href="./go_token.htm#FileSet">FileSet</a>, node interface{}) <a href="./builtin.htm#error">error</a></pre>
+<p>
+Fprint "pretty-prints" an AST node to output for a given configuration cfg.
+Position information is interpreted relative to the file set fset.
+The node type must be *ast.File, *CommentedNode, []ast.Decl, []ast.Stmt,
+or assignment-compatible to ast.Expr, ast.Decl, ast.Spec, or ast.Stmt.
+</p>
+
+<h3 id="Mode">type Mode <a class="permalink" href="#pkg-index">&para;</a></h3>
+<pre>type Mode <a href="./builtin.htm#uint">uint</a></pre>
+<p>
+A Mode value is a set of flags (or 0). They control printing.
+</p>
+<pre>const (
+    <span id="RawFormat">RawFormat</span> <a href="#Mode">Mode</a> = 1 &lt;&lt; <a href="./builtin.htm#iota">iota</a> <span class="comment">// do not use a tabwriter; if set, UseSpaces is ignored</span>
+    <span id="TabIndent">TabIndent</span>                  <span class="comment">// use tabs for indentation independent of UseSpaces</span>
+    <span id="UseSpaces">UseSpaces</span>                  <span class="comment">// use spaces instead of tabs for alignment</span>
+    <span id="SourcePos">SourcePos</span>                  <span class="comment">// emit //line comments to preserve original source positions</span>
+)</pre>
+</div>
+
+<div id="x-footer" class="clearfix">
+  <div class="container">
+    <a href="http://studygolang.com/">Go语言中文网</a>
+    <span class="text-muted">|</span> <a href="http://golang.org/">Go Language</a>
+    <span class="pull-right"><a href="#">Back to top</a></span>
+  </div>
+</div>
+<script src="../assets/jquery-2.0.3.min.js"></script>
+<script src="../bootstrap.min.js"></script>
+<script src="../site.js"></script>
+</body>
+</html>

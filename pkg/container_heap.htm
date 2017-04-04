@@ -1,0 +1,206 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="./site.css" rel="stylesheet">
+<title>container/heap</title>
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package heap</h2>
+    <p><code>import "container/heap"</code>
+    <p align="left">heap包提供了对任意类型（实现了heap.Interface接口）的堆操作。（最小）堆是具有&ldquo;每个节点都是以其为根的子树中最小值&rdquo;属性的树。</p>
+    <p align="left">树的最小元素为其根元素，索引0的位置。</p>
+    <p align="left">heap是常用的实现优先队列的方法。要创建一个优先队列，实现一个具有使用（负的）优先级作为比较的依据的Less方法的Heap接口，如此一来可用Push添加项目而用Pop取出队列最高优先级的项目。</p>
+    <div class="panel-group">
+        <div class="panel panel-default" id="example-package--IntHeap">
+            <div class="panel-heading" onclick="document.getElementById('ex-package--IntHeap').style.display = document.getElementById('ex-package--IntHeap').style.display=='none'?'block':'none';">Example (IntHeap)</div>
+            <div id="ex-package--IntHeap" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre><span class="com">// This example demonstrates an integer heap built using the heap interface.</span>
+package heap_test
+import (
+    &#34;container/heap&#34;
+    &#34;fmt&#34;
+)
+<span class="com">// An IntHeap is a min-heap of ints.</span>
+type IntHeap []int
+func (h IntHeap) Len() int           { return len(h) }
+func (h IntHeap) Less(i, j int) bool { return h[i] &lt; h[j] }
+func (h IntHeap) Swap(i, j int)      { h[i], h[j] = h[j], h[i] }
+func (h *IntHeap) Push(x interface{}) {
+    <span class="com">// Push and Pop use pointer receivers because they modify the slice&#39;s length,</span>
+    <span class="com">// not just its contents.</span>
+    *h = append(*h, x.(int))
+}
+func (h *IntHeap) Pop() interface{} {
+    old := *h
+    n := len(old)
+    x := old[n-1]
+    *h = old[0 : n-1]
+    return x
+}
+<span class="com">// This example inserts several ints into an IntHeap, checks the minimum,</span>
+<span class="com">// and removes them in order of priority.</span>
+func Example_intHeap() {
+    h := &amp;IntHeap{2, 1, 5}
+    heap.Init(h)
+    heap.Push(h, 3)
+    fmt.Printf(&#34;minimum: %d\n&#34;, (*h)[0])
+    for h.Len() &gt; 0 {
+        fmt.Printf(&#34;%d &#34;, heap.Pop(h))
+    }
+    <span class="com">// Output:</span>
+    <span class="com">// minimum: 1</span>
+    <span class="com">// 1 2 3 5</span>
+}
+</pre>
+                </div>
+            </div>
+        </div>
+        <div class="panel panel-default" id="example-package--PriorityQueue">
+            <div class="panel-heading" onclick="document.getElementById('ex-package--PriorityQueue').style.display = document.getElementById('ex-package--PriorityQueue').style.display=='none'?'block':'none';">Example (PriorityQueue)</div>
+            <div id="ex-package--PriorityQueue" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre><span class="com">// This example demonstrates a priority queue built using the heap interface.</span>
+package heap_test
+import (
+    &#34;container/heap&#34;
+    &#34;fmt&#34;
+)
+<span class="com">// An Item is something we manage in a priority queue.</span>
+type Item struct {
+    value    string <span class="com">// The value of the item; arbitrary.</span>
+    priority int    <span class="com">// The priority of the item in the queue.</span>
+    <span class="com">// The index is needed by update and is maintained by the heap.Interface methods.</span>
+    index int <span class="com">// The index of the item in the heap.</span>
+}
+<span class="com">// A PriorityQueue implements heap.Interface and holds Items.</span>
+type PriorityQueue []*Item
+func (pq PriorityQueue) Len() int { return len(pq) }
+func (pq PriorityQueue) Less(i, j int) bool {
+    <span class="com">// We want Pop to give us the highest, not lowest, priority so we use greater than here.</span>
+    return pq[i].priority &gt; pq[j].priority
+}
+func (pq PriorityQueue) Swap(i, j int) {
+    pq[i], pq[j] = pq[j], pq[i]
+    pq[i].index = i
+    pq[j].index = j
+}
+func (pq *PriorityQueue) Push(x interface{}) {
+    n := len(*pq)
+    item := x.(*Item)
+    item.index = n
+    *pq = append(*pq, item)
+}
+func (pq *PriorityQueue) Pop() interface{} {
+    old := *pq
+    n := len(old)
+    item := old[n-1]
+    item.index = -1 <span class="com">// for safety</span>
+    *pq = old[0 : n-1]
+    return item
+}
+<span class="com">// update modifies the priority and value of an Item in the queue.</span>
+func (pq *PriorityQueue) update(item *Item, value string, priority int) {
+    item.value = value
+    item.priority = priority
+    heap.Fix(pq, item.index)
+}
+<span class="com">// This example creates a PriorityQueue with some items, adds and manipulates an item,</span>
+<span class="com">// and then removes the items in priority order.</span>
+func Example_priorityQueue() {
+    <span class="com">// Some items and their priorities.</span>
+    items := map[string]int{
+        &#34;banana&#34;: 3, &#34;apple&#34;: 2, &#34;pear&#34;: 4,
+    }
+    <span class="com">// Create a priority queue, put the items in it, and</span>
+    <span class="com">// establish the priority queue (heap) invariants.</span>
+    pq := make(PriorityQueue, len(items))
+    i := 0
+    for value, priority := range items {
+        pq[i] = &amp;Item{
+            value:    value,
+            priority: priority,
+            index:    i,
+        }
+        i++
+    }
+    heap.Init(&amp;pq)
+    <span class="com">// Insert a new item and then modify its priority.</span>
+    item := &amp;Item{
+        value:    &#34;orange&#34;,
+        priority: 1,
+    }
+    heap.Push(&amp;pq, item)
+    pq.update(item, item.value, 5)
+    <span class="com">// Take the items out; they arrive in decreasing priority order.</span>
+    for pq.Len() &gt; 0 {
+        item := heap.Pop(&amp;pq).(*Item)
+        fmt.Printf(&#34;%.2d:%s &#34;, item.priority, item.value)
+    }
+    <span class="com">// Output:</span>
+    <span class="com">// 05:orange 04:pear 03:banana 02:apple</span>
+}
+</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#Interface">type Interface</a></li>
+        <li><a href="#Init">func Init(h Interface)</a></li>
+        <li><a href="#Push">func Push(h Interface, x interface{})</a></li>
+        <li><a href="#Pop">func Pop(h Interface) interface{}</a></li>
+        <li><a href="#Remove">func Remove(h Interface, i int) interface{}</a></li>
+        <li><a href="#Fix">func Fix(h Interface, i int)</a></li>
+    </ul>
+    <h4 id="pkg-examples">Examples <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#example-package--IntHeap" onclick="$('#ex-package--IntHeap').addClass('in').removeClass('collapse').height('auto')">package (IntHeap)</a></li>
+        <li><a href="#example-package--PriorityQueue" onclick="$('#ex-package--PriorityQueue').addClass('in').removeClass('collapse').height('auto')">package (PriorityQueue)</a></li>
+    </ul>
+    <h3 id="Interface">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/container/heap/heap.go?name=release#30">Interface</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Interface interface {
+    <a href="sort.htm">sort</a>.<a href="sort.htm#Interface">Interface</a>
+    <span id="Interface.Push">Push</span>(x interface{}) <span class="com">// 向末尾添加元素</span>
+    <span id="Interface.Pop">Pop</span>() interface{}   <span class="com">// 从末尾删除元素</span>
+}</pre>
+    <p>任何实现了本接口的类型都可以用于构建最小堆。最小堆可以通过heap.Init建立，数据是递增顺序或者空的话也是最小堆。最小堆的约束条件是：</p>
+    <pre>!h.Less(j, i) for 0 &lt;= i &lt; h.Len() and 2*i+1 &lt;= j &lt;= 2*i+2 and j &lt; h.Len()
+</pre>
+    <p>注意接口的Push和Pop方法是供heap包调用的，请使用heap.Push和heap.Pop来向一个堆添加或者删除元素。</p>
+    <h3 id="Init">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/container/heap/heap.go?name=release#41">Init</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Init(h <a href="#Interface">Interface</a>)</pre>
+    <p>一个堆在使用任何堆操作之前应先初始化。Init函数对于堆的约束性是幂等的（多次执行无意义），并可能在任何时候堆的约束性被破坏时被调用。本函数复杂度为O(n)，其中n等于h.Len()。</p>
+    <h3 id="Push">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/container/heap/heap.go?name=release#52">Push</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Push(h <a href="#Interface">Interface</a>, x interface{})</pre>
+    <p>向堆h中插入元素x，并保持堆的约束性。复杂度O(log(n))，其中n等于h.Len()。</p>
+    <h3 id="Pop">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/container/heap/heap.go?name=release#61">Pop</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Pop(h <a href="#Interface">Interface</a>) interface{}</pre>
+    <p>删除并返回堆h中的最小元素（不影响约束性）。复杂度O(log(n))，其中n等于h.Len()。等价于Remove(h, 0)。</p>
+    <h3 id="Remove">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/container/heap/heap.go?name=release#71">Remove</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Remove(h <a href="#Interface">Interface</a>, i <a href="builtin.htm#int">int</a>) interface{}</pre>
+    <p align="left">删除堆中的第i个元素，并保持堆的约束性。复杂度O(log(n))，其中n等于h.Len()。</p>
+    <h3 id="Fix">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/container/heap/heap.go?name=release#85">Fix</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Fix(h <a href="#Interface">Interface</a>, i <a href="builtin.htm#int">int</a>)</pre>
+    <p align="left">在修改第i个元素后，调用本函数修复堆，比删除第i个元素后插入新元素更有效率。</p>
+    <p align="left">复杂度O(log(n))，其中n等于h.Len()。</p>
+</div>
+
+<div id="x-footer" class="clearfix">
+  <div class="container">
+    <a href="http://studygolang.com/">Go语言中文网</a>
+    <span class="text-muted">|</span> <a href="http://golang.org/">Go Language</a>
+    <span class="pull-right"><a href="#">Back to top</a></span>
+  </div>
+</div>
+<script src="../assets/jquery-2.0.3.min.js"></script>
+<script src="../bootstrap.min.js"></script>
+<script src="../site.js"></script>
+</body>
+</html>

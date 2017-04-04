@@ -1,0 +1,142 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="./site.css" rel="stylesheet">
+<title>encoding/asn1</title>
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package asn1</h2>
+    <p><code>import "encoding/asn1"</code>
+    <p align="left">asn1包实现了DER编码的ASN.1数据结构的解析，参见ITU-T Rec X.690。</p>
+    <p align="left">其他细节参见"A Layman's Guide to a Subset of ASN.1, BER, and DER"。</p>
+    <p align="left">网址<a href="http://luca.ntop.org/Teaching/Appunti/asn1.html">http://luca.ntop.org/Teaching/Appunti/asn1.html</a></p>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#SyntaxError">type SyntaxError</a></li>
+        <ul>
+            <li><a href="#SyntaxError.Error">func (e SyntaxError) Error() string</a></li>
+        </ul>
+        <li><a href="#StructuralError">type StructuralError</a></li>
+        <ul>
+            <li><a href="#StructuralError.Error">func (e StructuralError) Error() string</a></li>
+        </ul>
+        <li><a href="#RawContent">type RawContent</a></li>
+        <li><a href="#RawValue">type RawValue</a></li>
+        <li><a href="#Flag">type Flag</a></li>
+        <li><a href="#Enumerated">type Enumerated</a></li>
+        <li><a href="#BitString">type BitString</a></li>
+        <ul>
+            <li><a href="#BitString.At">func (b BitString) At(i int) int</a></li>
+            <li><a href="#BitString.RightAlign">func (b BitString) RightAlign() []byte</a></li>
+        </ul>
+        <li><a href="#ObjectIdentifier">type ObjectIdentifier</a></li>
+        <ul>
+            <li><a href="#ObjectIdentifier.Equal">func (oi ObjectIdentifier) Equal(other ObjectIdentifier) bool</a></li>
+            <li><a href="#ObjectIdentifier.String">func (oi ObjectIdentifier) String() string</a></li>
+        </ul>
+        <li><a href="#Marshal">func Marshal(val interface{}) ([]byte, error)</a></li>
+        <li><a href="#Unmarshal">func Unmarshal(b []byte, val interface{}) (rest []byte, err error)</a></li>
+        <li><a href="#UnmarshalWithParams">func UnmarshalWithParams(b []byte, val interface{}, params string) (rest []byte, err error)</a></li>
+    </ul>
+    <h3 id="SyntaxError">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/asn1/asn1.go?name=release#39">SyntaxError</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type SyntaxError struct {
+    <span id="SyntaxError.Msg">Msg</span> <a href="builtin.htm#string">string</a>
+}</pre>
+    <p>SyntaxErrorLeixing表示ASN.1数据不合法。</p>
+    <h4 id="SyntaxError.Error">func (SyntaxError) <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/asn1/asn1.go?name=release#43">Error</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (e <a href="#SyntaxError">SyntaxError</a>) Error() <a href="builtin.htm#string">string</a></pre>
+    <h3 id="StructuralError">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/asn1/asn1.go?name=release#32">StructuralError</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type StructuralError struct {
+    <span id="StructuralError.Msg">Msg</span> <a href="builtin.htm#string">string</a>
+}</pre>
+    <p>StructuralError表示ASN.1数据合法但接收的Go类型不匹配。</p>
+    <h4 id="StructuralError.Error">func (StructuralError) <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/asn1/asn1.go?name=release#36">Error</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (e <a href="#StructuralError">StructuralError</a>) Error() <a href="builtin.htm#string">string</a></pre>
+    <h3 id="RawContent">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/asn1/asn1.go?name=release#382">RawContent</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type RawContent []<a href="builtin.htm#byte">byte</a></pre>
+    <p>RawContent用于标记未解码的应被结构体保留的DER数据。如要使用它，结构体的第一个字段必须是本类型，其它字段不能是本类型。</p>
+    <h3 id="RawValue">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/asn1/asn1.go?name=release#372">RawValue</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type RawValue struct {
+    <span id="RawValue.Class">Class</span>, <span id="RawValue.Tag">Tag</span> <a href="builtin.htm#int">int</a>
+    <span id="RawValue.IsCompound">IsCompound</span> <a href="builtin.htm#bool">bool</a>
+    <span id="RawValue.Bytes">Bytes</span>      []<a href="builtin.htm#byte">byte</a>
+    <span id="RawValue.FullBytes">FullBytes</span>  []<a href="builtin.htm#byte">byte</a> <span class="com">// 包括标签和长度</span>
+}</pre>
+    <p>RawValue代表一个未解码的ASN.1对象。</p>
+    <h3 id="Flag">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/asn1/asn1.go?name=release#263">Flag</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Flag <a href="builtin.htm#bool">bool</a></pre>
+    <p>Flag接收任何数据，如果数据存在就设自身为真。</p>
+    <h3 id="Enumerated">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/asn1/asn1.go?name=release#258">Enumerated</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Enumerated <a href="builtin.htm#int">int</a></pre>
+    <p>Enumerated表示一个明文整数。</p>
+    <h3 id="BitString">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/asn1/asn1.go?name=release#130">BitString</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type BitString struct {
+    <span id="BitString.Bytes">Bytes</span>     []<a href="builtin.htm#byte">byte</a> <span class="com">// 字位流打包在字节流里</span>
+    <span id="BitString.BitLength">BitLength</span> <a href="builtin.htm#int">int</a>    <span class="com">// 字位流的长度</span>
+}</pre>
+    <p>BitString类型是用于表示ASN.1 BIT STRING类型的结构体。字位流补齐到最近的字节数保存在内存里并记录合法字位数，补齐的位可以为0个。</p>
+    <h4 id="BitString.At">func (BitString) <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/asn1/asn1.go?name=release#137">At</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (b <a href="#BitString">BitString</a>) At(i <a href="builtin.htm#int">int</a>) <a href="builtin.htm#int">int</a></pre>
+    <p>At方法发挥index位置的字位，如果index出界则返回0。</p>
+    <h4 id="BitString.RightAlign">func (BitString) <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/asn1/asn1.go?name=release#148">RightAlign</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (b <a href="#BitString">BitString</a>) RightAlign() []<a href="builtin.htm#byte">byte</a></pre>
+    <p>RightAlign方法返回b表示的字位流的右对齐版本（即补位在开始部分）切片，该切片可能和b共享底层内存。</p>
+    <h3 id="ObjectIdentifier">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/asn1/asn1.go?name=release#185">ObjectIdentifier</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type ObjectIdentifier []<a href="builtin.htm#int">int</a></pre>
+    <p>ObjectIdentifier类型用于表示ASN.1 OBJECT IDENTIFIER类型。</p>
+    <h4 id="ObjectIdentifier.Equal">func (ObjectIdentifier) <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/asn1/asn1.go?name=release#188">Equal</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (oi <a href="#ObjectIdentifier">ObjectIdentifier</a>) Equal(other <a href="#ObjectIdentifier">ObjectIdentifier</a>) <a href="builtin.htm#bool">bool</a></pre>
+    <p>如果oi和other代表同一个标识符，Equal方法返回真。</p>
+    <h4 id="ObjectIdentifier.String">func (ObjectIdentifier) <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/asn1/asn1.go?name=release#201">String</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (oi <a href="#ObjectIdentifier">ObjectIdentifier</a>) String() <a href="builtin.htm#string">string</a></pre>
+    <h3 id="Marshal">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/asn1/marshal.go?name=release#622">Marshal</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Marshal(val interface{}) ([]<a href="builtin.htm#byte">byte</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p align="left">Marshal函数返回val的ASN.1编码。</p>
+    <p align="left">此外还提供了供Unmarshal函数识别的结构体标签，可用如下标签：</p>
+    <pre>ia5:           使字符串序列化为ASN.1 IA5String类型
+omitempty:     使空切片被跳过
+printable:     使字符串序列化为ASN.1 PrintableString类型
+utf8:          使字符串序列化为ASN.1 UTF8字符串</pre>
+    <h3 id="Unmarshal">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/asn1/asn1.go?name=release#895">Unmarshal</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Unmarshal(b []<a href="builtin.htm#byte">byte</a>, val interface{}) (rest []<a href="builtin.htm#byte">byte</a>, err <a href="builtin.htm#error">error</a>)</pre>
+    <p align="left">Unmarshal函数解析DER编码的ASN.1结构体数据并使用reflect包填写val指向的任意类型值。因为本函数使用了reflect包，结构体必须使用大写字母起始的字段名。</p>
+    <p align="left">ASN.1 INTEGER 类型值可以写入int、int32、int64或*big.Int（math/big包）类型。类型不匹配会返回解析错误。</p>
+    <p align="left">ASN.1 BIT STRING类型值可以写入BitString类型。</p>
+    <p align="left">ASN.1 OCTET STRING类型值可以写入[]byte类型。</p>
+    <p align="left">ASN.1 OBJECT IDENTIFIER类型值可以写入ObjectIdentifier类型。</p>
+    <p align="left">ASN.1 ENUMERATED类型值可以写入Enumerated类型。</p>
+    <p align="left">ASN.1 UTCTIME类型值或GENERALIZEDTIME 类型值可以写入time.Time类型。</p>
+    <p align="left">ASN.1 PrintableString类型值或者IA5String类型值可以写入string类型。</p>
+    <p align="left">以上任一ASN.1类型值都可写入interface{}类型。保存在接口里的类型为对应的Go类型，ASN.1整型对应int64。</p>
+    <p align="left">如果类型x可以写入切片的成员类型，则类型x的ASN.1 SEQUENCE或SET类型可以写入该切片。</p>
+    <p align="left">ASN.1 SEQUENCE或SET类型如果其每一个成员都可以写入某结构体的对应字段，则可以写入该结构体</p>
+    <p align="left">对Unmarshal函数，下列字段标签有特殊含义：</p>
+    <pre>application    指明使用了APPLICATION标签
+default:x      设置一个可选整数字段的默认值
+explicit       给一个隐式的标签设置一个额外的显式标签
+optional       标记字段为ASN.1 OPTIONAL的
+set            表示期望一个SET而不是SEQUENCE类型
+tag:x          指定ASN.1标签码，隐含ASN.1 CONTEXT SPECIFIC</pre>
+    <p align="left">如果结构体的第一个字段的类型为RawContent，则会将原始ASN1结构体内容包存在该字段。</p>
+    <p align="left">如果切片成员的类型名以"SET"结尾，则视为该字段有"set"标签。这是给不能使用标签的嵌套切片使用的。</p>
+    <p align="left">其它ASN.1类型不支持，如果遭遇这些类型，Unmarshal返回解析错误。</p>
+    <h3 id="UnmarshalWithParams">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/asn1/asn1.go?name=release#901">UnmarshalWithParams</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func UnmarshalWithParams(b []<a href="builtin.htm#byte">byte</a>, val interface{}, params <a href="builtin.htm#string">string</a>) (rest []<a href="builtin.htm#byte">byte</a>, err <a href="builtin.htm#error">error</a>)</pre>
+    <p>UnmarshalWithParams允许指定val顶层成员的字段参数，格式和字段标签相同。</p>
+</div>
+<div id="x-footer" class="clearfix">
+  <div class="container">
+    <a href="http://studygolang.com/">Go语言中文网</a>
+    <span class="text-muted">|</span> <a href="http://golang.org/">Go Language</a>
+    <span class="pull-right"><a href="#">Back to top</a></span>
+  </div>
+</div>
+<script src="../assets/jquery-2.0.3.min.js"></script>
+<script src="../bootstrap.min.js"></script>
+<script src="../site.js"></script>
+</body>
+</html>

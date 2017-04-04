@@ -1,0 +1,465 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="./site.css" rel="stylesheet">
+<title>math/big</title>
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package big</h2>
+    <p><code>import "math/big"</code>
+    <p>big包实现了大数字的多精度计算。 支持如下数字类型：</p>
+    <pre>- Int	有符号整数
+- Rat	有理数</pre>
+    <p>方法一般为如下格式：</p>
+    <pre>func (z *Int) Op(x, y *Int) *Int	(similar for *Rat)
+</pre>
+    <p>该方法实现了操作z = x Op y：计算并将结果写入z。如果结果是操作数之一，可能会重写该参数（重用其内存）；为了实现链式的计算，计算结果同时会作为返回值。方法返回一个结果而不是让*Int/*Rat调用方法获取另一个操作数。</p>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#pkg-constants">Constants</a></li>
+        <li><a href="#Word">type Word</a></li>
+        <li><a href="#Int">type Int</a></li>
+        <ul>
+            <li><a href="#NewInt">func NewInt(x int64) *Int</a></li>
+            <li><a href="#Int.Int64">func (x *Int) Int64() int64</a></li>
+            <li><a href="#Int.Uint64">func (x *Int) Uint64() uint64</a></li>
+            <li><a href="#Int.Bytes">func (x *Int) Bytes() []byte</a></li>
+            <li><a href="#Int.String">func (x *Int) String() string</a></li>
+            <li><a href="#Int.BitLen">func (x *Int) BitLen() int</a></li>
+            <li><a href="#Int.Bits">func (x *Int) Bits() []Word</a></li>
+            <li><a href="#Int.Bit">func (x *Int) Bit(i int) uint</a></li>
+            <li><a href="#Int.SetInt64">func (z *Int) SetInt64(x int64) *Int</a></li>
+            <li><a href="#Int.SetUint64">func (z *Int) SetUint64(x uint64) *Int</a></li>
+            <li><a href="#Int.SetBytes">func (z *Int) SetBytes(buf []byte) *Int</a></li>
+            <li><a href="#Int.SetString">func (z *Int) SetString(s string, base int) (*Int, bool)</a></li>
+            <li><a href="#Int.SetBits">func (z *Int) SetBits(abs []Word) *Int</a></li>
+            <li><a href="#Int.SetBit">func (z *Int) SetBit(x *Int, i int, b uint) *Int</a></li>
+            <li><a href="#Int.MulRange">func (z *Int) MulRange(a, b int64) *Int</a></li>
+            <li><a href="#Int.Binomial">func (z *Int) Binomial(n, k int64) *Int</a></li>
+            <li><a href="#Int.Rand">func (z *Int) Rand(rnd *rand.Rand, n *Int) *Int</a></li>
+            <li><a href="#Int.ProbablyPrime">func (x *Int) ProbablyPrime(n int) bool</a></li>
+            <li><a href="#Int.Sign">func (x *Int) Sign() int</a></li>
+            <li><a href="#Int.Cmp">func (x *Int) Cmp(y *Int) (r int)</a></li>
+            <li><a href="#Int.Not">func (z *Int) Not(x *Int) *Int</a></li>
+            <li><a href="#Int.And">func (z *Int) And(x, y *Int) *Int</a></li>
+            <li><a href="#Int.Or">func (z *Int) Or(x, y *Int) *Int</a></li>
+            <li><a href="#Int.Xor">func (z *Int) Xor(x, y *Int) *Int</a></li>
+            <li><a href="#Int.AndNot">func (z *Int) AndNot(x, y *Int) *Int</a></li>
+            <li><a href="#Int.Lsh">func (z *Int) Lsh(x *Int, n uint) *Int</a></li>
+            <li><a href="#Int.Rsh">func (z *Int) Rsh(x *Int, n uint) *Int</a></li>
+            <li><a href="#Int.Abs">func (z *Int) Abs(x *Int) *Int</a></li>
+            <li><a href="#Int.Neg">func (z *Int) Neg(x *Int) *Int</a></li>
+            <li><a href="#Int.Set">func (z *Int) Set(x *Int) *Int</a></li>
+            <li><a href="#Int.Add">func (z *Int) Add(x, y *Int) *Int</a></li>
+            <li><a href="#Int.Sub">func (z *Int) Sub(x, y *Int) *Int</a></li>
+            <li><a href="#Int.Mul">func (z *Int) Mul(x, y *Int) *Int</a></li>
+            <li><a href="#Int.Div">func (z *Int) Div(x, y *Int) *Int</a></li>
+            <li><a href="#Int.Mod">func (z *Int) Mod(x, y *Int) *Int</a></li>
+            <li><a href="#Int.DivMod">func (z *Int) DivMod(x, y, m *Int) (*Int, *Int)</a></li>
+            <li><a href="#Int.Quo">func (z *Int) Quo(x, y *Int) *Int</a></li>
+            <li><a href="#Int.Rem">func (z *Int) Rem(x, y *Int) *Int</a></li>
+            <li><a href="#Int.QuoRem">func (z *Int) QuoRem(x, y, r *Int) (*Int, *Int)</a></li>
+            <li><a href="#Int.ModInverse">func (z *Int) ModInverse(g, p *Int) *Int</a></li>
+            <li><a href="#Int.Exp">func (z *Int) Exp(x, y, m *Int) *Int</a></li>
+            <li><a href="#Int.GCD">func (z *Int) GCD(x, y, a, b *Int) *Int</a></li>
+            <li><a href="#Int.Format">func (x *Int) Format(s fmt.State, ch rune)</a></li>
+            <li><a href="#Int.Scan">func (z *Int) Scan(s fmt.ScanState, ch rune) error</a></li>
+            <li><a href="#Int.GobEncode">func (x *Int) GobEncode() ([]byte, error)</a></li>
+            <li><a href="#Int.GobDecode">func (z *Int) GobDecode(buf []byte) error</a></li>
+            <li><a href="#Int.MarshalJSON">func (z *Int) MarshalJSON() ([]byte, error)</a></li>
+            <li><a href="#Int.UnmarshalJSON">func (z *Int) UnmarshalJSON(text []byte) error</a></li>
+            <li><a href="#Int.MarshalText">func (z *Int) MarshalText() (text []byte, err error)</a></li>
+            <li><a href="#Int.UnmarshalText">func (z *Int) UnmarshalText(text []byte) error</a></li>
+        </ul>
+        <li><a href="#Rat">type Rat</a></li>
+        <ul>
+            <li><a href="#NewRat">func NewRat(a, b int64) *Rat</a></li>
+            <li><a href="#Rat.Num">func (x *Rat) Num() *Int</a></li>
+            <li><a href="#Rat.Denom">func (x *Rat) Denom() *Int</a></li>
+            <li><a href="#Rat.Float64">func (x *Rat) Float64() (f float64, exact bool)</a></li>
+            <li><a href="#Rat.RatString">func (x *Rat) RatString() string</a></li>
+            <li><a href="#Rat.FloatString">func (x *Rat) FloatString(prec int) string</a></li>
+            <li><a href="#Rat.String">func (x *Rat) String() string</a></li>
+            <li><a href="#Rat.IsInt">func (x *Rat) IsInt() bool</a></li>
+            <li><a href="#Rat.SetInt64">func (z *Rat) SetInt64(x int64) *Rat</a></li>
+            <li><a href="#Rat.SetFrac64">func (z *Rat) SetFrac64(a, b int64) *Rat</a></li>
+            <li><a href="#Rat.SetFloat64">func (z *Rat) SetFloat64(f float64) *Rat</a></li>
+            <li><a href="#Rat.SetInt">func (z *Rat) SetInt(x *Int) *Rat</a></li>
+            <li><a href="#Rat.SetFrac">func (z *Rat) SetFrac(a, b *Int) *Rat</a></li>
+            <li><a href="#Rat.SetString">func (z *Rat) SetString(s string) (*Rat, bool)</a></li>
+            <li><a href="#Rat.Sign">func (x *Rat) Sign() int</a></li>
+            <li><a href="#Rat.Cmp">func (x *Rat) Cmp(y *Rat) int</a></li>
+            <li><a href="#Rat.Abs">func (z *Rat) Abs(x *Rat) *Rat</a></li>
+            <li><a href="#Rat.Neg">func (z *Rat) Neg(x *Rat) *Rat</a></li>
+            <li><a href="#Rat.Inv">func (z *Rat) Inv(x *Rat) *Rat</a></li>
+            <li><a href="#Rat.Set">func (z *Rat) Set(x *Rat) *Rat</a></li>
+            <li><a href="#Rat.Add">func (z *Rat) Add(x, y *Rat) *Rat</a></li>
+            <li><a href="#Rat.Sub">func (z *Rat) Sub(x, y *Rat) *Rat</a></li>
+            <li><a href="#Rat.Mul">func (z *Rat) Mul(x, y *Rat) *Rat</a></li>
+            <li><a href="#Rat.Quo">func (z *Rat) Quo(x, y *Rat) *Rat</a></li>
+            <li><a href="#Rat.Scan">func (z *Rat) Scan(s fmt.ScanState, ch rune) error</a></li>
+            <li><a href="#Rat.GobEncode">func (x *Rat) GobEncode() ([]byte, error)</a></li>
+            <li><a href="#Rat.GobDecode">func (z *Rat) GobDecode(buf []byte) error</a></li>
+            <li><a href="#Rat.MarshalText">func (r *Rat) MarshalText() (text []byte, err error)</a></li>
+            <li><a href="#Rat.UnmarshalText">func (r *Rat) UnmarshalText(text []byte) error</a></li>
+        </ul>
+    </ul>
+    <h4 id="pkg-examples">Examples <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#example-Int-Scan" onclick="$('#ex-Int-Scan').addClass('in').removeClass('collapse').height('auto')">Int.Scan</a></li>
+        <li><a href="#example-Int-SetString" onclick="$('#ex-Int-SetString').addClass('in').removeClass('collapse').height('auto')">Int.SetString</a></li>
+        <li><a href="#example-Rat-Scan" onclick="$('#ex-Rat-Scan').addClass('in').removeClass('collapse').height('auto')">Rat.Scan</a></li>
+        <li><a href="#example-Rat-SetString" onclick="$('#ex-Rat-SetString').addClass('in').removeClass('collapse').height('auto')">Rat.SetString</a></li>
+    </ul>
+    <h3 id="pkg-constants">Constants <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>const <span id="MaxBase">MaxBase</span> = &#39;z&#39; - &#39;a&#39; + 10 + 1 <span class="com">// = hexValue(&#39;z&#39;) + 1</span>
+</pre>
+    <p>MaxBase是字符串转换函数接受的最大进制。</p>
+    <h3 id="Word">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/big/arith.go?name=release#12">Word</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Word <a href="builtin.htm#uintptr">uintptr</a></pre>
+    <p>Word代表一个多精度无符号整数的单个数字。</p>
+    <h3 id="Int">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/big/int.go?name=release#19">Int</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Int struct {
+    <span class="com">// 内含隐藏或非导出字段</span>
+}</pre>
+    <p>Int类型代表多精度的整数，零值代表数字0。</p>
+    <h4 id="NewInt">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/big/int.go?name=release#62">NewInt</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func NewInt(x <a href="builtin.htm#int64">int64</a>) *<a href="#Int">Int</a></pre>
+    <p>创建一个值为x的*Int。</p>
+    <h4 id="Int.Int64">func (*Int) <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/big/int.go?name=release#515">Int64</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (x *<a href="#Int">Int</a>) Int64() <a href="builtin.htm#int64">int64</a></pre>
+    <p>返回x的int64表示，如果不能用int64表示，结果是未定义的。</p>
+    <h4 id="Int.Uint64">func (*Int) <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/big/int.go?name=release#525">Uint64</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (x *<a href="#Int">Int</a>) Uint64() <a href="builtin.htm#uint64">uint64</a></pre>
+    <p>返回x的uint64表示，如果不能用uint64表示，结果是未定义的。</p>
+    <h4 id="Int.Bytes">func (*Int) <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/big/int.go?name=release#567">Bytes</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (x *<a href="#Int">Int</a>) Bytes() []<a href="builtin.htm#byte">byte</a></pre>
+    <p>返回x的绝对值的大端在前的字节切片表示。</p>
+    <h4 id="Int.String">func (*Int) <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/big/int.go?name=release#324">String</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (x *<a href="#Int">Int</a>) String() <a href="builtin.htm#string">string</a></pre>
+    <h4 id="Int.BitLen">func (*Int) <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/big/int.go?name=release#574">BitLen</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (x *<a href="#Int">Int</a>) BitLen() <a href="builtin.htm#int">int</a></pre>
+    <p>返回x的绝对值的字位数，0的字位数为0。</p>
+    <h4 id="Int.Bits">func (*Int) <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/big/int.go?name=release#80">Bits</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (x *<a href="#Int">Int</a>) Bits() []<a href="#Word">Word</a></pre>
+    <p>提供了对x的数据不检查而快速的访问，返回构成x的绝对值的小端在前的word切片。该切片与x的底层是同一个数组，本函数用于支持在包外实现缺少的低水平功能，否则不应被使用。</p>
+    <h4 id="Int.Bit">func (*Int) <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/big/int.go?name=release#774">Bit</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (x *<a href="#Int">Int</a>) Bit(i <a href="builtin.htm#int">int</a>) <a href="builtin.htm#uint">uint</a></pre>
+    <p>返回第i个字位的值，即返回(x&gt;&gt;i)&amp;1。i必须不小于0。</p>
+    <h4 id="Int.SetInt64">func (*Int) <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/big/int.go?name=release#43">SetInt64</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (z *<a href="#Int">Int</a>) SetInt64(x <a href="builtin.htm#int64">int64</a>) *<a href="#Int">Int</a></pre>
+    <p>将z设为x并返回z。</p>
+    <h4 id="Int.SetUint64">func (*Int) <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/big/int.go?name=release#55">SetUint64</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (z *<a href="#Int">Int</a>) SetUint64(x <a href="builtin.htm#uint64">uint64</a>) *<a href="#Int">Int</a></pre>
+    <p>将z设为x并返回z。</p>
+    <h4 id="Int.SetBytes">func (*Int) <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/big/int.go?name=release#560">SetBytes</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (z *<a href="#Int">Int</a>) SetBytes(buf []<a href="builtin.htm#byte">byte</a>) *<a href="#Int">Int</a></pre>
+    <p>将buf视为一个大端在前的无符号整数，将z设为该值，并返回z。</p>
+    <h4 id="Int.SetString">func (*Int) <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/big/int.go?name=release#545">SetString</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (z *<a href="#Int">Int</a>) SetString(s <a href="builtin.htm#string">string</a>, base <a href="builtin.htm#int">int</a>) (*<a href="#Int">Int</a>, <a href="builtin.htm#bool">bool</a>)</pre>
+    <p>将z设为s代表的值（base为基数）。返回z并用一个bool来表明成功与否。如果失败，z的值是不确定的，但返回值为nil。基数必须是0或者2到MaxBase之间的整数。如果基数为0，字符串的前缀决定实际的转换基数："0x"、"0X"表示十六进制；"0b"、"0B"表示二进制；"0"表示八进制；否则为十进制。</p>
+    <div class="panel-group">
+        <div class="panel panel-default" id="example-Int-SetString">
+            <div class="panel-heading" onclick="document.getElementById('ex-Int-SetString').style.display = document.getElementById('ex-Int-SetString').style.display=='none'?'block':'none';">Example</div>
+            <div id="ex-Int-SetString" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre>i := new(big.Int)
+i.SetString(&#34;644&#34;, 8) <span class="com">// octal</span>
+fmt.Println(i)</pre>
+                    <p>Output:
+                    <pre>420
+</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    <h4 id="Int.SetBits">func (*Int) <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/big/int.go?name=release#89">SetBits</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (z *<a href="#Int">Int</a>) SetBits(abs []<a href="#Word">Word</a>) *<a href="#Int">Int</a></pre>
+    <p>提供了对z的数据不检查而快速的操作，将abs视为小端在前的word切片并直接赋给z，返回z。会将z的底层设置为abs的同一底层数组，本函数用于支持在包外实现缺少的低水平功能，否则不应被使用。</p>
+    <h4 id="Int.SetBit">func (*Int) <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/big/int.go?name=release#797">SetBit</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (z *<a href="#Int">Int</a>) SetBit(x *<a href="#Int">Int</a>, i <a href="builtin.htm#int">int</a>, b <a href="builtin.htm#uint">uint</a>) *<a href="#Int">Int</a></pre>
+    <p>将z设为x并设置z的第i位为b，返回z。如b为1，z = x | (1 &lt;&lt; i)；如b为0，z = x &amp; ^(1 &lt;&lt; i)；否则会panic。</p>
+    <h4 id="Int.MulRange">func (*Int) <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/big/int.go?name=release#165">MulRange</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (z *<a href="#Int">Int</a>) MulRange(a, b <a href="builtin.htm#int64">int64</a>) *<a href="#Int">Int</a></pre>
+    <p>将z设置为区间[a, b]内所有整数的乘积A(a, b)，并返回z。如果a&gt;b会将z设为1并返回。</p>
+    <h4 id="Int.Binomial">func (*Int) <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/big/int.go?name=release#186">Binomial</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (z *<a href="#Int">Int</a>) Binomial(n, k <a href="builtin.htm#int64">int64</a>) *<a href="#Int">Int</a></pre>
+    <p>将z设为k次二项式展开第n项的系数C(n, k)，并返回z。</p>
+    <h4 id="Int.Rand">func (*Int) <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/big/int.go?name=release#726">Rand</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (z *<a href="#Int">Int</a>) Rand(rnd *<a href="math/rand.htm">rand</a>.<a href="math/rand.htm#Rand">Rand</a>, n *<a href="#Int">Int</a>) *<a href="#Int">Int</a></pre>
+    <p>将z设为一个范围在[0, n)的伪随机值，并返回z。</p>
+    <h4 id="Int.ProbablyPrime">func (*Int) <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/big/int.go?name=release#721">ProbablyPrime</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (x *<a href="#Int">Int</a>) ProbablyPrime(n <a href="builtin.htm#int">int</a>) <a href="builtin.htm#bool">bool</a></pre>
+    <p>对x进行n次Miller-Rabin质数检测。如果方法返回真则x是质数的几率为1-(1/4)**n；否则x不是质数。</p>
+    <h4 id="Int.Sign">func (*Int) <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/big/int.go?name=release#32">Sign</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (x *<a href="#Int">Int</a>) Sign() <a href="builtin.htm#int">int</a></pre>
+    <p>返回x的正负号。x&lt;0时返回-1；x&gt;0时返回+1；否则返回0。</p>
+    <h4 id="Int.Cmp">func (*Int) <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/big/int.go?name=release#305">Cmp</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (x *<a href="#Int">Int</a>) Cmp(y *<a href="#Int">Int</a>) (r <a href="builtin.htm#int">int</a>)</pre>
+    <p>比较x和y的大小。x&lt;y时返回-1；x&gt;y时返回+1；否则返回0。</p>
+    <h4 id="Int.Not">func (*Int) <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/big/int.go?name=release#937">Not</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (z *<a href="#Int">Int</a>) Not(x *<a href="#Int">Int</a>) *<a href="#Int">Int</a></pre>
+    <p>将z设为^x并返回z（按位取反）。</p>
+    <h4 id="Int.And">func (*Int) <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/big/int.go?name=release#814">And</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (z *<a href="#Int">Int</a>) And(x, y *<a href="#Int">Int</a>) *<a href="#Int">Int</a></pre>
+    <p>将z设为x &amp; y并返回z（按位且）。</p>
+    <h4 id="Int.Or">func (*Int) <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/big/int.go?name=release#877">Or</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (z *<a href="#Int">Int</a>) Or(x, y *<a href="#Int">Int</a>) *<a href="#Int">Int</a></pre>
+    <p>将z设为x | y并返回z（按位或）。</p>
+    <h4 id="Int.Xor">func (*Int) <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/big/int.go?name=release#907">Xor</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (z *<a href="#Int">Int</a>) Xor(x, y *<a href="#Int">Int</a>) *<a href="#Int">Int</a></pre>
+    <p>将z设为x ^ y并返回z（按位异或）。</p>
+    <h4 id="Int.AndNot">func (*Int) <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/big/int.go?name=release#844">AndNot</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (z *<a href="#Int">Int</a>) AndNot(x, y *<a href="#Int">Int</a>) *<a href="#Int">Int</a></pre>
+    <p>将z设为x &amp; (^y)并返回z（按位减）。</p>
+    <h4 id="Int.Lsh">func (*Int) <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/big/int.go?name=release#750">Lsh</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (z *<a href="#Int">Int</a>) Lsh(x *<a href="#Int">Int</a>, n <a href="builtin.htm#uint">uint</a>) *<a href="#Int">Int</a></pre>
+    <p>将z设为x &lt;&lt; n并返回z（左位移运算）。</p>
+    <h4 id="Int.Rsh">func (*Int) <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/big/int.go?name=release#757">Rsh</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (z *<a href="#Int">Int</a>) Rsh(x *<a href="#Int">Int</a>, n <a href="builtin.htm#uint">uint</a>) *<a href="#Int">Int</a></pre>
+    <p>将z设为x &gt;&gt; n并返回z（右位移运算）。</p>
+    <h4 id="Int.Abs">func (*Int) <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/big/int.go?name=release#96">Abs</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (z *<a href="#Int">Int</a>) Abs(x *<a href="#Int">Int</a>) *<a href="#Int">Int</a></pre>
+    <p>将z设为|x|并返回z。</p>
+    <h4 id="Int.Neg">func (*Int) <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/big/int.go?name=release#103">Neg</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (z *<a href="#Int">Int</a>) Neg(x *<a href="#Int">Int</a>) *<a href="#Int">Int</a></pre>
+    <p>将z设为-x并返回z。</p>
+    <h4 id="Int.Set">func (*Int) <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/big/int.go?name=release#67">Set</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (z *<a href="#Int">Int</a>) Set(x *<a href="#Int">Int</a>) *<a href="#Int">Int</a></pre>
+    <p>将z设为x（生成一个拷贝）并返回z</p>
+    <h4 id="Int.Add">func (*Int) <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/big/int.go?name=release#110">Add</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (z *<a href="#Int">Int</a>) Add(x, y *<a href="#Int">Int</a>) *<a href="#Int">Int</a></pre>
+    <p>将z设为x + y并返回z。</p>
+    <h4 id="Int.Sub">func (*Int) <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/big/int.go?name=release#131">Sub</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (z *<a href="#Int">Int</a>) Sub(x, y *<a href="#Int">Int</a>) *<a href="#Int">Int</a></pre>
+    <p>将z设为x - y并返回z。</p>
+    <h4 id="Int.Mul">func (*Int) <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/big/int.go?name=release#152">Mul</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (z *<a href="#Int">Int</a>) Mul(x, y *<a href="#Int">Int</a>) *<a href="#Int">Int</a></pre>
+    <p>将z设为x * y并返回z。</p>
+    <h4 id="Int.Div">func (*Int) <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/big/int.go?name=release#232">Div</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (z *<a href="#Int">Int</a>) Div(x, y *<a href="#Int">Int</a>) *<a href="#Int">Int</a></pre>
+    <p>如果y != 0会将z设为x/y并返回z；如果y==0会panic。函数采用欧几里德除法（和Go不同），参见DivMod。</p>
+    <h4 id="Int.Mod">func (*Int) <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/big/int.go?name=release#249">Mod</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (z *<a href="#Int">Int</a>) Mod(x, y *<a href="#Int">Int</a>) *<a href="#Int">Int</a></pre>
+    <p>如果y != 0会将z设为x%y并返回z；如果y==0会panic。函数采用欧几里德除法（和Go不同），参见DivMod。</p>
+    <h4 id="Int.DivMod">func (*Int) <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/big/int.go?name=release#281">DivMod</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (z *<a href="#Int">Int</a>) DivMod(x, y, m *<a href="#Int">Int</a>) (*<a href="#Int">Int</a>, *<a href="#Int">Int</a>)</pre>
+    <p align="left">如果y != 0将z设为x/y，将m设为x%y并返回(z, m)；如果y == 0会panic。采用欧几里德除法（和Go不同）</p>
+    <p align="left">DivMod方法实现了欧几里德带余除法：</p>
+    <pre>q = x div y  满足
+m = x - y*q  且 0 &lt;= m &lt; |q|
+</pre>
+    <h4 id="Int.Quo">func (*Int) <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/big/int.go?name=release#196">Quo</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (z *<a href="#Int">Int</a>) Quo(x, y *<a href="#Int">Int</a>) *<a href="#Int">Int</a></pre>
+    <p>如果y != 0会将z设为x/y并返回z；如果y==0会panic。函数采用截断除法（和Go相同），参见QuoRem。</p>
+    <h4 id="Int.Rem">func (*Int) <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/big/int.go?name=release#205">Rem</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (z *<a href="#Int">Int</a>) Rem(x, y *<a href="#Int">Int</a>) *<a href="#Int">Int</a></pre>
+    <p>如果y != 0会将z设为x%y并返回z；如果y==0会panic。函数采用截断除法（和Go相同），参见QuoRem。</p>
+    <h4 id="Int.QuoRem">func (*Int) <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/big/int.go?name=release#223">QuoRem</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (z *<a href="#Int">Int</a>) QuoRem(x, y, r *<a href="#Int">Int</a>) (*<a href="#Int">Int</a>, *<a href="#Int">Int</a>)</pre>
+    <p align="left">如果y != 0将z设为x/y，将r设为x%y并返回(z, r)；如果y == 0会panic。函数采用截断除法（和Go相同）</p>
+    <p align="left">QuoRem方法实现了截断带余除法：</p>
+    <pre>q = x/y      返回值向零的方向截断
+r = x - y*q</pre>
+    <h4 id="Int.ModInverse">func (*Int) <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/big/int.go?name=release#738">ModInverse</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (z *<a href="#Int">Int</a>) ModInverse(g, p *<a href="#Int">Int</a>) *<a href="#Int">Int</a></pre>
+    <p>将z设为g相对p的模逆（即z、g满足(z * g) % p == 1）。返回值z大于0小于p。</p>
+    <h4 id="Int.Exp">func (*Int) <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/big/int.go?name=release#581">Exp</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (z *<a href="#Int">Int</a>) Exp(x, y, m *<a href="#Int">Int</a>) *<a href="#Int">Int</a></pre>
+    <p>将z设为x**y mod |m|并返回z；如果y &lt;= 0，返回1；如果m == nil 或 m == 0，z设为x**y。</p>
+    <h4 id="Int.GCD">func (*Int) <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/big/int.go?name=release#602">GCD</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (z *<a href="#Int">Int</a>) GCD(x, y, a, b *<a href="#Int">Int</a>) *<a href="#Int">Int</a></pre>
+    <p>将z设为a和b的最大公约数并返回z。a或b为nil时会panic；a和b都&gt;0时设置z为最大公约数；如果任一个&lt;=0方法就会设置z = x = y = 0。如果x和y都不是nil，会将x和y设置为满足a*x + b*y==z。</p>
+    <h4 id="Int.Format">func (*Int) <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/big/int.go?name=release#371">Format</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (x *<a href="#Int">Int</a>) Format(s <a href="fmt.htm">fmt</a>.<a href="fmt.htm#State">State</a>, ch <a href="builtin.htm#rune">rune</a>)</pre>
+    <p align="left">Format方法实现了fmt.Formatter接口。本方法接受格式'b'（二进制）、'o'（八进制）、'd'（十进制）、'x'（小写十六进制）、'X'（大写十六进制）。</p>
+    <p align="left">方法支持全套fmt包对整数类型的动作：包括用于符号控制的'+'、'-'、' '；用于十六进制和八进制前导0的'#'；"%#x"和"%#X"会设置前导的"0x"或"0X"；指定最小数字精度；输出字段宽度；空格或'0'的补位；左右对齐。</p>
+    <h4 id="Int.Scan">func (*Int) <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/big/int.go?name=release#492">Scan</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (z *<a href="#Int">Int</a>) Scan(s <a href="fmt.htm">fmt</a>.<a href="fmt.htm#ScanState">ScanState</a>, ch <a href="builtin.htm#rune">rune</a>) <a href="builtin.htm#error">error</a></pre>
+    <p>Scan实现了fmt.Scanner接口，将z设为读取的数字。方法可以接受接受格式'b'（二进制）、'o'（八进制）、'd'（十进制）、'x'（小写十六进制）、'X'（大写十六进制）。</p>
+    <div class="panel-group">
+        <div class="panel panel-default" id="example-Int-Scan">
+            <div class="panel-heading" onclick="document.getElementById('ex-Int-Scan').style.display = document.getElementById('ex-Int-Scan').style.display=='none'?'block':'none';">Example</div>
+            <div id="ex-Int-Scan" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre><span class="com">// The Scan function is rarely used directly;</span>
+<span class="com">// the fmt package recognizes it as an implementation of fmt.Scanner.</span>
+i := new(big.Int)
+_, err := fmt.Sscan(&#34;18446744073709551617&#34;, i)
+if err != nil {
+    log.Println(&#34;error scanning value:&#34;, err)
+} else {
+    fmt.Println(i)
+}</pre>
+                    <p>Output:
+                    <pre>18446744073709551617
+</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    <h4 id="Int.GobEncode">func (*Int) <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/big/int.go?name=release#955">GobEncode</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (x *<a href="#Int">Int</a>) GobEncode() ([]<a href="builtin.htm#byte">byte</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>本方法实现了gob.GobEncoder接口。</p>
+    <h4 id="Int.GobDecode">func (*Int) <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/big/int.go?name=release#970">GobDecode</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (z *<a href="#Int">Int</a>) GobDecode(buf []<a href="builtin.htm#byte">byte</a>) <a href="builtin.htm#error">error</a></pre>
+    <p>本方法实现了gob.GobDecoder接口。</p>
+    <h4 id="Int.MarshalJSON">func (*Int) <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/big/int.go?name=release#986">MarshalJSON</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (z *<a href="#Int">Int</a>) MarshalJSON() ([]<a href="builtin.htm#byte">byte</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>本方法实现了json.Marshaler接口。</p>
+    <h4 id="Int.UnmarshalJSON">func (*Int) <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/big/int.go?name=release#992">UnmarshalJSON</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (z *<a href="#Int">Int</a>) UnmarshalJSON(text []<a href="builtin.htm#byte">byte</a>) <a href="builtin.htm#error">error</a></pre>
+    <p>本方法实现了json.Unmarshaler接口。</p>
+    <h4 id="Int.MarshalText">func (*Int) <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/big/int.go?name=release#1001">MarshalText</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (z *<a href="#Int">Int</a>) MarshalText() (text []<a href="builtin.htm#byte">byte</a>, err <a href="builtin.htm#error">error</a>)</pre>
+    <p>本方法实现了encoding.TextMarshaler接口。</p>
+    <h4 id="Int.UnmarshalText">func (*Int) <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/big/int.go?name=release#1006">UnmarshalText</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (z *<a href="#Int">Int</a>) UnmarshalText(text []<a href="builtin.htm#byte">byte</a>) <a href="builtin.htm#error">error</a></pre>
+    <p>本方法实现了encoding.TextUnmarshaler接口。</p>
+    <h3 id="Rat">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/big/rat.go?name=release#19">Rat</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Rat struct {
+    <span class="com">// 内含隐藏或非导出字段</span>
+}</pre>
+    <p>Rat类型代表一个任意精度的有理数（底层采用分数表示），Rat的零值代表数字0。</p>
+    <h4 id="NewRat">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/big/rat.go?name=release#27">NewRat</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func NewRat(a, b <a href="builtin.htm#int64">int64</a>) *<a href="#Rat">Rat</a></pre>
+    <p>NewRat函数使用分子a和分母b创建一个Rat。</p>
+    <h4 id="Rat.Num">func (*Rat) <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/big/rat.go?name=release#285">Num</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (x *<a href="#Rat">Rat</a>) Num() *<a href="#Int">Int</a></pre>
+    <p>返回x的分子，分子可能&lt;=0。返回的是x分子的指针，因此对返回值的操作可能改变x，反之亦然。x的符号与分子的符号是绑定的。</p>
+    <h4 id="Rat.Denom">func (*Rat) <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/big/rat.go?name=release#292">Denom</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (x *<a href="#Rat">Rat</a>) Denom() *<a href="#Int">Int</a></pre>
+    <p>返回x的分母，分母总是&gt;0。返回的是x分母的指针，因此对返回值的操作可能改变x，反之亦然。</p>
+    <h4 id="Rat.Float64">func (*Rat) <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/big/rat.go?name=release#170">Float64</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (x *<a href="#Rat">Rat</a>) Float64() (f <a href="builtin.htm#float64">float64</a>, exact <a href="builtin.htm#bool">bool</a>)</pre>
+    <p>返回最接近x的值的float64值，exact用于说明f是否精确的表示了x。  如果x的量级太大或太小不能被float64类型表示，返回无穷和false；f的符号始终与x的符号一致，即使f==0。</p>
+    <h4 id="Rat.RatString">func (*Rat) <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/big/rat.go?name=release#491">RatString</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (x *<a href="#Rat">Rat</a>) RatString() <a href="builtin.htm#string">string</a></pre>
+    <p>返回z的字符串表示，如果分母不等于1，格式为"a/b"；否则格式为"a"。</p>
+    <h4 id="Rat.FloatString">func (*Rat) <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/big/rat.go?name=release#500">FloatString</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (x *<a href="#Rat">Rat</a>) FloatString(prec <a href="builtin.htm#int">int</a>) <a href="builtin.htm#string">string</a></pre>
+    <p>返回z的字符串表示为精度为prec的十进制浮点数，最后一位会进行四舍五入。</p>
+    <h4 id="Rat.String">func (*Rat) <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/big/rat.go?name=release#481">String</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (x *<a href="#Rat">Rat</a>) String() <a href="builtin.htm#string">string</a></pre>
+    <p>返回z的字符串表示，格式为"a/b"（即使分母等于1）。</p>
+    <h4 id="Rat.IsInt">func (*Rat) <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/big/rat.go?name=release#277">IsInt</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (x *<a href="#Rat">Rat</a>) IsInt() <a href="builtin.htm#bool">bool</a></pre>
+    <p>返回x的分母是否为1（即x为整数）。</p>
+    <h4 id="Rat.SetInt64">func (*Rat) <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/big/rat.go?name=release#219">SetInt64</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (z *<a href="#Rat">Rat</a>) SetInt64(x <a href="builtin.htm#int64">int64</a>) *<a href="#Rat">Rat</a></pre>
+    <p>将z设为x，并返回z。</p>
+    <h4 id="Rat.SetFrac64">func (*Rat) <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/big/rat.go?name=release#198">SetFrac64</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (z *<a href="#Rat">Rat</a>) SetFrac64(a, b <a href="builtin.htm#int64">int64</a>) *<a href="#Rat">Rat</a></pre>
+    <p>将z设为a/b，并返回z。</p>
+    <h4 id="Rat.SetFloat64">func (*Rat) <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/big/rat.go?name=release#33">SetFloat64</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (z *<a href="#Rat">Rat</a>) SetFloat64(f <a href="builtin.htm#float64">float64</a>) *<a href="#Rat">Rat</a></pre>
+    <p>将z设为f的精确值并返回z。如果f不是有穷数（即f为+Inf、+Inf或NaN）时会返回nil。。</p>
+    <h4 id="Rat.SetInt">func (*Rat) <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/big/rat.go?name=release#212">SetInt</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (z *<a href="#Rat">Rat</a>) SetInt(x *<a href="#Int">Int</a>) *<a href="#Rat">Rat</a></pre>
+    <p>将z设为x（生成一个拷贝）并返回z。</p>
+    <h4 id="Rat.SetFrac">func (*Rat) <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/big/rat.go?name=release#183">SetFrac</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (z *<a href="#Rat">Rat</a>) SetFrac(a, b *<a href="#Int">Int</a>) *<a href="#Rat">Rat</a></pre>
+    <p>将z设为a/b，并返回z。</p>
+    <h4 id="Rat.SetString">func (*Rat) <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/big/rat.go?name=release#426">SetString</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (z *<a href="#Rat">Rat</a>) SetString(s <a href="builtin.htm#string">string</a>) (*<a href="#Rat">Rat</a>, <a href="builtin.htm#bool">bool</a>)</pre>
+    <p>将z设为字符串代表的值，返回z并用一个bool表明是否成功。字符串s的格式可以是形如"a/b"的分数格式，也可以是浮点数后跟可选的指数的科学计数法格式。如果操作失败，z的值是不确定的，但返回值为nil。</p>
+    <div class="panel-group">
+        <div class="panel panel-default" id="example-Rat-SetString">
+            <div class="panel-heading" onclick="document.getElementById('ex-Rat-SetString').style.display = document.getElementById('ex-Rat-SetString').style.display=='none'?'block':'none';">Example</div>
+            <div id="ex-Rat-SetString" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre>r := new(big.Rat)
+r.SetString(&#34;355/113&#34;)
+fmt.Println(r.FloatString(3))</pre>
+                    <p>Output:
+                    <pre>3.142
+</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    <h4 id="Rat.Sign">func (*Rat) <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/big/rat.go?name=release#272">Sign</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (x *<a href="#Rat">Rat</a>) Sign() <a href="builtin.htm#int">int</a></pre>
+    <p>返回x的正负号。如x &lt; 0返回-1；如x &gt; 0返回+1；否则返回0。</p>
+    <h4 id="Rat.Cmp">func (*Rat) <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/big/rat.go?name=release#359">Cmp</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (x *<a href="#Rat">Rat</a>) Cmp(y *<a href="#Rat">Rat</a>) <a href="builtin.htm#int">int</a></pre>
+    <p>比较x和y的大小。如x &lt; y返回-1；如x &gt; y返回+1；否则返回0。</p>
+    <h4 id="Rat.Abs">func (*Rat) <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/big/rat.go?name=release#235">Abs</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (z *<a href="#Rat">Rat</a>) Abs(x *<a href="#Rat">Rat</a>) *<a href="#Rat">Rat</a></pre>
+    <p>将z设为|x|并返回z。</p>
+    <h4 id="Rat.Neg">func (*Rat) <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/big/rat.go?name=release#242">Neg</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (z *<a href="#Rat">Rat</a>) Neg(x *<a href="#Rat">Rat</a>) *<a href="#Rat">Rat</a></pre>
+    <p>将z设为-x并返回z。</p>
+    <h4 id="Rat.Inv">func (*Rat) <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/big/rat.go?name=release#249">Inv</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (z *<a href="#Rat">Rat</a>) Inv(x *<a href="#Rat">Rat</a>) *<a href="#Rat">Rat</a></pre>
+    <p>将z设为1/x并返回z。</p>
+    <h4 id="Rat.Set">func (*Rat) <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/big/rat.go?name=release#226">Set</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (z *<a href="#Rat">Rat</a>) Set(x *<a href="#Rat">Rat</a>) *<a href="#Rat">Rat</a></pre>
+    <p>将z设为x（生成一个拷贝）并返回z。</p>
+    <h4 id="Rat.Add">func (*Rat) <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/big/rat.go?name=release#364">Add</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (z *<a href="#Rat">Rat</a>) Add(x, y *<a href="#Rat">Rat</a>) *<a href="#Rat">Rat</a></pre>
+    <p>将z设为x + y并返回z。</p>
+    <h4 id="Rat.Sub">func (*Rat) <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/big/rat.go?name=release#373">Sub</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (z *<a href="#Rat">Rat</a>) Sub(x, y *<a href="#Rat">Rat</a>) *<a href="#Rat">Rat</a></pre>
+    <p>将z设为x - y并返回z。</p>
+    <h4 id="Rat.Mul">func (*Rat) <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/big/rat.go?name=release#382">Mul</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (z *<a href="#Rat">Rat</a>) Mul(x, y *<a href="#Rat">Rat</a>) *<a href="#Rat">Rat</a></pre>
+    <p>将z设为x * y并返回z。</p>
+    <h4 id="Rat.Quo">func (*Rat) <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/big/rat.go?name=release#390">Quo</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (z *<a href="#Rat">Rat</a>) Quo(x, y *<a href="#Rat">Rat</a>) *<a href="#Rat">Rat</a></pre>
+    <p>如果y != 0会将z设为x/y并返回z；如果y==0会panic。</p>
+    <h4 id="Rat.Scan">func (*Rat) <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/big/rat.go?name=release#408">Scan</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (z *<a href="#Rat">Rat</a>) Scan(s <a href="fmt.htm">fmt</a>.<a href="fmt.htm#ScanState">ScanState</a>, ch <a href="builtin.htm#rune">rune</a>) <a href="builtin.htm#error">error</a></pre>
+    <p>本方法实现了fmt.Scanner接口，将z设为读取到的数字。接受格式'e'、'E'、'f'、'F'、'g'、'G'、'v'；它们都是等价的。</p>
+    <div class="panel-group">
+        <div class="panel panel-default" id="example-Rat-Scan">
+            <div class="panel-heading" onclick="document.getElementById('ex-Rat-Scan').style.display = document.getElementById('ex-Rat-Scan').style.display=='none'?'block':'none';">Example</div>
+            <div id="ex-Rat-Scan" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre><span class="com">// The Scan function is rarely used directly;</span>
+<span class="com">// the fmt package recognizes it as an implementation of fmt.Scanner.</span>
+r := new(big.Rat)
+_, err := fmt.Sscan(&#34;1.5000&#34;, r)
+if err != nil {
+    log.Println(&#34;error scanning value:&#34;, err)
+} else {
+    fmt.Println(r)
+}</pre>
+                    <p>Output:
+                    <pre>3/2
+</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    <h4 id="Rat.GobEncode">func (*Rat) <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/big/rat.go?name=release#548">GobEncode</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (x *<a href="#Rat">Rat</a>) GobEncode() ([]<a href="builtin.htm#byte">byte</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>本方法实现了gob.GobEncoder接口。</p>
+    <h4 id="Rat.GobDecode">func (*Rat) <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/big/rat.go?name=release#571">GobDecode</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (z *<a href="#Rat">Rat</a>) GobDecode(buf []<a href="builtin.htm#byte">byte</a>) <a href="builtin.htm#error">error</a></pre>
+    <p>本方法实现了gob.GobDecoder接口。</p>
+    <h4 id="Rat.MarshalText">func (*Rat) <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/big/rat.go?name=release#590">MarshalText</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (r *<a href="#Rat">Rat</a>) MarshalText() (text []<a href="builtin.htm#byte">byte</a>, err <a href="builtin.htm#error">error</a>)</pre>
+    <p>本方法实现了encoding.TextMarshaler接口。</p>
+    <h4 id="Rat.UnmarshalText">func (*Rat) <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/big/rat.go?name=release#595">UnmarshalText</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (r *<a href="#Rat">Rat</a>) UnmarshalText(text []<a href="builtin.htm#byte">byte</a>) <a href="builtin.htm#error">error</a></pre>
+    <p>本方法实现了encoding.TextUnmarshaler接口。</p>
+</div>
+
+<div id="x-footer" class="clearfix">
+  <div class="container">
+    <a href="http://studygolang.com/">Go语言中文网</a>
+    <span class="text-muted">|</span> <a href="http://golang.org/">Go Language</a>
+    <span class="pull-right"><a href="#">Back to top</a></span>
+  </div>
+</div>
+<script src="../assets/jquery-2.0.3.min.js"></script>
+<script src="../bootstrap.min.js"></script>
+<script src="../site.js"></script>
+</body>
+</html>

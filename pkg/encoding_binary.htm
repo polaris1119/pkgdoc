@@ -1,0 +1,171 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="./site.css" rel="stylesheet">
+<title>encoding/binary</title>
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package binary</h2>
+    <p><code>import "encoding/binary"</code>
+    <p align="left">binary包实现了简单的数字与字节序列的转换以及变长值的编解码。</p>
+    <p align="left">数字翻译为定长值来读写，一个定长值，要么是固定长度的数字类型（int8, uint8, int16, float32, complex64, ...）或者只包含定长值的结构体或者数组。</p>
+    <p align="left">变长值是使用一到多个字节编码整数的方法，绝对值较小的数字会占用较少的字节数。详情请参见：<a href="http://code.google.com/apis/protocolbuffers/docs/encoding.html">http://code.google.com/apis/protocolbuffers/docs/encoding.html</a>。</p>
+    <p align="left">本包相对于效率更注重简单。如果需要高效的序列化，特别是数据结构较复杂的，请参见更高级的解决方法，例如encoding/gob包，或者采用协议缓存。</p>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#pkg-constants">Constants</a></li>
+        <li><a href="#pkg-variables">Variables</a></li>
+        <li><a href="#ByteOrder">type ByteOrder</a></li>
+        <li><a href="#Size">func Size(v interface{}) int</a></li>
+        <li><a href="#Uvarint">func Uvarint(buf []byte) (uint64, int)</a></li>
+        <li><a href="#Varint">func Varint(buf []byte) (int64, int)</a></li>
+        <li><a href="#ReadUvarint">func ReadUvarint(r io.ByteReader) (uint64, error)</a></li>
+        <li><a href="#ReadVarint">func ReadVarint(r io.ByteReader) (int64, error)</a></li>
+        <li><a href="#PutUvarint">func PutUvarint(buf []byte, x uint64) int</a></li>
+        <li><a href="#PutVarint">func PutVarint(buf []byte, x int64) int</a></li>
+        <li><a href="#Read">func Read(r io.Reader, order ByteOrder, data interface{}) error</a></li>
+        <li><a href="#Write">func Write(w io.Writer, order ByteOrder, data interface{}) error</a></li>
+    </ul>
+    <h4 id="pkg-examples">Examples <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#example-Read" onclick="$('#ex-Read').addClass('in').removeClass('collapse').height('auto')">Read</a></li>
+        <li><a href="#example-Write" onclick="$('#ex-Write').addClass('in').removeClass('collapse').height('auto')">Write</a></li>
+        <li><a href="#example-Write--Multi" onclick="$('#ex-Write--Multi').addClass('in').removeClass('collapse').height('auto')">Write (Multi)</a></li>
+    </ul>
+    <h3 id="pkg-constants">Constants <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>const (
+    <span id="MaxVarintLen16">MaxVarintLen16</span> = 3
+    <span id="MaxVarintLen32">MaxVarintLen32</span> = 5
+    <span id="MaxVarintLen64">MaxVarintLen64</span> = 10
+)</pre>
+    <p>变长编码N位整数的最大字节数。</p>
+    <h3 id="pkg-variables">Variables <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>var <span id="BigEndian">BigEndian</span> bigEndian</pre>
+    <p>大端字节序的实现。</p>
+    <pre>var <span id="LittleEndian">LittleEndian</span> littleEndian</pre>
+    <p>小端字节序的实现。</p>
+    <h3 id="ByteOrder">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/binary/binary.go?name=release#32">ByteOrder</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type ByteOrder interface {
+    <span id="ByteOrder.Uint16">Uint16</span>([]<a href="builtin.htm#byte">byte</a>) <a href="builtin.htm#uint16">uint16</a>
+    <span id="ByteOrder.Uint32">Uint32</span>([]<a href="builtin.htm#byte">byte</a>) <a href="builtin.htm#uint32">uint32</a>
+    <span id="ByteOrder.Uint64">Uint64</span>([]<a href="builtin.htm#byte">byte</a>) <a href="builtin.htm#uint64">uint64</a>
+    <span id="ByteOrder.PutUint16">PutUint16</span>([]<a href="builtin.htm#byte">byte</a>, <a href="builtin.htm#uint16">uint16</a>)
+    <span id="ByteOrder.PutUint32">PutUint32</span>([]<a href="builtin.htm#byte">byte</a>, <a href="builtin.htm#uint32">uint32</a>)
+    <span id="ByteOrder.PutUint64">PutUint64</span>([]<a href="builtin.htm#byte">byte</a>, <a href="builtin.htm#uint64">uint64</a>)
+    <span id="ByteOrder.String">String</span>() <a href="builtin.htm#string">string</a>
+}</pre>
+    <p>ByteOrder规定了如何将字节序列和 16、32或64比特的无符号整数互相转化。</p>
+    <h3 id="Size">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/binary/binary.go?name=release#339">Size</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Size(v interface{}) <a href="builtin.htm#int">int</a></pre>
+    <p>返回v编码后会占用多少字节，注意v必须是定长值、定长值的切片、定长值的指针。</p>
+    <h3 id="Uvarint">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/binary/varint.go?name=release#60">Uvarint</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Uvarint(buf []<a href="builtin.htm#byte">byte</a>) (<a href="builtin.htm#uint64">uint64</a>, <a href="builtin.htm#int">int</a>)</pre>
+    <p>从buf解码一个uint64，返回该数字和读取的字节长度，如果发生了错误，该数字为0而读取长度n返回值的意思是：</p>
+    <pre>	n == 0: buf不完整，太短了
+	n  &lt; 0: 值太大了，64比特装不下（溢出），-n为读取的字节数
+</pre>
+    <h3 id="Varint">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/binary/varint.go?name=release#94">Varint</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Varint(buf []<a href="builtin.htm#byte">byte</a>) (<a href="builtin.htm#int64">int64</a>, <a href="builtin.htm#int">int</a>)</pre>
+    <p>从buf解码一个int64，返回该数字和读取的字节长度，如果发生了错误，该数字为0而读取长度n返回值的意思是：</p>
+    <pre>	n == 0: buf不完整，太短了
+	n  &lt; 0: 值太大了，64比特装不下（溢出），-n为读取的字节数
+</pre>
+    <h3 id="ReadUvarint">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/binary/varint.go?name=release#106">ReadUvarint</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func ReadUvarint(r <a href="io.htm">io</a>.<a href="io.htm#ByteReader">ByteReader</a>) (<a href="builtin.htm#uint64">uint64</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>从r读取一个编码后的无符号整数，并返回该整数。</p>
+    <h3 id="ReadVarint">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/binary/varint.go?name=release#126">ReadVarint</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func ReadVarint(r <a href="io.htm">io</a>.<a href="io.htm#ByteReader">ByteReader</a>) (<a href="builtin.htm#int64">int64</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>从r读取一个编码后的有符号整数，并返回该整数。</p>
+    <h3 id="PutUvarint">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/binary/varint.go?name=release#41">PutUvarint</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func PutUvarint(buf []<a href="builtin.htm#byte">byte</a>, x <a href="builtin.htm#uint64">uint64</a>) <a href="builtin.htm#int">int</a></pre>
+    <p>将一个uint64数字编码写入buf并返回写入的长度，如果buf太小，则会panic。</p>
+    <h3 id="PutVarint">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/binary/varint.go?name=release#78">PutVarint</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func PutVarint(buf []<a href="builtin.htm#byte">byte</a>, x <a href="builtin.htm#int64">int64</a>) <a href="builtin.htm#int">int</a></pre>
+    <p>将一个int64数字编码写入buf并返回写入的长度，如果buf太小，则会panic。</p>
+    <h3 id="Read">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/binary/binary.go?name=release#137">Read</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Read(r <a href="io.htm">io</a>.<a href="io.htm#Reader">Reader</a>, order <a href="#ByteOrder">ByteOrder</a>, data interface{}) <a href="builtin.htm#error">error</a></pre>
+    <p>从r中读取binary编码的数据并赋给data，data必须是一个指向定长值的指针或者定长值的切片。从r读取的字节使用order指定的字节序解码并写入data的字段里当写入结构体是，名字中有'_'的字段会被跳过，这些字段可用于填充（内存空间）。</p>
+    <div class="panel-group">
+        <div class="panel panel-default" id="example-Read">
+            <div class="panel-heading" onclick="document.getElementById('ex-Read').style.display = document.getElementById('ex-Read').style.display=='none'?'block':'none';">Example</div>
+            <div id="ex-Read" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre>var pi float64
+b := []byte{0x18, 0x2d, 0x44, 0x54, 0xfb, 0x21, 0x09, 0x40}
+buf := bytes.NewReader(b)
+err := binary.Read(buf, binary.LittleEndian, &amp;pi)
+if err != nil {
+    fmt.Println(&#34;binary.Read failed:&#34;, err)
+}
+fmt.Print(pi)</pre>
+                    <p>Output:
+                    <pre>3.141592653589793
+</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    <h3 id="Write">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/encoding/binary/binary.go?name=release#230">Write</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Write(w <a href="io.htm">io</a>.<a href="io.htm#Writer">Writer</a>, order <a href="#ByteOrder">ByteOrder</a>, data interface{}) <a href="builtin.htm#error">error</a></pre>
+    <p>将data的binary编码格式写入w，data必须是定长值、定长值的切片、定长值的指针。order指定写入数据的字节序，写入结构体时，名字中有'_'的字段会置为0。</p>
+    <div class="panel-group">
+        <div class="panel panel-default" id="example-Write">
+            <div class="panel-heading" onclick="document.getElementById('ex-Write').style.display = document.getElementById('ex-Write').style.display=='none'?'block':'none';">Example</div>
+            <div id="ex-Write" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre>buf := new(bytes.Buffer)
+var pi float64 = math.Pi
+err := binary.Write(buf, binary.LittleEndian, pi)
+if err != nil {
+    fmt.Println(&#34;binary.Write failed:&#34;, err)
+}
+fmt.Printf(&#34;% x&#34;, buf.Bytes())</pre>
+                    <p>Output:
+                    <pre>18 2d 44 54 fb 21 09 40
+</pre>
+                </div>
+            </div>
+        </div>
+        <div class="panel panel-default" id="example-Write--Multi">
+            <div class="panel-heading" onclick="document.getElementById('ex-Write--Multi').style.display = document.getElementById('ex-Write--Multi').style.display=='none'?'block':'none';">Example (Multi)</div>
+            <div id="ex-Write--Multi" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre>buf := new(bytes.Buffer)
+var data = []interface{}{
+    uint16(61374),
+    int8(-54),
+    uint8(254),
+}
+for _, v := range data {
+    err := binary.Write(buf, binary.LittleEndian, v)
+    if err != nil {
+        fmt.Println(&#34;binary.Write failed:&#34;, err)
+    }
+}
+fmt.Printf(&#34;%x&#34;, buf.Bytes())</pre>
+                    <p>Output:
+                    <pre>beefcafe
+</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="x-footer" class="clearfix">
+  <div class="container">
+    <a href="http://studygolang.com/">Go语言中文网</a>
+    <span class="text-muted">|</span> <a href="http://golang.org/">Go Language</a>
+    <span class="pull-right"><a href="#">Back to top</a></span>
+  </div>
+</div>
+<script src="../assets/jquery-2.0.3.min.js"></script>
+<script src="../bootstrap.min.js"></script>
+<script src="../site.js"></script>
+</body>
+</html>

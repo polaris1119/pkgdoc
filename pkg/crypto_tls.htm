@@ -1,0 +1,334 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="./site.css" rel="stylesheet">
+<title>crypto/tls</title>
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package tls</h2>
+    <p><code>import "crypto/tls"</code>
+    <p>tls包实现了TLS 1.2，细节参见<a href="http://tools.ietf.org/html/rfc5246">RFC 5246</a>。</p>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#pkg-constants">Constants</a></li>
+        <li><a href="#ClientAuthType">type ClientAuthType</a></li>
+        <li><a href="#CurveID">type CurveID</a></li>
+        <li><a href="#Certificate">type Certificate</a></li>
+        <ul>
+            <li><a href="#LoadX509KeyPair">func LoadX509KeyPair(certFile, keyFile string) (cert Certificate, err error)</a></li>
+            <li><a href="#X509KeyPair">func X509KeyPair(certPEMBlock, keyPEMBlock []byte) (cert Certificate, err error)</a></li>
+        </ul>
+        <li><a href="#ClientSessionState">type ClientSessionState</a></li>
+        <li><a href="#ClientSessionCache">type ClientSessionCache</a></li>
+        <ul>
+            <li><a href="#NewLRUClientSessionCache">func NewLRUClientSessionCache(capacity int) ClientSessionCache</a></li>
+        </ul>
+        <li><a href="#Config">type Config</a></li>
+        <ul>
+            <li><a href="#Config.BuildNameToCertificate">func (c *Config) BuildNameToCertificate()</a></li>
+        </ul>
+        <li><a href="#ConnectionState">type ConnectionState</a></li>
+        <li><a href="#Conn">type Conn</a></li>
+        <ul>
+            <li><a href="#Conn.LocalAddr">func (c *Conn) LocalAddr() net.Addr</a></li>
+            <li><a href="#Conn.RemoteAddr">func (c *Conn) RemoteAddr() net.Addr</a></li>
+            <li><a href="#Conn.ConnectionState">func (c *Conn) ConnectionState() ConnectionState</a></li>
+            <li><a href="#Conn.SetDeadline">func (c *Conn) SetDeadline(t time.Time) error</a></li>
+            <li><a href="#Conn.SetReadDeadline">func (c *Conn) SetReadDeadline(t time.Time) error</a></li>
+            <li><a href="#Conn.SetWriteDeadline">func (c *Conn) SetWriteDeadline(t time.Time) error</a></li>
+            <li><a href="#Conn.Handshake">func (c *Conn) Handshake() error</a></li>
+            <li><a href="#Conn.VerifyHostname">func (c *Conn) VerifyHostname(host string) error</a></li>
+            <li><a href="#Conn.OCSPResponse">func (c *Conn) OCSPResponse() []byte</a></li>
+            <li><a href="#Conn.Read">func (c *Conn) Read(b []byte) (n int, err error)</a></li>
+            <li><a href="#Conn.Write">func (c *Conn) Write(b []byte) (int, error)</a></li>
+            <li><a href="#Conn.Close">func (c *Conn) Close() error</a></li>
+        </ul>
+        <li><a href="#Client">func Client(conn net.Conn, config *Config) *Conn</a></li>
+        <li><a href="#Server">func Server(conn net.Conn, config *Config) *Conn</a></li>
+        <li><a href="#Dial">func Dial(network, addr string, config *Config) (*Conn, error)</a></li>
+        <li><a href="#DialWithDialer">func DialWithDialer(dialer *net.Dialer, network, addr string, config *Config) (*Conn, error)</a></li>
+        <li><a href="#Listen">func Listen(network, laddr string, config *Config) (net.Listener, error)</a></li>
+        <li><a href="#NewListener">func NewListener(inner net.Listener, config *Config) net.Listener</a></li>
+    </ul>
+    <h4 id="pkg-examples">Examples <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#example-Dial" onclick="$('#ex-Dial').addClass('in').removeClass('collapse').height('auto')">Dial</a></li>
+    </ul>
+    <h3 id="pkg-constants">Constants <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>const (
+    <span id="TLS_RSA_WITH_RC4_128_SHA">TLS_RSA_WITH_RC4_128_SHA</span>                <a href="builtin.htm#uint16">uint16</a> = 0x0005
+    <span id="TLS_RSA_WITH_3DES_EDE_CBC_SHA">TLS_RSA_WITH_3DES_EDE_CBC_SHA</span>           <a href="builtin.htm#uint16">uint16</a> = 0x000a
+    <span id="TLS_RSA_WITH_AES_128_CBC_SHA">TLS_RSA_WITH_AES_128_CBC_SHA</span>            <a href="builtin.htm#uint16">uint16</a> = 0x002f
+    <span id="TLS_RSA_WITH_AES_256_CBC_SHA">TLS_RSA_WITH_AES_256_CBC_SHA</span>            <a href="builtin.htm#uint16">uint16</a> = 0x0035
+    <span id="TLS_ECDHE_ECDSA_WITH_RC4_128_SHA">TLS_ECDHE_ECDSA_WITH_RC4_128_SHA</span>        <a href="builtin.htm#uint16">uint16</a> = 0xc007
+    <span id="TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA">TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA</span>    <a href="builtin.htm#uint16">uint16</a> = 0xc009
+    <span id="TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA">TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA</span>    <a href="builtin.htm#uint16">uint16</a> = 0xc00a
+    <span id="TLS_ECDHE_RSA_WITH_RC4_128_SHA">TLS_ECDHE_RSA_WITH_RC4_128_SHA</span>          <a href="builtin.htm#uint16">uint16</a> = 0xc011
+    <span id="TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA">TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA</span>     <a href="builtin.htm#uint16">uint16</a> = 0xc012
+    <span id="TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA">TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA</span>      <a href="builtin.htm#uint16">uint16</a> = 0xc013
+    <span id="TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA">TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA</span>      <a href="builtin.htm#uint16">uint16</a> = 0xc014
+    <span id="TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256">TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256</span>   <a href="builtin.htm#uint16">uint16</a> = 0xc02f
+    <span id="TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256">TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256</span> <a href="builtin.htm#uint16">uint16</a> = 0xc02b
+)</pre>
+    <p align="left">可选的加密组的ID的列表。参见：<a href="http://www.iana.org/assignments/tls-parameters/tls-parameters.xml">http://www.iana.org/assignments/tls-parameters/tls-parameters.xml</a></p>
+    <pre>const (
+    <span id="VersionSSL30">VersionSSL30</span> = 0x0300
+    <span id="VersionTLS10">VersionTLS10</span> = 0x0301
+    <span id="VersionTLS11">VersionTLS11</span> = 0x0302
+    <span id="VersionTLS12">VersionTLS12</span> = 0x0303
+)</pre>
+    <h3 id="ClientAuthType">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/tls/common.go?name=release#171">ClientAuthType</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type ClientAuthType <a href="builtin.htm#int">int</a></pre>
+    <p>ClientAuthType类型声明服务端将遵循的TLS客户端验证策略。</p>
+    <pre>const (
+    <span id="NoClientCert">NoClientCert</span> <a href="#ClientAuthType">ClientAuthType</a> = <a href="builtin.htm#iota">iota</a>
+    <span id="RequestClientCert">RequestClientCert</span>
+    <span id="RequireAnyClientCert">RequireAnyClientCert</span>
+    <span id="VerifyClientCertIfGiven">VerifyClientCertIfGiven</span>
+    <span id="RequireAndVerifyClientCert">RequireAndVerifyClientCert</span>
+)</pre>
+    <h3 id="CurveID">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/tls/common.go?name=release#87">CurveID</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type CurveID <a href="builtin.htm#uint16">uint16</a></pre>
+    <p>CurveID是TLS椭圆曲线的标识符的类型。</p>
+    <p>参见： <a href="http://www.iana.org/assignments/tls-parameters/tls-parameters.xml#tls-parameters-8">http://www.iana.org/assignments/tls-parameters/tls-parameters.xml#tls-parameters-8</a></p>
+    <pre>const (
+    <span id="CurveP256">CurveP256</span> <a href="#CurveID">CurveID</a> = 23
+    <span id="CurveP384">CurveP384</span> <a href="#CurveID">CurveID</a> = 24
+    <span id="CurveP521">CurveP521</span> <a href="#CurveID">CurveID</a> = 25
+)</pre>
+    <h3 id="Certificate">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/tls/common.go?name=release#440">Certificate</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Certificate struct {
+    <span id="Certificate.Certificate">Certificate</span> [][]<a href="builtin.htm#byte">byte</a>
+    <span id="Certificate.PrivateKey">PrivateKey</span>  <a href="crypto.htm">crypto</a>.<a href="crypto.htm#PrivateKey">PrivateKey</a> <span class="com">// 只支持rsa.PrivateKey和*ecdsa.PrivateKey类型</span>
+    <span class="com">// OCSPStaple包含一个可选的OCSP staple的回复，当客户端要求时用于回复客户端</span>
+    <span id="Certificate.OCSPStaple">OCSPStaple</span> []<a href="builtin.htm#byte">byte</a>
+    <span class="com">// Leaf是解析后的叶证书，可以使用x509.ParseCertificate初始化，</span>
+    <span class="com">// 以简化每次TLS客户端进行客户端认证时握手的过程。如果Leaf是nil，叶证书会根据需要解析。</span>
+    <span id="Certificate.Leaf">Leaf</span> *<a href="crypto/x509.htm">x509</a>.<a href="crypto/x509.htm#Certificate">Certificate</a>
+}</pre>
+    <p>Certificate是一个或多个证书的链条，叶证书在最前面。</p>
+    <h4 id="LoadX509KeyPair">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/tls/tls.go?name=release#170">LoadX509KeyPair</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func LoadX509KeyPair(certFile, keyFile <a href="builtin.htm#string">string</a>) (cert <a href="#Certificate">Certificate</a>, err <a href="builtin.htm#error">error</a>)</pre>
+    <p>LoadX509KeyPair读取并解析一对文件获取公钥和私钥。这些文件必须是PEM编码的。</p>
+    <h4 id="X509KeyPair">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/tls/tls.go?name=release#184">X509KeyPair</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func X509KeyPair(certPEMBlock, keyPEMBlock []<a href="builtin.htm#byte">byte</a>) (cert <a href="#Certificate">Certificate</a>, err <a href="builtin.htm#error">error</a>)</pre>
+    <p>X509KeyPair解析一对PEM编码的数据获取公钥和私钥。</p>
+    <h3 id="ClientSessionState">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/tls/common.go?name=release#183">ClientSessionState</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type ClientSessionState struct {
+    <span class="com">// 内含隐藏或非导出字段</span>
+}</pre>
+    <p>ClientSessionState包含客户端所需的用于恢复TLS会话的状态。</p>
+    <h3 id="ClientSessionCache">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/tls/common.go?name=release#195">ClientSessionCache</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type ClientSessionCache interface {
+    <span class="com">// Get搜索与给出的键相关联的*ClientSessionState并用ok说明是否找到</span>
+    <span id="ClientSessionCache.Get">Get</span>(sessionKey <a href="builtin.htm#string">string</a>) (session *<a href="#ClientSessionState">ClientSessionState</a>, ok <a href="builtin.htm#bool">bool</a>)
+    <span class="com">// Put将*ClientSessionState与给出的键关联并写入缓存中</span>
+    <span id="ClientSessionCache.Put">Put</span>(sessionKey <a href="builtin.htm#string">string</a>, cs *<a href="#ClientSessionState">ClientSessionState</a>)
+}</pre>
+    <p>ClientSessionCache是ClientSessionState对象的缓存，可以被客户端用于恢复与某个服务端的TLS会话。本类型的实现期望被不同线程并行的调用。</p>
+    <h4 id="NewLRUClientSessionCache">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/tls/common.go?name=release#483">NewLRUClientSessionCache</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func NewLRUClientSessionCache(capacity <a href="builtin.htm#int">int</a>) <a href="#ClientSessionCache">ClientSessionCache</a></pre>
+    <p>函数使用给出的容量创建一个采用LRU策略的ClientSessionState，如果capacity&lt;1会采用默认容量。</p>
+    <h3 id="Config">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/tls/common.go?name=release#208">Config</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Config struct {
+    <span class="com">// Rand提供用于生成随机数和RSA盲签名的熵源，该接口必须能安全的用于并发。</span>
+    <span class="com">// 如果Rand是nil，会使用crypto/rand包的密码用随机数读取器。</span>
+    <span id="Config.Rand">Rand</span> <a href="io.htm">io</a>.<a href="io.htm#Reader">Reader</a>
+    <span class="com">// Time返回当前时间，如果是nil会使用time.Now。</span>
+    <span id="Config.Time">Time</span> func() <a href="time.htm">time</a>.<a href="time.htm#Time">Time</a>
+    <span class="com">// 不少于一个证书的链，用于提供给连接的另一端，服务端必须保证至少有一个证书。</span>
+    <span id="Config.Certificates">Certificates</span> []<a href="#Certificate">Certificate</a>
+    <span class="com">// NameToCertificate映射证书名到证书。</span>
+    <span class="com">// 注意证书名可以是"*.example.com "的格式，因此证书名不是必须为域名。</span>
+    <span class="com">// 参见Config.BuildNameToCertificate方法。</span>
+    <span class="com">// 如本字段为nil，Certificates字段的第一个成员会被用于所有连接。</span>
+    <span id="Config.NameToCertificate">NameToCertificate</span> map[<a href="builtin.htm#string">string</a>]*<a href="#Certificate">Certificate</a>
+    <span class="com">// RootCAs定义权威根证书，客户端会在验证服务端证书时用到本字段。</span>
+    <span class="com">// 如果RootCAs是nil，TLS会使用主机的根CA池。</span>
+    <span id="Config.RootCAs">RootCAs</span> *<a href="crypto/x509.htm">x509</a>.<a href="crypto/x509.htm#CertPool">CertPool</a>
+    <span class="com">// 可以支持的应用层协议的列表</span>
+    <span id="Config.NextProtos">NextProtos</span> []<a href="builtin.htm#string">string</a>
+    <span class="com">// 用于认证返回证书的主机名（除非设置了InsecureSkipVerify）。</span>
+    <span class="com">// 也被用在客户端的握手里，以支持虚拟主机。</span>
+    <span id="Config.ServerName">ServerName</span> <a href="builtin.htm#string">string</a>
+    <span class="com">// ClientAuth决定服务端的认证策略，默认是NoClientCert。</span>
+    <span id="Config.ClientAuth">ClientAuth</span> <a href="#ClientAuthType">ClientAuthType</a>
+    <span class="com">// ClientCAs定义权威根证书，服务端会在采用ClientAuth策略时使用它来认证客户端证书。</span>
+    <span id="Config.ClientCAs">ClientCAs</span> *<a href="crypto/x509.htm">x509</a>.<a href="crypto/x509.htm#CertPool">CertPool</a>
+    <span class="com">// InsecureSkipVerify控制客户端是否认证服务端的证书链和主机名。</span>
+    <span class="com">// 如果InsecureSkipVerify为真，TLS连接会接受服务端提供的任何证书和该证书中的任何主机名。</span>
+    <span class="com">// 此时，TLS连接容易遭受中间人攻击，这种设置只应用于测试。</span>
+    <span id="Config.InsecureSkipVerify">InsecureSkipVerify</span> <a href="builtin.htm#bool">bool</a>
+    <span class="com">// CipherSuites是支持的加密组合列表。如果CipherSuites为nil，</span>
+    <span class="com">// TLS连接会使用本包的实现支持的密码组合列表。</span>
+    <span id="Config.CipherSuites">CipherSuites</span> []<a href="builtin.htm#uint16">uint16</a>
+    <span class="com">// 本字段控制服务端是选择客户端最期望的密码组合还是服务端最期望的密码组合。</span>
+    <span class="com">// 如果本字段为真，服务端会优先选择CipherSuites字段中靠前的密码组合使用。</span>
+    <span id="Config.PreferServerCipherSuites">PreferServerCipherSuites</span> <a href="builtin.htm#bool">bool</a>
+    <span class="com">// SessionTicketsDisabled可以设为假以关闭会话恢复支持。</span>
+    <span id="Config.SessionTicketsDisabled">SessionTicketsDisabled</span> <a href="builtin.htm#bool">bool</a>
+    <span class="com">// SessionTicketKey被TLS服务端用于提供哦你会话恢复服务，参见RFC 5077。</span>
+    <span class="com">// 如果本字段为零值，它会在第一次服务端握手之前填写上随机数据。</span>
+    <span class="com">//</span>
+    <span class="com">// 如果多个服务端都在终止和同一主机的连接，它们应拥有相同的SessionTicketKey。</span>
+    <span class="com">// 如果SessionTicketKey泄露了，使用该键的之前的记录和未来的TLS连接可能会被盗用。</span>
+    <span id="Config.SessionTicketKey">SessionTicketKey</span> [32]<a href="builtin.htm#byte">byte</a>
+    <span class="com">// SessionCache是ClientSessionState的缓存，用于恢复TLS会话。</span><span class="com"></span>
+    <span id="Config.ClientSessionCache">ClientSessionCache</span> <a href="#ClientSessionCache">ClientSessionCache</a>
+    <span class="com">// MinVersion包含可接受的最低SSL/TLS版本。如果为0，会将SSLv3作为最低版本。</span>
+    <span id="Config.MinVersion">MinVersion</span> <a href="builtin.htm#uint16">uint16</a>
+    <span class="com">// MaxVersion包含可接受的最高SSL/TLS版本。</span>
+    <span class="com">// 如果为0，会将本包使用的版本作为最高版本，目前是TLS 1.2。</span>
+    <span id="Config.MaxVersion">MaxVersion</span> <a href="builtin.htm#uint16">uint16</a>
+    <span class="com">// 本字段包含用于ECDHE握手的椭圆曲线的ID，按优先度排序。如为空，会使用默认值。</span>
+    <span id="Config.CurvePreferences">CurvePreferences</span> []<a href="#CurveID">CurveID</a>
+    <span class="com">// 内含隐藏或非导出字段</span>
+}</pre>
+    <p>Config结构类型用于配置TLS客户端或服务端。在本类型的值提供给TLS函数后，就不应再修改该值。Config类型值可能被重用；tls包也不会修改它。</p>
+    <h4 id="Config.BuildNameToCertificate">func (*Config) <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/tls/common.go?name=release#422">BuildNameToCertificate</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *<a href="#Config">Config</a>) BuildNameToCertificate()</pre>
+    <p>BuildNameToCertificate解析c.Certificates并将每一个叶证书的CommonName和SubjectAlternateName字段用于创建c.NameToCertificate。</p>
+    <h3 id="ConnectionState">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/tls/common.go?name=release#157">ConnectionState</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type ConnectionState struct {
+    <span id="ConnectionState.Version">Version</span>                    <a href="builtin.htm#uint16">uint16</a>                <span class="com">// 连接使用的TLS版本</span>
+    <span id="ConnectionState.HandshakeComplete">HandshakeComplete</span>          <a href="builtin.htm#bool">bool</a>                  <span class="com">// TLS握手是否完成</span>
+    <span id="ConnectionState.DidResume">DidResume</span>                  <a href="builtin.htm#bool">bool</a>                  <span class="com">// 连接恢复了之前的TLS连接</span>
+    <span id="ConnectionState.CipherSuite">CipherSuite</span>                <a href="builtin.htm#uint16">uint16</a>                <span class="com">// 使用的加密程序组合</span>
+    <span id="ConnectionState.NegotiatedProtocol">NegotiatedProtocol</span>         <a href="builtin.htm#string">string</a>                <span class="com">// 商定的下一层协议</span>
+    <span id="ConnectionState.NegotiatedProtocolIsMutual">NegotiatedProtocolIsMutual</span> <a href="builtin.htm#bool">bool</a>                  <span class="com">// 商定的协议是服务端建议的</span>
+    <span id="ConnectionState.ServerName">ServerName</span>                 <a href="builtin.htm#string">string</a>                <span class="com">// 服务端名（仅服务端有）</span>
+    <span id="ConnectionState.PeerCertificates">PeerCertificates</span>           []*<a href="crypto/x509.htm">x509</a>.<a href="crypto/x509.htm#Certificate">Certificate</a>   <span class="com">// 远端提供的证书链</span>
+    <span id="ConnectionState.VerifiedChains">VerifiedChains</span>             [][]*<a href="crypto/x509.htm">x509</a>.<a href="crypto/x509.htm#Certificate">Certificate</a> <span class="com">// 从PeerCertificates建立的认证链</span>
+}</pre>
+    <p>ConnectionState类型记录连接的基本TLS细节。</p>
+    <h3 id="Conn">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/tls/conn.go?name=release#24">Conn</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Conn struct {
+    <span class="com">// 内含隐藏或非导出字段</span>
+}</pre>
+    <p>Conn代表一个安全连接。本类型实现了net.Conn接口。</p>
+    <h4 id="Conn.LocalAddr">func (*Conn) <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/tls/conn.go?name=release#63">LocalAddr</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *<a href="#Conn">Conn</a>) LocalAddr() <a href="net.htm">net</a>.<a href="net.htm#Addr">Addr</a></pre>
+    <p>LocalAddr返回本地网络地址。</p>
+    <h4 id="Conn.RemoteAddr">func (*Conn) <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/tls/conn.go?name=release#68">RemoteAddr</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *<a href="#Conn">Conn</a>) RemoteAddr() <a href="net.htm">net</a>.<a href="net.htm#Addr">Addr</a></pre>
+    <p>LocalAddr返回远端网络地址。</p>
+    <h4 id="Conn.ConnectionState">func (*Conn) <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/tls/conn.go?name=release#982">ConnectionState</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *<a href="#Conn">Conn</a>) ConnectionState() <a href="#ConnectionState">ConnectionState</a></pre>
+    <p>ConnectionState返回该连接的基本TLS细节。</p>
+    <h4 id="Conn.SetDeadline">func (*Conn) <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/tls/conn.go?name=release#75">SetDeadline</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *<a href="#Conn">Conn</a>) SetDeadline(t <a href="time.htm">time</a>.<a href="time.htm#Time">Time</a>) <a href="builtin.htm#error">error</a></pre>
+    <p>SetDeadline设置该连接的读写操作绝对期限。t为Time零值表示不设置超时。在一次Write/Read方法超时后，TLS连接状态会被破坏，之后所有的读写操作都会返回同一错误。</p>
+    <h4 id="Conn.SetReadDeadline">func (*Conn) <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/tls/conn.go?name=release#81">SetReadDeadline</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *<a href="#Conn">Conn</a>) SetReadDeadline(t <a href="time.htm">time</a>.<a href="time.htm#Time">Time</a>) <a href="builtin.htm#error">error</a></pre>
+    <p>SetReadDeadline设置该连接的读操作绝对期限。t为Time零值表示不设置超时。</p>
+    <h4 id="Conn.SetWriteDeadline">func (*Conn) <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/tls/conn.go?name=release#88">SetWriteDeadline</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *<a href="#Conn">Conn</a>) SetWriteDeadline(t <a href="time.htm">time</a>.<a href="time.htm#Time">Time</a>) <a href="builtin.htm#error">error</a></pre>
+    <p>SetReadDeadline设置该连接的写操作绝对期限。t为Time零值表示不设置超时。在一次Write方法超时后，TLS连接状态会被破坏，之后所有的写操作都会返回同一错误。</p>
+    <h4 id="Conn.Handshake">func (*Conn) <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/tls/conn.go?name=release#963">Handshake</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *<a href="#Conn">Conn</a>) Handshake() <a href="builtin.htm#error">error</a></pre>
+    <p>Handshake执行客户端或服务端的握手协议（如果还没有执行的话）。本包的大多数应用不需要显式的调用Handsake方法：第一次Read或Write方法会自动调用本方法。</p>
+    <h4 id="Conn.VerifyHostname">func (*Conn) <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/tls/conn.go?name=release#1014">VerifyHostname</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *<a href="#Conn">Conn</a>) VerifyHostname(host <a href="builtin.htm#string">string</a>) <a href="builtin.htm#error">error</a></pre>
+    <p>VerifyHostname检查用于连接到host的对等实体证书链是否合法。如果合法，它会返回nil；否则，会返回一个描述该问题的错误。</p>
+    <h4 id="Conn.OCSPResponse">func (*Conn) <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/tls/conn.go?name=release#1004">OCSPResponse</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *<a href="#Conn">Conn</a>) OCSPResponse() []<a href="builtin.htm#byte">byte</a></pre>
+    <p>OCSPResponse返回来自服务端的OCSP staple回复（如果有）。只有客户端可以使用本方法。</p>
+    <h4 id="Conn.Read">func (*Conn) <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/tls/conn.go?name=release#883">Read</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *<a href="#Conn">Conn</a>) Read(b []<a href="builtin.htm#byte">byte</a>) (n <a href="builtin.htm#int">int</a>, err <a href="builtin.htm#error">error</a>)</pre>
+    <p>Read从连接读取数据，可设置超时，参见SetDeadline和SetReadDeadline。</p>
+    <h4 id="Conn.Write">func (*Conn) <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/tls/conn.go?name=release#841">Write</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *<a href="#Conn">Conn</a>) Write(b []<a href="builtin.htm#byte">byte</a>) (<a href="builtin.htm#int">int</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>Write将数据写入连接，可设置超时，参见SetDeadline和SetWriteDeadline。</p>
+    <h4 id="Conn.Close">func (*Conn) <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/tls/conn.go?name=release#944">Close</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *<a href="#Conn">Conn</a>) Close() <a href="builtin.htm#error">error</a></pre>
+    <p>Close关闭连接。</p>
+    <h3 id="Client">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/tls/tls.go?name=release#33">Client</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Client(conn <a href="net.htm">net</a>.<a href="net.htm#Conn">Conn</a>, config *<a href="#Config">Config</a>) *<a href="#Conn">Conn</a></pre>
+    <p>Client使用conn作为下层传输接口返回一个TLS连接的客户端侧。配置参数config必须是非nil的且必须设置了ServerName或者InsecureSkipVerify字段。</p>
+<h3 id="Server">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/tls/tls.go?name=release#25">Server</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Server(conn <a href="net.htm">net</a>.<a href="net.htm#Conn">Conn</a>, config *<a href="#Config">Config</a>) *<a href="#Conn">Conn</a></pre>
+    <p>Server使用conn作为下层传输接口返回一个TLS连接的服务端侧。配置参数config必须是非nil的且必须含有至少一个证书。</p>
+    <h3 id="Dial">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/tls/tls.go?name=release#164">Dial</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Dial(network, addr <a href="builtin.htm#string">string</a>, config *<a href="#Config">Config</a>) (*<a href="#Conn">Conn</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>Dial使用net.Dial连接指定的网络和地址，然后发起TLS握手，返回生成的TLS连接。Dial会将nil的配置视为零值的配置；参见Config类型的文档获取细节。</p>
+    <div class="panel-group">
+        <div class="panel panel-default" id="example-Dial">
+            <div class="panel-heading" onclick="document.getElementById('ex-Dial').style.display = document.getElementById('ex-Dial').style.display=='none'?'block':'none';">Example</div>
+            <div id="ex-Dial" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre>
+<span class="com">// Connecting with a custom root-certificate set.</span>
+const rootPEM = `
+-----BEGIN CERTIFICATE-----
+MIIEBDCCAuygAwIBAgIDAjppMA0GCSqGSIb3DQEBBQUAMEIxCzAJBgNVBAYTAlVT
+MRYwFAYDVQQKEw1HZW9UcnVzdCBJbmMuMRswGQYDVQQDExJHZW9UcnVzdCBHbG9i
+YWwgQ0EwHhcNMTMwNDA1MTUxNTU1WhcNMTUwNDA0MTUxNTU1WjBJMQswCQYDVQQG
+EwJVUzETMBEGA1UEChMKR29vZ2xlIEluYzElMCMGA1UEAxMcR29vZ2xlIEludGVy
+bmV0IEF1dGhvcml0eSBHMjCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEB
+AJwqBHdc2FCROgajguDYUEi8iT/xGXAaiEZ+4I/F8YnOIe5a/mENtzJEiaB0C1NP
+VaTOgmKV7utZX8bhBYASxF6UP7xbSDj0U/ck5vuR6RXEz/RTDfRK/J9U3n2+oGtv
+h8DQUB8oMANA2ghzUWx//zo8pzcGjr1LEQTrfSTe5vn8MXH7lNVg8y5Kr0LSy+rE
+ahqyzFPdFUuLH8gZYR/Nnag+YyuENWllhMgZxUYi+FOVvuOAShDGKuy6lyARxzmZ
+EASg8GF6lSWMTlJ14rbtCMoU/M4iarNOz0YDl5cDfsCx3nuvRTPPuj5xt970JSXC
+DTWJnZ37DhF5iR43xa+OcmkCAwEAAaOB+zCB+DAfBgNVHSMEGDAWgBTAephojYn7
+qwVkDBF9qn1luMrMTjAdBgNVHQ4EFgQUSt0GFhu89mi1dvWBtrtiGrpagS8wEgYD
+VR0TAQH/BAgwBgEB/wIBADAOBgNVHQ8BAf8EBAMCAQYwOgYDVR0fBDMwMTAvoC2g
+K4YpaHR0cDovL2NybC5nZW90cnVzdC5jb20vY3Jscy9ndGdsb2JhbC5jcmwwPQYI
+KwYBBQUHAQEEMTAvMC0GCCsGAQUFBzABhiFodHRwOi8vZ3RnbG9iYWwtb2NzcC5n
+ZW90cnVzdC5jb20wFwYDVR0gBBAwDjAMBgorBgEEAdZ5AgUBMA0GCSqGSIb3DQEB
+BQUAA4IBAQA21waAESetKhSbOHezI6B1WLuxfoNCunLaHtiONgaX4PCVOzf9G0JY
+/iLIa704XtE7JW4S615ndkZAkNoUyHgN7ZVm2o6Gb4ChulYylYbc3GrKBIxbf/a/
+zG+FA1jDaFETzf3I93k9mTXwVqO94FntT0QJo544evZG0R0SnU++0ED8Vf4GXjza
+HFa9llF7b1cq26KqltyMdMKVvvBulRP/F/A8rLIQjcxz++iPAsbw+zOzlTvjwsto
+WHPbqCRiOwY1nQ2pM714A5AuTHhdUDqB1O6gyHA43LL5Z/qHQF1hwFGPa4NrzQU6
+yuGnBXj8ytqU0CwIPX4WecigUCAkVDNx
+-----END CERTIFICATE-----`
+<span class="com">// First, create the set of root certificates. For this example we only</span>
+<span class="com">// have one. It&#39;s also possible to omit this in order to use the</span>
+<span class="com">// default root set of the current operating system.</span>
+roots := x509.NewCertPool()
+ok := roots.AppendCertsFromPEM([]byte(rootPEM))
+if !ok {
+    panic(&#34;failed to parse root certificate&#34;)
+}
+conn, err := tls.Dial(&#34;tcp&#34;, &#34;mail.google.com:443&#34;, &amp;tls.Config{
+    RootCAs: roots,
+})
+if err != nil {
+    panic(&#34;failed to connect: &#34; + err.Error())
+}
+conn.Close()
+</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    <h3 id="DialWithDialer">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/tls/tls.go?name=release#93">DialWithDialer</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func DialWithDialer(dialer *<a href="net.htm">net</a>.<a href="net.htm#Dialer">Dialer</a>, network, addr <a href="builtin.htm#string">string</a>, config *<a href="#Config">Config</a>) (*<a href="#Conn">Conn</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p align="left">DialWithDialer使用dialer.Dial连接指定的网络和地址，然后发起TLS握手，返回生成的TLS连接。dialer中的超时和期限设置会将连接和TLS握手作为一个整体来应用。</p>
+    <p align="left">DialWithDialer会将nil的配置视为零值的配置；参见Config类型的文档获取细节。</p>
+    <h3 id="Listen">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/tls/tls.go?name=release#69">Listen</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Listen(network, laddr <a href="builtin.htm#string">string</a>, config *<a href="#Config">Config</a>) (<a href="net.htm">net</a>.<a href="net.htm#Listener">Listener</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>函数创建一个TLS监听器，使用net.Listen函数接收给定地址上的连接。配置参数config必须是非nil的且必须含有至少一个证书。</p>
+    <h3 id="NewListener">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/tls/tls.go?name=release#58">NewListener</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func NewListener(inner <a href="net.htm">net</a>.<a href="net.htm#Listener">Listener</a>, config *<a href="#Config">Config</a>) <a href="net.htm">net</a>.<a href="net.htm#Listener">Listener</a></pre>
+    <p>函数创建一个TLS监听器，该监听器接受inner接收到的每一个连接，并调用Server函数包装这些连接。配置参数config必须是非nil的且必须含有至少一个证书。</p>
+</div>
+
+<div id="x-footer" class="clearfix">
+  <div class="container">
+    <a href="http://studygolang.com/">Go语言中文网</a>
+    <span class="text-muted">|</span> <a href="http://golang.org/">Go Language</a>
+    <span class="pull-right"><a href="#">Back to top</a></span>
+  </div>
+</div>
+<script src="../assets/jquery-2.0.3.min.js"></script>
+<script src="../bootstrap.min.js"></script>
+<script src="../site.js"></script>
+</body>
+</html>

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="../../../site.css" rel="stylesheet">
+<title>go.text/encoding</title>
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package encoding</h2>
+    <p><code>import "code.google.com/p/go.text/encoding"</code>
+    <p align="left">encoding包定义了字符编码的接口，例如Shift JIS和Windows  1252，可以将这些编码格式转换为utf-8。</p>
+要将一个io.Reader的字节数据从某种编码（e）转换为utf-8：
+    <pre>rInUTF8 := transform.NewReader(r, e.NewDecoder())
+</pre>
+    <p align="left">将utf-8编码的数据转换为某种编码（e）：</p>
+    <pre>wInUTF8 := transform.NewWriter(w, e.NewEncoder())
+</pre>
+    <p align="left">两种情况下，都需要导入&quot;code.google.com/p/go.text/transform&quot;。</p>
+    <p align="left">编码格式的具体实现在其他包里提供。</p>
+    <p align="left">例如code.google.com/p/go.text/encoding/charmap和code.google.com/p/go.text/encoding/japanese。</p>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <ul class="list-unstyled">
+        <li><a href="#pkg-constants">Constants</a></li>
+        <li><a href="#pkg-variables">Variables</a></li>
+        <li><a href="#Encoding">type Encoding</a></li>
+    </ul>
+    <h3 id="pkg-constants">Constants <a class="permalink" href="#pkg-constants">&para;</a></h3>
+    <pre>const <span id="ASCIISub">ASCIISub</span> = &#39;\x1a&#39;</pre>
+    <p>ASCIISub是ASCII替换字符，由该网页推荐：<a href="http://unicode.org/reports/tr36/#Text_Comparison">http://unicode.org/reports/tr36/#Text_Comparison</a></p>
+    <h3 id="pkg-variables">Variables <a class="permalink" href="#pkg-variables">&para;</a></h3>
+    <pre>var <span id="ErrInvalidUTF8">ErrInvalidUTF8</span> = <a href="https://godoc.org/errors">errors</a>.<a href="https://godoc.org/errors#New">New</a>(&#34;encoding: invalid UTF-8&#34;)</pre>
+    <p>ErrInvalidUTF8表示转换器遇到了非法的utf-8编码。</p>
+    <pre>var <span id="UTF8Validator">UTF8Validator</span> <a href="https://godoc.org/code.google.com/p/go.text/transform">transform</a>.<a href="https://godoc.org/code.google.com/p/go.text/transform#Transformer">Transformer</a> = utf8Validator{}</pre>
+    <p>UTF8Validator是一个空转换器，它会在遇到的非法utf-8编码的第一个字节时就返回ErrInvalidUTF8。</p>
+    <h3 id="Encoding">type <a title="View Source" href="http://code.google.com/p/go/source/browse/encoding/encoding.go?repo=text#28">Encoding</a> <a class="permalink" href="#Encoding">&para;</a></h3>
+    <pre>type Encoding interface {
+    <span class="com">// NewDecoder返回一个将某种编码转换为utf-8编码的转换器。</span>
+    <span class="com">// 当转换的编码并非期望的编码时，并不会导致错误。</span>
+    <span class="com">// 输入中每一个不能被转换的编码都会在输出中被替换为替换码'\uFFFD'。</span>
+    <span id="Encoding.NewDecoder">NewDecoder</span>() <a href="https://godoc.org/code.google.com/p/go.text/transform">transform</a>.<a href="https://godoc.org/code.google.com/p/go.text/transform#Transformer">Transformer</a>
+    <span class="com">// NewEncoder返回一个将utf-8编码转换为期望编码的转换器。</span>
+    <span class="com">// 当转换的编码是不合法的utf-8编码时，并不会导致错误。</span>
+    <span class="com">// 每一个非法utf-8编码都会在被替换为转换器指定的替换码，如'\x1a'或者"\xff\xfd"。</span>
+    <span class="com">// 如果要在遇到非法编码时尽快返回，使用transform.Chain函数和UTF8Validator预处理数据。</span>
+    <span id="Encoding.NewEncoder">NewEncoder</span>() <a href="https://godoc.org/code.google.com/p/go.text/transform">transform</a>.<a href="https://godoc.org/code.google.com/p/go.text/transform#Transformer">Transformer</a>
+}</pre>
+    <p>Encoding接口代表代表一个可以和utf-8互相转换的字符集。</p>
+    <pre>var <span id="Nop">Nop</span> <a href="#Encoding">Encoding</a> = nop{}</pre>
+    <p>Nop是无操作的Encoding接口。它的两个方法返回的转换器都会将提供给它的数据原封不动的返回，也不会替换非法的utf-8序列。</p>
+    <pre>var <span id="Replacement">Replacement</span> <a href="#Encoding">Encoding</a> = replacement{}</pre>
+    <p align="left">Replacement是仅替换操作的Encoding接口。它的Decoder方法返回的转换器只会生成单个'\uFFFD'替换码值；它的Encoder方法返回的转换器会将提供给它的数据原封不动的返回，但会将非法的utf-8序列替换为'\uFFFD'。</p>
+    <p align="left">参见<a href="http://encoding.spec.whatwg.org/#replacement">http://encoding.spec.whatwg.org/#replacement</a>。</p>
+</div>
+</body>
+</html>

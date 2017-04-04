@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="../../../site.css" rel="stylesheet">
+<title>go.net/html</title>
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package html</h2>
+    <p><code>import "code.google.com/p/go.net/html"</code>
+    <p>html包实现了兼容HTML5的token（标记）读取器和解析器。</p>
+    <p>文本的token化是通过使用io.Reader接口创建Tokenizer实现的。编程者有责任保证r提供utf-8编码的HTML文本。</p>
+    <pre>z := html.NewTokenizer(r)
+</pre>
+    <p>上述代码提供了Tokenizer类型值z，通过重复调用z.Next()可以获取HTML的所有token，该方法会解析下一个token，返回其类型或者一个错误。</p>
+    <pre>for {
+	tt := z.Next()
+	if tt == html.ErrorToken {
+		// ...
+		return ...
+	}
+	// 处理当前token
+}</pre>
+    <p>有两组API可以获取当前的token。高水平的API是Token方法，低水平的API是Text或TagName/TagAttr方法。两组API都允许在Next后，Text、Token、TagName或TagAttr之前，调用Raw方法。用EBNF范式表示每个token的合法调用序列如下：</p>
+    <pre>Next {Raw} [ Token | Text | TagName {TagAttr} ]
+</pre>
+    <p>Token方法返回完全描述一个token的独立的数据结构。（字符）实体（如&quot;&amp;lt;&quot;）不会被反转义，标签名和属性的键是小写的，属性会被收集进一个[]Attribute类型字段里。例如：</p>
+    <pre>for {
+	if z.Next() == html.ErrorToken {
+		// 返回io.EOF表示成功
+		return z.Err()
+	}
+	emitToken(z.Token())
+}</pre>
+    <p>低水平API会进行较少的内存申请和拷贝；但是Text、TagName、TagAttr方法返回的[]byte类型值得内容可能在下一次对Next的调用后被修改。例如，要提取一个HTML页面的锚定文本：</p>
+    <pre>depth := 0
+for {
+	tt := z.Next()
+	switch tt {
+	case ErrorToken:
+		return z.Err()
+	case TextToken:
+		if depth &gt; 0 {
+			// emitBytes应拷贝它接收到的文本，如果不立刻处理文本的话
+			emitBytes(z.Text())
+		}
+	case StartTagToken, EndTagToken:
+		tn, _ := z.TagName()
+		if len(tn) == 1 &amp;&amp; tn[0] == &#39;a&#39; {
+			if tt == StartTagToken {
+				depth++
+			} else {
+				depth--
+			}
+		}
+	}
+}</pre>
+    <p>使用io.Reader调用Parse函数可以一次完成解析，并返回解析树（文档元素）的*Node类型根节点。调用者有责任保证Reader接口提供的文本时utf-8编码的。下面是一个采用深度优先顺序处理锚定节点的例子：</p>
+    <pre>doc, err := html.Parse(r)
+if err != nil {
+	// ...
+}
+var f func(*html.Node)
+f = func(n *html.Node) {
+	if n.Type == html.ElementNode &amp;&amp; n.Data == &#34;a&#34; {
+		// 对n这样那样
+	}
+	for c := n.FirstChild; c != nil; c = c.NextSibling {
+		f(c)
+	}
+}
+f(doc)</pre>
+    <p>相关规范参见：<a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/syntax.html">http://www.whatwg.org/specs/web-apps/current-work/multipage/syntax.html</a></p>
+    <p>和：<a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/tokenization.html">http://www.whatwg.org/specs/web-apps/current-work/multipage/tokenization.html</a></p>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <ul class="list-unstyled">
+        <li><a href="#pkg-variables">Variables</a></li>
+        <li><a href="#EscapeString">func EscapeString(s string) string</a></li>
+        <li><a href="#UnescapeString">func UnescapeString(s string) string</a></li>
+        <li><a href="#Attribute">type Attribute</a></li>
+        <li><a href="#TokenType">type TokenType</a></li>
+        <ul>
+            <li><a href="#TokenType.String">func (t TokenType) String() string</a></li>
+        </ul>
+        <li><a href="#Token">type Token</a></li>
+        <ul>
+            <li><a href="#Token.String">func (t Token) String() string</a></li>
+        </ul>
+        <li><a href="#Tokenizer">type Tokenizer</a></li>
+        <ul>
+            <li><a href="#NewTokenizer">func NewTokenizer(r io.Reader) *Tokenizer</a></li>
+            <li><a href="#NewTokenizerFragment">func NewTokenizerFragment(r io.Reader, contextTag string) *Tokenizer</a></li>
+            <li><a href="#Tokenizer.Buffered">func (z *Tokenizer) Buffered() []byte</a></li>
+            <li><a href="#Tokenizer.SetMaxBuf">func (z *Tokenizer) SetMaxBuf(n int)</a></li>
+            <li><a href="#Tokenizer.AllowCDATA">func (z *Tokenizer) AllowCDATA(allowCDATA bool)</a></li>
+            <li><a href="#Tokenizer.NextIsNotRawText">func (z *Tokenizer) NextIsNotRawText()</a></li>
+            <li><a href="#Tokenizer.Next">func (z *Tokenizer) Next() TokenType</a></li>
+            <li><a href="#Tokenizer.Raw">func (z *Tokenizer) Raw() []byte</a></li>
+            <li><a href="#Tokenizer.Text">func (z *Tokenizer) Text() []byte</a></li>
+            <li><a href="#Tokenizer.TagAttr">func (z *Tokenizer) TagAttr() (key, val []byte, moreAttr bool)</a></li>
+            <li><a href="#Tokenizer.TagName">func (z *Tokenizer) TagName() (name []byte, hasAttr bool)</a></li>
+            <li><a href="#Tokenizer.Token">func (z *Tokenizer) Token() Token</a></li>
+            <li><a href="#Tokenizer.Err">func (z *Tokenizer) Err() error</a></li>
+        </ul>
+        <li><a href="#NodeType">type NodeType</a></li>
+        <li><a href="#Node">type Node</a></li>
+        <ul>
+            <li><a href="#Node.AppendChild">func (n *Node) AppendChild(c *Node)</a></li>
+            <li><a href="#Node.InsertBefore">func (n *Node) InsertBefore(newChild, oldChild *Node)</a></li>
+            <li><a href="#Node.RemoveChild">func (n *Node) RemoveChild(c *Node)</a></li>
+        </ul>
+        <li><a href="#Parse">func Parse(r io.Reader) (*Node, error)</a></li>
+        <li><a href="#ParseFragment">func ParseFragment(r io.Reader, context *Node) ([]*Node, error)</a></li>
+        <li><a href="#Render">func Render(w io.Writer, n *Node) error</a></li>
+    </ul>
+    <h4 id="pkg-examples">Examples <a class="permalink" href="#pkg-examples">&para;</a></h4>
+    <ul class="list-unstyled">
+        <li><a href="#example-Parse" onclick="$('#ex-Parse').addClass('in').removeClass('collapse').height('auto')">Parse</a></li>
+    </ul>
+    <h3 id="pkg-variables">Variables <a class="permalink" href="#pkg-variables">&para;</a></h3>
+    <pre>var <span id="ErrBufferExceeded">ErrBufferExceeded</span> = <a href="https://godoc.org/errors">errors</a>.<a href="https://godoc.org/errors#New">New</a>(&#34;max buffer exceeded&#34;)</pre>
+    <p>ErrBufferExceeded表示超出了缓冲限制。</p>
+    <h3 id="EscapeString">func <a title="View Source" href="http://code.google.com/p/go/source/browse/html/escape.go?repo=net#237">EscapeString</a> <a class="permalink" href="#EscapeString">&para;</a></h3>
+    <pre class="funcdecl">func EscapeString(s <a href="https://godoc.org/builtin#string">string</a>) <a href="https://godoc.org/builtin#string">string</a></pre>
+    <p>EscapeString将特定字符进行转义，如&quot;&lt;&quot;变成&#34;&amp;lt;&#34;。本函数只转义5个字符：&lt;, &gt;, &amp;, &#39;和&#34;。</p>
+    <p>UnescapeString(EscapeString(s)) == s总是成立，但反过来这不一定。</p>
+    <h3 id="UnescapeString">func <a title="View Source" href="http://code.google.com/p/go/source/browse/html/escape.go?repo=net#251">UnescapeString</a> <a class="permalink" href="#UnescapeString">&para;</a></h3>
+    <pre class="funcdecl">func UnescapeString(s <a href="https://godoc.org/builtin#string">string</a>) <a href="https://godoc.org/builtin#string">string</a></pre>
+    <p>UnescapeString将转义实体反转义为对应字符，如&#34;&amp;lt;&#34;变成&#34;&lt;&#34;。本函数会反转义远比EscapeString函数转义的字符多得多的字符实体。例如，&#34;&amp;aacute;&#34;反转义为&#34;á&#34;，字符实体&#34;&amp;#225;&#34;和&#34;&amp;xE1;&#34;也会反转义为该字符。</p>
+    <h3 id="Attribute">type <a title="View Source" href="http://code.google.com/p/go/source/browse/html/token.go?repo=net#67">Attribute</a> <a class="permalink" href="#Attribute">&para;</a></h3>
+    <pre>type Attribute struct {
+    <span id="Attribute.Namespace">Namespace</span>, <span id="Attribute.Key">Key</span>, <span id="Attribute.Val">Val</span> <a href="https://godoc.org/builtin#string">string</a>
+}</pre>
+    <p>Attribute是属性的【名字空间-键-值】三元组。Namespace对外来属性如xlink是非空的，Key是按字符顺序的（因此不含转义字符如&#39;&amp;&#39;、&#39;&lt;&#39;或&#39;&gt;&#39;），Val是解转义的（看起来更类似&#34;a&lt;b&#34;而非&#34;a&amp;lt;b&#34;）。</p>
+    <p>Namespace只用于解析器，token提取器不是使用该字段。</p>
+    <h3 id="TokenType">type <a title="View Source" href="http://code.google.com/p/go/source/browse/html/token.go?repo=net#18">TokenType</a> <a class="permalink" href="#TokenType">&para;</a></h3>
+    <pre>type TokenType <a href="https://godoc.org/builtin#uint32">uint32</a></pre>
+    <p>TokenType表示token的类型。</p>
+    <pre>const (
+    <span class="com">// ErrorToken表示解析token时出现了错误。</span>
+    <span id="ErrorToken">ErrorToken</span> <a href="#TokenType">TokenType</a> = <a href="https://godoc.org/builtin#iota">iota</a>
+    <span class="com">// TextToken表示文本节点。</span>
+    <span id="TextToken">TextToken</span>
+    <span class="com">// StartTagToken表示形如&lt;a&gt;的token。</span>
+    <span id="StartTagToken">StartTagToken</span>
+    <span class="com">// EndTagToken表示形如&lt;/a&gt;的token。</span>
+    <span id="EndTagToken">EndTagToken</span>
+    <span class="com">// SelfClosingTagToken表示形如&lt;br/&gt;的自闭合token。</span>
+    <span id="SelfClosingTagToken">SelfClosingTagToken</span>
+    <span class="com">// CommentToken表示形如&lt;!--x--&gt;的注释。</span>
+    <span id="CommentToken">CommentToken</span>
+    <span class="com">// DoctypeToken表示形如&lt;!DOCTYPE x&gt;的文档说明。</span>
+    <span id="DoctypeToken">DoctypeToken</span>
+)</pre>
+    <h4 id="TokenType.String">func (TokenType) <a title="View Source" href="http://code.google.com/p/go/source/browse/html/token.go?repo=net#41">String</a> <a class="permalink" href="#TokenType.String">&para;</a></h4>
+    <pre class="funcdecl">func (t <a href="#TokenType">TokenType</a>) String() <a href="https://godoc.org/builtin#string">string</a></pre>
+    <p>String返回TokenType的字符串表示。</p>
+    <h3 id="Token">type <a title="View Source" href="http://code.google.com/p/go/source/browse/html/token.go?repo=net#76">Token</a> <a class="permalink" href="#Token">&para;</a></h3>
+    <pre>type Token struct {
+    <span id="Token.Type">Type</span>     <a href="#TokenType">TokenType</a>
+    <span id="Token.DataAtom">DataAtom</span> <a href="https://godoc.org/code.google.com/p/go.net/html/atom">atom</a>.<a href="https://godoc.org/code.google.com/p/go.net/html/atom#Atom">Atom</a>
+    <span id="Token.Data">Data</span>     <a href="https://godoc.org/builtin#string">string</a>
+    <span id="Token.Attr">Attr</span>     []<a href="#Attribute">Attribute</a>
+}</pre>
+    <p>Token包含一个TokenType类型字段和一些信息（起始和结束标签的标签名，文本、注释和文档说明的内容）。标签token还会包含一个属性的切片。所有token的Data字段都是解转义的（其内容更类似&quot;a&lt;b&quot;而非&quot;a&amp;lt;b&quot;）。对标签token，DataAtom字段是Data字段的atom信息，如果Data不是已知的标签名，会设置该字段为零值。</p>
+    <h4 id="Token.String">func (Token) <a title="View Source" href="http://code.google.com/p/go/source/browse/html/token.go?repo=net#100">String</a> <a class="permalink" href="#Token.String">&para;</a></h4>
+    <pre class="funcdecl">func (t <a href="#Token">Token</a>) String() <a href="https://godoc.org/builtin#string">string</a></pre>
+    <p>String返回token的字符串表示。</p>
+    <h3 id="Tokenizer">type <a title="View Source" href="http://code.google.com/p/go/source/browse/html/token.go?repo=net#127">Tokenizer</a> <a class="permalink" href="#Tokenizer">&para;</a></h3>
+    <pre>type Tokenizer struct {
+    <span class="com">// 内含隐藏或非导出字段</span>
+}</pre>
+    <p>Tokenizer返回HTML token流。</p>
+    <h4 id="NewTokenizer">func <a title="View Source" href="http://code.google.com/p/go/source/browse/html/token.go?repo=net#1195">NewTokenizer</a> <a class="permalink" href="#NewTokenizer">&para;</a></h4>
+    <pre class="funcdecl">func NewTokenizer(r <a href="https://godoc.org/io">io</a>.<a href="https://godoc.org/io#Reader">Reader</a>) *<a href="#Tokenizer">Tokenizer</a></pre>
+    <p>NewTokenizer使用r创建并返回一个解析HTML的新*Tokenizer。输入应该是utf-8编码的。</p>
+    <h4 id="NewTokenizerFragment">func <a title="View Source" href="http://code.google.com/p/go/source/browse/html/token.go?repo=net#1207">NewTokenizerFragment</a> <a class="permalink" href="#NewTokenizerFragment">&para;</a></h4>
+    <pre class="funcdecl">func NewTokenizerFragment(r <a href="https://godoc.org/io">io</a>.<a href="https://godoc.org/io#Reader">Reader</a>, contextTag <a href="https://godoc.org/builtin#string">string</a>) *<a href="#Tokenizer">Tokenizer</a></pre>
+    <p>NewTokenizerFragment使用r创建并返回一个解析HTML的新*Tokenizer，以提取一个已存在元素的InnerHTML片段。contextTag是该元素的标签，如&#34;div&#34;&#34;或iframe&#34;。</p>
+    <p>例如，InnerHTML片段&#34;a&lt;b&#34;的token提取依赖于它是一个&lt;p&gt;标签还是一个&lt;script&gt;标签的内容。输入应该是utf-8编码的。</p>
+<h4 id="Tokenizer.Buffered">func (*Tokenizer) <a title="View Source" href="http://code.google.com/p/go/source/browse/html/token.go?repo=net#290">Buffered</a> <a class="permalink" href="#Tokenizer.Buffered">&para;</a></h4>
+    <pre class="funcdecl">func (z *<a href="#Tokenizer">Tokenizer</a>) Buffered() []<a href="https://godoc.org/builtin#byte">byte</a></pre>
+    <p>Buffered返回一个已经读取进缓冲但尚未处理的数据的切片。</p>
+    <h4 id="Tokenizer.SetMaxBuf">func (*Tokenizer) <a title="View Source" href="http://code.google.com/p/go/source/browse/html/token.go?repo=net#1189">SetMaxBuf</a> <a class="permalink" href="#Tokenizer.SetMaxBuf">&para;</a></h4>
+    <pre class="funcdecl">func (z *<a href="#Tokenizer">Tokenizer</a>) SetMaxBuf(n <a href="https://godoc.org/builtin#int">int</a>)</pre>
+    <p>SetMaxBuf设置提取token时缓冲中数据的数量限制。0表示没有限制。</p>
+    <h4 id="Tokenizer.AllowCDATA">func (*Tokenizer) <a title="View Source" href="http://code.google.com/p/go/source/browse/html/token.go?repo=net#188">AllowCDATA</a> <a class="permalink" href="#Tokenizer.AllowCDATA">&para;</a></h4>
+    <pre class="funcdecl">func (z *<a href="#Tokenizer">Tokenizer</a>) AllowCDATA(allowCDATA <a href="https://godoc.org/builtin#bool">bool</a>)</pre>
+    <p>AllowCDATA设置z是否将&lt;![CDATA[foo]]&gt;识别为文本&#34;foo&#34;。默认值是假，表示会将该标签识别为一个伪造注释&#34;&lt;!-- [CDATA[foo]] --&gt;&#34;。</p>
+    <p>严格来说，HTML兼容的Tokenizer应该当且仅当提取外部内容（如MathML和SVG）的token时允许CDATA。然而，和解析器不同，只使用Tokenizer追踪外部内容是很困难的：一个&lt;svg&gt;标签可能包含一个相对SVG而非相对HTML的外部的&lt;foreignObject&gt;。对于严格兼容HTML5的token提取算法，恰当的调用本函数是使用者的责任。某些情况下，如果不关心MathML或SVG的CDATA是文本还是注释，忽略恰当调用本函数的任务是可以接受的。</p>
+    <h4 id="Tokenizer.NextIsNotRawText">func (*Tokenizer) <a title="View Source" href="http://code.google.com/p/go/source/browse/html/token.go?repo=net#216">NextIsNotRawText</a> <a class="permalink" href="#Tokenizer.NextIsNotRawText">&para;</a></h4>
+    <pre class="funcdecl">func (z *<a href="#Tokenizer">Tokenizer</a>) NextIsNotRawText()</pre>
+    <p>NextIsNotRawText方法通知z下一个token不应被视为原始文本。一些元素，如script和title元素，一般要求起始标签后跟的token是原始文本（即不含子元素）。例如，&#34;&lt;title&gt;a&lt;b&gt;c&lt;/b&gt;d&lt;/title&gt;&#34;进行token的提取会生成起始标签：&quot;&lt;title&gt;&quot;，文本：&quot;a&lt;b&gt;c&lt;/b&gt;d&quot;和结束标签&quot;&lt;/title&gt;&quot;。不会抽提出起始标签&quot;&lt;b&gt;&quot;和结束标签&quot;&lt;/b&gt;&quot;。</p>
+    <p>token提取器的实现一般会在正确的时机查找原始文本。严格来说，HTML5兼容的token提取器不应在外部内容中查找原始文本：&lt;title&gt; 一般需要原始文本，但&lt;svg&gt;中的&lt;title&gt;不需要。另一个例子是&lt;textarea&gt;一般需要原始文本，但&lt;textarea&gt;不允许作为&lt;select&gt;标签的直接子元素；同常解析时，&lt;textarea&gt;隐含着&lt;/select&gt;，但在解析&lt;select&gt;的InnerHTML时不能隐式关闭元素。 类似于AllowCDATA方法，和解析器不同，只使用Tokenizer追踪重置原始文本的时机是很困难的。对于严格兼容HTML5的token提取算法， 恰当的调用本函数是使用者的责任。某些情况下，类似AllowCDATA方法，基本使用中忽略恰当调用本函数的任务是可以接受的。</p>
+    <p>注意，此处&quot;原始文本&quot;的概念和Tokenizer.Raw方法返回的文本是不同的。</p>
+    <h4 id="Tokenizer.Next">func (*Tokenizer) <a title="View Source" href="http://code.google.com/p/go/source/browse/html/token.go?repo=net#950">Next</a> <a class="permalink" href="#Tokenizer.Next">&para;</a></h4>
+    <pre class="funcdecl">func (z *<a href="#Tokenizer">Tokenizer</a>) Next() <a href="#TokenType">TokenType</a></pre>
+    <p>Next扫描下一个token并返回其类型。</p>
+    <h4 id="Tokenizer.Raw">func (*Tokenizer) <a title="View Source" href="http://code.google.com/p/go/source/browse/html/token.go?repo=net#1070">Raw</a> <a class="permalink" href="#Tokenizer.Raw">&para;</a></h4>
+    <pre class="funcdecl">func (z *<a href="#Tokenizer">Tokenizer</a>) Raw() []<a href="https://godoc.org/builtin#byte">byte</a></pre>
+    <p>Raw返回当前token未经修改的文本。调用Next、Token、Text、TagName/TagAttr方法可能会修改返回的切片的内容。</p>
+    <h4 id="Tokenizer.Text">func (*Tokenizer) <a title="View Source" href="http://code.google.com/p/go/source/browse/html/token.go?repo=net#1113">Text</a> <a class="permalink" href="#Tokenizer.Text">&para;</a></h4>
+    <pre class="funcdecl">func (z *<a href="#Tokenizer">Tokenizer</a>) Text() []<a href="https://godoc.org/builtin#byte">byte</a></pre>
+    <p>Text返回文本、注释和文档说明token的解转义的内容。返回切片的内容可能会在下一次调用Next方法时改变。</p>
+    <h4 id="Tokenizer.TagAttr">func (*Tokenizer) <a title="View Source" href="http://code.google.com/p/go/source/browse/html/token.go?repo=net#1150">TagAttr</a> <a class="permalink" href="#Tokenizer.TagAttr">&para;</a></h4>
+    <pre class="funcdecl">func (z *<a href="#Tokenizer">Tokenizer</a>) TagAttr() (key, val []<a href="https://godoc.org/builtin#byte">byte</a>, moreAttr <a href="https://godoc.org/builtin#bool">bool</a>)</pre>
+    <p>TagAttr返回当前标签token下一个未解析的小写的键和解转义的值，以及是否有更多属性。返回切片的内容可能在下一次调用Next方法时被修改。</p>
+    <h4 id="Tokenizer.TagName">func (*Tokenizer) <a title="View Source" href="http://code.google.com/p/go/source/browse/html/token.go?repo=net#1134">TagName</a> <a class="permalink" href="#Tokenizer.TagName">&para;</a></h4>
+    <pre class="funcdecl">func (z *<a href="#Tokenizer">Tokenizer</a>) TagName() (name []<a href="https://godoc.org/builtin#byte">byte</a>, hasAttr <a href="https://godoc.org/builtin#bool">bool</a>)</pre>
+    <p>TagName返回标签token的小写的名称（`&lt;IMG SRC=&#34;foo&#34;&gt;`会返回`img`）以及是否该标签具有属性。返回切片的内容可能在下一次调用Next方法时被修改。</p>
+    <h4 id="Tokenizer.Token">func (*Tokenizer) <a title="View Source" href="http://code.google.com/p/go/source/browse/html/token.go?repo=net#1166">Token</a> <a class="permalink" href="#Tokenizer.Token">&para;</a></h4>
+    <pre class="funcdecl">func (z *<a href="#Tokenizer">Tokenizer</a>) Token() <a href="#Token">Token</a></pre>
+    <p>Token返回下一个token。返回值的Data和Attr字段值在之后调用Next方法后仍会保持合法。</p>
+    <h4 id="Tokenizer.Err">func (*Tokenizer) <a title="View Source" href="http://code.google.com/p/go/source/browse/html/token.go?repo=net#222">Err</a> <a class="permalink" href="#Tokenizer.Err">&para;</a></h4>
+    <pre class="funcdecl">func (z *<a href="#Tokenizer">Tokenizer</a>) Err() <a href="https://godoc.org/builtin#error">error</a></pre>
+    <p>Err返回最近一次ErrorToken类型token对应的错误。一般是io.EOF，表示token提取结束。</p>
+    <h3 id="NodeType">type <a title="View Source" href="http://code.google.com/p/go/source/browse/html/node.go?repo=net#12">NodeType</a> <a class="permalink" href="#NodeType">&para;</a></h3>
+    <pre>type NodeType <a href="https://godoc.org/builtin#uint32">uint32</a></pre>
+    <p>NodeType是Node的类型。</p>
+    <pre>const (
+    <span id="ErrorNode">ErrorNode</span> <a href="#NodeType">NodeType</a> = <a href="https://godoc.org/builtin#iota">iota</a>
+    <span id="TextNode">TextNode</span>
+    <span id="DocumentNode">DocumentNode</span>
+    <span id="ElementNode">ElementNode</span>
+    <span id="CommentNode">CommentNode</span>
+    <span id="DoctypeNode">DoctypeNode</span>
+)</pre>
+    <h3 id="Node">type <a title="View Source" href="http://code.google.com/p/go/source/browse/html/node.go?repo=net#38">Node</a> <a class="permalink" href="#Node">&para;</a></h3>
+    <pre>type Node struct {
+    <span id="Node.Parent">Parent</span>, <span id="Node.FirstChild">FirstChild</span>, <span id="Node.LastChild">LastChild</span>, <span id="Node.PrevSibling">PrevSibling</span>, <span id="Node.NextSibling">NextSibling</span> *<a href="#Node">Node</a>
+    <span id="Node.Type">Type</span>      <a href="#NodeType">NodeType</a>
+    <span id="Node.DataAtom">DataAtom</span>  <a href="https://godoc.org/code.google.com/p/go.net/html/atom">atom</a>.<a href="https://godoc.org/code.google.com/p/go.net/html/atom#Atom">Atom</a>
+    <span id="Node.Data">Data</span>      <a href="https://godoc.org/builtin#string">string</a>
+    <span id="Node.Namespace">Namespace</span> <a href="https://godoc.org/builtin#string">string</a>
+    <span id="Node.Attr">Attr</span>      []<a href="#Attribute">Attribute</a>
+}</pre>
+    <p>Node类型包含一个NodeType字段和一些信息（元素节点的标签名、文本等的内容 ）是Node树的一部分。元素节点还有Namespace和Attribute的切片。Data是解转义的，因此其内容更接近&#34;a&lt;b&#34;而非&#34;a&amp;lt;b&#34;。对元素节点，DataAtom是Data的atom，或者零值表示未知标签名。</p>
+    <p>空的Namespace隐式表示&#34;<a href="http://www.w3.org/1999/xhtml">http://www.w3.org/1999/xhtml</a>&#34;名字空间。</p>
+    <p>类似的，&#34;math&#34; 是&#34;<a href="http://www.w3.org/1998/Math/MathML">http://www.w3.org/1998/Math/MathML</a>&#34;，&#34;svg&#34;是&#34;<a href="http://www.w3.org/2000/svg">http://www.w3.org/2000/svg</a>&#34;。</p>
+    <h4 id="Node.AppendChild">func (*Node) <a title="View Source" href="http://code.google.com/p/go/source/browse/html/node.go?repo=net#81">AppendChild</a> <a class="permalink" href="#Node.AppendChild">&para;</a></h4>
+    <pre class="funcdecl">func (n *<a href="#Node">Node</a>) AppendChild(c *<a href="#Node">Node</a>)</pre>
+    <p>AppendChild将c添加为n的子节点。如果c已经有父节点和兄弟节点，会panic。</p>
+<h4 id="Node.InsertBefore">func (*Node) <a title="View Source" href="http://code.google.com/p/go/source/browse/html/node.go?repo=net#53">InsertBefore</a> <a class="permalink" href="#Node.InsertBefore">&para;</a></h4>
+    <pre class="funcdecl">func (n *<a href="#Node">Node</a>) InsertBefore(newChild, oldChild *<a href="#Node">Node</a>)</pre>
+    <p>InsertBefore向n的子节点序列中oldChild的前面插入newChild作为其子节点。如果oldChild为nil，会将newChild添加到子节点序列的结尾。如果newChild已经有父节点和兄弟节点，会panic。</p>
+    <h4 id="Node.RemoveChild">func (*Node) <a title="View Source" href="http://code.google.com/p/go/source/browse/html/node.go?repo=net#100">RemoveChild</a> <a class="permalink" href="#Node.RemoveChild">&para;</a></h4>
+    <pre class="funcdecl">func (n *<a href="#Node">Node</a>) RemoveChild(c *<a href="#Node">Node</a>)</pre>
+    <p>RemoveChild删除n的子节点c。删除后，c将没有父节点和兄弟节点。如果c不是n的子节点，会panic。</p>
+<h3 id="Parse">func <a title="View Source" href="http://code.google.com/p/go/source/browse/html/parse.go?repo=net#2014">Parse</a> <a class="permalink" href="#Parse">&para;</a></h3>
+    <pre class="funcdecl">func Parse(r <a href="https://godoc.org/io">io</a>.<a href="https://godoc.org/io#Reader">Reader</a>) (*<a href="#Node">Node</a>, <a href="https://godoc.org/builtin#error">error</a>)</pre>
+    <p>Parse函数返回从r中读取的HTML文档的解析书。输入必须是utf-8编码的。</p>
+    <div class="panel-group">
+        <div class="panel panel-default" id="example-Parse">
+            <div class="panel-heading" onclick="document.getElementById('ex-Parse').style.display = document.getElementById('ex-Parse').style.display=='none'?'block':'none';">Example</div>
+            <div id="ex-Parse" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre>s := `&lt;ul&gt;&lt;li&gt;&lt;a href=&#34;foo&#34;&gt;Foo&lt;/a&gt;&lt;li&gt;&lt;a href=&#34;/bar/baz&#34;&gt;BarBaz&lt;/a&gt;&lt;/ul&gt;`
+doc, err := html.Parse(strings.NewReader(s))
+if err != nil {
+    log.Fatal(err)
+}
+var f func(*html.Node)
+f = func(n *html.Node) {
+    if n.Type == html.ElementNode &amp;&amp; n.Data == &#34;a&#34; {
+        for _, a := range n.Attr {
+            if a.Key == &#34;href&#34; {
+                fmt.Println(a.Val)
+                break
+            }
+        }
+    }
+    for c := n.FirstChild; c != nil; c = c.NextSibling {
+        f(c)
+    }
+}
+f(doc)</pre>
+                    <p>Output:
+                    <pre>foo
+/bar/baz
+</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    <h3 id="ParseFragment">func <a title="View Source" href="http://code.google.com/p/go/source/browse/html/parse.go?repo=net#2034">ParseFragment</a> <a class="permalink" href="#ParseFragment">&para;</a></h3>
+    <pre class="funcdecl">func ParseFragment(r <a href="https://godoc.org/io">io</a>.<a href="https://godoc.org/io#Reader">Reader</a>, context *<a href="#Node">Node</a>) ([]*<a href="#Node">Node</a>, <a href="https://godoc.org/builtin#error">error</a>)</pre>
+    <p>ParseFragment解析一个HTML片段，返回发现的节点。如果该片段式已存在的元素context的InnerHTML，会将解析出的元素传递给context。</p>
+<h3 id="Render">func <a title="View Source" href="http://code.google.com/p/go/source/browse/html/render.go?repo=net#45">Render</a> <a class="permalink" href="#Render">&para;</a></h3>
+    <pre class="funcdecl">func Render(w <a href="https://godoc.org/io">io</a>.<a href="https://godoc.org/io#Writer">Writer</a>, n *<a href="#Node">Node</a>) <a href="https://godoc.org/builtin#error">error</a></pre>
+    <p>Render将解析树n翻译后写入接口w中。</p>
+    <p>翻译是在'最大努力'模块上进行的：对Render函数生成的输出调用Parse函数总是生成某些元素和原始的解析树类似的树，但只有原始解析树是格式正确的情况下，才会也确定会保证Parse返回的解析树是n的精确克隆。格式正确并不容易说明，兼容HTML5规范。</p>
+    <p>对任意输入调用Parse函数一般总是生成格式正确的解析树。但是，也有可能生成格式错误的解析树。例如，在一个格式正确的解析树中，没有&lt;a&gt;元素是另一个&lt;a&gt;元素的子元素：解析&#34;&lt;a&gt;&lt;a&gt;&#34;生成两个兄弟元素。类似的，格式正确的解析树中，没有&lt;a&gt;元素是&lt;table&gt;元素的子元素：解析&#34;&lt;p&gt;&lt;table&gt;&lt;a&gt;&#34;生成一个具有两个互为兄弟元素的子元素的&lt;p&gt;元素；&lt;a&gt;元素的父元素被重设为&lt;table&gt;元素的父元素。但是，对&#34;&lt;a&gt;&lt;table&gt;&lt;a&gt;&#34;调用Parse函数不会返回错误，但是结果会含有一个具有&lt;a&gt;子元素的&lt;a&gt;元素，导致格式错误。</p>
+<p>从编程角度看，生成的树仍然是格式正确的。然而，有可能构造出一个看起来无害的树，但在翻译后再解析时却会生成不同的树。一个简单的例子，一个单独的文本元素会变成一个包含&lt;html&gt;、&lt;head&gt;和&lt;body&gt;元素的树。另一个例子， 标题等价的&#34;a&lt;head&gt;b&lt;/head&gt;c&#34;会变成&#34;&lt;html&gt;&lt;head&gt;&lt;head/&gt;&lt;body&gt;abc&lt;/body&gt;&lt;/html&gt;&#34;。</p>
+</div>
+</body>
+</html>

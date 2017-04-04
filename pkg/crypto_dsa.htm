@@ -1,0 +1,83 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="./site.css" rel="stylesheet">
+<title>crypto/dsa</title>
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package dsa</h2>
+    <p><code>import "crypto/dsa"</code>
+    <p>dsa包实现FIPS 186-3定义的数字签名算法（Digital Signature Algorithm），即DSA算法。</p>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#pkg-variables">Variables</a></li>
+        <li><a href="#ParameterSizes">type ParameterSizes</a></li>
+        <li><a href="#Parameters">type Parameters</a></li>
+        <li><a href="#PublicKey">type PublicKey</a></li>
+        <li><a href="#PrivateKey">type PrivateKey</a></li>
+        <li><a href="#GenerateParameters">func GenerateParameters(params *Parameters, rand io.Reader, sizes ParameterSizes) (err error)</a></li>
+        <li><a href="#GenerateKey">func GenerateKey(priv *PrivateKey, rand io.Reader) error</a></li>
+        <li><a href="#Sign">func Sign(rand io.Reader, priv *PrivateKey, hash []byte) (r, s *big.Int, err error)</a></li>
+        <li><a href="#Verify">func Verify(pub *PublicKey, hash []byte, r, s *big.Int) bool</a></li>
+    </ul>
+    <h3 id="pkg-variables">Variables <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>var <span id="ErrInvalidPublicKey">ErrInvalidPublicKey</span> = <a href="errors.htm">errors</a>.<a href="errors.htm#New">New</a>(&#34;crypto/dsa: invalid public key&#34;)</pre>
+    <p>非法公钥，FIPS标准的公钥格式是很严格的，但有些实现没这么严格，使用这些实现的公钥时，就会导致这个错误。</p>
+    <h3 id="ParameterSizes">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/dsa/dsa.go?name=release#40">ParameterSizes</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type ParameterSizes <a href="builtin.htm#int">int</a></pre>
+    <p>是DSA参数中的质数可以接受的字位长度的枚举，参见FIPS 186-3 section 4.2。</p>
+    <pre>const (
+    <span id="L1024N160">L1024N160</span> <a href="#ParameterSizes">ParameterSizes</a> = <a href="builtin.htm#iota">iota</a>
+    <span id="L2048N224">L2048N224</span>
+    <span id="L2048N256">L2048N256</span>
+    <span id="L3072N256">L3072N256</span>
+)</pre>
+    <h3 id="Parameters">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/dsa/dsa.go?name=release#16">Parameters</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Parameters struct {
+    <span id="Parameters.P">P</span>, <span id="Parameters.Q">Q</span>, <span id="Parameters.G">G</span> *<a href="math/big.htm">big</a>.<a href="math/big.htm#Int">Int</a>
+}</pre>
+    <p>Parameters代表密钥的域参数，这些参数可以被一组密钥共享，Q的字位长度必须是8的倍数。</p>
+    <h3 id="PublicKey">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/dsa/dsa.go?name=release#21">PublicKey</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type PublicKey struct {
+    <a href="#Parameters">Parameters</a>
+    <span id="PublicKey.Y">Y</span>   *<a href="math/big.htm">big</a>.<a href="math/big.htm#Int">Int</a>
+}</pre>
+    <p>PublicKey代表一个DSA公钥。</p>
+    <h3 id="PrivateKey">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/dsa/dsa.go?name=release#27">PrivateKey</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type PrivateKey struct {
+    <a href="#PublicKey">PublicKey</a>
+    <span id="PrivateKey.X">X</span>   *<a href="math/big.htm">big</a>.<a href="math/big.htm#Int">Int</a>
+}</pre>
+    <p>PrivateKey代表一个DSA私钥。</p>
+    <h3 id="GenerateKey">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/dsa/dsa.go?name=release#151">GenerateKey</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <h3 id="GenerateParameters">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/dsa/dsa.go?name=release#55">GenerateParameters</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func GenerateParameters(params *<a href="#Parameters">Parameters</a>, rand <a href="io.htm">io</a>.<a href="io.htm#Reader">Reader</a>, sizes <a href="#ParameterSizes">ParameterSizes</a>) (err <a href="builtin.htm#error">error</a>)</pre>
+    <p>GenerateParameters函数随机设置合法的参数到params。即使机器很快，函数也可能会花费很多时间来生成参数。</p>
+    <pre class="funcdecl">func GenerateKey(priv *<a href="#PrivateKey">PrivateKey</a>, rand <a href="io.htm">io</a>.<a href="io.htm#Reader">Reader</a>) <a href="builtin.htm#error">error</a></pre>
+    <p>GenerateKey生成一对公钥和私钥；priv.PublicKey.Parameters字段必须已经（被GenerateParameters函数）设置了合法的参数。</p>
+    <h3 id="Sign">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/dsa/dsa.go?name=release#194">Sign</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Sign(rand <a href="io.htm">io</a>.<a href="io.htm#Reader">Reader</a>, priv *<a href="#PrivateKey">PrivateKey</a>, hash []<a href="builtin.htm#byte">byte</a>) (r, s *<a href="math/big.htm">big</a>.<a href="math/big.htm#Int">Int</a>, err <a href="builtin.htm#error">error</a>)</pre>
+    <p align="left">使用私钥对任意长度的hash值（必须是较大信息的hash结果）进行签名，返回签名结果（一对大整数）。私钥的安全性取决于密码读取器的熵度（随机程度）。</p>
+    <p align="left">注意根据FIPS 186-3 section 4.6的规定，hash必须被截断到亚组的长度，本函数是不会自己截断的。</p>
+    <h3 id="Verify">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/dsa/dsa.go?name=release#249">Verify</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Verify(pub *<a href="#PublicKey">PublicKey</a>, hash []<a href="builtin.htm#byte">byte</a>, r, s *<a href="math/big.htm">big</a>.<a href="math/big.htm#Int">Int</a>) <a href="builtin.htm#bool">bool</a></pre>
+    <p align="left">使用公钥认证hash和两个大整数r、s构成的签名，报告签名是否合法。</p>
+    <p align="left">注意根据FIPS 186-3 section 4.6的规定，hash必须被截断到亚组的长度，本函数是不会自己截断的。</p>
+</div>
+
+<div id="x-footer" class="clearfix">
+  <div class="container">
+    <a href="http://studygolang.com/">Go语言中文网</a>
+    <span class="text-muted">|</span> <a href="http://golang.org/">Go Language</a>
+    <span class="pull-right"><a href="#">Back to top</a></span>
+  </div>
+</div>
+<script src="../assets/jquery-2.0.3.min.js"></script>
+<script src="../bootstrap.min.js"></script>
+<script src="../site.js"></script>
+</body>
+</html>

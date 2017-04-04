@@ -1,0 +1,1129 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="./site.css" rel="stylesheet">
+<title>net/http</title>
+<meta name="private:description" content="刘志曦翻译于2014年夏，Go 1.3版本">
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package http</h2>
+    <p><code>import "net/http"</code>
+    <p align="left">http包提供了HTTP客户端和服务端的实现。</p>
+    <p align="left">Get、Head、Post和PostForm函数发出HTTP/ HTTPS请求。</p>
+    <pre>resp, err := http.Get(&#34;<a href="http://example.com/">http://example.com/</a>&#34;)
+...
+resp, err := http.Post(&#34;<a href="http://example.com/upload">http://example.com/upload</a>&#34;, &#34;image/jpeg&#34;, &amp;buf)
+...
+resp, err := http.PostForm(&#34;<a href="http://example.com/form">http://example.com/form</a>&#34;,
+	url.Values{&#34;key&#34;: {&#34;Value&#34;}, &#34;id&#34;: {&#34;123&#34;}})
+</pre>
+    <p>程序在使用完回复后必须关闭回复的主体。</p>
+    <pre>resp, err := http.Get(&#34;<a href="http://example.com/">http://example.com/</a>&#34;)
+if err != nil {
+	// handle error
+}
+defer resp.Body.Close()
+body, err := ioutil.ReadAll(resp.Body)
+// ...
+</pre>
+    <p>要管理HTTP客户端的头域、重定向策略和其他设置，创建一个Client：</p>
+    <pre>client := &amp;http.Client{
+	CheckRedirect: redirectPolicyFunc,
+}
+resp, err := client.Get(&#34;<a href="http://example.com">http://example.com</a>&#34;)
+// ...
+req, err := http.NewRequest(&#34;GET&#34;, &#34;<a href="http://example.com">http://example.com</a>&#34;, nil)
+// ...
+req.Header.Add(&#34;If-None-Match&#34;, `W/&#34;wyzzy&#34;`)
+resp, err := client.Do(req)
+// ...
+</pre>
+    <p>要管理代理、TLS配置、keep-alive、压缩和其他设置，创建一个Transport：</p>
+    <pre>tr := &amp;http.Transport{
+	TLSClientConfig:    &amp;tls.Config{RootCAs: pool},
+	DisableCompression: true,
+}
+client := &amp;http.Client{Transport: tr}
+resp, err := client.Get(&#34;<a href="https://example.com">https://example.com</a>&#34;)
+</pre>
+    <p align="left">Client和Transport类型都可以安全的被多个go程同时使用。出于效率考虑，应该一次建立、尽量重用。</p>
+    <p align="left">ListenAndServe使用指定的监听地址和处理器启动一个HTTP服务端。处理器参数通常是nil，这表示采用包变量DefaultServeMux作为处理器。Handle和HandleFunc函数可以向DefaultServeMux添加处理器。</p>
+    <pre>http.Handle(&#34;/foo&#34;, fooHandler)
+http.HandleFunc(&#34;/bar&#34;, func(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, &#34;Hello, %q&#34;, html.EscapeString(r.URL.Path))
+})
+log.Fatal(http.ListenAndServe(&#34;:8080&#34;, nil))
+</pre>
+    <p>要管理服务端的行为，可以创建一个自定义的Server：</p>
+    <pre>s := &amp;http.Server{
+	Addr:           &#34;:8080&#34;,
+	Handler:        myHandler,
+	ReadTimeout:    10 * time.Second,
+	WriteTimeout:   10 * time.Second,
+	MaxHeaderBytes: 1 &lt;&lt; 20,
+}
+log.Fatal(s.ListenAndServe())</pre>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#pkg-constants">Constants</a></li>
+        <li><a href="#pkg-variables">Variables</a></li>
+        <li><a href="#ProtocolError">type ProtocolError</a></li>
+        <ul>
+            <li><a href="#ProtocolError.Error">func (err *ProtocolError) Error() string</a></li>
+        </ul>
+        <li><a href="#CanonicalHeaderKey">func CanonicalHeaderKey(s string) string</a></li>
+        <li><a href="#DetectContentType">func DetectContentType(data []byte) string</a></li>
+        <li><a href="#ParseHTTPVersion">func ParseHTTPVersion(vers string) (major, minor int, ok bool)</a></li>
+        <li><a href="#ParseTime">func ParseTime(text string) (t time.Time, err error)</a></li>
+        <li><a href="#StatusText">func StatusText(code int) string</a></li>
+        <li><a href="#ConnState">type ConnState</a></li>
+        <ul>
+            <li><a href="#ConnState.String">func (c ConnState) String() string</a></li>
+        </ul>
+        <li><a href="#Header">type Header</a></li>
+        <ul>
+            <li><a href="#Header.Get">func (h Header) Get(key string) string</a></li>
+            <li><a href="#Header.Set">func (h Header) Set(key, value string)</a></li>
+            <li><a href="#Header.Add">func (h Header) Add(key, value string)</a></li>
+            <li><a href="#Header.Del">func (h Header) Del(key string)</a></li>
+            <li><a href="#Header.Write">func (h Header) Write(w io.Writer) error</a></li>
+            <li><a href="#Header.WriteSubset">func (h Header) WriteSubset(w io.Writer, exclude map[string]bool) error</a></li>
+        </ul>
+        <li><a href="#Cookie">type Cookie</a></li>
+        <ul>
+            <li><a href="#Cookie.String">func (c *Cookie) String() string</a></li>
+        </ul>
+        <li><a href="#CookieJar">type CookieJar</a></li>
+        <li><a href="#Request">type Request</a></li>
+        <ul>
+            <li><a href="#NewRequest">func NewRequest(method, urlStr string, body io.Reader) (*Request, error)</a></li>
+            <li><a href="#ReadRequest">func ReadRequest(b *bufio.Reader) (req *Request, err error)</a></li>
+            <li><a href="#Request.ProtoAtLeast">func (r *Request) ProtoAtLeast(major, minor int) bool</a></li>
+            <li><a href="#Request.UserAgent">func (r *Request) UserAgent() string</a></li>
+            <li><a href="#Request.Referer">func (r *Request) Referer() string</a></li>
+            <li><a href="#Request.AddCookie">func (r *Request) AddCookie(c *Cookie)</a></li>
+            <li><a href="#Request.SetBasicAuth">func (r *Request) SetBasicAuth(username, password string)</a></li>
+            <li><a href="#Request.Write">func (r *Request) Write(w io.Writer) error</a></li>
+            <li><a href="#Request.WriteProxy">func (r *Request) WriteProxy(w io.Writer) error</a></li>
+            <li><a href="#Request.Cookies">func (r *Request) Cookies() []*Cookie</a></li>
+            <li><a href="#Request.Cookie">func (r *Request) Cookie(name string) (*Cookie, error)</a></li>
+            <li><a href="#Request.ParseForm">func (r *Request) ParseForm() error</a></li>
+            <li><a href="#Request.ParseMultipartForm">func (r *Request) ParseMultipartForm(maxMemory int64) error</a></li>
+            <li><a href="#Request.FormValue">func (r *Request) FormValue(key string) string</a></li>
+            <li><a href="#Request.PostFormValue">func (r *Request) PostFormValue(key string) string</a></li>
+            <li><a href="#Request.FormFile">func (r *Request) FormFile(key string) (multipart.File, *multipart.FileHeader, error)</a></li>
+            <li><a href="#Request.MultipartReader">func (r *Request) MultipartReader() (*multipart.Reader, error)</a></li>
+        </ul>
+        <li><a href="#Response">type Response</a></li>
+        <ul>
+            <li><a href="#ReadResponse">func ReadResponse(r *bufio.Reader, req *Request) (*Response, error)</a></li>
+            <li><a href="#Response.ProtoAtLeast">func (r *Response) ProtoAtLeast(major, minor int) bool</a></li>
+            <li><a href="#Response.Cookies">func (r *Response) Cookies() []*Cookie</a></li>
+            <li><a href="#Response.Location">func (r *Response) Location() (*url.URL, error)</a></li>
+            <li><a href="#Response.Write">func (r *Response) Write(w io.Writer) error</a></li>
+        </ul>
+        <li><a href="#ResponseWriter">type ResponseWriter</a></li>
+        <li><a href="#Flusher">type Flusher</a></li>
+        <li><a href="#CloseNotifier">type CloseNotifier</a></li>
+        <li><a href="#Hijacker">type Hijacker</a></li>
+        <li><a href="#RoundTripper">type RoundTripper</a></li>
+        <li><a href="#Transport">type Transport</a></li>
+        <ul>
+            <li><a href="#Transport.RegisterProtocol">func (t *Transport) RegisterProtocol(scheme string, rt RoundTripper)</a></li>
+            <li><a href="#Transport.RoundTrip">func (t *Transport) RoundTrip(req *Request) (resp *Response, err error)</a></li>
+            <li><a href="#Transport.CloseIdleConnections">func (t *Transport) CloseIdleConnections()</a></li>
+            <li><a href="#Transport.CancelRequest">func (t *Transport) CancelRequest(req *Request)</a></li>
+        </ul>
+        <li><a href="#Client">type Client</a></li>
+        <ul>
+            <li><a href="#Client.Do">func (c *Client) Do(req *Request) (resp *Response, err error)</a></li>
+            <li><a href="#Client.Head">func (c *Client) Head(url string) (resp *Response, err error)</a></li>
+            <li><a href="#Client.Get">func (c *Client) Get(url string) (resp *Response, err error)</a></li>
+            <li><a href="#Client.Post">func (c *Client) Post(url string, bodyType string, body io.Reader) (resp *Response, err error)</a></li>
+            <li><a href="#Client.PostForm">func (c *Client) PostForm(url string, data url.Values) (resp *Response, err error)</a></li>
+        </ul>
+        <li><a href="#Handler">type Handler</a></li>
+        <ul>
+            <li><a href="#NotFoundHandler">func NotFoundHandler() Handler</a></li>
+            <li><a href="#RedirectHandler">func RedirectHandler(url string, code int) Handler</a></li>
+            <li><a href="#TimeoutHandler">func TimeoutHandler(h Handler, dt time.Duration, msg string) Handler</a></li>
+            <li><a href="#StripPrefix">func StripPrefix(prefix string, h Handler) Handler</a></li>
+        </ul>
+        <li><a href="#HandlerFunc">type HandlerFunc</a></li>
+        <ul>
+            <li><a href="#HandlerFunc.ServeHTTP">func (f HandlerFunc) ServeHTTP(w ResponseWriter, r *Request)</a></li>
+        </ul>
+        <li><a href="#ServeMux">type ServeMux</a></li>
+        <ul>
+            <li><a href="#NewServeMux">func NewServeMux() *ServeMux</a></li>
+            <li><a href="#ServeMux.Handle">func (mux *ServeMux) Handle(pattern string, handler Handler)</a></li>
+            <li><a href="#ServeMux.HandleFunc">func (mux *ServeMux) HandleFunc(pattern string, handler func(ResponseWriter, *Request))</a></li>
+            <li><a href="#ServeMux.Handler">func (mux *ServeMux) Handler(r *Request) (h Handler, pattern string)</a></li>
+            <li><a href="#ServeMux.ServeHTTP">func (mux *ServeMux) ServeHTTP(w ResponseWriter, r *Request)</a></li>
+        </ul>
+        <li><a href="#Server">type Server</a></li>
+        <ul>
+            <li><a href="#Server.SetKeepAlivesEnabled">func (s *Server) SetKeepAlivesEnabled(v bool)</a></li>
+            <li><a href="#Server.Serve">func (srv *Server) Serve(l net.Listener) error</a></li>
+            <li><a href="#Server.ListenAndServe">func (srv *Server) ListenAndServe() error</a></li>
+            <li><a href="#Server.ListenAndServeTLS">func (srv *Server) ListenAndServeTLS(certFile, keyFile string) error</a></li>
+        </ul>
+        <li><a href="#File">type File</a></li>
+        <li><a href="#FileSystem">type FileSystem</a></li>
+        <li><a href="#Dir">type Dir</a></li>
+        <ul>
+            <li><a href="#Dir.Open">func (d Dir) Open(name string) (File, error)</a></li>
+        </ul>
+        <li><a href="#NewFileTransport">func NewFileTransport(fs FileSystem) RoundTripper</a></li>
+        <li><a href="#FileServer">func FileServer(root FileSystem) Handler</a></li>
+        <li><a href="#SetCookie">func SetCookie(w ResponseWriter, cookie *Cookie)</a></li>
+        <li><a href="#Redirect">func Redirect(w ResponseWriter, r *Request, urlStr string, code int)</a></li>
+        <li><a href="#NotFound">func NotFound(w ResponseWriter, r *Request)</a></li>
+        <li><a href="#Error">func Error(w ResponseWriter, error string, code int)</a></li>
+        <li><a href="#ServeContent">func ServeContent(w ResponseWriter, req *Request, name string, modtime time.Time, content io.ReadSeeker)</a></li>
+        <li><a href="#ServeFile">func ServeFile(w ResponseWriter, r *Request, name string)</a></li>
+        <li><a href="#MaxBytesReader">func MaxBytesReader(w ResponseWriter, r io.ReadCloser, n int64) io.ReadCloser</a></li>
+        <li><a href="#ProxyURL">func ProxyURL(fixedURL *url.URL) func(*Request) (*url.URL, error)</a></li>
+        <li><a href="#ProxyFromEnvironment">func ProxyFromEnvironment(req *Request) (*url.URL, error)</a></li>
+        <li><a href="#Head">func Head(url string) (resp *Response, err error)</a></li>
+        <li><a href="#Get">func Get(url string) (resp *Response, err error)</a></li>
+        <li><a href="#Post">func Post(url string, bodyType string, body io.Reader) (resp *Response, err error)</a></li>
+        <li><a href="#PostForm">func PostForm(url string, data url.Values) (resp *Response, err error)</a></li>
+        <li><a href="#Handle">func Handle(pattern string, handler Handler)</a></li>
+        <li><a href="#HandleFunc">func HandleFunc(pattern string, handler func(ResponseWriter, *Request))</a></li>
+        <li><a href="#Serve">func Serve(l net.Listener, handler Handler) error</a></li>
+        <li><a href="#ListenAndServe">func ListenAndServe(addr string, handler Handler) error</a></li>
+        <li><a href="#ListenAndServeTLS">func ListenAndServeTLS(addr string, certFile string, keyFile string, handler Handler) error</a></li>
+    </ul>
+    <h4 id="pkg-examples">Examples <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#example-FileServer" onclick="$('#ex-FileServer').addClass('in').removeClass('collapse').height('auto')">FileServer</a></li>
+        <li><a href="#example-FileServer--StripPrefix" onclick="$('#ex-FileServer--StripPrefix').addClass('in').removeClass('collapse').height('auto')">FileServer (StripPrefix)</a></li>
+        <li><a href="#example-Get" onclick="$('#ex-Get').addClass('in').removeClass('collapse').height('auto')">Get</a></li>
+        <li><a href="#example-Hijacker" onclick="$('#ex-Hijacker').addClass('in').removeClass('collapse').height('auto')">Hijacker</a></li>
+        <li><a href="#example-ServeMux-Handle" onclick="$('#ex-ServeMux-Handle').addClass('in').removeClass('collapse').height('auto')">ServeMux.Handle</a></li>
+        <li><a href="#example-StripPrefix" onclick="$('#ex-StripPrefix').addClass('in').removeClass('collapse').height('auto')">StripPrefix</a></li>
+    </ul>
+    <pre>const (
+    <span id="StatusContinue">StatusContinue</span>           = 100
+    <span id="StatusSwitchingProtocols">StatusSwitchingProtocols</span> = 101
+    <span id="StatusOK">StatusOK</span>                   = 200
+    <span id="StatusCreated">StatusCreated</span>              = 201
+    <span id="StatusAccepted">StatusAccepted</span>             = 202
+    <span id="StatusNonAuthoritativeInfo">StatusNonAuthoritativeInfo</span> = 203
+    <span id="StatusNoContent">StatusNoContent</span>            = 204
+    <span id="StatusResetContent">StatusResetContent</span>         = 205
+    <span id="StatusPartialContent">StatusPartialContent</span>       = 206
+    <span id="StatusMultipleChoices">StatusMultipleChoices</span>   = 300
+    <span id="StatusMovedPermanently">StatusMovedPermanently</span>  = 301
+    <span id="StatusFound">StatusFound</span>             = 302
+    <span id="StatusSeeOther">StatusSeeOther</span>          = 303
+    <span id="StatusNotModified">StatusNotModified</span>       = 304
+    <span id="StatusUseProxy">StatusUseProxy</span>          = 305
+    <span id="StatusTemporaryRedirect">StatusTemporaryRedirect</span> = 307
+    <span id="StatusBadRequest">StatusBadRequest</span>                   = 400
+    <span id="StatusUnauthorized">StatusUnauthorized</span>                 = 401
+    <span id="StatusPaymentRequired">StatusPaymentRequired</span>              = 402
+    <span id="StatusForbidden">StatusForbidden</span>                    = 403
+    <span id="StatusNotFound">StatusNotFound</span>                     = 404
+    <span id="StatusMethodNotAllowed">StatusMethodNotAllowed</span>             = 405
+    <span id="StatusNotAcceptable">StatusNotAcceptable</span>                = 406
+    <span id="StatusProxyAuthRequired">StatusProxyAuthRequired</span>            = 407
+    <span id="StatusRequestTimeout">StatusRequestTimeout</span>               = 408
+    <span id="StatusConflict">StatusConflict</span>                     = 409
+    <span id="StatusGone">StatusGone</span>                         = 410
+    <span id="StatusLengthRequired">StatusLengthRequired</span>               = 411
+    <span id="StatusPreconditionFailed">StatusPreconditionFailed</span>           = 412
+    <span id="StatusRequestEntityTooLarge">StatusRequestEntityTooLarge</span>        = 413
+    <span id="StatusRequestURITooLong">StatusRequestURITooLong</span>            = 414
+    <span id="StatusUnsupportedMediaType">StatusUnsupportedMediaType</span>         = 415
+    <span id="StatusRequestedRangeNotSatisfiable">StatusRequestedRangeNotSatisfiable</span> = 416
+    <span id="StatusExpectationFailed">StatusExpectationFailed</span>            = 417
+    <span id="StatusTeapot">StatusTeapot</span>                       = 418
+    <span id="StatusInternalServerError">StatusInternalServerError</span>     = 500
+    <span id="StatusNotImplemented">StatusNotImplemented</span>          = 501
+    <span id="StatusBadGateway">StatusBadGateway</span>              = 502
+    <span id="StatusServiceUnavailable">StatusServiceUnavailable</span>      = 503
+    <span id="StatusGatewayTimeout">StatusGatewayTimeout</span>          = 504
+    <span id="StatusHTTPVersionNotSupported">StatusHTTPVersionNotSupported</span> = 505
+)</pre>
+    <p>HTTP状态码，参见<a href="http://tools.ietf.org/html/rfc2616">RFC 2616</a></p>
+    <pre>const <span id="DefaultMaxHeaderBytes">DefaultMaxHeaderBytes</span> = 1 &lt;&lt; 20 <span class="com">// 1 MB</span>
+</pre>
+    <p>DefaultMaxHeaderBytes是HTTP请求的头域最大允许长度。可以通过设置Server.MaxHeaderBytes字段来覆盖。</p>
+    <pre>const <span id="DefaultMaxIdleConnsPerHost">DefaultMaxIdleConnsPerHost</span> = 2</pre>
+    <p>DefaultMaxIdleConnsPerHost是Transport的MaxIdleConnsPerHost的默认值。</p>
+    <pre>const <span id="TimeFormat">TimeFormat</span> = &#34;Mon, 02 Jan 2006 15:04:05 GMT&#34;</pre>
+    <p>TimeFormat是当解析或生产HTTP头域中的时间时，用与time.Parse或time.Format函数的时间格式。这种格式类似time.RFC1123但强制采用GMT时区。</p>
+    <h3 id="pkg-variables">Variables <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>var (
+    <span id="ErrHeaderTooLong">ErrHeaderTooLong</span>        = &amp;<a href="#ProtocolError">ProtocolError</a>{&#34;header too long&#34;}
+    <span id="ErrShortBody">ErrShortBody</span>            = &amp;<a href="#ProtocolError">ProtocolError</a>{&#34;entity body too short&#34;}
+    <span id="ErrNotSupported">ErrNotSupported</span>         = &amp;<a href="#ProtocolError">ProtocolError</a>{&#34;feature not supported&#34;}
+    <span id="ErrUnexpectedTrailer">ErrUnexpectedTrailer</span>    = &amp;<a href="#ProtocolError">ProtocolError</a>{&#34;trailer header without chunked transfer encoding&#34;}
+    <span id="ErrMissingContentLength">ErrMissingContentLength</span> = &amp;<a href="#ProtocolError">ProtocolError</a>{&#34;missing ContentLength in HEAD response&#34;}
+    <span id="ErrNotMultipart">ErrNotMultipart</span>         = &amp;<a href="#ProtocolError">ProtocolError</a>{&#34;request Content-Type isn&#39;t multipart/form-data&#34;}
+    <span id="ErrMissingBoundary">ErrMissingBoundary</span>      = &amp;<a href="#ProtocolError">ProtocolError</a>{&#34;no multipart boundary param in Content-Type&#34;}
+)</pre>
+    <p>HTTP请求的解析错误。</p>
+    <pre>var (
+    <span id="ErrWriteAfterFlush">ErrWriteAfterFlush</span> = <a href="http://godoc.org/errors">errors</a>.<a href="http://godoc.org/errors#New">New</a>(&#34;Conn.Write called after Flush&#34;)
+    <span id="ErrBodyNotAllowed">ErrBodyNotAllowed</span>  = <a href="http://godoc.org/errors">errors</a>.<a href="http://godoc.org/errors#New">New</a>(&#34;http: request method or response status code does not allow body&#34;)
+    <span id="ErrHijacked">ErrHijacked</span>        = <a href="http://godoc.org/errors">errors</a>.<a href="http://godoc.org/errors#New">New</a>(&#34;Conn has been hijacked&#34;)
+    <span id="ErrContentLength">ErrContentLength</span>   = <a href="http://godoc.org/errors">errors</a>.<a href="http://godoc.org/errors#New">New</a>(&#34;Conn.Write wrote more than the declared Content-Length&#34;)
+)</pre>
+    <p>会被HTTP服务端返回的错误。</p>
+    <pre>var <span id="DefaultClient">DefaultClient</span> = &amp;<a href="#Client">Client</a>{}</pre>
+    <p>DefaultClient是用于包函数Get、Head和Post的默认Client。</p>
+    <pre>var <span id="DefaultServeMux">DefaultServeMux</span> = <a href="#NewServeMux">NewServeMux</a>()</pre>
+    <p>DefaultServeMux是用于Serve的默认ServeMux。</p>
+    <pre>var <span id="ErrBodyReadAfterClose">ErrBodyReadAfterClose</span> = <a href="http://godoc.org/errors">errors</a>.<a href="http://godoc.org/errors#New">New</a>(&#34;http: invalid Read on closed Body&#34;)</pre>
+    <p>在Resquest或Response的Body字段已经关闭后，试图从中读取时，就会返回ErrBodyReadAfterClose。这个错误一般发生在：HTTP处理器中调用完ResponseWriter 接口的WriteHeader或Write后从请求中读取数据的时候。</p>
+    <pre>var <span id="ErrHandlerTimeout">ErrHandlerTimeout</span> = <a href="http://godoc.org/errors">errors</a>.<a href="http://godoc.org/errors#New">New</a>(&#34;http: Handler timeout&#34;)</pre>
+    <p>在处理器超时以后调用ResponseWriter接口的Write方法，就会返回ErrHandlerTimeout。</p>
+    <pre>var <span id="ErrLineTooLong">ErrLineTooLong</span> = <a href="http://godoc.org/errors">errors</a>.<a href="http://godoc.org/errors#New">New</a>(&#34;header line too long&#34;)</pre>
+    <pre>var <span id="ErrMissingFile">ErrMissingFile</span> = <a href="http://godoc.org/errors">errors</a>.<a href="http://godoc.org/errors#New">New</a>(&#34;http: no such file&#34;)</pre>
+    <p>当请求中没有提供给FormFile函数的文件字段名，或者该字段名不是文件字段时，该函数就会返回ErrMissingFile。</p>
+    <pre>var <span id="ErrNoCookie">ErrNoCookie</span> = <a href="http://godoc.org/errors">errors</a>.<a href="http://godoc.org/errors#New">New</a>(&#34;http: named cookie not present&#34;)</pre>
+    <pre>var <span id="ErrNoLocation">ErrNoLocation</span> = <a href="http://godoc.org/errors">errors</a>.<a href="http://godoc.org/errors#New">New</a>(&#34;http: no Location header in response&#34;)</pre>
+    <h3 id="ProtocolError">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/request.go?name=release#38">ProtocolError</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type ProtocolError struct {
+    <span id="ProtocolError.ErrorString">ErrorString</span> <a href="http://godoc.org/builtin#string">string</a>
+}</pre>
+    <p>HTTP请求解析错误。</p>
+    <h4 id="ProtocolError.Error">func (*ProtocolError) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/request.go?name=release#42">Error</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (err *<a href="#ProtocolError">ProtocolError</a>) Error() <a href="http://godoc.org/builtin#string">string</a></pre>
+    <h3 id="CanonicalHeaderKey">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/header.go?name=release#171">CanonicalHeaderKey</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func CanonicalHeaderKey(s <a href="http://godoc.org/builtin#string">string</a>) <a href="http://godoc.org/builtin#string">string</a></pre>
+    <p>CanonicalHeaderKey函数返回头域（表示为Header类型）的键s的规范化格式。规范化过程中让单词首字母和'-'后的第一个字母大写，其余字母小写。例如，"accept-encoding"规范化为"Accept-Encoding"。</p>
+    <h3 id="DetectContentType">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/sniff.go?name=release#21">DetectContentType</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func DetectContentType(data []<a href="http://godoc.org/builtin#byte">byte</a>) <a href="http://godoc.org/builtin#string">string</a></pre>
+    <p>DetectContentType函数实现了<a href="http://mimesniff.spec.whatwg.org/">http://mimesniff.spec.whatwg.org/</a>描述的算法，用于确定数据的Content-Type。函数总是返回一个合法的MIME类型；如果它不能确定数据的类型，将返回"application/octet-stream"。它最多检查数据的前512字节。</p>
+    <h3 id="ParseHTTPVersion">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/request.go?name=release#448">ParseHTTPVersion</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func ParseHTTPVersion(vers <a href="http://godoc.org/builtin#string">string</a>) (major, minor <a href="http://godoc.org/builtin#int">int</a>, ok <a href="http://godoc.org/builtin#bool">bool</a>)</pre>
+    <p>ParseHTTPVersion解析HTTP版本字符串。如"HTTP/1.0"返回(1, 0, true)。</p>
+    <h3 id="ParseTime">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/header.go?name=release#79">ParseTime</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func ParseTime(text <a href="http://godoc.org/builtin#string">string</a>) (t <a href="http://godoc.org/time">time</a>.<a href="http://godoc.org/time#Time">Time</a>, err <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p>ParseTime用3种格式TimeFormat, time.RFC850和time.ANSIC尝试解析一个时间头的值（如Date: header）。</p>
+    <h3 id="StatusText">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/status.go?name=release#118">StatusText</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func StatusText(code <a href="http://godoc.org/builtin#int">int</a>) <a href="http://godoc.org/builtin#string">string</a></pre>
+    <p>StatusText返回HTTP状态码code对应的文本，如220对应"OK"。如果code是未知的状态码，会返回""。</p>
+    <h3 id="ConnState">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/server.go?name=release#1614">ConnState</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type ConnState <a href="http://godoc.org/builtin#int">int</a></pre>
+    <p>ConnState代表一个客户端到服务端的连接的状态。本类型用于可选的Server.ConnState回调函数。</p>
+    <pre>const (
+    <span class="com">// StateNew代表一个新的连接，将要立刻发送请求。</span>
+    <span class="com">// 连接从这个状态开始，然后转变为StateAlive或StateClosed。</span>
+    <span id="StateNew">StateNew</span> <a href="#ConnState">ConnState</a> = <a href="http://godoc.org/builtin#iota">iota</a>
+    <span class="com">// StateActive代表一个已经读取了请求数据1到多个字节的连接。</span>
+    <span class="com">// 用于StateAlive的Server.ConnState回调函数在将连接交付给处理器之前被触发，</span>
+    <span class="com">// 等到请求被处理完后，Server.ConnState回调函数再次被触发。</span>
+    <span class="com">// 在请求被处理后，连接状态改变为StateClosed、StateHijacked或StateIdle。</span>
+    <span id="StateActive">StateActive</span>
+    <span class="com">// StateIdle代表一个已经处理完了请求、处在闲置状态、等待新请求的连接。</span>
+    <span class="com">// 连接状态可以从StateIdle改变为StateActive或StateClosed。</span><span class="com"></span>
+    <span id="StateIdle">StateIdle</span>
+    <span class="com">// 代表一个被劫持的连接。这是一个终止状态，不会转变为StateClosed。</span><span class="com"></span>
+    <span id="StateHijacked">StateHijacked</span>
+    <span class="com">// StateClosed代表一个关闭的连接。</span>
+    <span class="com">// 这是一个终止状态。被劫持的连接不会转变为StateClosed。</span>
+    <span id="StateClosed">StateClosed</span>
+)</pre>
+    <h4 id="ConnState.String">func (ConnState) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/server.go?name=release#1655">String</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c <a href="#ConnState">ConnState</a>) String() <a href="http://godoc.org/builtin#string">string</a></pre>
+    <h3 id="Header">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/header.go?name=release#19">Header</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Header map[<a href="http://godoc.org/builtin#string">string</a>][]<a href="http://godoc.org/builtin#string">string</a></pre>
+    <p>Header代表HTTP头域的键值对。</p>
+    <h4 id="Header.Get">func (Header) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/header.go?name=release#38">Get</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (h <a href="#Header">Header</a>) Get(key <a href="http://godoc.org/builtin#string">string</a>) <a href="http://godoc.org/builtin#string">string</a></pre>
+    <p>Get返回键对应的第一个值，如果键不存在会返回""。如要获取该键对应的值切片，请直接用规范格式的键访问map。</p>
+    <h4 id="Header.Set">func (Header) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/header.go?name=release#30">Set</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (h <a href="#Header">Header</a>) Set(key, value <a href="http://godoc.org/builtin#string">string</a>)</pre>
+    <p>Set添加键值对到h，如键已存在则会用只有新值一个元素的切片取代旧值切片。</p>
+    <h4 id="Header.Add">func (Header) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/header.go?name=release#23">Add</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (h <a href="#Header">Header</a>) Add(key, value <a href="http://godoc.org/builtin#string">string</a>)</pre>
+    <p>Add添加键值对到h，如键已存在则会将新的值附加到旧值切片后面。</p>
+    <h4 id="Header.Del">func (Header) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/header.go?name=release#51">Del</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (h <a href="#Header">Header</a>) Del(key <a href="http://godoc.org/builtin#string">string</a>)</pre>
+    <p>Del删除键值对。</p>
+    <h4 id="Header.Write">func (Header) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/header.go?name=release#56">Write</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (h <a href="#Header">Header</a>) Write(w <a href="http://godoc.org/io">io</a>.<a href="http://godoc.org/io#Writer">Writer</a>) <a href="http://godoc.org/builtin#error">error</a></pre>
+    <p>Write以有线格式将头域写入w。</p>
+    <h4 id="Header.WriteSubset">func (Header) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/header.go?name=release#145">WriteSubset</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (h <a href="#Header">Header</a>) WriteSubset(w <a href="http://godoc.org/io">io</a>.<a href="http://godoc.org/io#Writer">Writer</a>, exclude map[<a href="http://godoc.org/builtin#string">string</a>]<a href="http://godoc.org/builtin#bool">bool</a>) <a href="http://godoc.org/builtin#error">error</a></pre>
+    <p align="left">WriteSubset以有线格式将头域写入w。当exclude不为nil时，如果h的键值对的键在exclude中存在且其对应值为真，该键值对就不会被写入w。</p>
+    <h3 id="Cookie">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/cookie.go?name=release#23">Cookie</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Cookie struct {
+    <span id="Cookie.Name">Name</span>       <a href="http://godoc.org/builtin#string">string</a>
+    <span id="Cookie.Value">Value</span>      <a href="http://godoc.org/builtin#string">string</a>
+    <span id="Cookie.Path">Path</span>       <a href="http://godoc.org/builtin#string">string</a>
+    <span id="Cookie.Domain">Domain</span>     <a href="http://godoc.org/builtin#string">string</a>
+    <span id="Cookie.Expires">Expires</span>    <a href="http://godoc.org/time">time</a>.<a href="http://godoc.org/time#Time">Time</a>
+    <span id="Cookie.RawExpires">RawExpires</span> <a href="http://godoc.org/builtin#string">string</a>
+    <span class="com">// MaxAge=0表示未设置Max-Age属性</span>
+    <span class="com">// MaxAge&lt;0表示立刻删除该cookie，等价于&quot;Max-Age: 0&quot;</span>
+    <span class="com">// MaxAge&gt;0表示存在Max-Age属性，单位是秒</span>
+    <span id="Cookie.MaxAge">MaxAge</span>   <a href="http://godoc.org/builtin#int">int</a>
+    <span id="Cookie.Secure">Secure</span>   <a href="http://godoc.org/builtin#bool">bool</a>
+    <span id="Cookie.HttpOnly">HttpOnly</span> <a href="http://godoc.org/builtin#bool">bool</a>
+    <span id="Cookie.Raw">Raw</span>      <a href="http://godoc.org/builtin#string">string</a>
+    <span id="Cookie.Unparsed">Unparsed</span> []<a href="http://godoc.org/builtin#string">string</a> <span class="com">// 未解析的&ldquo;属性-值&rdquo;对的原始文本</span>
+}</pre>
+    <p>Cookie代表一个出现在HTTP回复的头域中Set-Cookie头的值里或者HTTP请求的头域中Cookie头的值里的HTTP cookie。</p>
+    <h4 id="Cookie.String">func (*Cookie) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/cookie.go?name=release#136">String</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *<a href="#Cookie">Cookie</a>) String() <a href="http://godoc.org/builtin#string">string</a></pre>
+    <p>String返回该cookie的序列化结果。如果只设置了Name和Value字段，序列化结果可用于HTTP请求的Cookie头或者HTTP回复的Set-Cookie头；如果设置了其他字段，序列化结果只能用于HTTP回复的Set-Cookie头。</p>
+    <h3 id="CookieJar">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/jar.go?name=release#17">CookieJar</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type CookieJar interface {
+    <span class="com">// SetCookies管理从u的回复中收到的cookie</span>
+    <span class="com">// 根据其策略和实现，它可以选择是否存储cookie</span>
+    <span id="CookieJar.SetCookies">SetCookies</span>(u *<a href="http://godoc.org/net/url">url</a>.<a href="http://godoc.org/net/url#URL">URL</a>, cookies []*<a href="#Cookie">Cookie</a>)
+    <span class="com">// Cookies返回发送请求到u时应使用的cookie</span>
+    <span class="com">// 本方法有责任遵守RFC 6265规定的标准cookie限制</span>
+    <span id="CookieJar.Cookies">Cookies</span>(u *<a href="http://godoc.org/net/url">url</a>.<a href="http://godoc.org/net/url#URL">URL</a>) []*<a href="#Cookie">Cookie</a>
+}</pre>
+    <p align="left">CookieJar管理cookie的存储和在HTTP请求中的使用。CookieJar的实现必须能安全的被多个go程同时使用。</p>
+    <p align="left">net/http/cookiejar包提供了一个CookieJar的实现。</p>
+    <h3 id="Request">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/request.go?name=release#76">Request</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Request struct {
+    <span class="com">// Method指定HTTP方法（GET、POST、PUT等）。对客户端，""代表GET。</span>
+    <span id="Request.Method">Method</span> <a href="http://godoc.org/builtin#string">string</a>
+    <span class="com">// URL在服务端表示被请求的URI，在客户端表示要访问的URL。</span><span class="com"></span>
+    <span class="com">//</span>
+    <span class="com">// 在服务端，URL字段是解析请求行的URI（保存在RequestURI字段）得到的，</span>
+    <span class="com">// 对大多数请求来说，除了Path和RawQuery之外的字段都是空字符串。</span>
+    <span class="com">// （参见RFC 2616, Section 5.1.2）</span>
+    <span class="com">//</span>
+    <span class="com">// 在客户端，URL的Host字段指定了要连接的服务器，</span>
+    <span class="com">// 而Request的Host字段（可选地）指定要发送的HTTP请求的Host头的值。</span>
+    <span id="Request.URL">URL</span> *<a href="http://godoc.org/net/url">url</a>.<a href="http://godoc.org/net/url#URL">URL</a>
+    <span class="com">// 接收到的请求的协议版本。本包生产的Request总是使用HTTP/1.1</span>
+    <span id="Request.Proto">Proto</span>      <a href="http://godoc.org/builtin#string">string</a> <span class="com">// &#34;HTTP/1.0&#34;</span>
+    <span id="Request.ProtoMajor">ProtoMajor</span> <a href="http://godoc.org/builtin#int">int</a>    <span class="com">// 1</span>
+    <span id="Request.ProtoMinor">ProtoMinor</span> <a href="http://godoc.org/builtin#int">int</a>    <span class="com">// 0</span>
+    <span class="com">// Header字段用来表示HTTP请求的头域。如果头域（多行键值对格式）为：</span>
+    <span class="com">//	accept-encoding: gzip, deflate</span>
+    <span class="com">//	Accept-Language: en-us</span>
+    <span class="com">//	Connection: keep-alive</span>
+    <span class="com">// 则：</span>
+    <span class="com">//	Header = map[string][]string{</span>
+    <span class="com">//		&#34;Accept-Encoding&#34;: {&#34;gzip, deflate&#34;},</span>
+    <span class="com">//		&#34;Accept-Language&#34;: {&#34;en-us&#34;},</span>
+    <span class="com">//		&#34;Connection&#34;: {&#34;keep-alive&#34;},</span>
+    <span class="com">//	}</span><span class="com"></span>
+    <span class="com">// HTTP规定头域的键名（头名）是大小写敏感的，请求的解析器通过规范化头域的键名来实现这点。</span>
+    <span class="com">// 在客户端的请求，可能会被自动添加或重写Header中的特定的头，参见Request.Write方法。</span><span class="com"></span>
+    <span id="Request.Header">Header</span> <a href="#Header">Header</a>
+    <span class="com">// Body是请求的主体。</span>
+    <span class="com">//</span>
+    <span class="com">// 在客户端，如果Body是nil表示该请求没有主体买入GET请求。</span>
+    <span class="com">// Client的Transport字段会负责调用Body的Close方法。</span>
+    <span class="com">//</span>
+    <span class="com">// 在服务端，Body字段总是非nil的；但在没有主体时，读取Body会立刻返回EOF。</span>
+    <span class="com">// Server会关闭请求的主体，ServeHTTP处理器不需要关闭Body字段。</span>
+    <span id="Request.Body">Body</span> <a href="http://godoc.org/io">io</a>.<a href="http://godoc.org/io#ReadCloser">ReadCloser</a>
+    <span class="com">// ContentLength记录相关内容的长度。</span>
+    <span class="com">// 如果为-1，表示长度未知，如果&gt;=0，表示可以从Body字段读取ContentLength字节数据。</span>
+    <span class="com">// 在客户端，如果Body非nil而该字段为0，表示不知道Body的长度。</span>
+    <span id="Request.ContentLength">ContentLength</span> <a href="http://godoc.org/builtin#int64">int64</a>
+    <span class="com">// TransferEncoding按从最外到最里的顺序列出传输编码，空切片表示"identity"编码。</span>
+    <span class="com">// 本字段一般会被忽略。当发送或接受请求时，会自动添加或移除"chunked"传输编码。</span><span class="com"></span>
+    <span id="Request.TransferEncoding">TransferEncoding</span> []<a href="http://godoc.org/builtin#string">string</a>
+    <span class="com">// Close在服务端指定是否在回复请求后关闭连接，在客户端指定是否在发送请求后关闭连接。</span>
+    <span id="Request.Close">Close</span> <a href="http://godoc.org/builtin#bool">bool</a>
+    <span class="com">// 在服务端，Host指定URL会在其上寻找资源的主机。</span>
+    <span class="com">// 根据RFC 2616，该值可以是Host头的值，或者URL自身提供的主机名。</span>
+    <span class="com">// Host的格式可以是"host:port"。</span>
+    <span class="com">//</span>
+    <span class="com">// 在客户端，请求的Host字段（可选地）用来重写请求的Host头。</span>
+    <span class="com">// 如过该字段为""，Request.Write方法会使用URL字段的Host。</span>
+    <span id="Request.Host">Host</span> <a href="http://godoc.org/builtin#string">string</a>
+    <span class="com">// Form是解析好的表单数据，包括URL字段的query参数和POST或PUT的表单数据。</span>
+    <span class="com">// 本字段只有在调用ParseForm后才有效。在客户端，会忽略请求中的本字段而使用Body替代。</span>
+    <span id="Request.Form">Form</span> <a href="http://godoc.org/net/url">url</a>.<a href="http://godoc.org/net/url#Values">Values</a>
+    <span class="com">// PostForm是解析好的POST或PUT的表单数据。</span>
+    <span class="com">// 本字段只有在调用ParseForm后才有效。在客户端，会忽略请求中的本字段而使用Body替代。</span><span class="com"></span>
+    <span id="Request.PostForm">PostForm</span> <a href="http://godoc.org/net/url">url</a>.<a href="http://godoc.org/net/url#Values">Values</a>
+    <span class="com">// MultipartForm是解析好的多部件表单，包括上传的文件。</span>
+    <span class="com">// 本字段只有在调用ParseMultipartForm后才有效。</span>
+    <span class="com">// 在客户端，会忽略请求中的本字段而使用Body替代。</span>
+    <span id="Request.MultipartForm">MultipartForm</span> *<a href="http://godoc.org/mime/multipart">multipart</a>.<a href="http://godoc.org/mime/multipart#Form">Form</a>
+    <span class="com">// Trailer指定了会在请求主体之后发送的额外的头域。</span><span class="com"></span>
+    <span class="com">//</span>
+    <span class="com">// 在服务端，Trailer字段必须初始化为只有trailer键，所有键都对应nil值。</span>
+    <span class="com">// （客户端会声明哪些trailer会发送）</span>
+    <span class="com">// 在处理器从Body读取时，不能使用本字段。</span>
+    <span class="com">// 在从Body的读取返回EOF后，Trailer字段会被更新完毕并包含非nil的值。</span>
+    <span class="com">// （如果客户端发送了这些键值对），此时才可以访问本字段。</span>
+    <span class="com">//</span>
+    <span class="com">// 在客户端，Trail必须初始化为一个包含将要发送的键值对的映射。（值可以是nil或其终值）</span>
+    <span class="com">// ContentLength字段必须是0或-1，以启用"chunked"传输编码发送请求。</span>
+    <span class="com">// 在开始发送请求后，Trailer可以在读取请求主体期间被修改，</span>
+    <span class="com">// 一旦请求主体返回EOF，调用者就不可再修改Trailer。</span>
+    <span class="com">//</span>
+    <span class="com">// 很少有HTTP客户端、服务端或代理支持HTTP trailer。</span>
+    <span id="Request.Trailer">Trailer</span> <a href="#Header">Header</a>
+    <span class="com">// RemoteAddr允许HTTP服务器和其他软件记录该请求的来源地址，一般用于日志。</span>
+    <span class="com">// 本字段不是ReadRequest函数填写的，也没有定义格式。</span>
+    <span class="com">// 本包的HTTP服务器会在调用处理器之前设置RemoteAddr为"IP:port"格式的地址。</span>
+    <span class="com">// 客户端会忽略请求中的RemoteAddr字段。</span>
+    <span id="Request.RemoteAddr">RemoteAddr</span> <a href="http://godoc.org/builtin#string">string</a>
+    <span class="com">// RequestURI是被客户端发送到服务端的请求的请求行中未修改的请求URI</span>
+    <span class="com">// （参见RFC 2616, Section 5.1）</span>
+    <span class="com">// 一般应使用URI字段，在客户端设置请求的本字段会导致错误。</span>
+    <span id="Request.RequestURI">RequestURI</span> <a href="http://godoc.org/builtin#string">string</a>
+    <span class="com">// TLS字段允许HTTP服务器和其他软件记录接收到该请求的TLS连接的信息</span>
+    <span class="com">// 本字段不是ReadRequest函数填写的。</span>
+    <span class="com">// 对启用了TLS的连接，本包的HTTP服务器会在调用处理器之前设置TLS字段，否则将设TLS为nil。</span>
+    <span class="com">// 客户端会忽略请求中的TLS字段。</span>
+    <span id="Request.TLS">TLS</span> *<a href="http://godoc.org/crypto/tls">tls</a>.<a href="http://godoc.org/crypto/tls#ConnectionState">ConnectionState</a>
+}</pre>
+    <p align="left">Request类型代表一个服务端接受到的或者客户端发送出去的HTTP请求。</p>
+    <p align="left">Request各字段的意义和用途在服务端和客户端是不同的。除了字段本身上方文档，还可参见Request.Write方法和RoundTripper接口的文档。</p>
+    <h4 id="NewRequest">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/request.go?name=release#479">NewRequest</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func NewRequest(method, urlStr <a href="http://godoc.org/builtin#string">string</a>, body <a href="http://godoc.org/io">io</a>.<a href="http://godoc.org/io#Reader">Reader</a>) (*<a href="#Request">Request</a>, <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p align="left">NewRequest使用指定的方法、网址和可选的主题创建并返回一个新的*Request。</p>
+    <p align="left">如果body参数实现了io.Closer接口，Request返回值的Body 字段会被设置为body，并会被Client类型的Do、Post和PostFOrm方法以及Transport.RoundTrip方法关闭。</p>
+    <h4 id="ReadRequest">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/request.go?name=release#549">ReadRequest</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func ReadRequest(b *<a href="http://godoc.org/bufio">bufio</a>.<a href="http://godoc.org/bufio#Reader">Reader</a>) (req *<a href="#Request">Request</a>, err <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p>ReadRequest从b读取并解析出一个HTTP请求。（本函数主要用在服务端从下层获取请求）</p>
+    <h4 id="Request.ProtoAtLeast">func (*Request) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/request.go?name=release#232">ProtoAtLeast</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (r *<a href="#Request">Request</a>) ProtoAtLeast(major, minor <a href="http://godoc.org/builtin#int">int</a>) <a href="http://godoc.org/builtin#bool">bool</a></pre>
+    <p>ProtoAtLeast报告该请求使用的HTTP协议版本至少是major.minor。</p>
+    <h4 id="Request.UserAgent">func (*Request) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/request.go?name=release#238">UserAgent</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (r *<a href="#Request">Request</a>) UserAgent() <a href="http://godoc.org/builtin#string">string</a></pre>
+    <p>UserAgent返回请求中的客户端用户代理信息（请求的User-Agent头）。</p>
+    <h4 id="Request.Referer">func (*Request) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/request.go?name=release#279">Referer</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (r *<a href="#Request">Request</a>) Referer() <a href="http://godoc.org/builtin#string">string</a></pre>
+    <p align="left">Referer返回请求中的访问来路信息。（请求的Referer头）</p>
+    <p align="left">Referer在请求中就是拼错了的，这是HTTP早期就有的错误。该值也可以从用Header["Referer"]获取； 让获取Referer字段变成方法的好处是，编译器可以诊断使用正确单词拼法的req.Referrer()的程序，但却不能诊断使用Header["Referrer"]的程序。</p>
+    <h4 id="Request.AddCookie">func (*Request) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/request.go?name=release#262">AddCookie</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (r *<a href="#Request">Request</a>) AddCookie(c *<a href="#Cookie">Cookie</a>)</pre>
+    <p>AddCookie向请求中添加一个cookie。按照<a href="http://tools.ietf.org/html/rfc6265">RFC 6265</a> section 5.4的跪地，AddCookie不会添加超过一个Cookie头字段。这表示所有的cookie都写在同一行，用分号分隔（cookie内部用逗号分隔属性）。</p>
+    <h4 id="Request.SetBasicAuth">func (*Request) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/request.go?name=release#517">SetBasicAuth</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (r *<a href="#Request">Request</a>) SetBasicAuth(username, password <a href="http://godoc.org/builtin#string">string</a>)</pre>
+    <p>SetBasicAuth使用提供的用户名和密码，采用HTTP基本认证，设置请求的Authorization头。HTTP基本认证会明码传送用户名和密码。</p>
+    <h4 id="Request.Write">func (*Request) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/request.go?name=release#350">Write</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (r *<a href="#Request">Request</a>) Write(w <a href="http://godoc.org/io">io</a>.<a href="http://godoc.org/io#Writer">Writer</a>) <a href="http://godoc.org/builtin#error">error</a></pre>
+    <p>Write方法以有线格式将HTTP/1.1请求写入w（用于将请求写入下层TCPConn等）。本方法会考虑请求的如下字段：</p>
+    <pre>Host
+URL
+Method (defaults to &#34;GET&#34;)
+Header
+ContentLength
+TransferEncoding
+Body</pre>
+    <p>如果存在Body，ContentLength字段&lt;= 0且TransferEncoding字段未显式设置为["identity"]，Write方法会显式添加"Transfer-Encoding: chunked"到请求的头域。Body字段会在发送完请求后关闭。</p>
+    <h4 id="Request.WriteProxy">func (*Request) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/request.go?name=release#360">WriteProxy</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (r *<a href="#Request">Request</a>) WriteProxy(w <a href="http://godoc.org/io">io</a>.<a href="http://godoc.org/io#Writer">Writer</a>) <a href="http://godoc.org/builtin#error">error</a></pre>
+    <p>WriteProxy类似Write但会将请求以HTTP代理期望的格式发送。</p>
+    <p>尤其是，按照<a href="http://tools.ietf.org/html/rfc2616">RFC 2616</a> Section 5.1.2，WriteProxy会使用绝对URI（包括协议和主机名）来初始化请求的第1行（Request-URI行）。无论何种情况，WriteProxy都会使用r.Host或r.URL.Host设置Host头。</p>
+    <h4 id="Request.Cookies">func (*Request) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/request.go?name=release#243">Cookies</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (r *<a href="#Request">Request</a>) Cookies() []*<a href="#Cookie">Cookie</a></pre>
+    <p>Cookies解析并返回该请求的Cookie头设置的cookie。</p>
+    <h4 id="Request.Cookie">func (*Request) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/request.go?name=release#251">Cookie</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (r *<a href="#Request">Request</a>) Cookie(name <a href="http://godoc.org/builtin#string">string</a>) (*<a href="#Cookie">Cookie</a>, <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p>Cookie返回请求中名为name的cookie，如果未找到该cookie会返回nil, ErrNoCookie。</p>
+    <h4 id="Request.ParseForm">func (*Request) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/request.go?name=release#736">ParseForm</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (r *<a href="#Request">Request</a>) ParseForm() <a href="http://godoc.org/builtin#error">error</a></pre>
+    <p align="left">ParseForm解析URL中的查询字符串，并将解析结果更新到r.Form字段。</p>
+    <p align="left">对于POST或PUT请求，ParseForm还会将body当作表单解析，并将结果既更新到r.PostForm也更新到r.Form。解析结果中，POST或PUT请求主体要优先于URL查询字符串（同名变量，主体的值在查询字符串的值前面）。</p>
+    <p align="left">如果请求的主体的大小没有被MaxBytesReader函数设定限制，其大小默认限制为开头10MB。</p>
+    <p align="left">ParseMultipartForm会自动调用ParseForm。重复调用本方法是无意义的。</p>
+    <h4 id="Request.ParseMultipartForm">func (*Request) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/request.go?name=release#777">ParseMultipartForm</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (r *<a href="#Request">Request</a>) ParseMultipartForm(maxMemory <a href="http://godoc.org/builtin#int64">int64</a>) <a href="http://godoc.org/builtin#error">error</a></pre>
+    <p>ParseMultipartForm将请求的主体作为multipart/form-data解析。请求的整个主体都会被解析，得到的文件记录最多maxMemery字节保存在内存，其余部分保存在硬盘的temp文件里。如果必要，ParseMultipartForm会自行调用ParseForm。重复调用本方法是无意义的。</p>
+    <h4 id="Request.FormValue">func (*Request) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/request.go?name=release#812">FormValue</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (r *<a href="#Request">Request</a>) FormValue(key <a href="http://godoc.org/builtin#string">string</a>) <a href="http://godoc.org/builtin#string">string</a></pre>
+    <p>FormValue返回key为键查询r.Form字段得到结果[]string切片的第一个值。POST和PUT主体中的同名参数优先于URL查询字符串。如果必要，本函数会隐式调用ParseMultipartForm和ParseForm。</p>
+    <h4 id="Request.PostFormValue">func (*Request) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/request.go?name=release#825">PostFormValue</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (r *<a href="#Request">Request</a>) PostFormValue(key <a href="http://godoc.org/builtin#string">string</a>) <a href="http://godoc.org/builtin#string">string</a></pre>
+    <p>PostFormValue返回key为键查询r.PostForm字段得到结果[]string切片的第一个值。如果必要，本函数会隐式调用ParseMultipartForm和ParseForm。</p>
+    <h4 id="Request.FormFile">func (*Request) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/request.go?name=release#837">FormFile</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (r *<a href="#Request">Request</a>) FormFile(key <a href="http://godoc.org/builtin#string">string</a>) (<a href="http://godoc.org/mime/multipart">multipart</a>.<a href="http://godoc.org/mime/multipart#File">File</a>, *<a href="http://godoc.org/mime/multipart">multipart</a>.<a href="http://godoc.org/mime/multipart#FileHeader">FileHeader</a>, <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p>FormFile返回以key为键查询r.MultipartForm字段得到结果中的第一个文件和它的信息。如果必要，本函数会隐式调用ParseMultipartForm和ParseForm。查询失败会返回ErrMissingFile错误。</p>
+    <h4 id="Request.MultipartReader">func (*Request) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/request.go?name=release#295">MultipartReader</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (r *<a href="#Request">Request</a>) MultipartReader() (*<a href="http://godoc.org/mime/multipart">multipart</a>.<a href="http://godoc.org/mime/multipart#Reader">Reader</a>, <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p>如果请求是multipart/form-data POST请求，MultipartReader返回一个multipart.Reader接口，否则返回nil和一个错误。使用本函数代替ParseMultipartForm，可以将r.Body作为流处理。</p>
+    <h3 id="Response">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/response.go?name=release#29">Response</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Response struct {
+    <span id="Response.Status">Status</span>     <a href="http://godoc.org/builtin#string">string</a> <span class="com">// 例如&#34;200 OK&#34;</span>
+    <span id="Response.StatusCode">StatusCode</span> <a href="http://godoc.org/builtin#int">int</a>    <span class="com">// 例如200</span>
+    <span id="Response.Proto">Proto</span>      <a href="http://godoc.org/builtin#string">string</a> <span class="com">// 例如&#34;HTTP/1.0&#34;</span>
+    <span id="Response.ProtoMajor">ProtoMajor</span> <a href="http://godoc.org/builtin#int">int</a>    <span class="com">// 例如1</span>
+    <span id="Response.ProtoMinor">ProtoMinor</span> <a href="http://godoc.org/builtin#int">int</a>    <span class="com">// 例如0</span>
+    <span class="com">// Header保管头域的键值对。</span>
+    <span class="com">// 如果回复中有多个头的键相同，Header中保存为该键对应用逗号分隔串联起来的这些头的值</span>
+    <span class="com">// （参见RFC 2616 Section 4.2）</span>
+    <span class="com">// 被本结构体中的其他字段复制保管的头（如ContentLength）会从Header中删掉。</span><span class="com"></span>
+    <span class="com">//</span>
+    <span class="com">// Header中的键都是规范化的，参见CanonicalHeaderKey函数</span>
+    <span id="Response.Header">Header</span> <a href="#Header">Header</a>
+    <span class="com">// Body代表回复的主体。</span>
+    <span class="com">// Client类型和Transport类型会保证Body字段总是非nil的，即使回复没有主体或主体长度为0。</span>
+    <span class="com">// 关闭主体是调用者的责任。</span>
+    <span class="com">// 如果服务端采用"chunked"传输编码发送的回复，Body字段会自动进行解码。</span>
+    <span id="Response.Body">Body</span> <a href="http://godoc.org/io">io</a>.<a href="http://godoc.org/io#ReadCloser">ReadCloser</a>
+    <span class="com">// ContentLength记录相关内容的长度。</span>
+    <span class="com">// 其值为-1表示长度未知（采用chunked传输编码）</span>
+    <span class="com">// 除非对应的Request.Method是"HEAD"，其值&gt;=0表示可以从Body读取的字节数</span>
+    <span id="Response.ContentLength">ContentLength</span> <a href="http://godoc.org/builtin#int64">int64</a>
+    <span class="com">// TransferEncoding按从最外到最里的顺序列出传输编码，空切片表示"identity"编码。</span>
+    <span id="Response.TransferEncoding">TransferEncoding</span> []<a href="http://godoc.org/builtin#string">string</a>
+    <span class="com">// Close记录头域是否指定应在读取完主体后关闭连接。（即Connection头）</span>
+    <span class="com">// 该值是给客户端的建议，Response.Write方法的ReadResponse函数都不会关闭连接。</span>
+    <span id="Response.Close">Close</span> <a href="http://godoc.org/builtin#bool">bool</a>
+    <span class="com">// Trailer字段保存和头域相同格式的trailer键值对，和Header字段相同类型</span>
+    <span id="Response.Trailer">Trailer</span> <a href="#Header">Header</a>
+    <span class="com">// Request是用来获取此回复的请求</span>
+    <span class="com">// Request的Body字段是nil（因为已经被用掉了）</span>
+    <span class="com">// 这个字段是被Client类型发出请求并获得回复后填充的</span>
+    <span id="Response.Request">Request</span> *<a href="#Request">Request</a>
+    <span class="com">// TLS包含接收到该回复的TLS连接的信息。 对未加密的回复，本字段为nil。</span>
+    <span class="com">// 返回的指针是被（同一TLS连接接收到的）回复共享的，不应被修改。</span><span class="com"></span>
+    <span id="Response.TLS">TLS</span> *<a href="http://godoc.org/crypto/tls">tls</a>.<a href="http://godoc.org/crypto/tls#ConnectionState">ConnectionState</a>
+}</pre>
+    <p>Response代表一个HTTP请求的回复。</p>
+    <h4 id="ReadResponse">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/response.go?name=release#116">ReadResponse</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func ReadResponse(r *<a href="http://godoc.org/bufio">bufio</a>.<a href="http://godoc.org/bufio#Reader">Reader</a>, req *<a href="#Request">Request</a>) (*<a href="#Response">Response</a>, <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p>ReadResponse从r读取并返回一个HTTP 回复。req参数是可选的，指定该回复对应的请求（即是对该请求的回复）。如果是nil，将假设请求是GET请求。客户端必须在结束resp.Body的读取后关闭它。读取完毕并关闭后，客户端可以检查resp.Trailer字段获取回复的trailer的键值对。（本函数主要用在客户端从下层获取回复）</p>
+    <h4 id="Response.ProtoAtLeast">func (*Response) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/response.go?name=release#184">ProtoAtLeast</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (r *<a href="#Response">Response</a>) ProtoAtLeast(major, minor <a href="http://godoc.org/builtin#int">int</a>) <a href="http://godoc.org/builtin#bool">bool</a></pre>
+    <p>ProtoAtLeast报告该回复使用的HTTP协议版本至少是major.minor。</p>
+    <h4 id="Response.Cookies">func (*Response) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/response.go?name=release#89">Cookies</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (r *<a href="#Response">Response</a>) Cookies() []*<a href="#Cookie">Cookie</a></pre>
+    <p>Cookies解析并返回该回复中的Set-Cookie头设置的cookie。</p>
+    <h4 id="Response.Location">func (*Response) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/response.go?name=release#99">Location</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (r *<a href="#Response">Response</a>) Location() (*<a href="http://godoc.org/net/url">url</a>.<a href="http://godoc.org/net/url#URL">URL</a>, <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p>Location返回该回复的Location头设置的URL。相对地址的重定向会相对于该回复对应的请求来确定绝对地址。如果回复中没有Location头，会返回nil, ErrNoLocation。</p>
+    <h4 id="Response.Write">func (*Response) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/response.go?name=release#203">Write</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (r *<a href="#Response">Response</a>) Write(w <a href="http://godoc.org/io">io</a>.<a href="http://godoc.org/io#Writer">Writer</a>) <a href="http://godoc.org/builtin#error">error</a></pre>
+    <p>Write以有线格式将回复写入w（用于将回复写入下层TCPConn等）。本方法会考虑如下字段：</p>
+    <pre>StatusCode
+ProtoMajor
+ProtoMinor
+Request.Method
+TransferEncoding
+Trailer
+Body
+ContentLength
+Header（不规范的键名和它对应的值会导致不可预知的行为）</pre>
+    <p>Body字段在发送完回复后会被关闭。</p>
+    <h3 id="ResponseWriter">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/server.go?name=release#51">ResponseWriter</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type ResponseWriter interface {
+    <span class="com">// Header返回一个Header类型值，该值会被WriteHeader方法发送。</span>
+    <span class="com">// 在调用WriteHeader或Write方法后再改变该对象是没有意义的。</span><span class="com"></span>
+    <span id="ResponseWriter.Header">Header</span>() <a href="#Header">Header</a>
+    <span class="com">// WriteHeader该方法发送HTTP回复的头域和状态码。</span>
+    <span class="com">// 如果没有被显式调用，第一次调用Write时会触发隐式调用WriteHeader(http.StatusOK)</span>
+    <span class="com">// WriterHeader的显式调用主要用于发送错误码。</span><span class="com"></span>
+    <span id="ResponseWriter.WriteHeader">WriteHeader</span>(<a href="http://godoc.org/builtin#int">int</a>)
+    <span class="com">// Write向连接中写入作为HTTP的一部分回复的数据。</span>
+    <span class="com">// 如果被调用时还未调用WriteHeader，本方法会先调用WriteHeader(http.StatusOK)</span>
+    <span class="com">// 如果Header中没有"Content-Type"键，</span>
+    <span class="com">// 本方法会使用包函数DetectContentType检查数据的前512字节，将返回值作为该键的值。</span><span class="com"></span>
+    <span id="ResponseWriter.Write">Write</span>([]<a href="http://godoc.org/builtin#byte">byte</a>) (<a href="http://godoc.org/builtin#int">int</a>, <a href="http://godoc.org/builtin#error">error</a>)
+}</pre>
+    <p>ResponseWriter接口被HTTP处理器用于构造HTTP回复。</p>
+    <h3 id="Flusher">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/server.go?name=release#79">Flusher</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Flusher interface {
+    <span class="com">// Flush将缓冲中的所有数据发送到客户端</span>
+    <span id="Flusher.Flush">Flush</span>()
+}</pre>
+    <p>HTTP处理器ResponseWriter接口参数的下层如果实现了Flusher接口，可以让HTTP处理器将缓冲中的数据发送到客户端。</p>
+    <p>注意：即使ResponseWriter接口的下层支持Flush方法，如果客户端是通过HTTP代理连接的，缓冲中的数据也可能直到回复完毕才被传输到客户端。</p>
+    <h3 id="CloseNotifier">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/server.go?name=release#100">CloseNotifier</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type CloseNotifier interface {
+    <span class="com">// CloseNotify返回一个通道，该通道会在客户端连接丢失时接收到唯一的值</span><span class="com"></span>
+    <span id="CloseNotifier.CloseNotify">CloseNotify</span>() &lt;-chan <a href="http://godoc.org/builtin#bool">bool</a>
+}</pre>
+    <p align="left">HTTP处理器ResponseWriter接口参数的下层如果实现了CloseNotifier接口，可以让用户检测下层的连接是否停止。如果客户端在回复准备好之前关闭了连接，该机制可以用于取消服务端耗时较长的操作。</p>
+    <h3 id="Hijacker">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/server.go?name=release#86">Hijacker</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Hijacker interface {
+    <span class="com">// Hijack让调用者接管连接，返回连接和关联到该连接的一个缓冲读写器。</span>
+    <span class="com">// 调用本方法后，HTTP服务端将不再对连接进行任何操作，</span>
+    <span class="com">// 调用者有责任管理、关闭返回的连接。</span><span class="com"></span>
+    <span id="Hijacker.Hijack">Hijack</span>() (<a href="http://godoc.org/net">net</a>.<a href="http://godoc.org/net#Conn">Conn</a>, *<a href="http://godoc.org/bufio">bufio</a>.<a href="http://godoc.org/bufio#ReadWriter">ReadWriter</a>, <a href="http://godoc.org/builtin#error">error</a>)
+}</pre>
+    <p>HTTP处理器ResponseWriter接口参数的下层如果实现了Hijacker接口，可以让HTTP处理器接管该连接。</p>
+    <div class="panel-group">
+        <div class="panel panel-default" id="example-Hijacker">
+            <div class="panel-heading" onclick="document.getElementById('ex-Hijacker').style.display = document.getElementById('ex-Hijacker').style.display=='none'?'block':'none';">Example</div>
+            <div id="ex-Hijacker" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre>
+http.HandleFunc(&#34;/hijack&#34;, func(w http.ResponseWriter, r *http.Request) {
+    hj, ok := w.(http.Hijacker)
+    if !ok {
+        http.Error(w, &#34;webserver doesn&#39;t support hijacking&#34;, http.StatusInternalServerError)
+        return
+    }
+    conn, bufrw, err := hj.Hijack()
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
+    }
+    <span class="com">// Don&#39;t forget to close the connection:</span>
+    defer conn.Close()
+    bufrw.WriteString(&#34;Now we&#39;re speaking raw TCP. Say hi: &#34;)
+    bufrw.Flush()
+    s, err := bufrw.ReadString(&#39;\n&#39;)
+    if err != nil {
+        log.Printf(&#34;error reading string: %v&#34;, err)
+        return
+    }
+    fmt.Fprintf(bufrw, &#34;You said: %q\nBye.\n&#34;, s)
+    bufrw.Flush()
+})
+</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    <h3 id="RoundTripper">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/client.go?name=release#82">RoundTripper</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type RoundTripper interface {
+    <span class="com">// RoundTrip执行单次HTTP事务，接收并发挥请求req的回复。</span>
+    <span class="com">// RoundTrip不应试图解析/修改得到的回复。</span>
+    <span class="com">// 尤其要注意，只要RoundTrip获得了一个回复，不管该回复的HTTP状态码如何，</span>
+    <span class="com">// 它必须将返回值err设置为nil。</span>
+    <span class="com">// 非nil的返回值err应该留给获取回复失败的情况。</span>
+    <span class="com">// 类似的，RoundTrip不能试图管理高层次的细节，如重定向、认证、cookie。</span>
+    <span class="com">//</span>
+    <span class="com">// 除了从请求的主体读取并关闭主体之外，RoundTrip不应修改请求，包括（请求的）错误。</span>
+    <span class="com">// RoundTrip函数接收的请求的URL和Header字段可以保证是（被）初始化了的。</span><span class="com"></span>
+    <span id="RoundTripper.RoundTrip">RoundTrip</span>(*<a href="#Request">Request</a>) (*<a href="#Response">Response</a>, <a href="http://godoc.org/builtin#error">error</a>)
+}</pre>
+    <p align="left">RoundTripper接口是具有执行单次HTTP事务的能力（接收指定请求的回复）的接口。</p>
+    <p align="left">RoundTripper接口的类型必须可以安全的被多线程同时使用。</p>
+    <h3 id="Transport">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/transport.go?name=release#49">Transport</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Transport struct {
+    <span class="com">// Proxy指定一个对给定请求返回代理的函数。</span>
+    <span class="com">// 如果该函数返回了非nil的错误值，请求的执行就会中断并返回该错误。</span>
+    <span class="com">// 如果Proxy为nil或返回nil的*URL置，将不使用代理。</span>
+    <span id="Transport.Proxy">Proxy</span> func(*<a href="#Request">Request</a>) (*<a href="http://godoc.org/net/url">url</a>.<a href="http://godoc.org/net/url#URL">URL</a>, <a href="http://godoc.org/builtin#error">error</a>)
+    <span class="com">// Dial指定创建TCP连接的拨号函数。如果Dial为nil，会使用net.Dial。</span>
+    <span id="Transport.Dial">Dial</span> func(network, addr <a href="http://godoc.org/builtin#string">string</a>) (<a href="http://godoc.org/net">net</a>.<a href="http://godoc.org/net#Conn">Conn</a>, <a href="http://godoc.org/builtin#error">error</a>)
+    <span class="com">// TLSClientConfig指定用于tls.Client的TLS配置信息。</span>
+    <span class="com">// 如果该字段为nil，会使用默认的配置信息。</span>
+    <span id="Transport.TLSClientConfig">TLSClientConfig</span> *<a href="http://godoc.org/crypto/tls">tls</a>.<a href="http://godoc.org/crypto/tls#Config">Config</a>
+    <span class="com">// TLSHandshakeTimeout指定等待TLS握手完成的最长时间。零值表示不设置超时。</span>
+    <span id="Transport.TLSHandshakeTimeout">TLSHandshakeTimeout</span> <a href="http://godoc.org/time">time</a>.<a href="http://godoc.org/time#Duration">Duration</a>
+    <span class="com">// 如果DisableKeepAlives为真，会禁止不同HTTP请求之间TCP连接的重用。</span>
+    <span id="Transport.DisableKeepAlives">DisableKeepAlives</span> <a href="http://godoc.org/builtin#bool">bool</a>
+    <span class="com">// 如果DisableCompression为真，会禁止Transport在请求中没有Accept-Encoding头时，</span>
+    <span class="com">// 主动添加"Accept-Encoding: gzip"头，以获取压缩数据。</span>
+    <span class="com">// 如果Transport自己请求gzip并得到了压缩后的回复，它会主动解压缩回复的主体。</span>
+    <span class="com">// 但如果用户显式的请求gzip压缩数据，Transport是不会主动解压缩的。</span>
+    <span id="Transport.DisableCompression">DisableCompression</span> <a href="http://godoc.org/builtin#bool">bool</a>
+    <span class="com">// 如果MaxIdleConnsPerHost!=0，会控制每个主机下的最大闲置连接。</span>
+    <span class="com">// 如果MaxIdleConnsPerHost==0，会使用DefaultMaxIdleConnsPerHost。</span>
+    <span id="Transport.MaxIdleConnsPerHost">MaxIdleConnsPerHost</span> <a href="http://godoc.org/builtin#int">int</a>
+    <span class="com">// ResponseHeaderTimeout指定在发送完请求（包括其可能的主体）之后，</span>
+    <span class="com">// 等待接收服务端的回复的头域的最大时间。零值表示不设置超时。</span>
+    <span class="com">// 该时间不包括获取回复主体的时间。</span>
+    <span id="Transport.ResponseHeaderTimeout">ResponseHeaderTimeout</span> <a href="http://godoc.org/time">time</a>.<a href="http://godoc.org/time#Duration">Duration</a>
+    <span class="com">// 内含隐藏或非导出字段</span>
+}</pre>
+    <p>Transport类型实现了RoundTripper接口，支持http、https和http/https代理。Transport类型可以缓存连接以在未来重用。</p>
+    <pre>var <span id="DefaultTransport">DefaultTransport</span> <a href="#RoundTripper">RoundTripper</a> = &amp;<a href="#Transport">Transport</a>{
+    Proxy: <a href="#ProxyFromEnvironment">ProxyFromEnvironment</a>,
+    Dial: (&amp;<a href="http://godoc.org/net">net</a>.<a href="http://godoc.org/net#Dialer">Dialer</a>{
+        Timeout:   30 * <a href="http://godoc.org/time">time</a>.<a href="http://godoc.org/time#Second">Second</a>,
+        KeepAlive: 30 * <a href="http://godoc.org/time">time</a>.<a href="http://godoc.org/time#Second">Second</a>,
+    }).Dial,
+    TLSHandshakeTimeout: 10 * <a href="http://godoc.org/time">time</a>.<a href="http://godoc.org/time#Second">Second</a>,
+}</pre>
+    <p>DefaultTransport是被包变量DefaultClient使用的默认RoundTripper接口。它会根据需要创建网络连接，并缓存以便在之后的请求中重用这些连接。它使用环境变量$HTTP_PROXY和$NO_PROXY（或$http_proxy和$no_proxy）指定的HTTP代理。</p>
+    <h4 id="Transport.RegisterProtocol">func (*Transport) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/transport.go?name=release#217">RegisterProtocol</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (t *<a href="#Transport">Transport</a>) RegisterProtocol(scheme <a href="http://godoc.org/builtin#string">string</a>, rt <a href="#RoundTripper">RoundTripper</a>)</pre>
+    <p align="left">RegisterProtocol注册一个新的名为scheme的协议。t会将使用scheme协议的请求转交给rt。rt有责任模拟HTTP请求的语义。</p>
+    <p align="left">RegisterProtocol可以被其他包用于提供"ftp"或"file"等协议的实现。</p>
+    <h4 id="Transport.RoundTrip">func (*Transport) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/transport.go?name=release#164">RoundTrip</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (t *<a href="#Transport">Transport</a>) RoundTrip(req *<a href="#Request">Request</a>) (resp *<a href="#Response">Response</a>, err <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p align="left">RoundTrip方法实现了RoundTripper接口。</p>
+    <p align="left">高层次的HTTP客户端支持（如管理cookie和重定向）请参见Get、Post等函数和Client类型。</p>
+    <h4 id="Transport.CloseIdleConnections">func (*Transport) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/transport.go?name=release#236">CloseIdleConnections</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (t *<a href="#Transport">Transport</a>) CloseIdleConnections()</pre>
+    <p>CloseIdleConnections关闭所有之前的请求建立但目前处于闲置状态的连接。本方法不会中断正在使用的连接。</p>
+    <h4 id="Transport.CancelRequest">func (*Transport) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/transport.go?name=release#251">CancelRequest</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (t *<a href="#Transport">Transport</a>) CancelRequest(req *<a href="#Request">Request</a>)</pre>
+    <p>CancelRequest通过关闭请求所在的连接取消一个执行中的请求。</p>
+    <h3 id="Client">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/client.go?name=release#35">Client</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Client struct {
+    <span class="com">// Transport指定执行独立、单次HTTP请求的机制。</span>
+    <span class="com">// 如果Transport为nil，则使用DefaultTransport。</span>
+    <span id="Client.Transport">Transport</span> <a href="#RoundTripper">RoundTripper</a>
+    <span class="com">// CheckRedirect指定处理重定向的策略。</span>
+    <span class="com">// 如果CheckRedirect不为nil，客户端会在执行重定向之前调用本函数字段。</span>
+    <span class="com">// 参数req和via是将要执行的请求和已经执行的请求（切片，越新的请求越靠后）。</span>
+    <span class="com">// 如果CheckRedirect返回一个错误，本类型的Get方法不会发送请求req，</span>
+    <span class="com">// 而是返回之前得到的最后一个回复和该错误。（包装进url.Error类型里）</span>
+    <span class="com">//</span>
+    <span class="com">// 如果CheckRedirect为nil，会采用默认策略：连续10此请求后停止。</span>
+    <span id="Client.CheckRedirect">CheckRedirect</span> func(req *<a href="#Request">Request</a>, via []*<a href="#Request">Request</a>) <a href="http://godoc.org/builtin#error">error</a>
+    <span class="com">// Jar指定cookie管理器。</span>
+    <span class="com">// 如果Jar为nil，请求中不会发送cookie，回复中的cookie会被忽略。</span><span class="com"></span>
+    <span id="Client.Jar">Jar</span> <a href="#CookieJar">CookieJar</a>
+    <span class="com">// Timeout指定本类型的值执行请求的时间限制。</span>
+    <span class="com">// 该超时限制包括连接时间、重定向和读取回复主体的时间。</span>
+    <span class="com">// 计时器会在Head、Get、Post或Do方法返回后继续运作并在超时后中断回复主体的读取。</span>
+    <span class="com">//</span>
+    <span class="com">// Timeout为零值表示不设置超时。</span>
+    <span class="com">//</span>
+    <span class="com">// Client实例的Transport字段必须支持CancelRequest方法，</span>
+    <span class="com">// 否则Client会在试图用Head、Get、Post或Do方法执行请求时返回错误。</span>
+    <span class="com">// 本类型的Transport字段默认值（DefaultTransport）支持CancelRequest方法。</span>
+    <span id="Client.Timeout">Timeout</span> <a href="http://godoc.org/time">time</a>.<a href="http://godoc.org/time#Duration">Duration</a>
+}</pre>
+    <p align="left">Client类型代表HTTP客户端。它的零值（DefaultClient）是一个可用的使用DefaultTransport的客户端。</p>
+    <p align="left">Client的Transport字段一般会含有内部状态（缓存TCP连接），因此Client类型值应尽量被重用而不是每次需要都创建新的。Client类型值可以安全的被多个go程同时使用。</p>
+    <p align="left">Client类型的层次比RoundTripper接口（如Transport）高，还会管理HTTP的cookie和重定向等细节。</p>
+    <h4 id="Client.Do">func (*Client) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/client.go?name=release#148">Do</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *<a href="#Client">Client</a>) Do(req *<a href="#Request">Request</a>) (resp *<a href="#Response">Response</a>, err <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p align="left">Do方法发送请求，返回HTTP回复。它会遵守客户端c设置的策略（如重定向、cookie、认证）。</p>
+    <p align="left">如果客户端的策略（如重定向）返回错误或存在HTTP协议错误时，本方法将返回该错误；如果回应的状态码不是2xx，本方法并不会返回错误。</p>
+    <p align="left">如果返回值err为nil，resp.Body总是非nil的，调用者应该在读取完resp.Body后关闭它。如果返回值resp的主体未关闭，c下层的RoundTripper接口（一般为Transport类型）可能无法重用resp主体下层保持的TCP连接去执行之后的请求。</p>
+    <p align="left">请求的主体，如果非nil，会在执行后被c.Transport关闭，即使出现错误。</p>
+    <p align="left">一般应使用Get、Post或PostForm方法代替Do方法。</p>
+    <h4 id="Client.Head">func (*Client) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/client.go?name=release#462">Head</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *<a href="#Client">Client</a>) Head(url <a href="http://godoc.org/builtin#string">string</a>) (resp *<a href="#Response">Response</a>, err <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p>Head向指定的URL发出一个HEAD请求，如果回应的状态码如下，Head会在调用c.CheckRedirect后执行重定向：</p>
+    <pre>301 (Moved Permanently)
+302 (Found)
+303 (See Other)
+307 (Temporary Redirect)</pre>
+    <h4 id="Client.Get">func (*Client) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/client.go?name=release#270">Get</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *<a href="#Client">Client</a>) Get(url <a href="http://godoc.org/builtin#string">string</a>) (resp *<a href="#Response">Response</a>, err <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p>Get向指定的URL发出一个GET请求，如果回应的状态码如下，Get会在调用c.CheckRedirect后执行重定向：</p>
+    <pre>301 (Moved Permanently)
+302 (Found)
+303 (See Other)
+307 (Temporary Redirect)</pre>
+    <p>如果c.CheckRedirect执行失败或存在HTTP协议错误时，本方法将返回该错误；如果回应的状态码不是2xx，本方法并不会返回错误。如果返回值err为nil，resp.Body总是非nil的，调用者应该在读取完resp.Body后关闭它。</p>
+    <h4 id="Client.Post">func (*Client) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/client.go?name=release#411">Post</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *<a href="#Client">Client</a>) Post(url <a href="http://godoc.org/builtin#string">string</a>, bodyType <a href="http://godoc.org/builtin#string">string</a>, body <a href="http://godoc.org/io">io</a>.<a href="http://godoc.org/io#Reader">Reader</a>) (resp *<a href="#Response">Response</a>, err <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p>Post向指定的URL发出一个POST请求。bodyType为POST数据的类型， body为POST数据，作为请求的主体。如果参数body实现了io.Closer接口，它会在发送请求后被关闭。调用者有责任在读取完返回值resp的主体后关闭它。</p>
+    <h4 id="Client.PostForm">func (*Client) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/client.go?name=release#436">PostForm</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *<a href="#Client">Client</a>) PostForm(url <a href="http://godoc.org/builtin#string">string</a>, data <a href="http://godoc.org/net/url">url</a>.<a href="http://godoc.org/net/url#Values">Values</a>) (resp *<a href="#Response">Response</a>, err <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p>PostForm向指定的URL发出一个POST请求，url.Values类型的data会被编码为请求的主体。POST数据的类型一般会设为"application/x-www-form-urlencoded"。如果返回值err为nil，resp.Body总是非nil的，调用者应该在读取完resp.Body后关闭它。</p>
+    <h3 id="Handler">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/server.go?name=release#45">Handler</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Handler interface {
+    <span id="Handler.ServeHTTP">ServeHTTP</span>(<a href="#ResponseWriter">ResponseWriter</a>, *<a href="#Request">Request</a>)
+}</pre>
+    <p align="left">实现了Handler接口的对象可以注册到HTTP服务端，为特定的路径及其子树提供服务。</p>
+    <p align="left">ServeHTTP应该将回复的头域和数据写入ResponseWriter接口然后返回。返回标志着该请求已经结束，HTTP服务端可以转移向该连接上的下一个请求。</p>
+    <h4 id="NotFoundHandler">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/server.go?name=release#1253">NotFoundHandler</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func NotFoundHandler() <a href="#Handler">Handler</a></pre>
+    <p>NotFoundHandler返回一个简单的请求处理器，该处理器会对每个请求都回复"404 page not found"。</p>
+    <h4 id="RedirectHandler">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/server.go?name=release#1360">RedirectHandler</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func RedirectHandler(url <a href="http://godoc.org/builtin#string">string</a>, code <a href="http://godoc.org/builtin#int">int</a>) <a href="#Handler">Handler</a></pre>
+    <p>RedirectHandler返回一个请求处理器，该处理器会对每个请求都使用状态码code重定向到网址url。</p>
+    <h4 id="TimeoutHandler">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/server.go?name=release#1860">TimeoutHandler</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func TimeoutHandler(h <a href="#Handler">Handler</a>, dt <a href="http://godoc.org/time">time</a>.<a href="http://godoc.org/time#Duration">Duration</a>, msg <a href="http://godoc.org/builtin#string">string</a>) <a href="#Handler">Handler</a></pre>
+    <p align="left">TimeoutHandler返回一个采用指定时间限制的请求处理器。</p>
+    <p align="left">返回的Handler会调用h.ServeHTTP去处理每个请求，但如果某一次调用耗时超过了时间限制，该处理器会回复请求状态码503 Service Unavailable，并将msg作为回复的主体（如果msg为空字符串，将发送一个合理的默认信息）。在超时后，h对它的ResponseWriter接口参数的写入操作会返回ErrHandlerTimeout。</p>
+    <h4 id="StripPrefix">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/server.go?name=release#1260">StripPrefix</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func StripPrefix(prefix <a href="http://godoc.org/builtin#string">string</a>, h <a href="#Handler">Handler</a>) <a href="#Handler">Handler</a></pre>
+    <p>StripPrefix返回一个处理器，该处理器会将请求的URL.Path字段中给定前缀prefix去除后再交由h处理。StripPrefix会向URL.Path字段中没有给定前缀的请求回复404 page not found。</p>
+    <div class="panel-group">
+        <div class="panel panel-default" id="example-StripPrefix">
+            <div class="panel-heading" onclick="document.getElementById('ex-StripPrefix').style.display = document.getElementById('ex-StripPrefix').style.display=='none'?'block':'none';">Example</div>
+            <div id="ex-StripPrefix" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre>
+<span class="com">// To serve a directory on disk (/tmp) under an alternate URL</span>
+<span class="com">// path (/tmpfiles/), use StripPrefix to modify the request</span>
+<span class="com">// URL&#39;s path before the FileServer sees it:</span>
+http.Handle(&#34;/tmpfiles/&#34;, http.StripPrefix(&#34;/tmpfiles/&#34;, http.FileServer(http.Dir(&#34;/tmp&#34;))))
+</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    <h3 id="HandlerFunc">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/server.go?name=release#1231">HandlerFunc</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type HandlerFunc func(<a href="#ResponseWriter">ResponseWriter</a>, *<a href="#Request">Request</a>)</pre>
+    <p>HandlerFunc type是一个适配器，通过类型转换让我们可以将普通的函数作为HTTP处理器使用。如果f是一个具有适当签名的函数，HandlerFunc(f)通过调用f实现了Handler接口。</p>
+    <h4 id="HandlerFunc.ServeHTTP">func (HandlerFunc) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/server.go?name=release#1234">ServeHTTP</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (f <a href="#HandlerFunc">HandlerFunc</a>) ServeHTTP(w <a href="#ResponseWriter">ResponseWriter</a>, r *<a href="#Request">Request</a>)</pre>
+    <p>ServeHTTP方法会调用f(w, r)</p>
+    <h3 id="ServeMux">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/server.go?name=release#1391">ServeMux</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type ServeMux struct {
+    <span class="com">// 内含隐藏或非导出字段</span>
+}</pre>
+    <p align="left">ServeMux类型是HTTP请求的多路转接器。它会将每一个接收的请求的URL与一个注册模式的列表进行匹配，并调用和URL最匹配的模式的处理器。</p>
+    <p align="left">模式是固定的、由根开始的路径，如"/favicon.ico"，或由根开始的子树，如"/images/"（注意结尾的斜杠）。较长的模式优先于较短的模式，因此如果模式"/images/"和"/images/thumbnails/"都注册了处理器，后一个处理器会用于路径以"/images/thumbnails/"开始的请求，前一个处理器会接收到其余的路径在"/images/"子树下的请求。</p>
+    <p align="left">注意，因为以斜杠结尾的模式代表一个由根开始的子树，模式"/"会匹配所有的未被其他注册的模式匹配的路径，而不仅仅是路径"/"。</p>
+    <p align="left">模式也能（可选地）以主机名开始，表示只匹配该主机上的路径。指定主机的模式优先于一般的模式，因此一个注册了两个模式"/codesearch"和"codesearch.google.com/"的处理器不会接管目标为"<a href="http://www.google.com/">http://www.google.com/</a>"的请求。</p>
+    <p align="left">ServeMux还会注意到请求的URL路径的无害化，将任何路径中包含"."或".."元素的请求重定向到等价的没有这两种元素的URL。（参见path.Clean函数）</p>
+    <h4 id="NewServeMux">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/server.go?name=release#1404">NewServeMux</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func NewServeMux() *<a href="#ServeMux">ServeMux</a></pre>
+    <p>NewServeMux创建并返回一个新的*ServeMux</p>
+    <h4 id="ServeMux.Handle">func (*ServeMux) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/server.go?name=release#1516">Handle</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (mux *<a href="#ServeMux">ServeMux</a>) Handle(pattern <a href="http://godoc.org/builtin#string">string</a>, handler <a href="#Handler">Handler</a>)</pre>
+    <p>Handle注册HTTP处理器handler和对应的模式pattern。如果该模式已经注册有一个处理器，Handle会panic。</p>
+    <div class="panel-group">
+        <div class="panel panel-default" id="example-ServeMux-Handle">
+            <div class="panel-heading" onclick="document.getElementById('ex-ServeMux-Handle').style.display = document.getElementById('ex-ServeMux-Handle').style.display=='none'?'block':'none';">Example</div>
+            <div id="ex-ServeMux-Handle" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre>
+mux := http.NewServeMux()
+mux.Handle(&#34;/api/&#34;, apiHandler{})
+mux.HandleFunc(&#34;/&#34;, func(w http.ResponseWriter, req *http.Request) {
+    <span class="com">// The &#34;/&#34; pattern matches everything, so we need to check</span>
+    <span class="com">// that we&#39;re at the root here.</span>
+    if req.URL.Path != &#34;/&#34; {
+        http.NotFound(w, req)
+        return
+    }
+    fmt.Fprintf(w, &#34;Welcome to the home page!&#34;)
+})
+</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    <h4 id="ServeMux.HandleFunc">func (*ServeMux) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/server.go?name=release#1554">HandleFunc</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (mux *<a href="#ServeMux">ServeMux</a>) HandleFunc(pattern <a href="http://godoc.org/builtin#string">string</a>, handler func(<a href="#ResponseWriter">ResponseWriter</a>, *<a href="#Request">Request</a>))</pre>
+    <p>HandleFunc注册一个处理器函数handler和对应的模式pattern。</p>
+    <h4 id="ServeMux.Handler">func (*ServeMux) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/server.go?name=release#1468">Handler</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (mux *<a href="#ServeMux">ServeMux</a>) Handler(r *<a href="#Request">Request</a>) (h <a href="#Handler">Handler</a>, pattern <a href="http://godoc.org/builtin#string">string</a>)</pre>
+    <p align="left">Handler根据r.Method、r.Host和r.URL.Path等数据，返回将用于处理该请求的HTTP处理器。它总是返回一个非nil的处理器。如果路径不是它的规范格式，将返回内建的用于重定向到等价的规范路径的处理器。</p>
+    <p align="left">Handler也会返回匹配该请求的的已注册模式；在内建重定向处理器的情况下，pattern会在重定向后进行匹配。如果没有已注册模式可以应用于该请求，本方法将返回一个内建的"404 page not found"处理器和一个空字符串模式。</p>
+<h4 id="ServeMux.ServeHTTP">func (*ServeMux) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/server.go?name=release#1502">ServeHTTP</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (mux *<a href="#ServeMux">ServeMux</a>) ServeHTTP(w <a href="#ResponseWriter">ResponseWriter</a>, r *<a href="#Request">Request</a>)</pre>
+    <p>ServeHTTP将请求派遣到与请求的URL最匹配的模式对应的处理器。</p>
+    <h3 id="Server">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/server.go?name=release#1581">Server</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Server struct {
+    <span id="Server.Addr">Addr</span>           <a href="http://godoc.org/builtin#string">string</a>        <span class="com">// 监听的TCP地址，如果为空字符串会使用":http"</span>
+    <span id="Server.Handler">Handler</span>        <a href="#Handler">Handler</a>       <span class="com">// 调用的处理器，如为nil会调用http.DefaultServeMux</span>
+    <span id="Server.ReadTimeout">ReadTimeout</span>    <a href="http://godoc.org/time">time</a>.<a href="http://godoc.org/time#Duration">Duration</a> <span class="com">// 请求的读取操作在超时前的最大持续时间</span>
+    <span id="Server.WriteTimeout">WriteTimeout</span>   <a href="http://godoc.org/time">time</a>.<a href="http://godoc.org/time#Duration">Duration</a> <span class="com">// 回复的写入操作在超时前的最大持续时间</span>
+    <span id="Server.MaxHeaderBytes">MaxHeaderBytes</span> <a href="http://godoc.org/builtin#int">int</a>           <span class="com">// 请求的头域最大长度，如为0则用DefaultMaxHeaderBytes</span>
+    <span id="Server.TLSConfig">TLSConfig</span>      *<a href="http://godoc.org/crypto/tls">tls</a>.<a href="http://godoc.org/crypto/tls#Config">Config</a>   <span class="com">// 可选的TLS配置，用于ListenAndServeTLS方法</span>
+    <span class="com">// TLSNextProto（可选地）指定一个函数来在一个NPN型协议升级出现时接管TLS连接的所有权。</span>
+    <span class="com">// 映射的键为商谈的协议名；映射的值为函数，该函数的Handler参数应处理HTTP请求，</span>
+    <span class="com">// 并且初始化Handler.ServeHTTP的*Request参数的TLS和RemoteAddr字段（如果未设置）。</span>
+    <span class="com">// 连接在函数返回时会自动关闭。</span>
+    <span id="Server.TLSNextProto">TLSNextProto</span> map[<a href="http://godoc.org/builtin#string">string</a>]func(*<a href="#Server">Server</a>, *<a href="http://godoc.org/crypto/tls">tls</a>.<a href="http://godoc.org/crypto/tls#Conn">Conn</a>, <a href="#Handler">Handler</a>)
+    <span class="com">// ConnState字段指定一个可选的回调函数，该函数会在一个与客户端的连接改变状态时被调用。</span>
+    <span class="com">// 参见ConnState类型和相关常数获取细节。</span>
+    <span id="Server.ConnState">ConnState</span> func(<a href="http://godoc.org/net">net</a>.<a href="http://godoc.org/net#Conn">Conn</a>, <a href="#ConnState">ConnState</a>)
+    <span class="com">// ErrorLog指定一个可选的日志记录器，用于记录接收连接时的错误和处理器不正常的行为。</span>
+    <span class="com">// 如果本字段为nil，日志会通过log包的标准日志记录器写入os.Stderr。</span>
+    <span id="Server.ErrorLog">ErrorLog</span> *<a href="http://godoc.org/log">log</a>.<a href="http://godoc.org/log#Logger">Logger</a>
+    <span class="com">// 内含隐藏或非导出字段</span>
+}</pre>
+    <p>Server类型定义了运行HTTP服务端的参数。Server的零值是合法的配置。</p>
+    <h4 id="Server.SetKeepAlivesEnabled">func (*Server) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/server.go?name=release#1733">SetKeepAlivesEnabled</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (s *<a href="#Server">Server</a>) SetKeepAlivesEnabled(v <a href="http://godoc.org/builtin#bool">bool</a>)</pre>
+    <p>SetKeepAlivesEnabled控制是否允许HTTP闲置连接重用（keep-alive）功能。默认该功能总是被启用的。只有资源非常紧张的环境或者服务端在关闭进程中时，才应该关闭该功能。</p>
+    <h4 id="Server.Serve">func (*Server) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/server.go?name=release#1694">Serve</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (srv *<a href="#Server">Server</a>) Serve(l <a href="http://godoc.org/net">net</a>.<a href="http://godoc.org/net#Listener">Listener</a>) <a href="http://godoc.org/builtin#error">error</a></pre>
+    <p>Serve会接手监听器l收到的每一个连接，并为每一个连接创建一个新的服务go程。该go程会读取请求，然后调用srv.Handler回复请求。</p>
+    <h4 id="Server.ListenAndServe">func (*Server) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/server.go?name=release#1679">ListenAndServe</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (srv *<a href="#Server">Server</a>) ListenAndServe() <a href="http://godoc.org/builtin#error">error</a></pre>
+    <p>ListenAndServe监听srv.Addr指定的TCP地址，并且会调用Serve方法接收到的连接。如果srv.Addr为空字符串，会使用":http"。</p>
+    <h4 id="Server.ListenAndServeTLS">func (*Server) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/server.go?name=release#1823">ListenAndServeTLS</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (srv *<a href="#Server">Server</a>) ListenAndServeTLS(certFile, keyFile <a href="http://godoc.org/builtin#string">string</a>) <a href="http://godoc.org/builtin#error">error</a></pre>
+    <p>ListenAndServeTLS监听srv.Addr确定的TCP地址，并且会调用Serve方法处理接收到的连接。必须提供证书文件和对应的私钥文件。如果证书是由权威机构签发的，certFile参数必须是顺序串联的服务端证书和CA证书。如果srv.Addr为空字符串，会使用":https"。</p>
+    <h3 id="File">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/fs.go?name=release#58">File</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type File interface {
+    <a href="http://godoc.org/io">io</a>.<a href="http://godoc.org/io#Closer">Closer</a>
+    <a href="http://godoc.org/io">io</a>.<a href="http://godoc.org/io#Reader">Reader</a>
+    <span id="File.Readdir">Readdir</span>(count <a href="http://godoc.org/builtin#int">int</a>) ([]<a href="http://godoc.org/os">os</a>.<a href="http://godoc.org/os#FileInfo">FileInfo</a>, <a href="http://godoc.org/builtin#error">error</a>)
+    <span id="File.Seek">Seek</span>(offset <a href="http://godoc.org/builtin#int64">int64</a>, whence <a href="http://godoc.org/builtin#int">int</a>) (<a href="http://godoc.org/builtin#int64">int64</a>, <a href="http://godoc.org/builtin#error">error</a>)
+    <span id="File.Stat">Stat</span>() (<a href="http://godoc.org/os">os</a>.<a href="http://godoc.org/os#FileInfo">FileInfo</a>, <a href="http://godoc.org/builtin#error">error</a>)
+}</pre>
+    <p align="left">File是被FileSystem接口的Open方法返回的接口类型，可以被FileServer等函数用于文件访问服务。</p>
+    <p align="left">该接口的方法的行为应该和*os.File类型的同名方法相同。</p>
+    <h3 id="FileSystem">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/fs.go?name=release#50">FileSystem</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type FileSystem interface {
+    <span id="FileSystem.Open">Open</span>(name <a href="http://godoc.org/builtin#string">string</a>) (<a href="#File">File</a>, <a href="http://godoc.org/builtin#error">error</a>)
+}</pre>
+    <p>FileSystem接口实现了对一系列命名文件的访问。文件路径的分隔符为'/'，不管主机操作系统的惯例如何。</p>
+    <h3 id="Dir">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/fs.go?name=release#29">Dir</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Dir <a href="http://godoc.org/builtin#string">string</a></pre>
+    <p>Dir使用限制到指定目录树的本地文件系统实现了http.FileSystem接口。空Dir被视为"."，即代表当前目录。</p>
+    <h4 id="Dir.Open">func (Dir) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/fs.go?name=release#31">Open</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (d <a href="#Dir">Dir</a>) Open(name <a href="http://godoc.org/builtin#string">string</a>) (<a href="#File">File</a>, <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <h3 id="NewFileTransport">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/filetransport.go?name=release#30">NewFileTransport</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func NewFileTransport(fs <a href="#FileSystem">FileSystem</a>) <a href="#RoundTripper">RoundTripper</a></pre>
+    <p align="left">NewFileTransport返回一个RoundTripper接口，使用FileSystem接口fs提供文件访问服务。 返回的RoundTripper接口会忽略接收的请求的URL主机及其他绝大多数属性。</p>
+    <p align="left">NewFileTransport函数的典型使用情况是给Transport类型的值注册"file"协议，如下所示：</p>
+    <pre>t := &amp;http.Transport{}
+t.RegisterProtocol(&#34;file&#34;, http.NewFileTransport(http.Dir(&#34;/&#34;)))
+c := &amp;http.Client{Transport: t}
+res, err := c.Get(&#34;file:///etc/passwd&#34;)
+...
+</pre>
+    <h3 id="FileServer">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/fs.go?name=release#435">FileServer</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func FileServer(root <a href="#FileSystem">FileSystem</a>) <a href="#Handler">Handler</a></pre>
+    <p>FileServer返回一个使用FileSystem接口root提供文件访问服务的HTTP处理器。要使用操作系统的FileSystem接口实现，可使用http.Dir：</p>
+    <pre>http.Handle(&#34;/&#34;, http.FileServer(http.Dir(&#34;/tmp&#34;)))
+</pre>
+    <div class="panel-group">
+        <div class="panel panel-default" id="example-FileServer">
+            <div class="panel-heading" onclick="document.getElementById('ex-FileServer').style.display = document.getElementById('ex-FileServer').style.display=='none'?'block':'none';">Example</div>
+            <div id="ex-FileServer" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre>
+<span class="com">// Simple static webserver:</span>
+log.Fatal(http.ListenAndServe(&#34;:8080&#34;, http.FileServer(http.Dir(&#34;/usr/share/doc&#34;))))
+</pre>
+                </div>
+            </div>
+        </div>
+        <div class="panel panel-default" id="example-FileServer--StripPrefix">
+            <div class="panel-heading" onclick="document.getElementById('ex-FileServer--StripPrefix').style.display = document.getElementById('ex-FileServer--StripPrefix').style.display=='none'?'block':'none';">Example (StripPrefix)</div>
+            <div id="ex-FileServer--StripPrefix" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre>
+<span class="com">// To serve a directory on disk (/tmp) under an alternate URL</span>
+<span class="com">// path (/tmpfiles/), use StripPrefix to modify the request</span>
+<span class="com">// URL&#39;s path before the FileServer sees it:</span>
+http.Handle(&#34;/tmpfiles/&#34;, http.StripPrefix(&#34;/tmpfiles/&#34;, http.FileServer(http.Dir(&#34;/tmp&#34;))))
+</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    <h3 id="ProxyURL">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/transport.go?name=release#140">ProxyURL</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func ProxyURL(fixedURL *<a href="http://godoc.org/net/url">url</a>.<a href="http://godoc.org/net/url#URL">URL</a>) func(*<a href="#Request">Request</a>) (*<a href="http://godoc.org/net/url">url</a>.<a href="http://godoc.org/net/url#URL">URL</a>, <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p>ProxyURL返回一个代理函数（用于Transport类型），该函数总是返回同一个URL。</p>
+    <h3 id="ProxyFromEnvironment">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/transport.go?name=release#115">ProxyFromEnvironment</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func ProxyFromEnvironment(req *<a href="#Request">Request</a>) (*<a href="http://godoc.org/net/url">url</a>.<a href="http://godoc.org/net/url#URL">URL</a>, <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p>ProxyFromEnvironment使用环境变量$HTTP_PROXY和$NO_PROXY(或$http_proxy和$no_proxy)的配置返回用于req的代理。如果代理环境不合法将返回错误；如果环境未设定代理或者给定的request不应使用代理时，将返回(nil, nil)；如果req.URL.Host字段是"localhost"（可以有端口号，也可以没有），也会返回(nil, nil)。</p>
+    <h3 id="SetCookie">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/cookie.go?name=release#129">SetCookie</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func SetCookie(w <a href="#ResponseWriter">ResponseWriter</a>, cookie *<a href="#Cookie">Cookie</a>)</pre>
+    <p>SetCookie在w的头域中添加Set-Cookie头，该HTTP头的值为cookie。</p>
+    <h3 id="Redirect">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/server.go?name=release#1276">Redirect</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Redirect(w <a href="#ResponseWriter">ResponseWriter</a>, r *<a href="#Request">Request</a>, urlStr <a href="http://godoc.org/builtin#string">string</a>, code <a href="http://godoc.org/builtin#int">int</a>)</pre>
+    <p>Redirect回复请求一个重定向地址urlStr和状态码code。该重定向地址可以是相对于请求r的相对地址。</p>
+    <h3 id="NotFound">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/server.go?name=release#1249">NotFound</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func NotFound(w <a href="#ResponseWriter">ResponseWriter</a>, r *<a href="#Request">Request</a>)</pre>
+    <p>NotFound回复请求404状态码（not found：目标未发现）。</p>
+    <h3 id="Error">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/server.go?name=release#1242">Error</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Error(w <a href="#ResponseWriter">ResponseWriter</a>, error <a href="http://godoc.org/builtin#string">string</a>, code <a href="http://godoc.org/builtin#int">int</a>)</pre>
+    <p>Error使用指定的错误信息和状态码回复请求，将数据写入w。错误信息必须是明文。</p>
+    <h3 id="ServeContent">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/fs.go?name=release#113">ServeContent</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func ServeContent(w <a href="#ResponseWriter">ResponseWriter</a>, req *<a href="#Request">Request</a>, name <a href="http://godoc.org/builtin#string">string</a>, modtime <a href="http://godoc.org/time">time</a>.<a href="http://godoc.org/time#Time">Time</a>, content <a href="http://godoc.org/io">io</a>.<a href="http://godoc.org/io#ReadSeeker">ReadSeeker</a>)</pre>
+    <p align="left">ServeContent使用提供的ReadSeeker的内容回复请求。ServeContent比起io.Copy函数的主要优点，是可以处理范围类请求（只要一部分内容）、设置MIME类型，处理If-Modified-Since请求。</p>
+    <p align="left">如果未设定回复的Content-Type头，本函数首先会尝试从name的文件扩展名推断数据类型；如果失败，会用读取content的第1块数据并提供给DetectContentType推断类型；之后会设置Content-Type头。参数name不会用于别的地方，甚至于它可以是空字符串，也永远不会发送到回复里。</p>
+    <p align="left">如果modtime不是Time零值，函数会在回复的头域里设置Last-Modified头。如果请求的头域包含If-Modified-Since头，本函数会使用modtime参数来确定是否应该发送内容。如果调用者设置了w的ETag头，ServeContent会使用它处理包含If-Range头和If-None-Match头的请求。</p>
+    <p align="left">参数content的Seek方法必须有效：函数使用Seek来确定它的大小。</p>
+    <p align="left">注意：本包File接口和*os.File类型都实现了io.ReadSeeker接口。</p>
+    <h3 id="ServeFile">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/fs.go?name=release#419">ServeFile</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func ServeFile(w <a href="#ResponseWriter">ResponseWriter</a>, r *<a href="#Request">Request</a>, name <a href="http://godoc.org/builtin#string">string</a>)</pre>
+    <p>ServeFile回复请求name指定的文件或者目录的内容。</p>
+    <h3 id="MaxBytesReader">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/request.go?name=release#637">MaxBytesReader</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func MaxBytesReader(w <a href="#ResponseWriter">ResponseWriter</a>, r <a href="http://godoc.org/io">io</a>.<a href="http://godoc.org/io#ReadCloser">ReadCloser</a>, n <a href="http://godoc.org/builtin#int64">int64</a>) <a href="http://godoc.org/io">io</a>.<a href="http://godoc.org/io#ReadCloser">ReadCloser</a></pre>
+    <p align="left">MaxBytesReader类似io.LimitReader，但它是用来限制接收到的请求的Body的大小的。不同于io.LimitReader，本函数返回一个ReadCloser，返回值的Read方法在读取的数据超过大小限制时会返回非EOF错误，其Close方法会关闭下层的io.ReadCloser接口r。</p>
+    <p align="left">MaxBytesReader预防客户端因为意外或者蓄意发送的&ldquo;大&rdquo;请求，以避免尺寸过大的请求浪费服务端资源。</p>
+    <h3 id="Head">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/client.go?name=release#450">Head</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Head(url <a href="http://godoc.org/builtin#string">string</a>) (resp *<a href="#Response">Response</a>, err <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p>Head向指定的URL发出一个HEAD请求，如果回应的状态码如下，Head会在调用c.CheckRedirect后执行重定向：</p>
+    <pre>301 (Moved Permanently)
+302 (Found)
+303 (See Other)
+307 (Temporary Redirect)</pre>
+    <p>Head是对包变量DefaultClient的Head方法的包装。</p>
+    <h3 id="Get">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/client.go?name=release#251">Get</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Get(url <a href="http://godoc.org/builtin#string">string</a>) (resp *<a href="#Response">Response</a>, err <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p>Get向指定的URL发出一个GET请求，如果回应的状态码如下，Get会在调用c.CheckRedirect后执行重定向：</p>
+    <pre>301 (Moved Permanently)
+302 (Found)
+303 (See Other)
+307 (Temporary Redirect)</pre>
+    <p align="left">如果c.CheckRedirect执行失败或存在HTTP协议错误时，本方法将返回该错误；如果回应的状态码不是2xx，本方法并不会返回错误。如果返回值err为nil，resp.Body总是非nil的，调用者应该在读取完resp.Body后关闭它。</p>
+    <p align="left">Get是对包变量DefaultClient的Get方法的包装。</p>
+    <div class="panel-group">
+        <div class="panel panel-default" id="example-Get">
+            <div class="panel-heading" onclick="document.getElementById('ex-Get').style.display = document.getElementById('ex-Get').style.display=='none'?'block':'none';">Example</div>
+            <div id="ex-Get" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre>
+res, err := http.Get(&#34;http://www.google.com/robots.txt&#34;)
+if err != nil {
+    log.Fatal(err)
+}
+robots, err := ioutil.ReadAll(res.Body)
+res.Body.Close()
+if err != nil {
+    log.Fatal(err)
+}
+fmt.Printf(&#34;%s&#34;, robots)
+</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    <h3 id="Post">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/client.go?name=release#401">Post</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Post(url <a href="http://godoc.org/builtin#string">string</a>, bodyType <a href="http://godoc.org/builtin#string">string</a>, body <a href="http://godoc.org/io">io</a>.<a href="http://godoc.org/io#Reader">Reader</a>) (resp *<a href="#Response">Response</a>, err <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p align="left">Post向指定的URL发出一个POST请求。bodyType为POST数据的类型， body为POST数据，作为请求的主体。如果参数body实现了io.Closer接口，它会在发送请求后被关闭。调用者有责任在读取完返回值resp的主体后关闭它。</p>
+    <p align="left">Post是对包变量DefaultClient的Post方法的包装。</p>
+    <h3 id="PostForm">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/client.go?name=release#427">PostForm</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func PostForm(url <a href="http://godoc.org/builtin#string">string</a>, data <a href="http://godoc.org/net/url">url</a>.<a href="http://godoc.org/net/url#Values">Values</a>) (resp *<a href="#Response">Response</a>, err <a href="http://godoc.org/builtin#error">error</a>)</pre>
+    <p align="left">PostForm向指定的URL发出一个POST请求，url.Values类型的data会被编码为请求的主体。如果返回值err为nil，resp.Body总是非nil的，调用者应该在读取完resp.Body后关闭它。</p>
+    <p align="left">PostForm是对包变量DefaultClient的PostForm方法的包装。</p>
+    <h3 id="Handle">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/server.go?name=release#1561">Handle</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Handle(pattern <a href="http://godoc.org/builtin#string">string</a>, handler <a href="#Handler">Handler</a>)</pre>
+    <p>Handle注册HTTP处理器handler和对应的模式pattern（注册到DefaultServeMux）。如果该模式已经注册有一个处理器，Handle会panic。ServeMux的文档解释了模式的匹配机制。</p>
+    <h3 id="HandleFunc">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/server.go?name=release#1566">HandleFunc</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func HandleFunc(pattern <a href="http://godoc.org/builtin#string">string</a>, handler func(<a href="#ResponseWriter">ResponseWriter</a>, *<a href="#Request">Request</a>))</pre>
+    <p>HandleFunc注册一个处理器函数handler和对应的模式pattern（注册到DefaultServeMux）。ServeMux的文档解释了模式的匹配机制。</p>
+    <h3 id="Serve">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/server.go?name=release#1574">Serve</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Serve(l <a href="http://godoc.org/net">net</a>.<a href="http://godoc.org/net#Listener">Listener</a>, handler <a href="#Handler">Handler</a>) <a href="http://godoc.org/builtin#error">error</a></pre>
+    <p>Serve会接手监听器l收到的每一个连接，并为每一个连接创建一个新的服务go程。该go程会读取请求，然后调用handler回复请求。handler参数一般会设为nil，此时会使用DefaultServeMux。</p>
+    <h3 id="ListenAndServe">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/server.go?name=release#1776">ListenAndServe</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func ListenAndServe(addr <a href="http://godoc.org/builtin#string">string</a>, handler <a href="#Handler">Handler</a>) <a href="http://godoc.org/builtin#error">error</a></pre>
+    <p align="left">ListenAndServe监听TCP地址addr，并且会使用handler参数调用Serve函数处理接收到的连接。handler参数一般会设为nil，此时会使用DefaultServeMux。</p>
+    <p align="left">一个简单的服务端例子：</p>
+    <pre>package main
+import (
+	&#34;io&#34;
+	&#34;net/http&#34;
+	&#34;log&#34;
+)
+// hello world, the web server
+func HelloServer(w http.ResponseWriter, req *http.Request) {
+	io.WriteString(w, &#34;hello, world!\n&#34;)
+}
+func main() {
+	http.HandleFunc(&#34;/hello&#34;, HelloServer)
+	err := http.ListenAndServe(&#34;:12345&#34;, nil)
+	if err != nil {
+		log.Fatal(&#34;ListenAndServe: &#34;, err)
+	}
+}
+</pre>
+    <h3 id="ListenAndServeTLS">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/server.go?name=release#1809">ListenAndServeTLS</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func ListenAndServeTLS(addr <a href="http://godoc.org/builtin#string">string</a>, certFile <a href="http://godoc.org/builtin#string">string</a>, keyFile <a href="http://godoc.org/builtin#string">string</a>, handler <a href="#Handler">Handler</a>) <a href="http://godoc.org/builtin#error">error</a></pre>
+    <p align="left">ListenAndServeTLS函数和ListenAndServe函数的行为基本一致，除了它期望HTTPS连接之外。此外，必须提供证书文件和对应的私钥文件。如果证书是由权威机构签发的，certFile参数必须是顺序串联的服务端证书和CA证书。如果srv.Addr为空字符串，会使用":https"。</p>
+    <p align="left">一个简单的服务端例子：</p>
+    <pre>import (
+	&#34;log&#34;
+	&#34;net/http&#34;
+)
+func handler(w http.ResponseWriter, req *http.Request) {
+	w.Header().Set(&#34;Content-Type&#34;, &#34;text/plain&#34;)
+	w.Write([]byte(&#34;This is an example server.\n&#34;))
+}
+func main() {
+	http.HandleFunc(&#34;/&#34;, handler)
+	log.Printf(&#34;About to listen on 10443. Go to <a href="https://127.0.0.1:10443/">https://127.0.0.1:10443/</a>&#34;)
+	err := http.ListenAndServeTLS(&#34;:10443&#34;, &#34;cert.pem&#34;, &#34;key.pem&#34;, nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+</pre>
+    <p>程序员可以使用crypto/tls包的generate_cert.go文件来生成cert.pem和key.pem两个文件。</p>
+</div>
+</body>
+</html>

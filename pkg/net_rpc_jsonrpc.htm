@@ -1,0 +1,41 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="./site.css" rel="stylesheet">
+<title>net/rpc/jsonrpc</title>
+<meta name="private:description" content="刘志曦翻译于2014年夏，Go 1.3版本">
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package jsonrpc</h2>
+    <p><code>import "net/rpc/jsonrpc"</code>
+    <p>jsonrpc包实现了JSON-RPC的ClientCodec和ServerCodec接口，可用于rpc包。</p>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#Dial">func Dial(network, address string) (*rpc.Client, error)</a></li>
+        <li><a href="#NewClient">func NewClient(conn io.ReadWriteCloser) *rpc.Client</a></li>
+        <li><a href="#NewClientCodec">func NewClientCodec(conn io.ReadWriteCloser) rpc.ClientCodec</a></li>
+        <li><a href="#NewServerCodec">func NewServerCodec(conn io.ReadWriteCloser) rpc.ServerCodec</a></li>
+        <li><a href="#ServeConn">func ServeConn(conn io.ReadWriteCloser)</a></li>
+    </ul>
+    <h3 id="Dial">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/rpc/jsonrpc/client.go?name=release#117">Dial</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Dial(network, address <a href="builtin.htm#string">string</a>) (*<a href="net/rpc.htm">rpc</a>.<a href="net/rpc.htm#Client">Client</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>Dial在指定的网络和地址连接一个JSON-RPC服务端。</p>
+    <h3 id="NewClient">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/rpc/jsonrpc/client.go?name=release#112">NewClient</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func NewClient(conn <a href="io.htm">io</a>.<a href="io.htm#ReadWriteCloser">ReadWriteCloser</a>) *<a href="net/rpc.htm">rpc</a>.<a href="net/rpc.htm#Client">Client</a></pre>
+    <p>NewClient返回一个新的rpc.Client，以管理对连接另一端的服务的请求。</p>
+    <h3 id="NewClientCodec">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/rpc/jsonrpc/client.go?name=release#36">NewClientCodec</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func NewClientCodec(conn <a href="io.htm">io</a>.<a href="io.htm#ReadWriteCloser">ReadWriteCloser</a>) <a href="net/rpc.htm">rpc</a>.<a href="net/rpc.htm#ClientCodec">ClientCodec</a></pre>
+    <p>NewClientCodec返回一个在连接上使用JSON-RPC的rpc.ClientCodec。</p>
+    <h3 id="NewServerCodec">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/rpc/jsonrpc/server.go?name=release#37">NewServerCodec</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func NewServerCodec(conn <a href="io.htm">io</a>.<a href="io.htm#ReadWriteCloser">ReadWriteCloser</a>) <a href="net/rpc.htm">rpc</a>.<a href="net/rpc.htm#ServerCodec">ServerCodec</a></pre>
+    <p>NewServerCodec返回一个在连接上使用JSON-RPC的rpc. ServerCodec。</p>
+    <h3 id="ServeConn">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/rpc/jsonrpc/server.go?name=release#132">ServeConn</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func ServeConn(conn <a href="io.htm">io</a>.<a href="io.htm#ReadWriteCloser">ReadWriteCloser</a>)</pre>
+    <p>ServeConn在单个连接上执行DefaultServer。ServeConn会阻塞，服务该连接直到客户端挂起。调用者一般应另开线程调用本函数："go serveConn(conn)"。ServeConn在该连接使用JSON编解码格式。</p>
+</div>
+</body>
+</html>

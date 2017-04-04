@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="../../../site.css" rel="stylesheet">
+<title>go.net/publicsuffix</title>
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package publicsuffix</h2>
+    <p><code>import "code.google.com/p/go.net/publicsuffix"</code>
+    <p>publicsuffix提供了公共后缀列表，该列表基于来自<a href="http://publicsuffix.org/">http://publicsuffix.org/</a>的数据。公共后缀是互联网用户可以直接在其下面注册名字的名字。</p>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <ul class="list-unstyled">
+        <li><a href="#pkg-variables">Variables</a></li>
+        <li><a href="#EffectiveTLDPlusOne">func EffectiveTLDPlusOne(domain string) (string, error)</a></li>
+        <li><a href="#PublicSuffix">func PublicSuffix(domain string) (publicSuffix string, icann bool)</a></li>
+    </ul>
+    <h3 id="pkg-variables">Variables <a class="permalink" href="#pkg-variables">&para;</a></h3>
+    <pre>var <span id="List">List</span> <a href="https://godoc.org/net/http/cookiejar">cookiejar</a>.<a href="https://godoc.org/net/http/cookiejar#PublicSuffixList">PublicSuffixList</a> = list{}</pre>
+    <p>List通过调用PulicSuffix函数实现了cookiejar.PublicSuffixList接口。</p>
+    <h3 id="EffectiveTLDPlusOne">func <a title="View Source" href="http://code.google.com/p/go/source/browse/publicsuffix/list.go?repo=net#123">EffectiveTLDPlusOne</a> <a class="permalink" href="#EffectiveTLDPlusOne">&para;</a></h3>
+    <pre class="funcdecl">func EffectiveTLDPlusOne(domain <a href="https://godoc.org/builtin#string">string</a>) (<a href="https://godoc.org/builtin#string">string</a>, <a href="https://godoc.org/builtin#error">error</a>)</pre>
+    <p>EffectiveTLDPlusOne返回有效的顶层域名加上一到多个标签。例如&quot;foo.bar.golang.org&quot;会返回&quot;golang.org&quot;。</p>
+    <h3 id="PublicSuffix">func <a title="View Source" href="http://code.google.com/p/go/source/browse/publicsuffix/list.go?repo=net#45">PublicSuffix</a> <a class="permalink" href="#PublicSuffix">&para;</a></h3>
+    <pre class="funcdecl">func PublicSuffix(domain <a href="https://godoc.org/builtin#string">string</a>) (publicSuffix <a href="https://godoc.org/builtin#string">string</a>, icann <a href="https://godoc.org/builtin#bool">bool</a>)</pre>
+    <p align="left">PublicSuffix使用编译进本包的publicsuffix.org数据库拷贝查找并返回domain的公共后缀。</p>
+    <p align="left">返回值icann表示公共后缀是否被ICANN（Internet Corporation for Assigned Names and  Numbers）管理的。如果不是，公共后缀就是私人管理的。例如，foo.org和foo.co.uk是ICANN域名，foo.dyndns.org和foo.blogspot.co.uk是私人域名。</p>
+    <p align="left">区别类似foo.com的ICANN域名和类似foo.appspot.com的私人域名的用例可参见如下网址：</p>
+    <p align="left"><a href="https://wiki.mozilla.org/Public_Suffix_List/Use_Cases">https://wiki.mozilla.org/Public_Suffix_List/Use_Cases</a></p>
+</div>
+</body>
+</html>

@@ -1,0 +1,229 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="./site.css" rel="stylesheet">
+<title>builtin</title>
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package builtin</h2>
+    <p><code>import "builtin"</code>
+    <p>builtin 包为Go的预声明标识符提供了文档。此处列出的条目其实并不在<a href="builtin.htm">builtin</a> 包中，对它们的描述只是为了让 godoc 给该语言的特殊标识符提供文档。</p>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#pkg-constants">Constants</a></li>
+        <li><a href="#bool">type bool</a></li>
+        <li><a href="#byte">type byte</a></li>
+        <li><a href="#rune">type rune</a></li>
+        <li><a href="#int">type int</a></li>
+        <li><a href="#int8">type int8</a></li>
+        <li><a href="#int16">type int16</a></li>
+        <li><a href="#int32">type int32</a></li>
+        <li><a href="#int64">type int64</a></li>
+        <li><a href="#uint">type uint</a></li>
+        <li><a href="#uint8">type uint8</a></li>
+        <li><a href="#uint16">type uint16</a></li>
+        <li><a href="#uint32">type uint32</a></li>
+        <li><a href="#uint64">type uint64</a></li>
+        <li><a href="#float32">type float32</a></li>
+        <li><a href="#float64">type float64</a></li>
+        <li><a href="#complex64">type complex64</a></li>
+        <li><a href="#complex128">type complex128</a></li>
+        <li><a href="#uintptr">type uintptr</a></li>
+        <li><a href="#string">type string</a></li>
+        <li><a href="#error">type error</a></li>
+        <li><a href="#Type">type Type</a></li>
+        <li><a href="#Type1">type Type1</a></li>
+        <li><a href="#IntegerType">type IntegerType</a></li>
+        <li><a href="#FloatType">type FloatType</a></li>
+        <li><a href="#ComplexType">type ComplexType</a></li>
+        <li><a href="#real">func real(c ComplexType) FloatType</a></li>
+        <li><a href="#imag">func imag(c ComplexType) FloatType</a></li>
+        <li><a href="#complex">func complex(r, i FloatType) ComplexType</a></li>
+        <li><a href="#new">func new(Type) *Type</a></li>
+        <li><a href="#make">func make(Type, size IntegerType) Type</a></li>
+        <li><a href="#cap">func cap(v Type) int</a></li>
+        <li><a href="#len">func len(v Type) int</a></li>
+        <li><a href="#append">func append(slice []Type, elems ...Type) []Type</a></li>
+        <li><a href="#copy">func copy(dst, src []Type) int</a></li>
+        <li><a href="#delete">func delete(m map[Type]Type1, key Type)</a></li>
+        <li><a href="#close">func close(c chan&lt;- Type)</a></li>
+        <li><a href="#panic">func panic(v interface{})</a></li>
+        <li><a href="#recover">func recover() interface{}</a></li>
+        <li><a href="#print">func print(args ...Type)</a></li>
+        <li><a href="#println">func println(args ...Type)</a></li>
+    </ul>
+    <h3 id="pkg-constants">Constants <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>const (
+    <span id="true">true</span>  = 0 == 0 <span class="com">// 无类型布尔值</span>
+    <span id="false">false</span> = 0 != 0 <span class="com">// 无类型布尔值</span>
+)</pre>
+    <p>true 和false是两个无类型布尔值。</p>
+    <pre>const <span id="iota">iota</span> = 0 <span class="com">// 无类型整数值</span>
+</pre>
+    <p>iota是一个预定义的标识符，代表顺序按行增加的无符号整数，每个const声明单元（被括号括起来）相互独立，分别从0开始。</p>
+    <h3 id="bool">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/builtin/builtin.go?name=release#14">bool</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type bool bool</pre>
+    <p>布尔类型。</p>
+    <h3 id="byte">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/builtin/builtin.go?name=release#88">byte</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type byte byte</pre>
+    <p>8位无符号整型，是uint8的别名，二者视为同一类型。</p>
+    <h3 id="rune">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/builtin/builtin.go?name=release#92">rune</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type rune rune</pre>
+    <p>32位有符号整形，int32的别名，二者视为同一类型。</p>
+    <h3 id="int">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/builtin/builtin.go?name=release#75">int</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type int int</pre>
+    <p>至少32位的有符号整形，但和int32/rune并非同一类型。</p>
+    <h3 id="int8">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/builtin/builtin.go?name=release#40">int8</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type int8 int8</pre>
+    <p>8位有符号整形，范围[-128, 127]。</p>
+    <h3 id="int16">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/builtin/builtin.go?name=release#44">int16</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type int16 int16</pre>
+    <p>16位有符号整形，范围[-32768, 32767]。</p>
+    <h3 id="int32">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/builtin/builtin.go?name=release#48">int32</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type int32 int32</pre>
+    <p>32位有符号整形，范围[-2147483648, 2147483647]。</p>
+    <h3 id="int64">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/builtin/builtin.go?name=release#52">int64</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type int64 int64</pre>
+    <p>64位有符号整形，范围[-9223372036854775808, 9223372036854775807]。</p>
+    <h3 id="uint">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/builtin/builtin.go?name=release#79">uint</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type uint uint</pre>
+    <p>至少32位的无符号整形，但和uint32不是同一类型。</p>
+    <h3 id="uint8">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/builtin/builtin.go?name=release#24">uint8</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type uint8 uint8</pre>
+    <p>8位无符号整型，范围[0, 255]。</p>
+    <h3 id="uint16">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/builtin/builtin.go?name=release#28">uint16</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type uint16 uint16</pre>
+    <p>16位无符号整型，范围[0, 65535]。</p>
+    <h3 id="uint32">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/builtin/builtin.go?name=release#32">uint32</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type uint32 uint32</pre>
+    <p>32位无符号整型，范围[0, 4294967295]。</p>
+    <h3 id="uint64">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/builtin/builtin.go?name=release#36">uint64</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type uint64 uint64</pre>
+    <p>64位无符号整型，范围[0, 18446744073709551615]。</p>
+    <h3 id="float32">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/builtin/builtin.go?name=release#55">float32</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type float32 float32</pre>
+    <p>所有IEEE-754 32位浮点数的集合，12位有效数字。</p>
+    <h3 id="float64">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/builtin/builtin.go?name=release#58">float64</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type float64 float64</pre>
+    <p>所有IEEE-754 64位浮点数的集合，16位有效数字。</p>
+    <h3 id="complex64">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/builtin/builtin.go?name=release#62">complex64</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type complex64 complex64</pre>
+    <p>具有float32 类型实部和虚部的复数类型。</p>
+    <h3 id="complex128">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/builtin/builtin.go?name=release#66">complex128</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type complex128 complex128</pre>
+    <p>具有float64 类型实部和虚部的复数类型。</p>
+    <h3 id="uintptr">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/builtin/builtin.go?name=release#83">uintptr</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type uintptr uintptr</pre>
+    <p>可以保存任意指针的位模式的整数类型。</p>
+    <h3 id="string">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/builtin/builtin.go?name=release#71">string</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type string string</pre>
+    <p>8位byte序列构成的字符串，约定但不必须是utf-8编码的文本。字符串可以为空但不能是nil，其值不可变。</p>
+    <h3 id="error">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/builtin/builtin.go?name=release#254">error</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type error interface {
+    <span id="error.Error">Error</span>() string
+}</pre>
+    <p>内建error接口类型是约定用于表示错误信息，nil值表示无错误。</p>
+    <h3 id="Type">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/builtin/builtin.go?name=release#106">Type</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Type int</pre>
+    <p>在本文档中代表任意一个类型，但同一个声明里只代表同一个类型。</p>
+    <pre>var <span id="nil">nil</span> <a href="#Type">Type</a> <span class="com">// Type必须是指针、通道、函数、接口、映射或切片</span>
+</pre>
+    <p>nil是预定义的标识符，代表指针、通道、函数、接口、映射或切片的零值。</p>
+    <h3 id="Type1">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/builtin/builtin.go?name=release#111">Type1</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Type1 int</pre>
+    <p>在本文档中代表任意一个类型，但同一个声明里只代表同一个类型，用于代表和Type不同的另一类型。</p>
+    <h3 id="IntegerType">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/builtin/builtin.go?name=release#115">IntegerType</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type IntegerType int</pre>
+    <p>在本文档中代表一个有符号或无符号的整数类型。</p>
+    <h3 id="FloatType">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/builtin/builtin.go?name=release#119">FloatType</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type FloatType float32</pre>
+    <p>在本文档中代表一个浮点数类型。</p>
+    <h3 id="ComplexType">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/builtin/builtin.go?name=release#123">ComplexType</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type ComplexType complex64</pre>
+    <p>在本文档中代表一个复数类型。</p>
+    <h3 id="real">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/builtin/builtin.go?name=release#198">real</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func real(c <a href="#ComplexType">ComplexType</a>) <a href="#FloatType">FloatType</a></pre>
+    <p>返回复数c的实部。</p>
+    <h3 id="imag">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/builtin/builtin.go?name=release#203">imag</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func imag(c <a href="#ComplexType">ComplexType</a>) <a href="#FloatType">FloatType</a></pre>
+    <p>返回复数c的虚部。</p>
+    <h3 id="complex">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/builtin/builtin.go?name=release#194">complex</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func complex(r, i <a href="#FloatType">FloatType</a>) <a href="#ComplexType">ComplexType</a></pre>
+    <p>使用实部r和虚部i生成一个复数。</p>
+    <h3 id="new">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/builtin/builtin.go?name=release#187">new</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func new(<a href="#Type">Type</a>) *<a href="#Type">Type</a></pre>
+    <p>内建函数new分配内存。其第一个实参为类型，而非值。其返回值为指向该类型的新分配的零值的指针。</p>
+    <h3 id="make">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/builtin/builtin.go?name=release#182">make</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func make(Type, size <a href="#IntegerType">IntegerType</a>) <a href="#Type">Type</a></pre>
+    <p>内建函数make分配并初始化一个类型为切片、映射、或通道的对象。其第一个实参为类型，而非值。make的返回类型与其参数相同，而非指向它的指针。其具体结果取决于具体的类型：</p>
+    <pre>切片：size指定了其长度。该切片的容量等于其长度。切片支持第二个整数实参可用来指定不同的容量；
+     它必须不小于其长度，因此 make([]int, 0, 10) 会分配一个长度为0，容量为10的切片。
+映射：初始分配的创建取决于size，但产生的映射长度为0。size可以省略，这种情况下就会分配一个
+     小的起始大小。
+通道：通道的缓存根据指定的缓存容量初始化。若 size为零或被省略，该信道即为无缓存的。</pre>
+    <h3 id="cap">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/builtin/builtin.go?name=release#164">cap</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func cap(v <a href="#Type">Type</a>) int</pre>
+    <p>内建函数cap返回 v 的容量，这取决于具体类型：</p>
+    <pre>数组：v中元素的数量，与 len(v) 相同
+数组指针：*v中元素的数量，与len(v) 相同
+切片：切片的容量（底层数组的长度）；若 v为nil，cap(v) 即为零
+信道：按照元素的单元，相应信道缓存的容量；若v为nil，cap(v)即为零
+</pre>
+    <h3 id="len">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/builtin/builtin.go?name=release#155">len</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func len(v <a href="#Type">Type</a>) int</pre>
+    <p>内建函数len返回 v 的长度，这取决于具体类型：</p>
+    <pre>数组：v中元素的数量
+数组指针：*v中元素的数量（v为nil时panic）
+切片、映射：v中元素的数量；若v为nil，len(v)即为零
+字符串：v中字节的数量
+通道：通道缓存中队列（未读取）元素的数量；若v为 nil，len(v)即为零</pre>
+    <h3 id="append">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/builtin/builtin.go?name=release#134">append</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func append(slice []<a href="#Type">Type</a>, elems ...<a href="#Type">Type</a>) []<a href="#Type">Type</a></pre>
+    <p>内建函数append将元素追加到切片的末尾。若它有足够的容量，其目标就会重新切片以容纳新的元素。否则，就会分配一个新的基本数组。append返回更新后的切片，因此必须存储追加后的结果。</p>
+    <pre>slice = append(slice, elem1, elem2)
+slice = append(slice, anotherSlice...)</pre>
+    <p>作为特例，可以向一个字节切片append字符串，如下：</p>
+    <pre>slice = append([]byte(&#34;hello &#34;), &#34;world&#34;...)
+</pre>
+    <h3 id="copy">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/builtin/builtin.go?name=release#141">copy</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func copy(dst, src []<a href="#Type">Type</a>) int</pre>
+    <p>内建函数copy将元素从来源切片复制到目标切片中，也能将字节从字符串复制到字节切片中。copy返回被复制的元素数量，它会是 len(src) 和 len(dst) 中较小的那个。来源和目标的底层内存可以重叠。</p>
+    <h3 id="delete">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/builtin/builtin.go?name=release#146">delete</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func delete(m map[<a href="#Type">Type</a>]<a href="#Type1">Type1</a>, key <a href="#Type">Type</a>)</pre>
+    <p>内建函数delete按照指定的键将元素从映射中删除。若m为nil或无此元素，delete不进行操作。</p>
+    <h3 id="close">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/builtin/builtin.go?name=release#213">close</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func close(c chan&lt;- <a href="#Type">Type</a>)</pre>
+    <p>内建函数close关闭信道，该通道必须为双向的或只发送的。它应当只由发送者执行，而不应由接收者执行，其效果是在最后发送的值被接收后停止该通道。在最后的值从已关闭的信道中被接收后，任何对其的接收操作都会无阻塞的成功。对于已关闭的信道，语句：</p>
+    <pre>x, ok := &lt;-c
+</pre>
+    <p>还会将ok置为false。</p>
+    <h3 id="panic">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/builtin/builtin.go?name=release#226">panic</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func panic(v interface{})</pre>
+    <p>内建函数panic停止当前Go程的正常执行。当函数F调用panic时，F的正常执行就会立刻停止。F中defer的所有函数先入后出执行后，F返回给其调用者G。G如同F一样行动，层层返回，直到该Go程中所有函数都按相反的顺序停止执行。之后，程序被终止，而错误情况会被报告，包括引发该恐慌的实参值，此终止序列称为恐慌过程。</p>
+    <h3 id="recover">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/builtin/builtin.go?name=release#237">recover</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func recover() interface{}</pre>
+    <p>内建函数recover允许程序管理恐慌过程中的Go程。在defer的函数中，执行recover调用会取回传至panic调用的错误值，恢复正常执行，停止恐慌过程。若recover在defer的函数之外被调用，它将不会停止恐慌过程序列。在此情况下，或当该Go程不在恐慌过程中时，或提供给panic的实参为nil时，recover就会返回nil。</p>
+    <h3 id="print">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/builtin/builtin.go?name=release#243">print</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func print(args ...<a href="#Type">Type</a>)</pre>
+    <p>内建函数print以特有的方法格式化参数并将结果写入标准错误，用于自举和调试。</p>
+    <h3 id="println">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/builtin/builtin.go?name=release#250">println</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func println(args ...<a href="#Type">Type</a>)</pre>
+    <p>println类似print，但会在参数输出之间添加空格，输出结束后换行。</p>
+</div>
+
+<div id="x-footer" class="clearfix">
+  <div class="container">
+    <a href="http://studygolang.com/">Go语言中文网</a>
+    <span class="text-muted">|</span> <a href="http://golang.org/">Go Language</a>
+    <span class="pull-right"><a href="#">Back to top</a></span>
+  </div>
+</div>
+<script src="../assets/jquery-2.0.3.min.js"></script>
+<script src="../bootstrap.min.js"></script>
+<script src="../site.js"></script>
+</body>
+</html>

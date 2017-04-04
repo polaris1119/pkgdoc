@@ -1,0 +1,126 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="./site.css" rel="stylesheet">
+<title>text/scanner</title>
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package scanner</h2>
+    <p><code>import "text/scanner"</code>
+    <p align="left">scanner包提供对utf-8文本的token扫描服务。它会从一个io.Reader获取utf-8文本，通过对Scan方法的重复调用获取一个个token。为了兼容已有的工具，NUL字符不被接受。如果第一个字符是表示utf-8编码格式的BOM标记，会自动忽略该标记。</p>
+    <p align="left">一般Scanner会跳过空白和Go注释，并会识别所有go语言规格的字面量。它可以定制为只识别这些字面量的一个子集，也可以识别不同的空白字符。</p>
+    <p align="left">基本使用模式：</p>
+    <pre>var s scanner.Scanner
+s.Init(src)
+tok := s.Scan()
+for tok != scanner.EOF {
+	// do something with tok
+	tok = s.Scan()
+}</pre>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#pkg-constants">Constants</a></li>
+        <li><a href="#TokenString">func TokenString(tok rune) string</a></li>
+        <li><a href="#Position">type Position</a></li>
+        <ul>
+            <li><a href="#Position.IsValid">func (pos *Position) IsValid() bool</a></li>
+            <li><a href="#Position.String">func (pos Position) String() string</a></li>
+        </ul>
+        <li><a href="#Scanner">type Scanner</a></li>
+        <ul>
+            <li><a href="#Scanner.Init">func (s *Scanner) Init(src io.Reader) *Scanner</a></li>
+            <li><a href="#Scanner.Pos">func (s *Scanner) Pos() (pos Position)</a></li>
+            <li><a href="#Scanner.Peek">func (s *Scanner) Peek() rune</a></li>
+            <li><a href="#Scanner.Next">func (s *Scanner) Next() rune</a></li>
+            <li><a href="#Scanner.Scan">func (s *Scanner) Scan() rune</a></li>
+            <li><a href="#Scanner.TokenText">func (s *Scanner) TokenText() string</a></li>
+        </ul>
+    </ul>
+    <h3 id="pkg-constants">Constants <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>const (
+    <span id="ScanIdents">ScanIdents</span>     = 1 &lt;&lt; -<a href="#Ident">Ident</a>
+    <span id="ScanInts">ScanInts</span>       = 1 &lt;&lt; -<a href="#Int">Int</a>
+    <span id="ScanFloats">ScanFloats</span>     = 1 &lt;&lt; -<a href="#Float">Float</a> <span class="com">// 包括整数</span>
+    <span id="ScanChars">ScanChars</span>      = 1 &lt;&lt; -<a href="#Char">Char</a>
+    <span id="ScanStrings">ScanStrings</span>    = 1 &lt;&lt; -<a href="#String">String</a>
+    <span id="ScanRawStrings">ScanRawStrings</span> = 1 &lt;&lt; -<a href="#RawString">RawString</a>
+    <span id="ScanComments">ScanComments</span>   = 1 &lt;&lt; -<a href="#Comment">Comment</a>
+    <span id="SkipComments">SkipComments</span>   = 1 &lt;&lt; -skipComment <span class="com">// 如设置了ScanComments就视注释为空白</span>
+    <span id="GoTokens">GoTokens</span>       = <a href="#ScanIdents">ScanIdents</a> | <a href="#ScanFloats">ScanFloats</a> | <a href="#ScanChars">ScanChars</a>
+                   | <a href="#ScanStrings">ScanStrings</a> | <a href="#ScanRawStrings">ScanRawStrings</a> | <a href="#ScanComments">ScanComments</a> | <a href="#SkipComments">SkipComments</a>
+)</pre>
+    <p>预定义的状态位，用于控制token的识别。例如，如要设置Scanner只识别标识符、整数、跳过注释，可以将Scanner的状态字段设为：</p>
+    <pre>ScanIdents | ScanInts | SkipComments
+</pre>
+    <pre>const (
+    <span id="EOF">EOF</span> = -(<a href="builtin.htm#iota">iota</a> + 1)
+    <span id="Ident">Ident</span>
+    <span id="Int">Int</span>
+    <span id="Float">Float</span>
+    <span id="Char">Char</span>
+    <span id="String">String</span>
+    <span id="RawString">RawString</span>
+    <span id="Comment">Comment</span>
+)</pre>
+    <p>扫描的结果是上面的一个token或者一个Unicode字符。</p>
+    <pre>const <span id="GoWhitespace">GoWhitespace</span> = 1&lt;&lt;&#39;\t&#39; | 1&lt;&lt;&#39;\n&#39; | 1&lt;&lt;&#39;\r&#39; | 1&lt;&lt;&#39; &#39;</pre>
+    <p>GoWhitespace是一个Scanner的Whitespace字段的默认值，该值确定go的空白字符。</p>
+    <h3 id="TokenString">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/scanner/scanner.go?name=release#108">TokenString</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func TokenString(tok <a href="builtin.htm#rune">rune</a>) <a href="builtin.htm#string">string</a></pre>
+    <p>TokenString返回一个token或unicode码值的可打印的字符串表示。</p>
+    <h3 id="Position">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/scanner/scanner.go?name=release#41">Position</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Position struct {
+    <span id="Position.Filename">Filename</span> <a href="builtin.htm#string">string</a> <span class="com">// 文件名（如果存在）</span>
+    <span id="Position.Offset">Offset</span>   <a href="builtin.htm#int">int</a>    <span class="com">// 偏移量，从0开始</span>
+    <span id="Position.Line">Line</span>     <a href="builtin.htm#int">int</a>    <span class="com">// 行号，从1开始</span>
+    <span id="Position.Column">Column</span>   <a href="builtin.htm#int">int</a>    <span class="com">// 列号，从1开始（每行第几个字符）</span>
+}</pre>
+    <p>代表资源里的一个位置。</p>
+    <h4 id="Position.IsValid">func (*Position) <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/scanner/scanner.go?name=release#49">IsValid</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (pos *<a href="#Position">Position</a>) IsValid() <a href="builtin.htm#bool">bool</a></pre>
+    <p>IsValid返回所处的位置是否合法。</p>
+    <h4 id="Position.String">func (Position) <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/scanner/scanner.go?name=release#51">String</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (pos <a href="#Position">Position</a>) String() <a href="builtin.htm#string">string</a></pre>
+    <h3 id="Scanner">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/scanner/scanner.go?name=release#122">Scanner</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Scanner struct {
+    <span class="com">// 每一次出现错误时都会调用该函数；如果Error为nil，则会将错误报告到os.Stderr。</span>
+    <span id="Scanner.Error">Error</span> func(s *<a href="#Scanner">Scanner</a>, msg <a href="builtin.htm#string">string</a>)
+    <span class="com">// 每一次出现错误时，ErrorCount++</span>
+    <span id="Scanner.ErrorCount">ErrorCount</span> <a href="builtin.htm#int">int</a>
+    <span class="com">// 控制那些token被识别。如要识别整数，就将Mode的ScanInts位设为1。随时都可以修改Mode。</span><span class="com"></span>
+    <span id="Scanner.Mode">Mode</span> <a href="builtin.htm#uint">uint</a>
+    <span class="com">// 控制那些字符识别为空白。如果要将一个码值小于32的字符视为空白，只需将码值对应的位设为1；</span>
+    <span class="com">// 空格码值是32，大于32的位设为1的行为未定义。随时都可以修改Whitespace。</span><span class="com"></span>
+    <span id="Scanner.Whitespace">Whitespace</span> <a href="builtin.htm#uint64">uint64</a>
+    <span class="com">// 最近一次扫描到的token的开始位置，由Scan方法设定</span>
+    <span class="com">// 调用Init或Next方法会使位置无效（Line==0），Scanner不会操作Position.Filename字段</span>
+    <span class="com">// 如果发生错误且Position不合法，此时扫描位置不在token内，应调用Pos获取错误发生的位置</span><span class="com"></span>
+    <a href="#Position">Position</a>
+    <span class="com">// 内含隐藏或非导出字段</span>
+}</pre>
+    <p>Scanner类型实现了token和unicode字符（从io.Reader中）的读取。</p>
+    <h4 id="Scanner.Init">func (*Scanner) <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/scanner/scanner.go?name=release#179">Init</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (s *<a href="#Scanner">Scanner</a>) Init(src <a href="io.htm">io</a>.<a href="io.htm#Reader">Reader</a>) *<a href="#Scanner">Scanner</a></pre>
+    <p>Init使用src创建一个Scanner，并将Error设为nil，ErrorCount设为0，Mode设为GoTokens，Whitespace 设为GoWhitespace。</p>
+    <h4 id="Scanner.Pos">func (*Scanner) <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/scanner/scanner.go?name=release#631">Pos</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (s *<a href="#Scanner">Scanner</a>) Pos() (pos <a href="#Position">Position</a>)</pre>
+    <p>Pos方法返回上一次调用Next或Scan方法后读取结束时的位置。</p>
+    <h4 id="Scanner.Peek">func (*Scanner) <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/scanner/scanner.go?name=release#313">Peek</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (s *<a href="#Scanner">Scanner</a>) Peek() <a href="builtin.htm#rune">rune</a></pre>
+    <p>Peek方法返回资源的下一个unicode字符而不移动扫描位置。如果扫描位置在资源的结尾会返回EOF。</p>
+    <h4 id="Scanner.Next">func (*Scanner) <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/scanner/scanner.go?name=release#302">Next</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (s *<a href="#Scanner">Scanner</a>) Next() <a href="builtin.htm#rune">rune</a></pre>
+    <p>Next读取并返回下一个unicode字符。到达资源结尾时会返回EOF。如果s.Error非nil，本方法会调用该字段汇报错误；否则将错误信息发送到os.Stderr。Next不会更新Scanner的Position字段，请使用Pos方法获取当前位置。</p>
+    <h4 id="Scanner.Scan">func (*Scanner) <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/scanner/scanner.go?name=release#531">Scan</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (s *<a href="#Scanner">Scanner</a>) Scan() <a href="builtin.htm#rune">rune</a></pre>
+    <p>Scan方法从资源读取下一个token或者unicode字符并返回它。本方法只会识别Mode字段指定的token种类。如果到达资源结尾会返回EOF。如果s.Error非nil，本方法会调用该字段汇报错误；否则将错误信息发送到os.Stderr。</p>
+    <h4 id="Scanner.TokenText">func (*Scanner) <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/scanner/scanner.go?name=release#653">TokenText</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (s *<a href="#Scanner">Scanner</a>) TokenText() <a href="builtin.htm#string">string</a></pre>
+    <p>TokenText方法返回最近一次扫描的token对应的字符串。应该在Scan方法后调用。</p>
+</div>
+</body>
+</html>

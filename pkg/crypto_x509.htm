@@ -1,0 +1,495 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="./site.css" rel="stylesheet">
+<title>crypto/x509</title>
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package x509</h2>
+    <p><code>import "crypto/x509"</code>
+    <p>x509包解析X.509编码的证书和密钥。</p>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#pkg-constants">Constants</a></li>
+        <li><a href="#pkg-variables">Variables</a></li>
+        <li><a href="#PEMCipher">type PEMCipher</a></li>
+        <li><a href="#PublicKeyAlgorithm">type PublicKeyAlgorithm</a></li>
+        <li><a href="#SignatureAlgorithm">type SignatureAlgorithm</a></li>
+        <li><a href="#SystemRootsError">type SystemRootsError</a></li>
+        <ul>
+            <li><a href="#SystemRootsError.Error">func (e SystemRootsError) Error() string</a></li>
+        </ul>
+        <li><a href="#HostnameError">type HostnameError</a></li>
+        <ul>
+            <li><a href="#HostnameError.Error">func (h HostnameError) Error() string</a></li>
+        </ul>
+        <li><a href="#UnknownAuthorityError">type UnknownAuthorityError</a></li>
+        <ul>
+            <li><a href="#UnknownAuthorityError.Error">func (e UnknownAuthorityError) Error() string</a></li>
+        </ul>
+        <li><a href="#ConstraintViolationError">type ConstraintViolationError</a></li>
+        <ul>
+            <li><a href="#ConstraintViolationError.Error">func (ConstraintViolationError) Error() string</a></li>
+        </ul>
+        <li><a href="#UnhandledCriticalExtension">type UnhandledCriticalExtension</a></li>
+        <ul>
+            <li><a href="#UnhandledCriticalExtension.Error">func (h UnhandledCriticalExtension) Error() string</a></li>
+        </ul>
+        <li><a href="#CertificateInvalidError">type CertificateInvalidError</a></li>
+        <ul>
+            <li><a href="#CertificateInvalidError.Error">func (e CertificateInvalidError) Error() string</a></li>
+        </ul>
+        <li><a href="#KeyUsage">type KeyUsage</a></li>
+        <li><a href="#ExtKeyUsage">type ExtKeyUsage</a></li>
+        <li><a href="#VerifyOptions">type VerifyOptions</a></li>
+        <li><a href="#InvalidReason">type InvalidReason</a></li>
+        <li><a href="#Certificate">type Certificate</a></li>
+        <ul>
+            <li><a href="#Certificate.CheckSignatureFrom">func (c *Certificate) CheckSignatureFrom(parent *Certificate) (err error)</a></li>
+            <li><a href="#Certificate.CheckCRLSignature">func (c *Certificate) CheckCRLSignature(crl *pkix.CertificateList) (err error)</a></li>
+            <li><a href="#Certificate.CheckSignature">func (c *Certificate) CheckSignature(algo SignatureAlgorithm, signed, signature []byte) (err error)</a></li>
+            <li><a href="#Certificate.CreateCRL">func (c *Certificate) CreateCRL(rand io.Reader, priv interface{}, revokedCerts []pkix.RevokedCertificate, now, expiry time.Time) (crlBytes []byte, err error)</a></li>
+            <li><a href="#Certificate.Equal">func (c *Certificate) Equal(other *Certificate) bool</a></li>
+            <li><a href="#Certificate.Verify">func (c *Certificate) Verify(opts VerifyOptions) (chains [][]*Certificate, err error)</a></li>
+            <li><a href="#Certificate.VerifyHostname">func (c *Certificate) VerifyHostname(h string) error</a></li>
+        </ul>
+        <li><a href="#CertPool">type CertPool</a></li>
+        <ul>
+            <li><a href="#NewCertPool">func NewCertPool() *CertPool</a></li>
+            <li><a href="#CertPool.AddCert">func (s *CertPool) AddCert(cert *Certificate)</a></li>
+            <li><a href="#CertPool.AppendCertsFromPEM">func (s *CertPool) AppendCertsFromPEM(pemCerts []byte) (ok bool)</a></li>
+            <li><a href="#CertPool.Subjects">func (s *CertPool) Subjects() (res [][]byte)</a></li>
+        </ul>
+        <li><a href="#CertificateRequest">type CertificateRequest</a></li>
+        <li><a href="#MarshalECPrivateKey">func MarshalECPrivateKey(key *ecdsa.PrivateKey) ([]byte, error)</a></li>
+        <li><a href="#MarshalPKCS1PrivateKey">func MarshalPKCS1PrivateKey(key *rsa.PrivateKey) []byte</a></li>
+        <li><a href="#MarshalPKIXPublicKey">func MarshalPKIXPublicKey(pub interface{}) ([]byte, error)</a></li>
+        <li><a href="#ParseECPrivateKey">func ParseECPrivateKey(der []byte) (key *ecdsa.PrivateKey, err error)</a></li>
+        <li><a href="#ParsePKCS1PrivateKey">func ParsePKCS1PrivateKey(der []byte) (key *rsa.PrivateKey, err error)</a></li>
+        <li><a href="#ParsePKCS8PrivateKey">func ParsePKCS8PrivateKey(der []byte) (key interface{}, err error)</a></li>
+        <li><a href="#ParsePKIXPublicKey">func ParsePKIXPublicKey(derBytes []byte) (pub interface{}, err error)</a></li>
+        <li><a href="#EncryptPEMBlock">func EncryptPEMBlock(rand io.Reader, blockType string, data, password []byte, alg PEMCipher) (*pem.Block, error)</a></li>
+        <li><a href="#IsEncryptedPEMBlock">func IsEncryptedPEMBlock(b *pem.Block) bool</a></li>
+        <li><a href="#DecryptPEMBlock">func DecryptPEMBlock(b *pem.Block, password []byte) ([]byte, error)</a></li>
+        <li><a href="#ParseCRL">func ParseCRL(crlBytes []byte) (certList *pkix.CertificateList, err error)</a></li>
+        <li><a href="#ParseDERCRL">func ParseDERCRL(derBytes []byte) (certList *pkix.CertificateList, err error)</a></li>
+        <li><a href="#ParseCertificate">func ParseCertificate(asn1Data []byte) (*Certificate, error)</a></li>
+        <li><a href="#ParseCertificateRequest">func ParseCertificateRequest(asn1Data []byte) (*CertificateRequest, error)</a></li>
+        <li><a href="#ParseCertificates">func ParseCertificates(asn1Data []byte) ([]*Certificate, error)</a></li>
+        <li><a href="#CreateCertificate">func CreateCertificate(rand io.Reader, template, parent *Certificate, pub interface{}, priv interface{}) (cert []byte, err error)</a></li>
+        <li><a href="#CreateCertificateRequest">func CreateCertificateRequest(rand io.Reader, template *CertificateRequest, priv interface{}) (csr []byte, err error)</a></li>
+    </ul>
+    <h4 id="pkg-examples">Examples <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#example-Certificate-Verify" onclick="$('#ex-Certificate-Verify').addClass('in').removeClass('collapse').height('auto')">Certificate.Verify</a></li>
+    </ul>
+    <h3 id="pkg-constants">Constants <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>const (
+    <span id="PEMCipherDES">PEMCipherDES</span>
+    <span id="PEMCipher3DES">PEMCipher3DES</span>
+    <span id="PEMCipherAES128">PEMCipherAES128</span>
+    <span id="PEMCipherAES192">PEMCipherAES192</span>
+    <span id="PEMCipherAES256">PEMCipherAES256</span>
+)</pre>
+    <p>可能会被EncryptPEMBlock加密算法使用的值。</p>
+    <h3 id="pkg-variables">Variables <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>var <span id="ErrUnsupportedAlgorithm">ErrUnsupportedAlgorithm</span> = <a href="errors.htm">errors</a>.<a href="errors.htm#New">New</a>(&#34;x509: cannot verify signature: algorithm unimplemented&#34;)</pre>
+    <p>当试图执行包含目前未实现的算法的操作时，会返回ErrUnsupportedAlgorithm。</p>
+    <pre>var <span id="IncorrectPasswordError">IncorrectPasswordError</span> = <a href="errors.htm">errors</a>.<a href="errors.htm#New">New</a>(&#34;x509: decryption password incorrect&#34;)</pre>
+    <p>当检测到不正确的密码时，会返回IncorrectPasswordError。</p>
+    <h3 id="PEMCipher">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/x509/pem_decrypt.go?name=release#23">PEMCipher</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type PEMCipher <a href="builtin.htm#int">int</a></pre>
+    <h3 id="PublicKeyAlgorithm">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/x509/x509.go?name=release#172">PublicKeyAlgorithm</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type PublicKeyAlgorithm <a href="builtin.htm#int">int</a></pre>
+    <pre>const (
+    <span id="UnknownPublicKeyAlgorithm">UnknownPublicKeyAlgorithm</span> <a href="#PublicKeyAlgorithm">PublicKeyAlgorithm</a> = <a href="builtin.htm#iota">iota</a>
+    <span id="RSA">RSA</span>
+    <span id="DSA">DSA</span>
+    <span id="ECDSA">ECDSA</span>
+)</pre>
+    <h3 id="SignatureAlgorithm">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/x509/x509.go?name=release#154">SignatureAlgorithm</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type SignatureAlgorithm <a href="builtin.htm#int">int</a></pre>
+    <pre>const (
+    <span id="UnknownSignatureAlgorithm">UnknownSignatureAlgorithm</span> <a href="#SignatureAlgorithm">SignatureAlgorithm</a> = <a href="builtin.htm#iota">iota</a>
+    <span id="MD2WithRSA">MD2WithRSA</span>
+    <span id="MD5WithRSA">MD5WithRSA</span>
+    <span id="SHA1WithRSA">SHA1WithRSA</span>
+    <span id="SHA256WithRSA">SHA256WithRSA</span>
+    <span id="SHA384WithRSA">SHA384WithRSA</span>
+    <span id="SHA512WithRSA">SHA512WithRSA</span>
+    <span id="DSAWithSHA1">DSAWithSHA1</span>
+    <span id="DSAWithSHA256">DSAWithSHA256</span>
+    <span id="ECDSAWithSHA1">ECDSAWithSHA1</span>
+    <span id="ECDSAWithSHA256">ECDSAWithSHA256</span>
+    <span id="ECDSAWithSHA384">ECDSAWithSHA384</span>
+    <span id="ECDSAWithSHA512">ECDSAWithSHA512</span>
+)</pre>
+    <h3 id="SystemRootsError">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/x509/verify.go?name=release#119">SystemRootsError</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type SystemRootsError struct {
+}</pre>
+    <p>当从系统装载根证书失败时，会返回SystemRootsError。</p>
+    <h4 id="SystemRootsError.Error">func (SystemRootsError) <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/x509/verify.go?name=release#122">Error</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (e <a href="#SystemRootsError">SystemRootsError</a>) Error() <a href="builtin.htm#string">string</a></pre>
+    <h3 id="HostnameError">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/x509/verify.go?name=release#62">HostnameError</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type HostnameError struct {
+    <span id="HostnameError.Certificate">Certificate</span> *<a href="#Certificate">Certificate</a>
+    <span id="HostnameError.Host">Host</span>        <a href="builtin.htm#string">string</a>
+}</pre>
+    <p>当认证的名字和请求的名字不匹配时，会返回HostnameError。</p>
+    <h4 id="HostnameError.Error">func (HostnameError) <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/x509/verify.go?name=release#67">Error</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (h <a href="#HostnameError">HostnameError</a>) Error() <a href="builtin.htm#string">string</a></pre>
+    <h3 id="UnknownAuthorityError">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/x509/verify.go?name=release#93">UnknownAuthorityError</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type UnknownAuthorityError struct {
+    <span class="com">// 内含隐藏或非导出字段</span>
+}</pre>
+    <p>当证书的发布者未知时，会返回UnknownAuthorityError。</p>
+    <h4 id="UnknownAuthorityError.Error">func (UnknownAuthorityError) <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/x509/verify.go?name=release#103">Error</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (e <a href="#UnknownAuthorityError">UnknownAuthorityError</a>) Error() <a href="builtin.htm#string">string</a></pre>
+    <h3 id="ConstraintViolationError">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/x509/x509.go?name=release#527">ConstraintViolationError</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type ConstraintViolationError struct{}</pre>
+    <p>当请求的用途不被证书许可时，会返回ConstraintViolationError。如：当公钥不是证书的签名密钥时用它检查签名。</p>
+    <h4 id="ConstraintViolationError.Error">func (ConstraintViolationError) <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/x509/x509.go?name=release#529">Error</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (<a href="#ConstraintViolationError">ConstraintViolationError</a>) Error() <a href="builtin.htm#string">string</a></pre>
+    <h3 id="UnhandledCriticalExtension">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/x509/x509.go?name=release#677">UnhandledCriticalExtension</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type UnhandledCriticalExtension struct{}</pre>
+    <h4 id="UnhandledCriticalExtension.Error">func (UnhandledCriticalExtension) <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/x509/x509.go?name=release#679">Error</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (h <a href="#UnhandledCriticalExtension">UnhandledCriticalExtension</a>) Error() <a href="builtin.htm#string">string</a></pre>
+    <h3 id="CertificateInvalidError">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/x509/verify.go?name=release#39">CertificateInvalidError</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type CertificateInvalidError struct {
+    <span id="CertificateInvalidError.Cert">Cert</span>   *<a href="#Certificate">Certificate</a>
+    <span id="CertificateInvalidError.Reason">Reason</span> <a href="#InvalidReason">InvalidReason</a>
+}</pre>
+    <p>当发生其余的错误时，会返回CertificateInvalidError。本包的使用者可能会想统一处理所有这类错误。</p>
+    <h4 id="CertificateInvalidError.Error">func (CertificateInvalidError) <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/x509/verify.go?name=release#44">Error</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (e <a href="#CertificateInvalidError">CertificateInvalidError</a>) Error() <a href="builtin.htm#string">string</a></pre>
+    <h3 id="KeyUsage">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/x509/x509.go?name=release#361">KeyUsage</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type KeyUsage <a href="builtin.htm#int">int</a></pre>
+    <p>KeyUsage代表给定密钥的合法操作集。用KeyUsage类型常数的位图表示。（字位表示有无）</p>
+    <pre>const (
+    <span id="KeyUsageDigitalSignature">KeyUsageDigitalSignature</span> <a href="#KeyUsage">KeyUsage</a> = 1 &lt;&lt; <a href="builtin.htm#iota">iota</a>
+    <span id="KeyUsageContentCommitment">KeyUsageContentCommitment</span>
+    <span id="KeyUsageKeyEncipherment">KeyUsageKeyEncipherment</span>
+    <span id="KeyUsageDataEncipherment">KeyUsageDataEncipherment</span>
+    <span id="KeyUsageKeyAgreement">KeyUsageKeyAgreement</span>
+    <span id="KeyUsageCertSign">KeyUsageCertSign</span>
+    <span id="KeyUsageCRLSign">KeyUsageCRLSign</span>
+    <span id="KeyUsageEncipherOnly">KeyUsageEncipherOnly</span>
+    <span id="KeyUsageDecipherOnly">KeyUsageDecipherOnly</span>
+)</pre>
+    <h3 id="ExtKeyUsage">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/x509/x509.go?name=release#404">ExtKeyUsage</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type ExtKeyUsage <a href="builtin.htm#int">int</a></pre>
+    <p>ExtKeyUsage代表给定密钥的合法操作扩展集。每一个ExtKeyUsage类型常数定义一个特定的操作。</p>
+    <pre>const (
+    <span id="ExtKeyUsageAny">ExtKeyUsageAny</span> <a href="#ExtKeyUsage">ExtKeyUsage</a> = <a href="builtin.htm#iota">iota</a>
+    <span id="ExtKeyUsageServerAuth">ExtKeyUsageServerAuth</span>
+    <span id="ExtKeyUsageClientAuth">ExtKeyUsageClientAuth</span>
+    <span id="ExtKeyUsageCodeSigning">ExtKeyUsageCodeSigning</span>
+    <span id="ExtKeyUsageEmailProtection">ExtKeyUsageEmailProtection</span>
+    <span id="ExtKeyUsageIPSECEndSystem">ExtKeyUsageIPSECEndSystem</span>
+    <span id="ExtKeyUsageIPSECTunnel">ExtKeyUsageIPSECTunnel</span>
+    <span id="ExtKeyUsageIPSECUser">ExtKeyUsageIPSECUser</span>
+    <span id="ExtKeyUsageTimeStamping">ExtKeyUsageTimeStamping</span>
+    <span id="ExtKeyUsageOCSPSigning">ExtKeyUsageOCSPSigning</span>
+    <span id="ExtKeyUsageMicrosoftServerGatedCrypto">ExtKeyUsageMicrosoftServerGatedCrypto</span>
+    <span id="ExtKeyUsageNetscapeServerGatedCrypto">ExtKeyUsageNetscapeServerGatedCrypto</span>
+)</pre>
+    <h3 id="VerifyOptions">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/x509/verify.go?name=release#128">VerifyOptions</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type VerifyOptions struct {
+    <span id="VerifyOptions.DNSName">DNSName</span>       <a href="builtin.htm#string">string</a>
+    <span id="VerifyOptions.Intermediates">Intermediates</span> *<a href="#CertPool">CertPool</a>
+    <span id="VerifyOptions.Roots">Roots</span>         *<a href="#CertPool">CertPool</a> <span class="com">// 如为nil，将使用系统根证书池</span>
+    <span id="VerifyOptions.CurrentTime">CurrentTime</span>   <a href="time.htm">time</a>.<a href="time.htm#Time">Time</a> <span class="com">// 如为零值，将使用当前时间</span>
+    <span class="com">// KeyUsage指定了可以接受哪些密钥扩展用途，空列表代表ExtKeyUsageServerAuth。</span>
+    <span class="com">// 密钥用途被作为生成证书链的限制条件（类似Windows加密应用程序接口的行为，但不完全一样）</span>
+    <span class="com">// 要接受任何密钥用途，可以使本字段包含ExtKeyUsageAny。</span>
+    <span id="VerifyOptions.KeyUsages">KeyUsages</span> []<a href="#ExtKeyUsage">ExtKeyUsage</a>
+}</pre>
+    <p>VerifyOptions包含提供给Certificate.Verify方法的参数。它是结构体类型，因为其他PKIX认证API需要很长参数。</p>
+    <h3 id="InvalidReason">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/x509/verify.go?name=release#16">InvalidReason</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type InvalidReason <a href="builtin.htm#int">int</a></pre>
+    <pre>const (
+    <span class="com">// NotAuthorizedToSign表示给本证书签名的证书不是CA证书</span>
+    <span id="NotAuthorizedToSign">NotAuthorizedToSign</span> <a href="#InvalidReason">InvalidReason</a> = <a href="builtin.htm#iota">iota</a>
+    <span class="com">// Expired表示证书已过期，根据VerifyOptions.CurrentTime判断</span>
+    <span id="Expired">Expired</span>
+    <span class="com">// CANotAuthorizedForThisName表示中间证书或根证书具有名字限制，且不包含被检查的名字</span>
+    <span id="CANotAuthorizedForThisName">CANotAuthorizedForThisName</span>
+    <span class="com">// TooManyIntermediates表示违反了路径长度限制</span>
+    <span id="TooManyIntermediates">TooManyIntermediates</span>
+    <span class="com">// IncompatibleUsage表示证书的密钥用途显示它只能用于其它目的</span>
+    <span id="IncompatibleUsage">IncompatibleUsage</span>
+)</pre>
+    <h3 id="Certificate">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/x509/x509.go?name=release#459">Certificate</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Certificate struct {
+    <span id="Certificate.Raw">Raw</span>                     []<a href="builtin.htm#byte">byte</a> <span class="com">// 原始、完整的ASN.1 DER内容（证书、签名算法、签名）</span>
+    <span id="Certificate.RawTBSCertificate">RawTBSCertificate</span>       []<a href="builtin.htm#byte">byte</a> <span class="com">// ASN.1 DER 内容的证书部分</span>
+    <span id="Certificate.RawSubjectPublicKeyInfo">RawSubjectPublicKeyInfo</span> []<a href="builtin.htm#byte">byte</a> <span class="com">// 原始DER编码的SubjectPublicKeyInfo</span>
+    <span id="Certificate.RawSubject">RawSubject</span>              []<a href="builtin.htm#byte">byte</a> <span class="com">// 原始DER编码的Subject</span>
+    <span id="Certificate.RawIssuer">RawIssuer</span>               []<a href="builtin.htm#byte">byte</a> <span class="com">// 原始DER编码的Issuer</span>
+    <span id="Certificate.Signature">Signature</span>          []<a href="builtin.htm#byte">byte</a>
+    <span id="Certificate.SignatureAlgorithm">SignatureAlgorithm</span> <a href="#SignatureAlgorithm">SignatureAlgorithm</a>
+    <span id="Certificate.PublicKeyAlgorithm">PublicKeyAlgorithm</span> <a href="#PublicKeyAlgorithm">PublicKeyAlgorithm</a>
+    <span id="Certificate.PublicKey">PublicKey</span>          interface{}
+    <span id="Certificate.Version">Version</span>             <a href="builtin.htm#int">int</a>
+    <span id="Certificate.SerialNumber">SerialNumber</span>        *<a href="math/big.htm">big</a>.<a href="math/big.htm#Int">Int</a>
+    <span id="Certificate.Issuer">Issuer</span>              <a href="crypto/x509/pkix.htm">pkix</a>.<a href="crypto/x509/pkix.htm#Name">Name</a>
+    <span id="Certificate.Subject">Subject</span>             <a href="crypto/x509/pkix.htm">pkix</a>.<a href="crypto/x509/pkix.htm#Name">Name</a>
+    <span id="Certificate.NotBefore">NotBefore</span>, <span id="Certificate.NotAfter">NotAfter</span> <a href="time.htm">time</a>.<a href="time.htm#Time">Time</a> <span class="com">// 有效期前后界，本时间段之外无效</span>
+    <span id="Certificate.KeyUsage">KeyUsage</span>            <a href="#KeyUsage">KeyUsage</a>
+    <span class="com">// Extensions保管原始的X.509扩展。当解析证书时，本字段用于摘录本包未解析的不关键扩展。</span>
+    <span class="com">// 序列化证书时，Extensions字段会被忽略，参见ExtraExtensions。</span>
+    <span id="Certificate.Extensions">Extensions</span> []<a href="crypto/x509/pkix.htm">pkix</a>.<a href="crypto/x509/pkix.htm#Extension">Extension</a>
+    <span class="com">// ExtraExtensions包含应被直接拷贝到任何序列化的证书中的扩展。</span>
+    <span class="com">// 本字段保管的值会覆盖任何其它字段生成的扩展。</span>
+    <span class="com">// ExtraExtensions字段在解析证书时不会被填写，参见Extensions。</span>
+    <span id="Certificate.ExtraExtensions">ExtraExtensions</span> []<a href="crypto/x509/pkix.htm">pkix</a>.<a href="crypto/x509/pkix.htm#Extension">Extension</a>
+    <span id="Certificate.ExtKeyUsage">ExtKeyUsage</span>        []<a href="#ExtKeyUsage">ExtKeyUsage</a>           <span class="com">// 密钥扩展用途的序列</span>
+    <span id="Certificate.UnknownExtKeyUsage">UnknownExtKeyUsage</span> []<a href="encoding/asn1.htm">asn1</a>.<a href="encoding/asn1.htm#ObjectIdentifier">ObjectIdentifier</a> <span class="com">// 遇到的本包不能识别的密钥扩展用途</span>
+    <span id="Certificate.BasicConstraintsValid">BasicConstraintsValid</span> <a href="builtin.htm#bool">bool</a> <span class="com">// 如果下两个字段合法，将为真</span>
+    <span id="Certificate.IsCA">IsCA</span>                  <a href="builtin.htm#bool">bool</a>
+    <span id="Certificate.MaxPathLen">MaxPathLen</span>            <a href="builtin.htm#int">int</a>
+    <span id="Certificate.SubjectKeyId">SubjectKeyId</span>   []<a href="builtin.htm#byte">byte</a>
+    <span id="Certificate.AuthorityKeyId">AuthorityKeyId</span> []<a href="builtin.htm#byte">byte</a>
+    <span class="com">// RFC 5280, 4.2.2.1（认证信息存取）</span>
+    <span id="Certificate.OCSPServer">OCSPServer</span>            []<a href="builtin.htm#string">string</a>
+    <span id="Certificate.IssuingCertificateURL">IssuingCertificateURL</span> []<a href="builtin.htm#string">string</a>
+    <span class="com">// 证书持有者的替用名称</span>
+    <span id="Certificate.DNSNames">DNSNames</span>       []<a href="builtin.htm#string">string</a>
+    <span id="Certificate.EmailAddresses">EmailAddresses</span> []<a href="builtin.htm#string">string</a>
+    <span id="Certificate.IPAddresses">IPAddresses</span>    []<a href="net.htm">net</a>.<a href="net.htm#IP">IP</a>
+    <span class="com">// 名称的约束</span>
+    <span id="Certificate.PermittedDNSDomainsCritical">PermittedDNSDomainsCritical</span> <a href="builtin.htm#bool">bool</a> <span class="com">// 如为真则名称约束被标记为关键的</span>
+    <span id="Certificate.PermittedDNSDomains">PermittedDNSDomains</span>         []<a href="builtin.htm#string">string</a>
+    <span class="com">// CRL配销点</span>
+    <span id="Certificate.CRLDistributionPoints">CRLDistributionPoints</span> []<a href="builtin.htm#string">string</a>
+    <span id="Certificate.PolicyIdentifiers">PolicyIdentifiers</span> []<a href="encoding/asn1.htm">asn1</a>.<a href="encoding/asn1.htm#ObjectIdentifier">ObjectIdentifier</a>
+}</pre>
+    <p>Certificate代表一个X.509证书。</p>
+    <h4 id="Certificate.CheckSignatureFrom">func (*Certificate) <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/x509/x509.go?name=release#588">CheckSignatureFrom</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *<a href="#Certificate">Certificate</a>) CheckSignatureFrom(parent *<a href="#Certificate">Certificate</a>) (err <a href="builtin.htm#error">error</a>)</pre>
+    <p>CheckSignatureFrom检查c中的签名是否是来自parent的合法签名。</p>
+    <h4 id="Certificate.CheckCRLSignature">func (*Certificate) <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/x509/x509.go?name=release#672">CheckCRLSignature</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *<a href="#Certificate">Certificate</a>) CheckCRLSignature(crl *<a href="crypto/x509/pkix.htm">pkix</a>.<a href="crypto/x509/pkix.htm#CertificateList">CertificateList</a>) (err <a href="builtin.htm#error">error</a>)</pre>
+    <p>CheckCRLSignature检查crl中的签名是否来自c。</p>
+    <h4 id="Certificate.CheckSignature">func (*Certificate) <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/x509/x509.go?name=release#616">CheckSignature</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *<a href="#Certificate">Certificate</a>) CheckSignature(algo <a href="#SignatureAlgorithm">SignatureAlgorithm</a>, signed, signature []<a href="builtin.htm#byte">byte</a>) (err <a href="builtin.htm#error">error</a>)</pre>
+    <p>CheckSignature检查signature是否是c的公钥生成的signed的合法签名。</p>
+    <h4 id="Certificate.CreateCRL">func (*Certificate) <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/x509/x509.go?name=release#1556">CreateCRL</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *<a href="#Certificate">Certificate</a>) CreateCRL(rand <a href="io.htm">io</a>.<a href="io.htm#Reader">Reader</a>, priv interface{}, revokedCerts []<a href="crypto/x509/pkix.htm">pkix</a>.<a href="crypto/x509/pkix.htm#RevokedCertificate">RevokedCertificate</a>, now, expiry <a href="time.htm">time</a>.<a href="time.htm#Time">Time</a>) (crlBytes []<a href="builtin.htm#byte">byte</a>, err <a href="builtin.htm#error">error</a>)</pre>
+    <p>CreateCRL返回一个DER编码的CRL（证书注销列表），使用c签名，并包含给出的已取消签名列表。</p>
+    <p>只支持RSA类型的密钥（priv参数必须是*rsa.PrivateKey类型）。</p>
+    <h4 id="Certificate.Equal">func (*Certificate) <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/x509/x509.go?name=release#533">Equal</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *<a href="#Certificate">Certificate</a>) Equal(other *<a href="#Certificate">Certificate</a>) <a href="builtin.htm#bool">bool</a></pre>
+    <h4 id="Certificate.Verify">func (*Certificate) <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/x509/verify.go?name=release#210">Verify</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *<a href="#Certificate">Certificate</a>) Verify(opts <a href="#VerifyOptions">VerifyOptions</a>) (chains [][]*<a href="#Certificate">Certificate</a>, err <a href="builtin.htm#error">error</a>)</pre>
+    <p align="left">Verify通过创建一到多个从c到opts.Roots中的证书的链条来认证c，如有必要会使用opts.Intermediates中的证书。如果成功，它会返回一到多个证书链条，每一条都以c开始，以opts.Roots中的证书结束。</p>
+    <p align="left">警告：它不会做任何取消检查。</p>
+    <div class="panel-group">
+        <div class="panel panel-default" id="example-Certificate-Verify">
+            <div class="panel-heading" onclick="document.getElementById('ex-Certificate-Verify').style.display = document.getElementById('ex-Certificate-Verify').style.display=='none'?'block':'none';">Example</div>
+            <div id="ex-Certificate-Verify" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre>
+<span class="com">// Verifying with a custom list of root certificates.</span>
+const rootPEM = `
+-----BEGIN CERTIFICATE-----
+MIIEBDCCAuygAwIBAgIDAjppMA0GCSqGSIb3DQEBBQUAMEIxCzAJBgNVBAYTAlVT
+MRYwFAYDVQQKEw1HZW9UcnVzdCBJbmMuMRswGQYDVQQDExJHZW9UcnVzdCBHbG9i
+YWwgQ0EwHhcNMTMwNDA1MTUxNTU1WhcNMTUwNDA0MTUxNTU1WjBJMQswCQYDVQQG
+EwJVUzETMBEGA1UEChMKR29vZ2xlIEluYzElMCMGA1UEAxMcR29vZ2xlIEludGVy
+bmV0IEF1dGhvcml0eSBHMjCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEB
+AJwqBHdc2FCROgajguDYUEi8iT/xGXAaiEZ+4I/F8YnOIe5a/mENtzJEiaB0C1NP
+VaTOgmKV7utZX8bhBYASxF6UP7xbSDj0U/ck5vuR6RXEz/RTDfRK/J9U3n2+oGtv
+h8DQUB8oMANA2ghzUWx//zo8pzcGjr1LEQTrfSTe5vn8MXH7lNVg8y5Kr0LSy+rE
+ahqyzFPdFUuLH8gZYR/Nnag+YyuENWllhMgZxUYi+FOVvuOAShDGKuy6lyARxzmZ
+EASg8GF6lSWMTlJ14rbtCMoU/M4iarNOz0YDl5cDfsCx3nuvRTPPuj5xt970JSXC
+DTWJnZ37DhF5iR43xa+OcmkCAwEAAaOB+zCB+DAfBgNVHSMEGDAWgBTAephojYn7
+qwVkDBF9qn1luMrMTjAdBgNVHQ4EFgQUSt0GFhu89mi1dvWBtrtiGrpagS8wEgYD
+VR0TAQH/BAgwBgEB/wIBADAOBgNVHQ8BAf8EBAMCAQYwOgYDVR0fBDMwMTAvoC2g
+K4YpaHR0cDovL2NybC5nZW90cnVzdC5jb20vY3Jscy9ndGdsb2JhbC5jcmwwPQYI
+KwYBBQUHAQEEMTAvMC0GCCsGAQUFBzABhiFodHRwOi8vZ3RnbG9iYWwtb2NzcC5n
+ZW90cnVzdC5jb20wFwYDVR0gBBAwDjAMBgorBgEEAdZ5AgUBMA0GCSqGSIb3DQEB
+BQUAA4IBAQA21waAESetKhSbOHezI6B1WLuxfoNCunLaHtiONgaX4PCVOzf9G0JY
+/iLIa704XtE7JW4S615ndkZAkNoUyHgN7ZVm2o6Gb4ChulYylYbc3GrKBIxbf/a/
+zG+FA1jDaFETzf3I93k9mTXwVqO94FntT0QJo544evZG0R0SnU++0ED8Vf4GXjza
+HFa9llF7b1cq26KqltyMdMKVvvBulRP/F/A8rLIQjcxz++iPAsbw+zOzlTvjwsto
+WHPbqCRiOwY1nQ2pM714A5AuTHhdUDqB1O6gyHA43LL5Z/qHQF1hwFGPa4NrzQU6
+yuGnBXj8ytqU0CwIPX4WecigUCAkVDNx
+-----END CERTIFICATE-----`
+const certPEM = `
+-----BEGIN CERTIFICATE-----
+MIIDujCCAqKgAwIBAgIIE31FZVaPXTUwDQYJKoZIhvcNAQEFBQAwSTELMAkGA1UE
+BhMCVVMxEzARBgNVBAoTCkdvb2dsZSBJbmMxJTAjBgNVBAMTHEdvb2dsZSBJbnRl
+cm5ldCBBdXRob3JpdHkgRzIwHhcNMTQwMTI5MTMyNzQzWhcNMTQwNTI5MDAwMDAw
+WjBpMQswCQYDVQQGEwJVUzETMBEGA1UECAwKQ2FsaWZvcm5pYTEWMBQGA1UEBwwN
+TW91bnRhaW4gVmlldzETMBEGA1UECgwKR29vZ2xlIEluYzEYMBYGA1UEAwwPbWFp
+bC5nb29nbGUuY29tMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEfRrObuSW5T7q
+5CnSEqefEmtH4CCv6+5EckuriNr1CjfVvqzwfAhopXkLrq45EQm8vkmf7W96XJhC
+7ZM0dYi1/qOCAU8wggFLMB0GA1UdJQQWMBQGCCsGAQUFBwMBBggrBgEFBQcDAjAa
+BgNVHREEEzARgg9tYWlsLmdvb2dsZS5jb20wCwYDVR0PBAQDAgeAMGgGCCsGAQUF
+BwEBBFwwWjArBggrBgEFBQcwAoYfaHR0cDovL3BraS5nb29nbGUuY29tL0dJQUcy
+LmNydDArBggrBgEFBQcwAYYfaHR0cDovL2NsaWVudHMxLmdvb2dsZS5jb20vb2Nz
+cDAdBgNVHQ4EFgQUiJxtimAuTfwb+aUtBn5UYKreKvMwDAYDVR0TAQH/BAIwADAf
+BgNVHSMEGDAWgBRK3QYWG7z2aLV29YG2u2IaulqBLzAXBgNVHSAEEDAOMAwGCisG
+AQQB1nkCBQEwMAYDVR0fBCkwJzAloCOgIYYfaHR0cDovL3BraS5nb29nbGUuY29t
+L0dJQUcyLmNybDANBgkqhkiG9w0BAQUFAAOCAQEAH6RYHxHdcGpMpFE3oxDoFnP+
+gtuBCHan2yE2GRbJ2Cw8Lw0MmuKqHlf9RSeYfd3BXeKkj1qO6TVKwCh+0HdZk283
+TZZyzmEOyclm3UGFYe82P/iDFt+CeQ3NpmBg+GoaVCuWAARJN/KfglbLyyYygcQq
+0SgeDh8dRKUiaW3HQSoYvTvdTuqzwK4CXsr3b5/dAOY8uMuG/IAR3FgwTbZ1dtoW
+RvOTa8hYiU6A475WuZKyEHcwnGYe57u2I2KbMgcKjPniocj4QzgYsVAVKW3IwaOh
+yE+vPxsiUkvQHdO2fojCkY8jg70jxM+gu59tPDNbw3Uh/2Ij310FgTHsnGQMyA==
+-----END CERTIFICATE-----`
+<span class="com">// First, create the set of root certificates. For this example we only</span>
+<span class="com">// have one. It&#39;s also possible to omit this in order to use the</span>
+<span class="com">// default root set of the current operating system.</span>
+roots := x509.NewCertPool()
+ok := roots.AppendCertsFromPEM([]byte(rootPEM))
+if !ok {
+    panic(&#34;failed to parse root certificate&#34;)
+}
+block, _ := pem.Decode([]byte(certPEM))
+if block == nil {
+    panic(&#34;failed to parse certificate PEM&#34;)
+}
+cert, err := x509.ParseCertificate(block.Bytes)
+if err != nil {
+    panic(&#34;failed to parse certificate: &#34; + err.Error())
+}
+opts := x509.VerifyOptions{
+    DNSName: &#34;mail.google.com&#34;,
+    Roots:   roots,
+}
+if _, err := cert.Verify(opts); err != nil {
+    panic(&#34;failed to verify certificate: &#34; + err.Error())
+}
+</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    <h4 id="Certificate.VerifyHostname">func (*Certificate) <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/x509/verify.go?name=release#381">VerifyHostname</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *<a href="#Certificate">Certificate</a>) VerifyHostname(h <a href="builtin.htm#string">string</a>) <a href="builtin.htm#error">error</a></pre>
+    <p>如果c是名为h的主机的合法证书，VerifyHostname会返回真；否则它返回一个描述该不匹配情况的错误。</p>
+    <h3 id="CertPool">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/x509/cert_pool.go?name=release#12">CertPool</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type CertPool struct {
+    <span class="com">// 内含隐藏或非导出字段</span>
+}</pre>
+    <p>CertPool代表一个证书集合/证书池。</p>
+    <h4 id="NewCertPool">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/x509/cert_pool.go?name=release#19">NewCertPool</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func NewCertPool() *<a href="#CertPool">CertPool</a></pre>
+    <p>NewCertPool创建一个新的、空的CertPool。</p>
+    <h4 id="CertPool.AddCert">func (*CertPool) <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/x509/cert_pool.go?name=release#56">AddCert</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (s *<a href="#CertPool">CertPool</a>) AddCert(cert *<a href="#Certificate">Certificate</a>)</pre>
+    <p>AddCert向s中添加一个证书。</p>
+    <h4 id="CertPool.AppendCertsFromPEM">func (*CertPool) <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/x509/cert_pool.go?name=release#85">AppendCertsFromPEM</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (s *<a href="#CertPool">CertPool</a>) AppendCertsFromPEM(pemCerts []<a href="builtin.htm#byte">byte</a>) (ok <a href="builtin.htm#bool">bool</a>)</pre>
+    <p align="left">AppendCertsFromPEM试图解析一系列PEM编码的证书。它将找到的任何证书都加入s中，如果所有证书都成功被解析，会返回真。</p>
+    <p align="left">在许多Linux系统中，/etc/ssl/cert.pem会包含适合本函数的大量系统级根证书。</p>
+    <h4 id="CertPool.Subjects">func (*CertPool) <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/x509/cert_pool.go?name=release#110">Subjects</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (s *<a href="#CertPool">CertPool</a>) Subjects() (res [][]<a href="builtin.htm#byte">byte</a>)</pre>
+    <p>Subjects返回池中所有证书的DER编码的持有者的列表。</p>
+    <h3 id="CertificateRequest">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/x509/x509.go?name=release#1596">CertificateRequest</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type CertificateRequest struct {
+    <span id="CertificateRequest.Raw">Raw</span>                      []<a href="builtin.htm#byte">byte</a> <span class="com">// 原始、完整的ASN.1 DER内容（CSR、签名算法、签名）</span>
+    <span id="CertificateRequest.RawTBSCertificateRequest">RawTBSCertificateRequest</span> []<a href="builtin.htm#byte">byte</a> <span class="com">// ASN.1 DER 内容的证书请求信息</span>
+    <span id="CertificateRequest.RawSubjectPublicKeyInfo">RawSubjectPublicKeyInfo</span>  []<a href="builtin.htm#byte">byte</a> <span class="com">// 原始DER编码的SubjectPublicKeyInfo</span>
+    <span id="CertificateRequest.RawSubject">RawSubject</span>               []<a href="builtin.htm#byte">byte</a> <span class="com">// 原始DER编码的Subject</span>
+    <span id="CertificateRequest.Version">Version</span>            <a href="builtin.htm#int">int</a>
+    <span id="CertificateRequest.Signature">Signature</span>          []<a href="builtin.htm#byte">byte</a>
+    <span id="CertificateRequest.SignatureAlgorithm">SignatureAlgorithm</span> <a href="#SignatureAlgorithm">SignatureAlgorithm</a>
+    <span id="CertificateRequest.PublicKeyAlgorithm">PublicKeyAlgorithm</span> <a href="#PublicKeyAlgorithm">PublicKeyAlgorithm</a>
+    <span id="CertificateRequest.PublicKey">PublicKey</span>          interface{}
+    <span id="CertificateRequest.Subject">Subject</span> <a href="crypto/x509/pkix.htm">pkix</a>.<a href="crypto/x509/pkix.htm#Name">Name</a>
+    <span class="com">// Attributes提供关于证书持有者的额外信息，参见RFC 2986 section 4.1。</span>
+    <span id="CertificateRequest.Attributes">Attributes</span> []<a href="crypto/x509/pkix.htm">pkix</a>.<a href="crypto/x509/pkix.htm#AttributeTypeAndValueSET">AttributeTypeAndValueSET</a>
+    <span class="com">// Extensions保管原始的X.509扩展。当解析CSR时，本字段用于摘录本包未解析的不关键扩展。</span>
+    <span id="CertificateRequest.Extensions">Extensions</span> []<a href="crypto/x509/pkix.htm">pkix</a>.<a href="crypto/x509/pkix.htm#Extension">Extension</a>
+    <span class="com">// ExtraExtensions包含应被直接拷贝到任何序列化的CSR中的扩展。</span>
+    <span class="com">// 本字段保管的值会覆盖任何其它字段生成的扩展，但会被Attributes字段指定的扩展覆盖。</span>
+    <span class="com">// ExtraExtensions字段在解析CSR时不会增加，参见Extensions。</span>
+    <span id="CertificateRequest.ExtraExtensions">ExtraExtensions</span> []<a href="crypto/x509/pkix.htm">pkix</a>.<a href="crypto/x509/pkix.htm#Extension">Extension</a>
+    <span class="com">// 证书持有者的替用名称。</span>
+    <span id="CertificateRequest.DNSNames">DNSNames</span>       []<a href="builtin.htm#string">string</a>
+    <span id="CertificateRequest.EmailAddresses">EmailAddresses</span> []<a href="builtin.htm#string">string</a>
+    <span id="CertificateRequest.IPAddresses">IPAddresses</span>    []<a href="net.htm">net</a>.<a href="net.htm#IP">IP</a>
+}</pre>
+    <p>CertificateRequest代表一个PKCS #10证书签名请求。</p>
+    <h3 id="MarshalECPrivateKey">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/x509/sec1.go?name=release#37">MarshalECPrivateKey</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func MarshalECPrivateKey(key *<a href="crypto/ecdsa.htm">ecdsa</a>.<a href="crypto/ecdsa.htm#PrivateKey">PrivateKey</a>) ([]<a href="builtin.htm#byte">byte</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>MarshalECPrivateKey将ecdsa私钥序列化为ASN.1 DER编码。</p>
+    <h3 id="MarshalPKCS1PrivateKey">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/x509/pkcs1.go?name=release#87">MarshalPKCS1PrivateKey</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func MarshalPKCS1PrivateKey(key *<a href="crypto/rsa.htm">rsa</a>.<a href="crypto/rsa.htm#PrivateKey">PrivateKey</a>) []<a href="builtin.htm#byte">byte</a></pre>
+    <p>MarshalPKCS1PrivateKey将rsa私钥序列化为ASN.1 PKCS#1 DER编码。</p>
+    <h3 id="MarshalPKIXPublicKey">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/x509/x509.go?name=release#85">MarshalPKIXPublicKey</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func MarshalPKIXPublicKey(pub interface{}) ([]<a href="builtin.htm#byte">byte</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>MarshalPKIXPublicKey将公钥序列化为PKIX格式DER编码。</p>
+    <h3 id="ParseECPrivateKey">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/x509/sec1.go?name=release#32">ParseECPrivateKey</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func ParseECPrivateKey(der []<a href="builtin.htm#byte">byte</a>) (key *<a href="crypto/ecdsa.htm">ecdsa</a>.<a href="crypto/ecdsa.htm#PrivateKey">PrivateKey</a>, err <a href="builtin.htm#error">error</a>)</pre>
+    <p>ParseECPrivateKey解析ASN.1 DER编码的ecdsa私钥。</p>
+    <h3 id="ParsePKCS1PrivateKey">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/x509/pkcs1.go?name=release#39">ParsePKCS1PrivateKey</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func ParsePKCS1PrivateKey(der []<a href="builtin.htm#byte">byte</a>) (key *<a href="crypto/rsa.htm">rsa</a>.<a href="crypto/rsa.htm#PrivateKey">PrivateKey</a>, err <a href="builtin.htm#error">error</a>)</pre>
+    <p>ParsePKCS1PrivateKey解析ASN.1 PKCS#1 DER编码的rsa私钥。</p>
+    <h3 id="ParsePKCS8PrivateKey">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/x509/pkcs8.go?name=release#26">ParsePKCS8PrivateKey</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func ParsePKCS8PrivateKey(der []<a href="builtin.htm#byte">byte</a>) (key interface{}, err <a href="builtin.htm#error">error</a>)</pre>
+    <p>ParsePKCS8PrivateKey解析一个未加密的PKCS#8私钥，参见<a href="http://www.rsa.com/rsalabs/node.asp?id=2130">http://www.rsa.com/rsalabs/node.asp?id=2130</a>和RFC5208。</p>
+    <h3 id="ParsePKIXPublicKey">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/x509/x509.go?name=release#38">ParsePKIXPublicKey</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func ParsePKIXPublicKey(derBytes []<a href="builtin.htm#byte">byte</a>) (pub interface{}, err <a href="builtin.htm#error">error</a>)</pre>
+    <p>ParsePKIXPublicKey解析一个DER编码的公钥。这些公钥一般在以"BEGIN PUBLIC KEY"出现的PEM块中。</p>
+    <h3 id="EncryptPEMBlock">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/x509/pem_decrypt.go?name=release#176">EncryptPEMBlock</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func EncryptPEMBlock(rand <a href="io.htm">io</a>.<a href="io.htm#Reader">Reader</a>, blockType <a href="builtin.htm#string">string</a>, data, password []<a href="builtin.htm#byte">byte</a>, alg <a href="#PEMCipher">PEMCipher</a>) (*<a href="encoding/pem.htm">pem</a>.<a href="encoding/pem.htm#Block">Block</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>EncryptPEMBlock使用指定的密码、加密算法加密data，返回一个具有指定块类型，保管加密后数据的PEM块。</p>
+    <h3 id="IsEncryptedPEMBlock">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/x509/pem_decrypt.go?name=release#99">IsEncryptedPEMBlock</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func IsEncryptedPEMBlock(b *<a href="encoding/pem.htm">pem</a>.<a href="encoding/pem.htm#Block">Block</a>) <a href="builtin.htm#bool">bool</a></pre>
+    <p>IsEncryptedPEMBlock返回PEM块b是否是用密码加密了的。</p>
+    <h3 id="DecryptPEMBlock">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/x509/pem_decrypt.go?name=release#112">DecryptPEMBlock</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func DecryptPEMBlock(b *<a href="encoding/pem.htm">pem</a>.<a href="encoding/pem.htm#Block">Block</a>, password []<a href="builtin.htm#byte">byte</a>) ([]<a href="builtin.htm#byte">byte</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>DecryptPEMBlock接受一个加密后的PEM块和加密该块的密码password，返回解密后的DER编码字节切片。它会检查DEK信息头域，以确定用于解密的算法。如果b中没有DEK信息头域，会返回错误。如果函数发现密码不正确，会返回IncorrectPasswordError。</p>
+    <h3 id="ParseCRL">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/x509/x509.go?name=release#1532">ParseCRL</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func ParseCRL(crlBytes []<a href="builtin.htm#byte">byte</a>) (certList *<a href="crypto/x509/pkix.htm">pkix</a>.<a href="crypto/x509/pkix.htm#CertificateList">CertificateList</a>, err <a href="builtin.htm#error">error</a>)</pre>
+    <p>ParseCRL从crlBytes中解析CRL（证书注销列表）。因为经常有PEM编码的CRL出现在应该是DER编码的地方，因此本函数可以透明的处理PEM编码，只要没有前导的垃圾数据。</p>
+    <h3 id="ParseDERCRL">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/x509/x509.go?name=release#1543">ParseDERCRL</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func ParseDERCRL(derBytes []<a href="builtin.htm#byte">byte</a>) (certList *<a href="crypto/x509/pkix.htm">pkix</a>.<a href="crypto/x509/pkix.htm#CertificateList">CertificateList</a>, err <a href="builtin.htm#error">error</a>)</pre>
+    <p>ParseDERCRL从derBytes中解析DER编码的CRL。</p>
+    <h3 id="ParseCertificate">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/x509/x509.go?name=release#1085">ParseCertificate</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func ParseCertificate(asn1Data []<a href="builtin.htm#byte">byte</a>) (*<a href="#Certificate">Certificate</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>ParseCertificate从ASN.1 DER数据解析单个证书。</p>
+    <h3 id="ParseCertificateRequest">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/x509/x509.go?name=release#1824">ParseCertificateRequest</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func ParseCertificateRequest(asn1Data []<a href="builtin.htm#byte">byte</a>) (*<a href="#CertificateRequest">CertificateRequest</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>ParseCertificateRequest解析一个ASN.1 DER数据获取单个证书请求。</p>
+    <h3 id="ParseCertificates">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/x509/x509.go?name=release#1100">ParseCertificates</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func ParseCertificates(asn1Data []<a href="builtin.htm#byte">byte</a>) ([]*<a href="#Certificate">Certificate</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>ParseCertificates从ASN.1 DER编码的asn1Data中解析一到多个证书。这些证书必须是串联的，且中间没有填充。</p>
+    <h3 id="CreateCertificate">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/x509/x509.go?name=release#1437">CreateCertificate</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func CreateCertificate(rand <a href="io.htm">io</a>.<a href="io.htm#Reader">Reader</a>, template, parent *<a href="#Certificate">Certificate</a>, pub interface{}, priv interface{}) (cert []<a href="builtin.htm#byte">byte</a>, err <a href="builtin.htm#error">error</a>)</pre>
+    <p align="left">CreateCertificate基于模板创建一个新的证书。会用到模板的如下字段：</p>
+    <p align="left">SerialNumber、Subject、NotBefore、NotAfter、KeyUsage、ExtKeyUsage、UnknownExtKeyUsage、</p>
+    <p align="left">BasicConstraintsValid、IsCA、MaxPathLen、SubjectKeyId、DNSNames、PermittedDNSDomainsCritical、</p>
+    <p align="left">PermittedDNSDomains、SignatureAlgorithm。</p>
+    <p align="left">该证书会使用parent签名。如果parent和template相同，则证书是自签名的。Pub参数是被签名者的公钥，而priv是签名者的私钥。</p>
+    <p align="left">返回的切片是DER编码的证书。</p>
+    <p align="left">只支持RSA和ECDSA类型的密钥。（pub可以是*rsa.PublicKey或*ecdsa.PublicKey，priv可以是*rsa.PrivateKey或*ecdsa.PrivateKey）</p>
+    <h3 id="CreateCertificateRequest">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/x509/x509.go?name=release#1667">CreateCertificateRequest</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func CreateCertificateRequest(rand <a href="io.htm">io</a>.<a href="io.htm#Reader">Reader</a>, template *<a href="#CertificateRequest">CertificateRequest</a>, priv interface{}) (csr []<a href="builtin.htm#byte">byte</a>, err <a href="builtin.htm#error">error</a>)</pre>
+    <p align="left">CreateCertificateRequest基于模板创建一个新的证书请求。会用到模板的如下字段：</p>
+    <p align="left">Subject、Attributes、Extension、SignatureAlgorithm、DNSNames、EmailAddresses、IPAddresses。</p>
+    <p align="left">priv是签名者的私钥。返回的切片是DER编码的证书请求。</p>
+<p align="left">只支持RSA（*rsa.PrivateKey）和ECDSA（*ecdsa.PrivateKey）类型的密钥。</p>
+</div>
+
+<div id="x-footer" class="clearfix">
+  <div class="container">
+    <a href="http://studygolang.com/">Go语言中文网</a>
+    <span class="text-muted">|</span> <a href="http://golang.org/">Go Language</a>
+    <span class="pull-right"><a href="#">Back to top</a></span>
+  </div>
+</div>
+<script src="../assets/jquery-2.0.3.min.js"></script>
+<script src="../bootstrap.min.js"></script>
+<script src="../site.js"></script>
+</body>
+</html>

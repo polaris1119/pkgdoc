@@ -1,0 +1,50 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="./site.css" rel="stylesheet">
+<title>compress/lzw</title>
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package lzw</h2>
+    <p><code>import "compress/lzw"</code>
+    <p align="left">lzw包实现了Lempel-Ziv-Welch数据压缩格式，这是一种T. A. Welch在&ldquo;A Technique for High-Performance Data Compression&rdquo;一文（Computer, 17(6) (June 1984), pp 8-19）提出的一种压缩格式。</p>
+    <p align="left">本包实现了用于GIF、TIFF、PDF文件的lzw压缩格式，这是一种最长达到12位的变长码，头两个非字面码为clear和EOF码。</p>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#Order">type Order</a></li>
+        <li><a href="#NewReader">func NewReader(r io.Reader, order Order, litWidth int) io.ReadCloser</a></li>
+        <li><a href="#NewWriter">func NewWriter(w io.Writer, order Order, litWidth int) io.WriteCloser</a></li>
+    </ul>
+    <h3 id="Order">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/compress/lzw/reader.go?name=release#25">Order</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Order <a href="builtin.htm#int">int</a></pre>
+    <p>Order指定一个lzw数据流的位顺序。</p>
+    <pre>const (
+    <span class="com">// LSB表示最小权重位在前，用在GIF文件格式</span>
+    <span id="LSB">LSB</span> <a href="#Order">Order</a> = <a href="builtin.htm#iota">iota</a>
+    <span class="com">// MSB表示最大权重位在前，用在TIFF和PDF文件格式</span>
+    <span id="MSB">MSB</span>
+)</pre>
+    <h3 id="NewReader">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/compress/lzw/reader.go?name=release#225">NewReader</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func NewReader(r <a href="io.htm">io</a>.<a href="io.htm#Reader">Reader</a>, order <a href="#Order">Order</a>, litWidth <a href="builtin.htm#int">int</a>) <a href="io.htm">io</a>.<a href="io.htm#ReadCloser">ReadCloser</a></pre>
+    <p>创建一个io.ReadCloser，它从r读取并解压数据。调用者有责任在结束读取后调用返回值的Close方法；litWidth指定字面码的位数，必须在[2,8]范围内，一般为8。</p>
+    <h3 id="NewWriter">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/compress/lzw/writer.go?name=release#234">NewWriter</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func NewWriter(w <a href="io.htm">io</a>.<a href="io.htm#Writer">Writer</a>, order <a href="#Order">Order</a>, litWidth <a href="builtin.htm#int">int</a>) <a href="io.htm">io</a>.<a href="io.htm#WriteCloser">WriteCloser</a></pre>
+    <p>创建一个io.WriteCloser，它将数据压缩后写入w。调用者有责任在结束写入后调用返回值的Close方法；litWidth指定字面码的位数，必须在[2,8]范围内，一般为8。</p>
+</div>
+
+<div id="x-footer" class="clearfix">
+  <div class="container">
+    <a href="http://studygolang.com/">Go语言中文网</a>
+    <span class="text-muted">|</span> <a href="http://golang.org/">Go Language</a>
+    <span class="pull-right"><a href="#">Back to top</a></span>
+  </div>
+</div>
+<script src="../assets/jquery-2.0.3.min.js"></script>
+<script src="../bootstrap.min.js"></script>
+<script src="../site.js"></script>
+</body>
+</html>

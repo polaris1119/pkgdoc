@@ -1,0 +1,48 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="./site.css" rel="stylesheet">
+<title>crypto/hmac</title>
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package hmac</h2>
+    <p><code>import "crypto/hmac"</code>
+    <p align="left">hmac包实现了U.S. Federal Information Processing Standards Publication 198规定的HMAC（加密哈希信息认证码）。</p>
+    <p align="left">HMAC是使用key标记信息的加密hash。接收者使用相同的key逆运算来认证hash。</p>
+    <p align="left">出于安全目的，接收者应使用Equal函数比较认证码：</p>
+    <pre>// 如果messageMAC是message的合法HMAC标签，函数返回真
+func CheckMAC(message, messageMAC, key []byte) bool {
+	mac := hmac.New(sha256.New, key)
+	mac.Write(message)
+	expectedMAC := mac.Sum(nil)
+	return hmac.Equal(messageMAC, expectedMAC)
+}</pre>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#Equal">func Equal(mac1, mac2 []byte) bool</a></li>
+        <li><a href="#New">func New(h func() hash.Hash, key []byte) hash.Hash</a></li>
+    </ul>
+    <h3 id="Equal">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/hmac/hmac.go?name=release#97">Equal</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func Equal(mac1, mac2 []<a href="builtin.htm#byte">byte</a>) <a href="builtin.htm#bool">bool</a></pre>
+    <p>比较两个MAC是否相同，而不会泄露对比时间信息。（以规避时间侧信道攻击：指通过计算比较时花费的时间的长短来获取密码的信息，用于密码破解）</p>
+    <h3 id="New">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/hmac/hmac.go?name=release#78">New</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func New(h func() <a href="hash.htm">hash</a>.<a href="hash.htm#Hash">Hash</a>, key []<a href="builtin.htm#byte">byte</a>) <a href="hash.htm">hash</a>.<a href="hash.htm#Hash">Hash</a></pre>
+    <p>New函数返回一个采用hash.Hash作为底层hash接口、key作为密钥的HMAC算法的hash接口。</p>
+</div>
+
+<div id="x-footer" class="clearfix">
+  <div class="container">
+    <a href="http://studygolang.com/">Go语言中文网</a>
+    <span class="text-muted">|</span> <a href="http://golang.org/">Go Language</a>
+    <span class="pull-right"><a href="#">Back to top</a></span>
+  </div>
+</div>
+<script src="../assets/jquery-2.0.3.min.js"></script>
+<script src="../bootstrap.min.js"></script>
+<script src="../site.js"></script>
+</body>
+</html>

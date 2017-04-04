@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="../../../site.css" rel="stylesheet">
+<title>go.net/html/atom</title>
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package atom</h2>
+    <p><code>import "code.google.com/p/go.net/html/atom"</code>
+    <p>atom包提供了经常出现的HTML字符串（标签名和属性名，如&#34;p&#34;和&#34;id&#34;）的整数码（也被成为atom）。</p>
+    <p>在提取HTML的token和解析时，所有共用同一个标签的元素可以共享一个atom名，可以实现更少的字符串申请。整数的比较一般也比字符串的比较更快。</p>
+    <p>atom的具体码值；不保证在本包不同版本保持一致；不保证atom的码值顺序；不保证码值连续分布。只保证例如&quot;div&quot;对应atom.Div，调用atom.Div.String会返回&quot;div&quot;，且atom.Div != 0。</p>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <ul class="list-unstyled">
+        <li><a href="#String">func String(s []byte) string</a></li>
+        <li><a href="#Atom">type Atom</a></li>
+        <ul>
+            <li><a href="#Lookup">func Lookup(s []byte) Atom</a></li>
+            <li><a href="#Atom.String">func (a Atom) String() string</a></li>
+        </ul>
+    </ul>
+    <h3 id="String">func <a title="View Source" href="http://code.google.com/p/go/source/browse/html/atom/atom.go?repo=net#73">String</a> <a class="permalink" href="#String">&para;</a></h3>
+    <pre class="funcdecl">func String(s []<a href="/builtin#byte">byte</a>) <a href="/builtin#string">string</a></pre>
+    <p>String返回一个字符串，其内容和s相同。本函数等价于 string(s)但更有效率。</p>
+    <h3 id="Atom">type <a title="View Source" href="http://code.google.com/p/go/source/browse/html/atom/atom.go?repo=net#21">Atom</a> <a class="permalink" href="#Atom">&para;</a></h3>
+    <pre>type Atom <a href="/builtin#uint32">uint32</a></pre>
+    <p>Atom是字符串的整数码，零值代表&quot;&quot;。</p>
+    <pre>const (
+    <span id="A">A</span>                <a href="#Atom">Atom</a> = 0x1
+    <span id="Abbr">Abbr</span>             <a href="#Atom">Atom</a> = 0x4
+    <span id="Accept">Accept</span>           <a href="#Atom">Atom</a> = 0x2106
+    <span id="AcceptCharset">AcceptCharset</span>    <a href="#Atom">Atom</a> = 0x210e
+    <span id="Accesskey">Accesskey</span>        <a href="#Atom">Atom</a> = 0x3309
+    <span id="Action">Action</span>           <a href="#Atom">Atom</a> = 0x21b06
+    <span id="Address">Address</span>          <a href="#Atom">Atom</a> = 0x5d507
+    <span id="Align">Align</span>            <a href="#Atom">Atom</a> = 0x1105
+    <span id="Alt">Alt</span>              <a href="#Atom">Atom</a> = 0x4503
+    <span id="Annotation">Annotation</span>       <a href="#Atom">Atom</a> = 0x18d0a
+    <span id="AnnotationXml">AnnotationXml</span>    <a href="#Atom">Atom</a> = 0x18d0e
+    <span id="Applet">Applet</span>           <a href="#Atom">Atom</a> = 0x2d106
+    <span id="Area">Area</span>             <a href="#Atom">Atom</a> = 0x31804
+    <span id="Article">Article</span>          <a href="#Atom">Atom</a> = 0x39907
+    <span id="Aside">Aside</span>            <a href="#Atom">Atom</a> = 0x4f05
+    <span id="Async">Async</span>            <a href="#Atom">Atom</a> = 0x9305
+    <span id="Audio">Audio</span>            <a href="#Atom">Atom</a> = 0xaf05
+    <span id="Autocomplete">Autocomplete</span>     <a href="#Atom">Atom</a> = 0xd50c
+    <span id="Autofocus">Autofocus</span>        <a href="#Atom">Atom</a> = 0xe109
+    <span id="Autoplay">Autoplay</span>         <a href="#Atom">Atom</a> = 0x10c08
+    <span id="B">B</span>                <a href="#Atom">Atom</a> = 0x101
+    <span id="Base">Base</span>             <a href="#Atom">Atom</a> = 0x11404
+    <span id="Basefont">Basefont</span>         <a href="#Atom">Atom</a> = 0x11408
+    <span id="Bdi">Bdi</span>              <a href="#Atom">Atom</a> = 0x1a03
+    <span id="Bdo">Bdo</span>              <a href="#Atom">Atom</a> = 0x12503
+    <span id="Bgsound">Bgsound</span>          <a href="#Atom">Atom</a> = 0x13807
+    <span id="Big">Big</span>              <a href="#Atom">Atom</a> = 0x14403
+    <span id="Blink">Blink</span>            <a href="#Atom">Atom</a> = 0x14705
+    <span id="Blockquote">Blockquote</span>       <a href="#Atom">Atom</a> = 0x14c0a
+    <span id="Body">Body</span>             <a href="#Atom">Atom</a> = 0x2f04
+    <span id="Border">Border</span>           <a href="#Atom">Atom</a> = 0x15606
+    <span id="Br">Br</span>               <a href="#Atom">Atom</a> = 0x202
+    <span id="Button">Button</span>           <a href="#Atom">Atom</a> = 0x15c06
+    <span id="Canvas">Canvas</span>           <a href="#Atom">Atom</a> = 0x4b06
+    <span id="Caption">Caption</span>          <a href="#Atom">Atom</a> = 0x1e007
+    <span id="Center">Center</span>           <a href="#Atom">Atom</a> = 0x2df06
+    <span id="Challenge">Challenge</span>        <a href="#Atom">Atom</a> = 0x23e09
+    <span id="Charset">Charset</span>          <a href="#Atom">Atom</a> = 0x2807
+    <span id="Checked">Checked</span>          <a href="#Atom">Atom</a> = 0x33f07
+    <span id="Cite">Cite</span>             <a href="#Atom">Atom</a> = 0x9704
+    <span id="Class">Class</span>            <a href="#Atom">Atom</a> = 0x3d905
+    <span id="Code">Code</span>             <a href="#Atom">Atom</a> = 0x16f04
+    <span id="Col">Col</span>              <a href="#Atom">Atom</a> = 0x17603
+    <span id="Colgroup">Colgroup</span>         <a href="#Atom">Atom</a> = 0x17608
+    <span id="Color">Color</span>            <a href="#Atom">Atom</a> = 0x18305
+    <span id="Cols">Cols</span>             <a href="#Atom">Atom</a> = 0x18804
+    <span id="Colspan">Colspan</span>          <a href="#Atom">Atom</a> = 0x18807
+    <span id="Command">Command</span>          <a href="#Atom">Atom</a> = 0x19b07
+    <span id="Content">Content</span>          <a href="#Atom">Atom</a> = 0x42c07
+    <span id="Contenteditable">Contenteditable</span>  <a href="#Atom">Atom</a> = 0x42c0f
+    <span id="Contextmenu">Contextmenu</span>      <a href="#Atom">Atom</a> = 0x3480b
+    <span id="Controls">Controls</span>         <a href="#Atom">Atom</a> = 0x1ae08
+    <span id="Coords">Coords</span>           <a href="#Atom">Atom</a> = 0x1ba06
+    <span id="Crossorigin">Crossorigin</span>      <a href="#Atom">Atom</a> = 0x1c40b
+    <span id="Data">Data</span>             <a href="#Atom">Atom</a> = 0x44304
+    <span id="Datalist">Datalist</span>         <a href="#Atom">Atom</a> = 0x44308
+    <span id="Datetime">Datetime</span>         <a href="#Atom">Atom</a> = 0x25b08
+    <span id="Dd">Dd</span>               <a href="#Atom">Atom</a> = 0x28802
+    <span id="Default">Default</span>          <a href="#Atom">Atom</a> = 0x5207
+    <span id="Defer">Defer</span>            <a href="#Atom">Atom</a> = 0x17105
+    <span id="Del">Del</span>              <a href="#Atom">Atom</a> = 0x4d603
+    <span id="Desc">Desc</span>             <a href="#Atom">Atom</a> = 0x4804
+    <span id="Details">Details</span>          <a href="#Atom">Atom</a> = 0x6507
+    <span id="Dfn">Dfn</span>              <a href="#Atom">Atom</a> = 0x8303
+    <span id="Dialog">Dialog</span>           <a href="#Atom">Atom</a> = 0x1b06
+    <span id="Dir">Dir</span>              <a href="#Atom">Atom</a> = 0x9d03
+    <span id="Dirname">Dirname</span>          <a href="#Atom">Atom</a> = 0x9d07
+    <span id="Disabled">Disabled</span>         <a href="#Atom">Atom</a> = 0x10008
+    <span id="Div">Div</span>              <a href="#Atom">Atom</a> = 0x10703
+    <span id="Dl">Dl</span>               <a href="#Atom">Atom</a> = 0x13e02
+    <span id="Download">Download</span>         <a href="#Atom">Atom</a> = 0x40908
+    <span id="Draggable">Draggable</span>        <a href="#Atom">Atom</a> = 0x1a109
+    <span id="Dropzone">Dropzone</span>         <a href="#Atom">Atom</a> = 0x3a208
+    <span id="Dt">Dt</span>               <a href="#Atom">Atom</a> = 0x4e402
+    <span id="Em">Em</span>               <a href="#Atom">Atom</a> = 0x7f02
+    <span id="Embed">Embed</span>            <a href="#Atom">Atom</a> = 0x7f05
+    <span id="Enctype">Enctype</span>          <a href="#Atom">Atom</a> = 0x23007
+    <span id="Face">Face</span>             <a href="#Atom">Atom</a> = 0x2dd04
+    <span id="Fieldset">Fieldset</span>         <a href="#Atom">Atom</a> = 0x1d508
+    <span id="Figcaption">Figcaption</span>       <a href="#Atom">Atom</a> = 0x1dd0a
+    <span id="Figure">Figure</span>           <a href="#Atom">Atom</a> = 0x1f106
+    <span id="Font">Font</span>             <a href="#Atom">Atom</a> = 0x11804
+    <span id="Footer">Footer</span>           <a href="#Atom">Atom</a> = 0x5906
+    <span id="For">For</span>              <a href="#Atom">Atom</a> = 0x1fd03
+    <span id="ForeignObject">ForeignObject</span>    <a href="#Atom">Atom</a> = 0x1fd0d
+    <span id="Foreignobject">Foreignobject</span>    <a href="#Atom">Atom</a> = 0x20a0d
+    <span id="Form">Form</span>             <a href="#Atom">Atom</a> = 0x21704
+    <span id="Formaction">Formaction</span>       <a href="#Atom">Atom</a> = 0x2170a
+    <span id="Formenctype">Formenctype</span>      <a href="#Atom">Atom</a> = 0x22c0b
+    <span id="Formmethod">Formmethod</span>       <a href="#Atom">Atom</a> = 0x2470a
+    <span id="Formnovalidate">Formnovalidate</span>   <a href="#Atom">Atom</a> = 0x2510e
+    <span id="Formtarget">Formtarget</span>       <a href="#Atom">Atom</a> = 0x2660a
+    <span id="Frame">Frame</span>            <a href="#Atom">Atom</a> = 0x8705
+    <span id="Frameset">Frameset</span>         <a href="#Atom">Atom</a> = 0x8708
+    <span id="H1">H1</span>               <a href="#Atom">Atom</a> = 0x13602
+    <span id="H2">H2</span>               <a href="#Atom">Atom</a> = 0x29602
+    <span id="H3">H3</span>               <a href="#Atom">Atom</a> = 0x2c502
+    <span id="H4">H4</span>               <a href="#Atom">Atom</a> = 0x30e02
+    <span id="H5">H5</span>               <a href="#Atom">Atom</a> = 0x4e602
+    <span id="H6">H6</span>               <a href="#Atom">Atom</a> = 0x27002
+    <span id="Head">Head</span>             <a href="#Atom">Atom</a> = 0x2fa04
+    <span id="Header">Header</span>           <a href="#Atom">Atom</a> = 0x2fa06
+    <span id="Headers">Headers</span>          <a href="#Atom">Atom</a> = 0x2fa07
+    <span id="Height">Height</span>           <a href="#Atom">Atom</a> = 0x27206
+    <span id="Hgroup">Hgroup</span>           <a href="#Atom">Atom</a> = 0x27a06
+    <span id="Hidden">Hidden</span>           <a href="#Atom">Atom</a> = 0x28606
+    <span id="High">High</span>             <a href="#Atom">Atom</a> = 0x29304
+    <span id="Hr">Hr</span>               <a href="#Atom">Atom</a> = 0x13102
+    <span id="Href">Href</span>             <a href="#Atom">Atom</a> = 0x29804
+    <span id="Hreflang">Hreflang</span>         <a href="#Atom">Atom</a> = 0x29808
+    <span id="Html">Html</span>             <a href="#Atom">Atom</a> = 0x27604
+    <span id="HttpEquiv">HttpEquiv</span>        <a href="#Atom">Atom</a> = 0x2a00a
+    <span id="I">I</span>                <a href="#Atom">Atom</a> = 0x601
+    <span id="Icon">Icon</span>             <a href="#Atom">Atom</a> = 0x42b04
+    <span id="Id">Id</span>               <a href="#Atom">Atom</a> = 0x5102
+    <span id="Iframe">Iframe</span>           <a href="#Atom">Atom</a> = 0x2b406
+    <span id="Image">Image</span>            <a href="#Atom">Atom</a> = 0x2ba05
+    <span id="Img">Img</span>              <a href="#Atom">Atom</a> = 0x2bf03
+    <span id="Inert">Inert</span>            <a href="#Atom">Atom</a> = 0x4c105
+    <span id="Input">Input</span>            <a href="#Atom">Atom</a> = 0x3f605
+    <span id="Ins">Ins</span>              <a href="#Atom">Atom</a> = 0x1cd03
+    <span id="Isindex">Isindex</span>          <a href="#Atom">Atom</a> = 0x2c707
+    <span id="Ismap">Ismap</span>            <a href="#Atom">Atom</a> = 0x2ce05
+    <span id="Itemid">Itemid</span>           <a href="#Atom">Atom</a> = 0x9806
+    <span id="Itemprop">Itemprop</span>         <a href="#Atom">Atom</a> = 0x57e08
+    <span id="Itemref">Itemref</span>          <a href="#Atom">Atom</a> = 0x2d707
+    <span id="Itemscope">Itemscope</span>        <a href="#Atom">Atom</a> = 0x2e509
+    <span id="Itemtype">Itemtype</span>         <a href="#Atom">Atom</a> = 0x2ef08
+    <span id="Kbd">Kbd</span>              <a href="#Atom">Atom</a> = 0x1903
+    <span id="Keygen">Keygen</span>           <a href="#Atom">Atom</a> = 0x3906
+    <span id="Keytype">Keytype</span>          <a href="#Atom">Atom</a> = 0x51207
+    <span id="Kind">Kind</span>             <a href="#Atom">Atom</a> = 0xfd04
+    <span id="Label">Label</span>            <a href="#Atom">Atom</a> = 0xba05
+    <span id="Lang">Lang</span>             <a href="#Atom">Atom</a> = 0x29c04
+    <span id="Legend">Legend</span>           <a href="#Atom">Atom</a> = 0x1a806
+    <span id="Li">Li</span>               <a href="#Atom">Atom</a> = 0x1202
+    <span id="Link">Link</span>             <a href="#Atom">Atom</a> = 0x14804
+    <span id="List">List</span>             <a href="#Atom">Atom</a> = 0x44704
+    <span id="Listing">Listing</span>          <a href="#Atom">Atom</a> = 0x44707
+    <span id="Loop">Loop</span>             <a href="#Atom">Atom</a> = 0xbe04
+    <span id="Low">Low</span>              <a href="#Atom">Atom</a> = 0x13f03
+    <span id="Malignmark">Malignmark</span>       <a href="#Atom">Atom</a> = 0x100a
+    <span id="Manifest">Manifest</span>         <a href="#Atom">Atom</a> = 0x5b608
+    <span id="Map">Map</span>              <a href="#Atom">Atom</a> = 0x2d003
+    <span id="Mark">Mark</span>             <a href="#Atom">Atom</a> = 0x1604
+    <span id="Marquee">Marquee</span>          <a href="#Atom">Atom</a> = 0x5f207
+    <span id="Math">Math</span>             <a href="#Atom">Atom</a> = 0x2f704
+    <span id="Max">Max</span>              <a href="#Atom">Atom</a> = 0x30603
+    <span id="Maxlength">Maxlength</span>        <a href="#Atom">Atom</a> = 0x30609
+    <span id="Media">Media</span>            <a href="#Atom">Atom</a> = 0xa205
+    <span id="Mediagroup">Mediagroup</span>       <a href="#Atom">Atom</a> = 0xa20a
+    <span id="Menu">Menu</span>             <a href="#Atom">Atom</a> = 0x34f04
+    <span id="Meta">Meta</span>             <a href="#Atom">Atom</a> = 0x45604
+    <span id="Meter">Meter</span>            <a href="#Atom">Atom</a> = 0x26105
+    <span id="Method">Method</span>           <a href="#Atom">Atom</a> = 0x24b06
+    <span id="Mglyph">Mglyph</span>           <a href="#Atom">Atom</a> = 0x2c006
+    <span id="Mi">Mi</span>               <a href="#Atom">Atom</a> = 0x9b02
+    <span id="Min">Min</span>              <a href="#Atom">Atom</a> = 0x31003
+    <span id="Mn">Mn</span>               <a href="#Atom">Atom</a> = 0x25402
+    <span id="Mo">Mo</span>               <a href="#Atom">Atom</a> = 0x47a02
+    <span id="Ms">Ms</span>               <a href="#Atom">Atom</a> = 0x2e802
+    <span id="Mtext">Mtext</span>            <a href="#Atom">Atom</a> = 0x31305
+    <span id="Multiple">Multiple</span>         <a href="#Atom">Atom</a> = 0x32108
+    <span id="Muted">Muted</span>            <a href="#Atom">Atom</a> = 0x32905
+    <span id="Name">Name</span>             <a href="#Atom">Atom</a> = 0xa004
+    <span id="Nav">Nav</span>              <a href="#Atom">Atom</a> = 0x3e03
+    <span id="Nobr">Nobr</span>             <a href="#Atom">Atom</a> = 0x7404
+    <span id="Noembed">Noembed</span>          <a href="#Atom">Atom</a> = 0x7d07
+    <span id="Noframes">Noframes</span>         <a href="#Atom">Atom</a> = 0x8508
+    <span id="Noscript">Noscript</span>         <a href="#Atom">Atom</a> = 0x28b08
+    <span id="Novalidate">Novalidate</span>       <a href="#Atom">Atom</a> = 0x2550a
+    <span id="Object">Object</span>           <a href="#Atom">Atom</a> = 0x21106
+    <span id="Ol">Ol</span>               <a href="#Atom">Atom</a> = 0xcd02
+    <span id="Onabort">Onabort</span>          <a href="#Atom">Atom</a> = 0x16007
+    <span id="Onafterprint">Onafterprint</span>     <a href="#Atom">Atom</a> = 0x1e50c
+    <span id="Onbeforeprint">Onbeforeprint</span>    <a href="#Atom">Atom</a> = 0x21f0d
+    <span id="Onbeforeunload">Onbeforeunload</span>   <a href="#Atom">Atom</a> = 0x5c90e
+    <span id="Onblur">Onblur</span>           <a href="#Atom">Atom</a> = 0x3e206
+    <span id="Oncancel">Oncancel</span>         <a href="#Atom">Atom</a> = 0xb308
+    <span id="Oncanplay">Oncanplay</span>        <a href="#Atom">Atom</a> = 0x12709
+    <span id="Oncanplaythrough">Oncanplaythrough</span> <a href="#Atom">Atom</a> = 0x12710
+    <span id="Onchange">Onchange</span>         <a href="#Atom">Atom</a> = 0x3b808
+    <span id="Onclick">Onclick</span>          <a href="#Atom">Atom</a> = 0x2ad07
+    <span id="Onclose">Onclose</span>          <a href="#Atom">Atom</a> = 0x32e07
+    <span id="Oncontextmenu">Oncontextmenu</span>    <a href="#Atom">Atom</a> = 0x3460d
+    <span id="Oncuechange">Oncuechange</span>      <a href="#Atom">Atom</a> = 0x3530b
+    <span id="Ondblclick">Ondblclick</span>       <a href="#Atom">Atom</a> = 0x35e0a
+    <span id="Ondrag">Ondrag</span>           <a href="#Atom">Atom</a> = 0x36806
+    <span id="Ondragend">Ondragend</span>        <a href="#Atom">Atom</a> = 0x36809
+    <span id="Ondragenter">Ondragenter</span>      <a href="#Atom">Atom</a> = 0x3710b
+    <span id="Ondragleave">Ondragleave</span>      <a href="#Atom">Atom</a> = 0x37c0b
+    <span id="Ondragover">Ondragover</span>       <a href="#Atom">Atom</a> = 0x3870a
+    <span id="Ondragstart">Ondragstart</span>      <a href="#Atom">Atom</a> = 0x3910b
+    <span id="Ondrop">Ondrop</span>           <a href="#Atom">Atom</a> = 0x3a006
+    <span id="Ondurationchange">Ondurationchange</span> <a href="#Atom">Atom</a> = 0x3b010
+    <span id="Onemptied">Onemptied</span>        <a href="#Atom">Atom</a> = 0x3a709
+    <span id="Onended">Onended</span>          <a href="#Atom">Atom</a> = 0x3c007
+    <span id="Onerror">Onerror</span>          <a href="#Atom">Atom</a> = 0x3c707
+    <span id="Onfocus">Onfocus</span>          <a href="#Atom">Atom</a> = 0x3ce07
+    <span id="Onhashchange">Onhashchange</span>     <a href="#Atom">Atom</a> = 0x3e80c
+    <span id="Oninput">Oninput</span>          <a href="#Atom">Atom</a> = 0x3f407
+    <span id="Oninvalid">Oninvalid</span>        <a href="#Atom">Atom</a> = 0x3fb09
+    <span id="Onkeydown">Onkeydown</span>        <a href="#Atom">Atom</a> = 0x40409
+    <span id="Onkeypress">Onkeypress</span>       <a href="#Atom">Atom</a> = 0x4110a
+    <span id="Onkeyup">Onkeyup</span>          <a href="#Atom">Atom</a> = 0x42107
+    <span id="Onload">Onload</span>           <a href="#Atom">Atom</a> = 0x43b06
+    <span id="Onloadeddata">Onloadeddata</span>     <a href="#Atom">Atom</a> = 0x43b0c
+    <span id="Onloadedmetadata">Onloadedmetadata</span> <a href="#Atom">Atom</a> = 0x44e10
+    <span id="Onloadstart">Onloadstart</span>      <a href="#Atom">Atom</a> = 0x4640b
+    <span id="Onmessage">Onmessage</span>        <a href="#Atom">Atom</a> = 0x46f09
+    <span id="Onmousedown">Onmousedown</span>      <a href="#Atom">Atom</a> = 0x4780b
+    <span id="Onmousemove">Onmousemove</span>      <a href="#Atom">Atom</a> = 0x4830b
+    <span id="Onmouseout">Onmouseout</span>       <a href="#Atom">Atom</a> = 0x48e0a
+    <span id="Onmouseover">Onmouseover</span>      <a href="#Atom">Atom</a> = 0x49b0b
+    <span id="Onmouseup">Onmouseup</span>        <a href="#Atom">Atom</a> = 0x4a609
+    <span id="Onmousewheel">Onmousewheel</span>     <a href="#Atom">Atom</a> = 0x4af0c
+    <span id="Onoffline">Onoffline</span>        <a href="#Atom">Atom</a> = 0x4bb09
+    <span id="Ononline">Ononline</span>         <a href="#Atom">Atom</a> = 0x4c608
+    <span id="Onpagehide">Onpagehide</span>       <a href="#Atom">Atom</a> = 0x4ce0a
+    <span id="Onpageshow">Onpageshow</span>       <a href="#Atom">Atom</a> = 0x4d90a
+    <span id="Onpause">Onpause</span>          <a href="#Atom">Atom</a> = 0x4e807
+    <span id="Onplay">Onplay</span>           <a href="#Atom">Atom</a> = 0x4f206
+    <span id="Onplaying">Onplaying</span>        <a href="#Atom">Atom</a> = 0x4f209
+    <span id="Onpopstate">Onpopstate</span>       <a href="#Atom">Atom</a> = 0x4fb0a
+    <span id="Onprogress">Onprogress</span>       <a href="#Atom">Atom</a> = 0x5050a
+    <span id="Onratechange">Onratechange</span>     <a href="#Atom">Atom</a> = 0x5190c
+    <span id="Onreset">Onreset</span>          <a href="#Atom">Atom</a> = 0x52507
+    <span id="Onresize">Onresize</span>         <a href="#Atom">Atom</a> = 0x52c08
+    <span id="Onscroll">Onscroll</span>         <a href="#Atom">Atom</a> = 0x53a08
+    <span id="Onseeked">Onseeked</span>         <a href="#Atom">Atom</a> = 0x54208
+    <span id="Onseeking">Onseeking</span>        <a href="#Atom">Atom</a> = 0x54a09
+    <span id="Onselect">Onselect</span>         <a href="#Atom">Atom</a> = 0x55308
+    <span id="Onshow">Onshow</span>           <a href="#Atom">Atom</a> = 0x55d06
+    <span id="Onstalled">Onstalled</span>        <a href="#Atom">Atom</a> = 0x56609
+    <span id="Onstorage">Onstorage</span>        <a href="#Atom">Atom</a> = 0x56f09
+    <span id="Onsubmit">Onsubmit</span>         <a href="#Atom">Atom</a> = 0x57808
+    <span id="Onsuspend">Onsuspend</span>        <a href="#Atom">Atom</a> = 0x58809
+    <span id="Ontimeupdate">Ontimeupdate</span>     <a href="#Atom">Atom</a> = 0x1190c
+    <span id="Onunload">Onunload</span>         <a href="#Atom">Atom</a> = 0x59108
+    <span id="Onvolumechange">Onvolumechange</span>   <a href="#Atom">Atom</a> = 0x5990e
+    <span id="Onwaiting">Onwaiting</span>        <a href="#Atom">Atom</a> = 0x5a709
+    <span id="Open">Open</span>             <a href="#Atom">Atom</a> = 0x58404
+    <span id="Optgroup">Optgroup</span>         <a href="#Atom">Atom</a> = 0xc008
+    <span id="Optimum">Optimum</span>          <a href="#Atom">Atom</a> = 0x5b007
+    <span id="Option">Option</span>           <a href="#Atom">Atom</a> = 0x5c506
+    <span id="Output">Output</span>           <a href="#Atom">Atom</a> = 0x49506
+    <span id="P">P</span>                <a href="#Atom">Atom</a> = 0xc01
+    <span id="Param">Param</span>            <a href="#Atom">Atom</a> = 0xc05
+    <span id="Pattern">Pattern</span>          <a href="#Atom">Atom</a> = 0x6e07
+    <span id="Ping">Ping</span>             <a href="#Atom">Atom</a> = 0xab04
+    <span id="Placeholder">Placeholder</span>      <a href="#Atom">Atom</a> = 0xc70b
+    <span id="Plaintext">Plaintext</span>        <a href="#Atom">Atom</a> = 0xf109
+    <span id="Poster">Poster</span>           <a href="#Atom">Atom</a> = 0x17d06
+    <span id="Pre">Pre</span>              <a href="#Atom">Atom</a> = 0x27f03
+    <span id="Preload">Preload</span>          <a href="#Atom">Atom</a> = 0x27f07
+    <span id="Progress">Progress</span>         <a href="#Atom">Atom</a> = 0x50708
+    <span id="Prompt">Prompt</span>           <a href="#Atom">Atom</a> = 0x5bf06
+    <span id="Public">Public</span>           <a href="#Atom">Atom</a> = 0x42706
+    <span id="Q">Q</span>                <a href="#Atom">Atom</a> = 0x15101
+    <span id="Radiogroup">Radiogroup</span>       <a href="#Atom">Atom</a> = 0x30a
+    <span id="Readonly">Readonly</span>         <a href="#Atom">Atom</a> = 0x31908
+    <span id="Rel">Rel</span>              <a href="#Atom">Atom</a> = 0x28003
+    <span id="Required">Required</span>         <a href="#Atom">Atom</a> = 0x1f508
+    <span id="Reversed">Reversed</span>         <a href="#Atom">Atom</a> = 0x5e08
+    <span id="Rows">Rows</span>             <a href="#Atom">Atom</a> = 0x7704
+    <span id="Rowspan">Rowspan</span>          <a href="#Atom">Atom</a> = 0x7707
+    <span id="Rp">Rp</span>               <a href="#Atom">Atom</a> = 0x1eb02
+    <span id="Rt">Rt</span>               <a href="#Atom">Atom</a> = 0x16502
+    <span id="Ruby">Ruby</span>             <a href="#Atom">Atom</a> = 0xd104
+    <span id="S">S</span>                <a href="#Atom">Atom</a> = 0x2c01
+    <span id="Samp">Samp</span>             <a href="#Atom">Atom</a> = 0x6b04
+    <span id="Sandbox">Sandbox</span>          <a href="#Atom">Atom</a> = 0xe907
+    <span id="Scope">Scope</span>            <a href="#Atom">Atom</a> = 0x2e905
+    <span id="Scoped">Scoped</span>           <a href="#Atom">Atom</a> = 0x2e906
+    <span id="Script">Script</span>           <a href="#Atom">Atom</a> = 0x28d06
+    <span id="Seamless">Seamless</span>         <a href="#Atom">Atom</a> = 0x33308
+    <span id="Section">Section</span>          <a href="#Atom">Atom</a> = 0x3dd07
+    <span id="Select">Select</span>           <a href="#Atom">Atom</a> = 0x55506
+    <span id="Selected">Selected</span>         <a href="#Atom">Atom</a> = 0x55508
+    <span id="Shape">Shape</span>            <a href="#Atom">Atom</a> = 0x1b505
+    <span id="Size">Size</span>             <a href="#Atom">Atom</a> = 0x53004
+    <span id="Sizes">Sizes</span>            <a href="#Atom">Atom</a> = 0x53005
+    <span id="Small">Small</span>            <a href="#Atom">Atom</a> = 0x1bf05
+    <span id="Source">Source</span>           <a href="#Atom">Atom</a> = 0x1cf06
+    <span id="Spacer">Spacer</span>           <a href="#Atom">Atom</a> = 0x30006
+    <span id="Span">Span</span>             <a href="#Atom">Atom</a> = 0x7a04
+    <span id="Spellcheck">Spellcheck</span>       <a href="#Atom">Atom</a> = 0x33a0a
+    <span id="Src">Src</span>              <a href="#Atom">Atom</a> = 0x3d403
+    <span id="Srcdoc">Srcdoc</span>           <a href="#Atom">Atom</a> = 0x3d406
+    <span id="Srclang">Srclang</span>          <a href="#Atom">Atom</a> = 0x41a07
+    <span id="Start">Start</span>            <a href="#Atom">Atom</a> = 0x39705
+    <span id="Step">Step</span>             <a href="#Atom">Atom</a> = 0x5bc04
+    <span id="Strike">Strike</span>           <a href="#Atom">Atom</a> = 0x50e06
+    <span id="Strong">Strong</span>           <a href="#Atom">Atom</a> = 0x53406
+    <span id="Style">Style</span>            <a href="#Atom">Atom</a> = 0x5db05
+    <span id="Sub">Sub</span>              <a href="#Atom">Atom</a> = 0x57a03
+    <span id="Summary">Summary</span>          <a href="#Atom">Atom</a> = 0x5e007
+    <span id="Sup">Sup</span>              <a href="#Atom">Atom</a> = 0x5e703
+    <span id="Svg">Svg</span>              <a href="#Atom">Atom</a> = 0x5ea03
+    <span id="System">System</span>           <a href="#Atom">Atom</a> = 0x5ed06
+    <span id="Tabindex">Tabindex</span>         <a href="#Atom">Atom</a> = 0x45c08
+    <span id="Table">Table</span>            <a href="#Atom">Atom</a> = 0x43605
+    <span id="Target">Target</span>           <a href="#Atom">Atom</a> = 0x26a06
+    <span id="Tbody">Tbody</span>            <a href="#Atom">Atom</a> = 0x2e05
+    <span id="Td">Td</span>               <a href="#Atom">Atom</a> = 0x4702
+    <span id="Textarea">Textarea</span>         <a href="#Atom">Atom</a> = 0x31408
+    <span id="Tfoot">Tfoot</span>            <a href="#Atom">Atom</a> = 0x5805
+    <span id="Th">Th</span>               <a href="#Atom">Atom</a> = 0x13002
+    <span id="Thead">Thead</span>            <a href="#Atom">Atom</a> = 0x2f905
+    <span id="Time">Time</span>             <a href="#Atom">Atom</a> = 0x11b04
+    <span id="Title">Title</span>            <a href="#Atom">Atom</a> = 0x8e05
+    <span id="Tr">Tr</span>               <a href="#Atom">Atom</a> = 0xf902
+    <span id="Track">Track</span>            <a href="#Atom">Atom</a> = 0xf905
+    <span id="Translate">Translate</span>        <a href="#Atom">Atom</a> = 0x16609
+    <span id="Tt">Tt</span>               <a href="#Atom">Atom</a> = 0x7002
+    <span id="Type">Type</span>             <a href="#Atom">Atom</a> = 0x23304
+    <span id="Typemustmatch">Typemustmatch</span>    <a href="#Atom">Atom</a> = 0x2330d
+    <span id="U">U</span>                <a href="#Atom">Atom</a> = 0xb01
+    <span id="Ul">Ul</span>               <a href="#Atom">Atom</a> = 0x5602
+    <span id="Usemap">Usemap</span>           <a href="#Atom">Atom</a> = 0x4ec06
+    <span id="Value">Value</span>            <a href="#Atom">Atom</a> = 0x4005
+    <span id="Var">Var</span>              <a href="#Atom">Atom</a> = 0x10903
+    <span id="Video">Video</span>            <a href="#Atom">Atom</a> = 0x2a905
+    <span id="Wbr">Wbr</span>              <a href="#Atom">Atom</a> = 0x14103
+    <span id="Width">Width</span>            <a href="#Atom">Atom</a> = 0x4e205
+    <span id="Wrap">Wrap</span>             <a href="#Atom">Atom</a> = 0x56204
+    <span id="Xmp">Xmp</span>              <a href="#Atom">Atom</a> = 0xef03
+)</pre>
+    <h4 id="Lookup">func <a title="View Source" href="http://code.google.com/p/go/source/browse/html/atom/atom.go?repo=net#57">Lookup</a> <a class="permalink" href="#Lookup">&para;</a></h4>
+    <pre class="funcdecl">func Lookup(s []<a href="/builtin#byte">byte</a>) <a href="#Atom">Atom</a></pre>
+    <p>Lookup返回名为s的Atom。如果不存在该Atom会返回零值。本函数是大小写敏感的。</p>
+    <h4 id="Atom.String">func (Atom) <a title="View Source" href="http://code.google.com/p/go/source/browse/html/atom/atom.go?repo=net#24">String</a> <a class="permalink" href="#Atom.String">&para;</a></h4>
+    <pre class="funcdecl">func (a <a href="#Atom">Atom</a>) String() <a href="/builtin#string">string</a></pre>
+    <p>String返回Atom的名称。</p>
+</div>
+</body>
+</html>

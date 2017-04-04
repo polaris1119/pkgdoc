@@ -1,0 +1,263 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="./site.css" rel="stylesheet">
+<title>net/textproto</title>
+<meta name="private:description" content="刘志曦翻译于2014年夏，Go 1.3版本">
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package textproto</h2>
+    <p><code>import "net/textproto"</code>
+    <p align="left">textproto实现了对基于文本的请求/回复协议的一般性支持，包括HTTP、NNTP和SMTP。</p>
+    <p align="left">本包提供：</p>
+    <p align="left">错误，代表服务端回复的错误码。Pipeline，以管理客户端中的管道化的请求/回复。Reader，读取数值回复码行，键值对形式的头域，一个作为后续行先导的空行，以及以只有一个"."的一行为结尾的整个文本块。Writer，写入点编码的文本。Conn，对Reader、Writer和Pipline的易用的包装，用于单个网络连接。</p>
+<h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#ProtocolError">type ProtocolError</a></li>
+        <ul>
+            <li><a href="#ProtocolError.Error">func (p ProtocolError) Error() string</a></li>
+        </ul>
+        <li><a href="#Error">type Error</a></li>
+        <ul>
+            <li><a href="#Error.Error">func (e *Error) Error() string</a></li>
+        </ul>
+        <li><a href="#CanonicalMIMEHeaderKey">func CanonicalMIMEHeaderKey(s string) string</a></li>
+        <li><a href="#TrimBytes">func TrimBytes(b []byte) []byte</a></li>
+        <li><a href="#TrimString">func TrimString(s string) string</a></li>
+        <li><a href="#MIMEHeader">type MIMEHeader</a></li>
+        <ul>
+            <li><a href="#MIMEHeader.Get">func (h MIMEHeader) Get(key string) string</a></li>
+            <li><a href="#MIMEHeader.Set">func (h MIMEHeader) Set(key, value string)</a></li>
+            <li><a href="#MIMEHeader.Add">func (h MIMEHeader) Add(key, value string)</a></li>
+            <li><a href="#MIMEHeader.Del">func (h MIMEHeader) Del(key string)</a></li>
+        </ul>
+        <li><a href="#Reader">type Reader</a></li>
+        <ul>
+            <li><a href="#NewReader">func NewReader(r *bufio.Reader) *Reader</a></li>
+            <li><a href="#Reader.DotReader">func (r *Reader) DotReader() io.Reader</a></li>
+            <li><a href="#Reader.ReadLine">func (r *Reader) ReadLine() (string, error)</a></li>
+            <li><a href="#Reader.ReadLineBytes">func (r *Reader) ReadLineBytes() ([]byte, error)</a></li>
+            <li><a href="#Reader.ReadContinuedLine">func (r *Reader) ReadContinuedLine() (string, error)</a></li>
+            <li><a href="#Reader.ReadContinuedLineBytes">func (r *Reader) ReadContinuedLineBytes() ([]byte, error)</a></li>
+            <li><a href="#Reader.ReadDotBytes">func (r *Reader) ReadDotBytes() ([]byte, error)</a></li>
+            <li><a href="#Reader.ReadDotLines">func (r *Reader) ReadDotLines() ([]string, error)</a></li>
+            <li><a href="#Reader.ReadCodeLine">func (r *Reader) ReadCodeLine(expectCode int) (code int, message string, err error)</a></li>
+            <li><a href="#Reader.ReadResponse">func (r *Reader) ReadResponse(expectCode int) (code int, message string, err error)</a></li>
+            <li><a href="#Reader.ReadMIMEHeader">func (r *Reader) ReadMIMEHeader() (MIMEHeader, error)</a></li>
+        </ul>
+        <li><a href="#Writer">type Writer</a></li>
+        <ul>
+            <li><a href="#NewWriter">func NewWriter(w *bufio.Writer) *Writer</a></li>
+            <li><a href="#Writer.DotWriter">func (w *Writer) DotWriter() io.WriteCloser</a></li>
+            <li><a href="#Writer.PrintfLine">func (w *Writer) PrintfLine(format string, args ...interface{}) error</a></li>
+        </ul>
+        <li><a href="#Pipeline">type Pipeline</a></li>
+        <ul>
+            <li><a href="#Pipeline.Next">func (p *Pipeline) Next() uint</a></li>
+            <li><a href="#Pipeline.StartRequest">func (p *Pipeline) StartRequest(id uint)</a></li>
+            <li><a href="#Pipeline.StartResponse">func (p *Pipeline) StartResponse(id uint)</a></li>
+            <li><a href="#Pipeline.EndRequest">func (p *Pipeline) EndRequest(id uint)</a></li>
+            <li><a href="#Pipeline.EndResponse">func (p *Pipeline) EndResponse(id uint)</a></li>
+        </ul>
+        <li><a href="#Conn">type Conn</a></li>
+        <ul>
+            <li><a href="#NewConn">func NewConn(conn io.ReadWriteCloser) *Conn</a></li>
+            <li><a href="#Dial">func Dial(network, addr string) (*Conn, error)</a></li>
+            <li><a href="#Conn.Cmd">func (c *Conn) Cmd(format string, args ...interface{}) (id uint, err error)</a></li>
+            <li><a href="#Conn.Close">func (c *Conn) Close() error</a></li>
+        </ul>
+    </ul>
+    <h3 id="ProtocolError">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/textproto/textproto.go?name=release#47">ProtocolError</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type ProtocolError <a href="builtin.htm#string">string</a></pre>
+    <p>ProtocolError描述一个违反协议的错误，如不合法的回复或者挂起的连接。</p>
+    <h4 id="ProtocolError.Error">func (ProtocolError) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/textproto/textproto.go?name=release#49">Error</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p <a href="#ProtocolError">ProtocolError</a>) Error() <a href="builtin.htm#string">string</a></pre>
+    <h3 id="Error">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/textproto/textproto.go?name=release#36">Error</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Error struct {
+    <span id="Error.Code">Code</span> <a href="builtin.htm#int">int</a>
+    <span id="Error.Msg">Msg</span>  <a href="builtin.htm#string">string</a>
+}</pre>
+    <p>Error代表一个服务端返回的数值状态码/错误码。</p>
+    <h4 id="Error.Error">func (*Error) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/textproto/textproto.go?name=release#41">Error</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (e *<a href="#Error">Error</a>) Error() <a href="builtin.htm#string">string</a></pre>
+    <h3 id="CanonicalMIMEHeaderKey">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/textproto/reader.go?name=release#543">CanonicalMIMEHeaderKey</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func CanonicalMIMEHeaderKey(s <a href="builtin.htm#string">string</a>) <a href="builtin.htm#string">string</a></pre>
+    <p>返回一个MIME头的键的规范格式。该标准会将首字母和所有"-"之后的字符改为大写，其余字母改为小写。举个例子，"accept-encoding"作为键的标准格式是"Accept-Encoding"。MIME头的键必须是ASCII码构成。</p>
+    <h3 id="TrimBytes">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/textproto/textproto.go?name=release#137">TrimBytes</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func TrimBytes(b []<a href="builtin.htm#byte">byte</a>) []<a href="builtin.htm#byte">byte</a></pre>
+    <p>去掉b前后的ASCII码空白（不去Unicode空白）</p>
+    <h3 id="TrimString">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/textproto/textproto.go?name=release#126">TrimString</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre class="funcdecl">func TrimString(s <a href="builtin.htm#string">string</a>) <a href="builtin.htm#string">string</a></pre>
+    <p>去掉s前后的ASCII码空白（不去Unicode空白）</p>
+    <h3 id="MIMEHeader">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/textproto/header.go?name=release#9">MIMEHeader</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type MIMEHeader map[<a href="builtin.htm#string">string</a>][]<a href="builtin.htm#string">string</a></pre>
+    <p>MIMEHeader代表一个MIME头，将键映射为值的集合。</p>
+    <h4 id="MIMEHeader.Get">func (MIMEHeader) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/textproto/header.go?name=release#29">Get</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (h <a href="#MIMEHeader">MIMEHeader</a>) Get(key <a href="builtin.htm#string">string</a>) <a href="builtin.htm#string">string</a></pre>
+    <p>Get方法返回键对应的值集的第一个值。如果键没有关联值，返回""。如要获得键对应的值集直接用map。</p>
+    <h4 id="MIMEHeader.Set">func (MIMEHeader) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/textproto/header.go?name=release#21">Set</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (h <a href="#MIMEHeader">MIMEHeader</a>) Set(key, value <a href="builtin.htm#string">string</a>)</pre>
+    <p>Set方法将键对应的值集设置为只含有value一个值。没有就新建，有则删掉原有的值。</p>
+    <h4 id="MIMEHeader.Add">func (MIMEHeader) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/textproto/header.go?name=release#13">Add</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (h <a href="#MIMEHeader">MIMEHeader</a>) Add(key, value <a href="builtin.htm#string">string</a>)</pre>
+    <p>Add方法向h中添加键值对，它会把新的值添加到键对应的值的集合里。</p>
+    <h4 id="MIMEHeader.Del">func (MIMEHeader) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/textproto/header.go?name=release#41">Del</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (h <a href="#MIMEHeader">MIMEHeader</a>) Del(key <a href="builtin.htm#string">string</a>)</pre>
+    <p>Del方法删除键对应的值集。</p>
+    <h3 id="Reader">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/textproto/reader.go?name=release#22">Reader</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Reader struct {
+    <span id="Reader.R">R</span> *<a href="bufio.htm">bufio</a>.<a href="bufio.htm#Reader">Reader</a>
+    <span class="com">// 内含隐藏或非导出字段</span>
+}</pre>
+    <p>Reader实现了从一个文本协议网络连接中方便的读取请求/回复的方法。</p>
+    <h4 id="NewReader">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/textproto/reader.go?name=release#29">NewReader</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func NewReader(r *<a href="bufio.htm">bufio</a>.<a href="bufio.htm#Reader">Reader</a>) *<a href="#Reader">Reader</a></pre>
+    <p>NewReader返回一个从r读取数据的Reader。</p>
+    <h4 id="Reader.DotReader">func (*Reader) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/textproto/reader.go?name=release#286">DotReader</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (r *<a href="#Reader">Reader</a>) DotReader() <a href="io.htm">io</a>.<a href="io.htm#Reader">Reader</a></pre>
+    <p align="left">DotReader方法返回一个io.Reader，该接口自动解码r中读取的点编码块。注意该接口仅在下一次调用r的方法之前才有效。点编码是文本协议如SMTP用于文本块的通用框架。数据包含多个行，每行以"\r\n"结尾。数据本身以一个只含有一个点的一行".\r\n"来结尾。以点起始的行会添加额外的点，来避免看起来像是文本的结尾。</p>
+    <p align="left">返回接口的Read方法会将行尾的"\r\n"修改为"\n"，去掉起头的转义点，并在底层读取到（并抛弃掉）表示文本结尾的行时停止解码并返回io.EOF错误。</p>
+    <h4 id="Reader.ReadLine">func (*Reader) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/textproto/reader.go?name=release#35">ReadLine</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (r *<a href="#Reader">Reader</a>) ReadLine() (<a href="builtin.htm#string">string</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>ReadLine方法从r读取单行，去掉最后的\r\n或\n。</p>
+    <h4 id="Reader.ReadLineBytes">func (*Reader) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/textproto/reader.go?name=release#41">ReadLineBytes</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (r *<a href="#Reader">Reader</a>) ReadLineBytes() ([]<a href="builtin.htm#byte">byte</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>ReadLineBytes类似ReadLine但返回[]byte切片。</p>
+    <h4 id="Reader.ReadContinuedLine">func (*Reader) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/textproto/reader.go?name=release#90">ReadContinuedLine</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (r *<a href="#Reader">Reader</a>) ReadContinuedLine() (<a href="builtin.htm#string">string</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p align="left">ReadContinuedLine从r中读取可能有后续的行，会将该行尾段的ASCII空白剔除，并将该行后面所有以空格或者tab起始的行视为其后续，后续部分会剔除行头部的空白，所有这些行包括第一行以单个空格连接起来返回。</p>
+    <p align="left">举例如下：</p>
+    <pre>Line 1
+  continued...
+Line 2</pre>
+    <p align="left">第一次调用ReadContinuedLine会返回"Line 1 continued..."，第二次会返回"Line 2"</p>
+    <p align="left">只有空格的行不被视为有后续的行。</p>
+    <h4 id="Reader.ReadContinuedLineBytes">func (*Reader) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/textproto/reader.go?name=release#111">ReadContinuedLineBytes</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (r *<a href="#Reader">Reader</a>) ReadContinuedLineBytes() ([]<a href="builtin.htm#byte">byte</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>ReadContinuedLineBytes类似ReadContinuedLine但返回[]byte切片。</p>
+    <h4 id="Reader.ReadDotBytes">func (*Reader) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/textproto/reader.go?name=release#402">ReadDotBytes</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (r *<a href="#Reader">Reader</a>) ReadDotBytes() ([]<a href="builtin.htm#byte">byte</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>ReadDotBytes读取点编码文本返回解码后的数据，点编码详见DotReader方法。</p>
+    <h4 id="Reader.ReadDotLines">func (*Reader) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/textproto/reader.go?name=release#410">ReadDotLines</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (r *<a href="#Reader">Reader</a>) ReadDotLines() ([]<a href="builtin.htm#string">string</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>ReadDotLines方法读取一个点编码文本块并返回一个包含解码后各行的切片，各行最后的\r\n或\n去掉。</p>
+    <h4 id="Reader.ReadCodeLine">func (*Reader) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/textproto/reader.go?name=release#219">ReadCodeLine</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (r *<a href="#Reader">Reader</a>) ReadCodeLine(expectCode <a href="builtin.htm#int">int</a>) (code <a href="builtin.htm#int">int</a>, message <a href="builtin.htm#string">string</a>, err <a href="builtin.htm#error">error</a>)</pre>
+    <p>方法读取回复的状态码行，格式如下：</p>
+    <pre>code message
+</pre>
+    <p>状态码是3位数字，message进一步描述状态，例如：</p>
+    <pre>220 plan9.bell-labs.com ESMTP
+</pre>
+    <p align="left">如果状态码字符串的前缀不匹配expectCode，方法返回错误&amp;Error{code, message}。例如expectCode是31，则如果状态码不在区间[310, 319]内就会返回错误。如果回复是多行的则会返回错误。</p>
+    <p align="left">如果expectCode &lt;= 0，将不会检查状态码。</p>
+    <h4 id="Reader.ReadResponse">func (*Reader) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/textproto/reader.go?name=release#249">ReadResponse</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (r *<a href="#Reader">Reader</a>) ReadResponse(expectCode <a href="builtin.htm#int">int</a>) (code <a href="builtin.htm#int">int</a>, message <a href="builtin.htm#string">string</a>, err <a href="builtin.htm#error">error</a>)</pre>
+    <p>ReadResponse方法读取如下格式的多行回复：</p>
+    <pre>code-message line 1
+code-message line 2
+...
+code message line n</pre>
+    <p align="left">其中code是三位数的状态码。第一行以code和连字符开始，最后以同code后跟空格的行结束。返回值message每行以\n分隔。细节参见<a href="http://tools.ietf.org/html/rfc959">RFC 959</a>(<a href="http://www.ietf.org/rfc/rfc959.txt">http://www.ietf.org/rfc/rfc959.txt</a>)第36页。</p>
+    <p align="left">如果状态码字符串的前缀不匹配expectCode，方法返回时err设为&amp;Error{code, message}。例如expectCode是31，则如果状态码不在区间[310, 319]内就会返回错误。如果回复是多行的则会返回错误。</p>
+    <p align="left">如果expectCode &lt;= 0，将不会检查状态码。</p>
+    <h4 id="Reader.ReadMIMEHeader">func (*Reader) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/textproto/reader.go?name=release#458">ReadMIMEHeader</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (r *<a href="#Reader">Reader</a>) ReadMIMEHeader() (<a href="#MIMEHeader">MIMEHeader</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p align="left">ReadMIMEHeader从r读取MIME风格的头域。该头域包含一系列可能有后续的键值行，以空行结束。返回的map映射CanonicalMIMEHeaderKey(key)到值的序列（顺序与输入相同）。</p>
+    <p align="left">举例如下：</p>
+    <pre>My-Key: Value 1
+Long-Key: Even
+       Longer Value
+My-Key: Value 2</pre>
+    <p>对此输入，ReadMIMEHeader返回：</p>
+    <pre>map[string][]string{
+	&#34;My-Key&#34;: {&#34;Value 1&#34;, &#34;Value 2&#34;},
+	&#34;Long-Key&#34;: {&#34;Even Longer Value&#34;},
+}</pre>
+    <h3 id="Writer">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/textproto/writer.go?name=release#15">Writer</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Writer struct {
+    <span id="Writer.W">W</span> *<a href="bufio.htm">bufio</a>.<a href="bufio.htm#Writer">Writer</a>
+    <span class="com">// 内含隐藏或非导出字段</span>
+}</pre>
+    <p>Writer实现了方便的方法在一个文本协议网络连接中写入请求/回复。</p>
+    <h4 id="NewWriter">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/textproto/writer.go?name=release#21">NewWriter</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func NewWriter(w *<a href="bufio.htm">bufio</a>.<a href="bufio.htm#Writer">Writer</a>) *<a href="#Writer">Writer</a></pre>
+    <p>NewWriter函数返回一个底层写入w的Writer。</p>
+    <h4 id="Writer.DotWriter">func (*Writer) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/textproto/writer.go?name=release#43">DotWriter</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (w *<a href="#Writer">Writer</a>) DotWriter() <a href="io.htm">io</a>.<a href="io.htm#WriteCloser">WriteCloser</a></pre>
+    <p>DotWriter方法返回一个io.WriteCloser，用于将点编码文本写入w。返回的接口会在必要时添加转义点，将行尾的\n替换为\r\n，并在关闭时添加最后的.\r\n行。调用者必须在下一次调用w的方法前关闭该接口。点编码文本格式参见Reader.DotReader方法。</p>
+    <h4 id="Writer.PrintfLine">func (*Writer) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/textproto/writer.go?name=release#29">PrintfLine</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (w *<a href="#Writer">Writer</a>) PrintfLine(format <a href="builtin.htm#string">string</a>, args ...interface{}) <a href="builtin.htm#error">error</a></pre>
+    <p>PrintfLine方法将格式化的输出写入底层并在最后写入\r\n。</p>
+    <h3 id="Pipeline">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/textproto/pipeline.go?name=release#28">Pipeline</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Pipeline struct {
+    <span class="com">// 内含隐藏或非导出字段</span>
+}</pre>
+    <p align="left">Pipeline管理管道化的有序请求/回复序列。</p>
+    <p align="left">为了使用Pipeline管理一个连接的多个客户端，每个客户端应像下面一样运行：</p>
+    <pre>id := p.Next()      // 获取一个数字id
+p.StartRequest(id)  // 等待轮到该id发送请求
+«send request»
+p.EndRequest(id)    // 通知Pipeline请求发送完毕
+p.StartResponse(id) // 等待该id读取回复
+«read response»
+p.EndResponse(id)   // 通知Pipeline回复已经读取</pre>
+    <p>一个管道化的服务器可以使用相同的调用来保证回复并行的生成并以正确的顺序写入。</p>
+    <h4 id="Pipeline.Next">func (*Pipeline) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/textproto/pipeline.go?name=release#36">Next</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#Pipeline">Pipeline</a>) Next() <a href="builtin.htm#uint">uint</a></pre>
+    <p>返回下一对request/response的id。</p>
+    <h4 id="Pipeline.StartRequest">func (*Pipeline) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/textproto/pipeline.go?name=release#46">StartRequest</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#Pipeline">Pipeline</a>) StartRequest(id <a href="builtin.htm#uint">uint</a>)</pre>
+    <p>阻塞程序，直到轮到给定id来发送（读取）request。</p>
+    <h4 id="Pipeline.StartResponse">func (*Pipeline) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/textproto/pipeline.go?name=release#58">StartResponse</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#Pipeline">Pipeline</a>) StartResponse(id <a href="builtin.htm#uint">uint</a>)</pre>
+    <p>阻塞程序，直到轮到给定id来读取（发送）response。</p>
+    <h4 id="Pipeline.EndRequest">func (*Pipeline) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/textproto/pipeline.go?name=release#52">EndRequest</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#Pipeline">Pipeline</a>) EndRequest(id <a href="builtin.htm#uint">uint</a>)</pre>
+    <p>通知p，给定id的request的操作已经结束了。</p>
+    <h4 id="Pipeline.EndResponse">func (*Pipeline) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/textproto/pipeline.go?name=release#64">EndResponse</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#Pipeline">Pipeline</a>) EndResponse(id <a href="builtin.htm#uint">uint</a>)</pre>
+    <p>通知p，给定id的response的操作已经结束了。</p>
+    <h3 id="Conn">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/textproto/textproto.go?name=release#58">Conn</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Conn struct {
+    <a href="#Reader">Reader</a>
+    <a href="#Writer">Writer</a>
+    <a href="#Pipeline">Pipeline</a>
+    <span class="com">// 内含隐藏或非导出字段</span>
+}</pre>
+    <p>Conn代表一个文本网络协议的连接。它包含一个Reader和一个Writer来管理读写，一个Pipeline来对连接中并行的请求进行排序。匿名嵌入的类型字段是Conn可以调用它们的方法。</p>
+    <h4 id="NewConn">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/textproto/textproto.go?name=release#66">NewConn</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func NewConn(conn <a href="io.htm">io</a>.<a href="io.htm#ReadWriteCloser">ReadWriteCloser</a>) *<a href="#Conn">Conn</a></pre>
+    <p>NewConn函数返回以I/O为底层的Conn。</p>
+    <h4 id="Dial">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/textproto/textproto.go?name=release#81">Dial</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func Dial(network, addr <a href="builtin.htm#string">string</a>) (*<a href="#Conn">Conn</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>Dial函数使用net.Dial在给定网络上和给定地址建立网络连接，并返回用于该连接的Conn。</p>
+    <h4 id="Conn.Cmd">func (*Conn) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/textproto/textproto.go?name=release#114">Cmd</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *<a href="#Conn">Conn</a>) Cmd(format <a href="builtin.htm#string">string</a>, args ...interface{}) (id <a href="builtin.htm#uint">uint</a>, err <a href="builtin.htm#error">error</a>)</pre>
+    <p align="left">Cmd方法用于在管道中等待轮到它执行，并发送命令。命令文本是用给定的format字符串和参数格式化生成的。并会在最后添加上\r\n。Cmd函数返回该命令的Pipeline id，用于StartResponse和EndResponse方法。</p>
+    <p align="left">例如，一个客户端可以使用如下代码执行HELP命令并返回解码后的点编码文本：</p>
+    <pre>id, err := c.Cmd(&#34;HELP&#34;)
+if err != nil {
+	return nil, err
+}
+c.StartResponse(id)
+defer c.EndResponse(id)
+if _, _, err = c.ReadCodeLine(110); err != nil {
+	return nil, err
+}
+text, err := c.ReadDotBytes()
+if err != nil {
+	return nil, err
+}
+return c.ReadCodeLine(250)</pre>
+    <h4 id="Conn.Close">func (*Conn) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/textproto/textproto.go?name=release#75">Close</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (c *<a href="#Conn">Conn</a>) Close() <a href="builtin.htm#error">error</a></pre>
+    <p>Close方法关闭连接。</p>
+    <h3 id="pkg-note-bug">Bugs <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <p><a title="View Source" href="https://github.com/golang/go/blob/master/src/net/textproto/reader.go?name=release#16">☞</a>为了让调用者处理拒绝服务攻击，Reader接口应该允许他们设置和重设从连接读取的字节数。    </div>
+</body>
+</html>

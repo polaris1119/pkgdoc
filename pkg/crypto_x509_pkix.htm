@@ -1,0 +1,119 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="./site.css" rel="stylesheet">
+<title>crypto/x509/pkix</title>
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package pkix</h2>
+    <p><code>import "crypto/x509/pkix"</code>
+    <p>pkix包提供了共享的、低层次的结构体，用于ASN.1解析和X.509证书、CRL、OCSP的序列化。</p>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#Extension">type Extension</a></li>
+        <li><a href="#AlgorithmIdentifier">type AlgorithmIdentifier</a></li>
+        <li><a href="#RevokedCertificate">type RevokedCertificate</a></li>
+        <li><a href="#TBSCertificateList">type TBSCertificateList</a></li>
+        <li><a href="#AttributeTypeAndValue">type AttributeTypeAndValue</a></li>
+        <li><a href="#AttributeTypeAndValueSET">type AttributeTypeAndValueSET</a></li>
+        <li><a href="#CertificateList">type CertificateList</a></li>
+        <ul>
+            <li><a href="#CertificateList.HasExpired">func (certList *CertificateList) HasExpired(now time.Time) bool</a></li>
+        </ul>
+        <li><a href="#RelativeDistinguishedNameSET">type RelativeDistinguishedNameSET</a></li>
+        <li><a href="#RDNSequence">type RDNSequence</a></li>
+        <li><a href="#Name">type Name</a></li>
+        <ul>
+            <li><a href="#Name.FillFromRDNSequence">func (n *Name) FillFromRDNSequence(rdns *RDNSequence)</a></li>
+            <li><a href="#Name.ToRDNSequence">func (n Name) ToRDNSequence() (ret RDNSequence)</a></li>
+        </ul>
+    </ul>
+    <h3 id="Extension">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/x509/pkix/pkix.go?name=release#42">Extension</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Extension struct {
+    <span id="Extension.Id">Id</span>       <a href="encoding/asn1.htm">asn1</a>.<a href="encoding/asn1.htm#ObjectIdentifier">ObjectIdentifier</a>
+    <span id="Extension.Critical">Critical</span> <a href="builtin.htm#bool">bool</a> `asn1:&#34;optional&#34;`
+    <span id="Extension.Value">Value</span>    []<a href="builtin.htm#byte">byte</a>
+}</pre>
+    <p>Extension代表一个同名的ASN.1结构体，参见<a href="http://tools.ietf.org/html/rfc5280">RFC 5280</a>, section 4.2。</p>
+    <h3 id="AlgorithmIdentifier">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/x509/pkix/pkix.go?name=release#17">AlgorithmIdentifier</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type AlgorithmIdentifier struct {
+    <span id="AlgorithmIdentifier.Algorithm">Algorithm</span>  <a href="encoding/asn1.htm">asn1</a>.<a href="encoding/asn1.htm#ObjectIdentifier">ObjectIdentifier</a>
+    <span id="AlgorithmIdentifier.Parameters">Parameters</span> <a href="encoding/asn1.htm">asn1</a>.<a href="encoding/asn1.htm#RawValue">RawValue</a> `asn1:&#34;optional&#34;`
+}</pre>
+    <p>AlgorithmIdentifier代表一个同名的ASN.1结构体，参见<a href="http://tools.ietf.org/html/rfc5280">RFC 5280</a>, section 4.1.1.2。</p>
+    <h3 id="RevokedCertificate">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/x509/pkix/pkix.go?name=release#174">RevokedCertificate</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type RevokedCertificate struct {
+    <span id="RevokedCertificate.SerialNumber">SerialNumber</span>   *<a href="math/big.htm">big</a>.<a href="math/big.htm#Int">Int</a>
+    <span id="RevokedCertificate.RevocationTime">RevocationTime</span> <a href="time.htm">time</a>.<a href="time.htm#Time">Time</a>
+    <span id="RevokedCertificate.Extensions">Extensions</span>     []<a href="#Extension">Extension</a> `asn1:&#34;optional&#34;`
+}</pre>
+    <p>RevokedCertificate代表一个同名的ASN.1结构体，参见<a href="http://tools.ietf.org/html/rfc5280">RFC 5280</a>, section 5.1。</p>
+    <h3 id="TBSCertificateList">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/x509/pkix/pkix.go?name=release#161">TBSCertificateList</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type TBSCertificateList struct {
+    <span id="TBSCertificateList.Raw">Raw</span>                 <a href="encoding/asn1.htm">asn1</a>.<a href="encoding/asn1.htm#RawContent">RawContent</a>
+    <span id="TBSCertificateList.Version">Version</span>             <a href="builtin.htm#int">int</a> `asn1:&#34;optional,default:2&#34;`
+    <span id="TBSCertificateList.Signature">Signature</span>           <a href="#AlgorithmIdentifier">AlgorithmIdentifier</a>
+    <span id="TBSCertificateList.Issuer">Issuer</span>              <a href="#RDNSequence">RDNSequence</a>
+    <span id="TBSCertificateList.ThisUpdate">ThisUpdate</span>          <a href="time.htm">time</a>.<a href="time.htm#Time">Time</a>
+    <span id="TBSCertificateList.NextUpdate">NextUpdate</span>          <a href="time.htm">time</a>.<a href="time.htm#Time">Time</a>
+    <span id="TBSCertificateList.RevokedCertificates">RevokedCertificates</span> []<a href="#RevokedCertificate">RevokedCertificate</a> `asn1:&#34;optional&#34;`
+    <span id="TBSCertificateList.Extensions">Extensions</span>          []<a href="#Extension">Extension</a>          `asn1:&#34;tag:0,optional,explicit&#34;`
+}</pre>
+    <p>TBSCertificateList代表一个同名的ASN.1结构体，参见<a href="http://tools.ietf.org/html/rfc5280">RFC 5280</a>, section 5.1。</p>
+    <h3 id="AttributeTypeAndValue">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/x509/pkix/pkix.go?name=release#28">AttributeTypeAndValue</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type AttributeTypeAndValue struct {
+    <span id="AttributeTypeAndValue.Type">Type</span>  <a href="encoding/asn1.htm">asn1</a>.<a href="encoding/asn1.htm#ObjectIdentifier">ObjectIdentifier</a>
+    <span id="AttributeTypeAndValue.Value">Value</span> interface{}
+}</pre>
+    <p>AttributeTypeAndValue代表一个同名的ASN.1结构体，参见<a href="http://tools.ietf.org/html/rfc5280#section-4.1.2.4">http://tools.ietf.org/html/rfc5280#section-4.1.2.4</a>。</p>
+    <h3 id="AttributeTypeAndValueSET">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/x509/pkix/pkix.go?name=release#35">AttributeTypeAndValueSET</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type AttributeTypeAndValueSET struct {
+    <span id="AttributeTypeAndValueSET.Type">Type</span>  <a href="encoding/asn1.htm">asn1</a>.<a href="encoding/asn1.htm#ObjectIdentifier">ObjectIdentifier</a>
+    <span id="AttributeTypeAndValueSET.Value">Value</span> [][]<a href="#AttributeTypeAndValue">AttributeTypeAndValue</a> `asn1:&#34;set&#34;`
+}</pre>
+    <p>AttributeTypeAndValueSET代表AttributeTypeAndValue序列表示的ASN.1序列的集合，参见<a href="http://tools.ietf.org/html/rfc2986">RFC 2986</a> (PKCS #10)。</p>
+    <h3 id="CertificateList">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/x509/pkix/pkix.go?name=release#148">CertificateList</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type CertificateList struct {
+    <span id="CertificateList.TBSCertList">TBSCertList</span>        <a href="#TBSCertificateList">TBSCertificateList</a>
+    <span id="CertificateList.SignatureAlgorithm">SignatureAlgorithm</span> <a href="#AlgorithmIdentifier">AlgorithmIdentifier</a>
+    <span id="CertificateList.SignatureValue">SignatureValue</span>     <a href="encoding/asn1.htm">asn1</a>.<a href="encoding/asn1.htm#BitString">BitString</a>
+}</pre>
+    <p>CertificateList代表一个同名的ASN.1结构体，参见<a href="http://tools.ietf.org/html/rfc5280">RFC 5280</a>, section 5.1。用于认证签名。</p>
+    <h4 id="CertificateList.HasExpired">func (*CertificateList) <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/x509/pkix/pkix.go?name=release#155">HasExpired</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (certList *<a href="#CertificateList">CertificateList</a>) HasExpired(now <a href="time.htm">time</a>.<a href="time.htm#Time">Time</a>) <a href="builtin.htm#bool">bool</a></pre>
+    <p>HasExpired报告证书列表是否已过期。</p>
+    <h3 id="RelativeDistinguishedNameSET">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/x509/pkix/pkix.go?name=release#24">RelativeDistinguishedNameSET</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type RelativeDistinguishedNameSET []<a href="#AttributeTypeAndValue">AttributeTypeAndValue</a></pre>
+    <h3 id="RDNSequence">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/x509/pkix/pkix.go?name=release#22">RDNSequence</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type RDNSequence []<a href="#RelativeDistinguishedNameSET">RelativeDistinguishedNameSET</a></pre>
+    <h3 id="Name">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/x509/pkix/pkix.go?name=release#50">Name</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Name struct {
+    <span id="Name.Country">Country</span>, <span id="Name.Organization">Organization</span>, <span id="Name.OrganizationalUnit">OrganizationalUnit</span> []<a href="builtin.htm#string">string</a>
+    <span id="Name.Locality">Locality</span>, <span id="Name.Province">Province</span>                        []<a href="builtin.htm#string">string</a>
+    <span id="Name.StreetAddress">StreetAddress</span>, <span id="Name.PostalCode">PostalCode</span>                 []<a href="builtin.htm#string">string</a>
+    <span id="Name.SerialNumber">SerialNumber</span>, <span id="Name.CommonName">CommonName</span>                  <a href="builtin.htm#string">string</a>
+    <span id="Name.Names">Names</span> []<a href="#AttributeTypeAndValue">AttributeTypeAndValue</a>
+}</pre>
+    <p>Name代表一个X.509识别名。只包含识别名的公共属性，额外的属性被忽略。</p>
+    <h4 id="Name.FillFromRDNSequence">func (*Name) <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/x509/pkix/pkix.go?name=release#59">FillFromRDNSequence</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (n *<a href="#Name">Name</a>) FillFromRDNSequence(rdns *<a href="#RDNSequence">RDNSequence</a>)</pre>
+    <h4 id="Name.ToRDNSequence">func (Name) <a title="View Source" href="https://github.com/golang/go/blob/master/src/crypto/x509/pkix/pkix.go?name=release#127">ToRDNSequence</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (n <a href="#Name">Name</a>) ToRDNSequence() (ret <a href="#RDNSequence">RDNSequence</a>)</pre>
+</div>
+
+<div id="x-footer" class="clearfix">
+  <div class="container">
+    <a href="http://studygolang.com/">Go语言中文网</a>
+    <span class="text-muted">|</span> <a href="http://golang.org/">Go Language</a>
+    <span class="pull-right"><a href="#">Back to top</a></span>
+  </div>
+</div>
+<script src="../assets/jquery-2.0.3.min.js"></script>
+<script src="../bootstrap.min.js"></script>
+<script src="../site.js"></script>
+</body>
+</html>

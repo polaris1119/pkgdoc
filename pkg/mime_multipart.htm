@@ -1,0 +1,208 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="./site.css" rel="stylesheet">
+<title>mime/multipart</title>
+</head>
+<body>
+<div class="container">
+    <h2 id="pkg-overview">package multipart</h2>
+    <p><code>import "mime/multipart"</code>
+    <p>multipart实现了MIME的multipart解析，参见<a href="http://tools.ietf.org/html/rfc2046">RFC 2046</a>。该实现适用于HTTP（<a href="http://tools.ietf.org/html/rfc2388">RFC 2388</a>）和常见浏览器生成的multipart主体。</p>
+    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#File">type File</a></li>
+        <li><a href="#FileHeader">type FileHeader</a></li>
+        <ul>
+            <li><a href="#FileHeader.Open">func (fh *FileHeader) Open() (File, error)</a></li>
+        </ul>
+        <li><a href="#Part">type Part</a></li>
+        <ul>
+            <li><a href="#Part.FileName">func (p *Part) FileName() string</a></li>
+            <li><a href="#Part.FormName">func (p *Part) FormName() string</a></li>
+            <li><a href="#Part.Read">func (p *Part) Read(d []byte) (n int, err error)</a></li>
+            <li><a href="#Part.Close">func (p *Part) Close() error</a></li>
+        </ul>
+        <li><a href="#Form">type Form</a></li>
+        <ul>
+            <li><a href="#Form.RemoveAll">func (f *Form) RemoveAll() error</a></li>
+        </ul>
+        <li><a href="#Reader">type Reader</a></li>
+        <ul>
+            <li><a href="#NewReader">func NewReader(r io.Reader, boundary string) *Reader</a></li>
+            <li><a href="#Reader.ReadForm">func (r *Reader) ReadForm(maxMemory int64) (f *Form, err error)</a></li>
+            <li><a href="#Reader.NextPart">func (r *Reader) NextPart() (*Part, error)</a></li>
+        </ul>
+        <li><a href="#Writer">type Writer</a></li>
+        <ul>
+            <li><a href="#NewWriter">func NewWriter(w io.Writer) *Writer</a></li>
+            <li><a href="#Writer.FormDataContentType">func (w *Writer) FormDataContentType() string</a></li>
+            <li><a href="#Writer.Boundary">func (w *Writer) Boundary() string</a></li>
+            <li><a href="#Writer.SetBoundary">func (w *Writer) SetBoundary(boundary string) error</a></li>
+            <li><a href="#Writer.CreatePart">func (w *Writer) CreatePart(header textproto.MIMEHeader) (io.Writer, error)</a></li>
+            <li><a href="#Writer.CreateFormField">func (w *Writer) CreateFormField(fieldname string) (io.Writer, error)</a></li>
+            <li><a href="#Writer.CreateFormFile">func (w *Writer) CreateFormFile(fieldname, filename string) (io.Writer, error)</a></li>
+            <li><a href="#Writer.WriteField">func (w *Writer) WriteField(fieldname, value string) error</a></li>
+            <li><a href="#Writer.Close">func (w *Writer) Close() error</a></li>
+        </ul>
+    </ul>
+    <h4 id="pkg-examples">Examples <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <a href="../main.html"><h3>返回首页</h3></a>
+		</br>
+        <li><a href="#example-NewReader" onclick="$('#ex-NewReader').addClass('in').removeClass('collapse').height('auto')">NewReader</a></li>
+    </ul>
+    <h3 id="File">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/mime/multipart/formdata.go?name=release#142">File</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type File interface {
+    <a href="io.htm">io</a>.<a href="io.htm#Reader">Reader</a>
+    <a href="io.htm">io</a>.<a href="io.htm#ReaderAt">ReaderAt</a>
+    <a href="io.htm">io</a>.<a href="io.htm#Seeker">Seeker</a>
+    <a href="io.htm">io</a>.<a href="io.htm#Closer">Closer</a>
+}</pre>
+    <p>File是一个接口，实现了对一个multipart信息中文件记录的访问。它的内容可以保持在内存或者硬盘中，如果保持在硬盘中，底层类型就会是*os.File。</p>
+    <h3 id="FileHeader">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/mime/multipart/formdata.go?name=release#122">FileHeader</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type FileHeader struct {
+    <span id="FileHeader.Filename">Filename</span> <a href="builtin.htm#string">string</a>
+    <span id="FileHeader.Header">Header</span>   <a href="net/textproto.htm">textproto</a>.<a href="net/textproto.htm#MIMEHeader">MIMEHeader</a>
+    <span class="com">// 内含隐藏或非导出字段</span>
+}</pre>
+    <p>FileHeader描述一个multipart请求的（一个）文件记录的信息。</p>
+    <h4 id="FileHeader.Open">func (*FileHeader) <a title="View Source" href="https://github.com/golang/go/blob/master/src/mime/multipart/formdata.go?name=release#131">Open</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (fh *<a href="#FileHeader">FileHeader</a>) Open() (<a href="#File">File</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>Open方法打开并返回其关联的文件。</p>
+    <h3 id="Part">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/mime/multipart/multipart.go?name=release#28">Part</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Part struct {
+    <span class="com">// 主体的头域，如果存在，是按Go的http.Header风格标准化的，如"foo-bar"改变为"Foo-Bar"。</span>
+    <span class="com">// 有一个特殊情况，如果"Content-Transfer-Encoding"头的值是"quoted-printable"。</span>
+    <span class="com">// 该头将从本map中隐藏，而主体会在调用Read时透明的解码。</span>
+    <span id="Part.Header">Header</span> <a href="net/textproto.htm">textproto</a>.<a href="net/textproto.htm#MIMEHeader">MIMEHeader</a>
+    <span class="com">// 内含隐藏或非导出字段</span>
+}</pre>
+    <p>Part代表multipart主体的单独一个记录。</p>
+    <h4 id="Part.FileName">func (*Part) <a title="View Source" href="https://github.com/golang/go/blob/master/src/mime/multipart/multipart.go?name=release#68">FileName</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#Part">Part</a>) FileName() <a href="builtin.htm#string">string</a></pre>
+    <p>返回Part 的Content-Disposition 头的文件名参数。</p>
+    <h4 id="Part.FormName">func (*Part) <a title="View Source" href="https://github.com/golang/go/blob/master/src/mime/multipart/multipart.go?name=release#54">FormName</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#Part">Part</a>) FormName() <a href="builtin.htm#string">string</a></pre>
+    <p>如果p的Content-Disposition头值为"form-data"，则返回名字参数；否则返回空字符串。</p>
+    <h4 id="Part.Read">func (*Part) <a title="View Source" href="https://github.com/golang/go/blob/master/src/mime/multipart/multipart.go?name=release#131">Read</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#Part">Part</a>) Read(d []<a href="builtin.htm#byte">byte</a>) (n <a href="builtin.htm#int">int</a>, err <a href="builtin.htm#error">error</a>)</pre>
+    <p>Read方法读取一个记录的主体，也就是其头域之后到下一记录之前的部分。</p>
+    <h4 id="Part.Close">func (*Part) <a title="View Source" href="https://github.com/golang/go/blob/master/src/mime/multipart/multipart.go?name=release#200">Close</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (p *<a href="#Part">Part</a>) Close() <a href="builtin.htm#error">error</a></pre>
+    <h3 id="Form">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/mime/multipart/formdata.go?name=release#100">Form</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Form struct {
+    <span id="Form.Value">Value</span> map[<a href="builtin.htm#string">string</a>][]<a href="builtin.htm#string">string</a>
+    <span id="Form.File">File</span>  map[<a href="builtin.htm#string">string</a>][]*<a href="#FileHeader">FileHeader</a>
+}</pre>
+    <p>Form是一个解析过的multipart表格。它的File参数部分保存在内存或者硬盘上，可以使用*FileHeader类型属性值的Open方法访问。它的Value 参数部分保存为字符串，两者都以属性名为键。</p>
+    <h4 id="Form.RemoveAll">func (*Form) <a title="View Source" href="https://github.com/golang/go/blob/master/src/mime/multipart/formdata.go?name=release#106">RemoveAll</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (f *<a href="#Form">Form</a>) RemoveAll() <a href="builtin.htm#error">error</a></pre>
+    <p>删除Form关联的所有临时文件。</p>
+    <h3 id="Reader">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/mime/multipart/multipart.go?name=release#208">Reader</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Reader struct {
+    <span class="com">// 内含隐藏或非导出字段</span>
+}</pre>
+    <p>Reader是MIME的multipart主体所有记录的迭代器。Reader的底层会根据需要解析输入，不支持Seek。</p>
+    <h4 id="NewReader">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/mime/multipart/multipart.go?name=release#90">NewReader</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func NewReader(r <a href="io.htm">io</a>.<a href="io.htm#Reader">Reader</a>, boundary <a href="builtin.htm#string">string</a>) *<a href="#Reader">Reader</a></pre>
+    <p align="left">函数使用给出的MIME边界和r创建一个multipart读取器。</p>
+    <p align="left">边界一般从信息的"Content-Type" 头的"boundary"属性获取。可使用mime.ParseMediaType函数解析这种头域。
+</p>
+    <div class="panel-group">
+        <div class="panel panel-default" id="example-NewReader">
+            <div class="panel-heading" onclick="document.getElementById('ex-NewReader').style.display = document.getElementById('ex-NewReader').style.display=='none'?'block':'none';">Example</div>
+            <div id="ex-NewReader" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre>msg := &amp;mail.Message{
+    Header: map[string][]string{
+        &#34;Content-Type&#34;: []string{&#34;multipart/mixed; boundary=foo&#34;},
+    },
+    Body: strings.NewReader(
+        &#34;--foo\r\nFoo: one\r\n\r\nA section\r\n&#34; +
+            &#34;--foo\r\nFoo: two\r\n\r\nAnd another\r\n&#34; +
+            &#34;--foo--\r\n&#34;),
+}
+mediaType, params, err := mime.ParseMediaType(msg.Header.Get(&#34;Content-Type&#34;))
+if err != nil {
+    log.Fatal(err)
+}
+if strings.HasPrefix(mediaType, &#34;multipart/&#34;) {
+    mr := multipart.NewReader(msg.Body, params[&#34;boundary&#34;])
+    for {
+        p, err := mr.NextPart()
+        if err == io.EOF {
+            return
+        }
+        if err != nil {
+            log.Fatal(err)
+        }
+        slurp, err := ioutil.ReadAll(p)
+        if err != nil {
+            log.Fatal(err)
+        }
+        fmt.Printf(&#34;Part %q: %q\n&#34;, p.Header.Get(&#34;Foo&#34;), slurp)
+    }
+}</pre>
+                    <p>Output:
+                    <pre>Part &#34;one&#34;: &#34;A section&#34;
+Part &#34;two&#34;: &#34;And another&#34;
+</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    <h4 id="Reader.ReadForm">func (*Reader) <a title="View Source" href="https://github.com/golang/go/blob/master/src/mime/multipart/formdata.go?name=release#23">ReadForm</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (r *<a href="#Reader">Reader</a>) ReadForm(maxMemory <a href="builtin.htm#int64">int64</a>) (f *<a href="#Form">Form</a>, err <a href="builtin.htm#error">error</a>)</pre>
+    <p>ReadForm解析整个multipart信息中所有Content-Disposition头的值为"form-data"的记录。它会把最多maxMemory字节的文件记录保存在内存里，其余保存在硬盘的临时文件里。</p>
+    <h4 id="Reader.NextPart">func (*Reader) <a title="View Source" href="https://github.com/golang/go/blob/master/src/mime/multipart/multipart.go?name=release#222">NextPart</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (r *<a href="#Reader">Reader</a>) NextPart() (*<a href="#Part">Part</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>NextPart返回multipart的下一个记录或者返回错误。如果没有更多记录会返回io.EOF。</p>
+    <h3 id="Writer">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/mime/multipart/writer.go?name=release#18">Writer</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+    <pre>type Writer struct {
+    <span class="com">// 内含隐藏或非导出字段</span>
+}</pre>
+    <p>Writer类型用于生成multipart信息。</p>
+    <h4 id="NewWriter">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/mime/multipart/writer.go?name=release#26">NewWriter</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func NewWriter(w <a href="io.htm">io</a>.<a href="io.htm#Writer">Writer</a>) *<a href="#Writer">Writer</a></pre>
+    <p>NewWriter函数返回一个设定了一个随机边界的Writer，数据写入w。</p>
+    <h4 id="Writer.FormDataContentType">func (*Writer) <a title="View Source" href="https://github.com/golang/go/blob/master/src/mime/multipart/writer.go?name=release#67">FormDataContentType</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (w *<a href="#Writer">Writer</a>) FormDataContentType() <a href="builtin.htm#string">string</a></pre>
+    <p>方法返回w对应的HTTP multipart请求的Content-Type的值，多以multipart/form-data起始。</p>
+    <h4 id="Writer.Boundary">func (*Writer) <a title="View Source" href="https://github.com/golang/go/blob/master/src/mime/multipart/writer.go?name=release#34">Boundary</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (w *<a href="#Writer">Writer</a>) Boundary() <a href="builtin.htm#string">string</a></pre>
+    <p>方法返回该Writer的边界。</p>
+    <h4 id="Writer.SetBoundary">func (*Writer) <a title="View Source" href="https://github.com/golang/go/blob/master/src/mime/multipart/writer.go?name=release#43">SetBoundary</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (w *<a href="#Writer">Writer</a>) SetBoundary(boundary <a href="builtin.htm#string">string</a>) <a href="builtin.htm#error">error</a></pre>
+    <p>SetBoundary方法重写Writer默认的随机生成的边界为提供的boundary参数。方法必须在创建任何记录之前调用，boundary只能包含特定的ascii字符，并且长度应在1-69字节之间。</p>
+    <h4 id="Writer.CreatePart">func (*Writer) <a title="View Source" href="https://github.com/golang/go/blob/master/src/mime/multipart/writer.go?name=release#84">CreatePart</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (w *<a href="#Writer">Writer</a>) CreatePart(header <a href="net/textproto.htm">textproto</a>.<a href="net/textproto.htm#MIMEHeader">MIMEHeader</a>) (<a href="io.htm">io</a>.<a href="io.htm#Writer">Writer</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>CreatePart方法使用提供的header创建一个新的multipart记录。该记录的主体应该写入返回的Writer接口。调用本方法后，任何之前的记录都不能再写入。</p>
+    <h4 id="Writer.CreateFormField">func (*Writer) <a title="View Source" href="https://github.com/golang/go/blob/master/src/mime/multipart/writer.go?name=release#134">CreateFormField</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (w *<a href="#Writer">Writer</a>) CreateFormField(fieldname <a href="builtin.htm#string">string</a>) (<a href="io.htm">io</a>.<a href="io.htm#Writer">Writer</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>CreateFormField方法使用给出的属性名调用CreatePart方法。</p>
+    <h4 id="Writer.CreateFormFile">func (*Writer) <a title="View Source" href="https://github.com/golang/go/blob/master/src/mime/multipart/writer.go?name=release#123">CreateFormFile</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (w *<a href="#Writer">Writer</a>) CreateFormFile(fieldname, filename <a href="builtin.htm#string">string</a>) (<a href="io.htm">io</a>.<a href="io.htm#Writer">Writer</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>CreateFormFile是CreatePart方法的包装， 使用给出的属性名和文件名创建一个新的form-data头。</p>
+    <h4 id="Writer.WriteField">func (*Writer) <a title="View Source" href="https://github.com/golang/go/blob/master/src/mime/multipart/writer.go?name=release#142">WriteField</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (w *<a href="#Writer">Writer</a>) WriteField(fieldname, value <a href="builtin.htm#string">string</a>) <a href="builtin.htm#error">error</a></pre>
+    <p>WriteField方法调用CreateFormField并写入给出的value。</p>
+    <h4 id="Writer.Close">func (*Writer) <a title="View Source" href="https://github.com/golang/go/blob/master/src/mime/multipart/writer.go?name=release#153">Close</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (w *<a href="#Writer">Writer</a>) Close() <a href="builtin.htm#error">error</a></pre>
+    <p>Close方法结束multipart信息，并将结尾的边界写入底层io.Writer接口。</p>
+</div>
+
+<div id="x-footer" class="clearfix">
+  <div class="container">
+    <a href="http://studygolang.com/">Go语言中文网</a>
+    <span class="text-muted">|</span> <a href="http://golang.org/">Go Language</a>
+    <span class="pull-right"><a href="#">Back to top</a></span>
+  </div>
+</div>
+<script src="../assets/jquery-2.0.3.min.js"></script>
+<script src="../bootstrap.min.js"></script>
+<script src="../site.js"></script>
+</body>
+</html>
