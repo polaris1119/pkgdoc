@@ -3,7 +3,7 @@
 <head profile="http://a9.com/-/spec/opensearch/1.1/">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link href="./site.css" rel="stylesheet">
+<link href="../assets/site.css" rel="stylesheet">
 <title>net</title>
 <meta name="private:description" content="刘志曦翻译于2014年夏，Go 1.3版本">
 </head>
@@ -1170,5 +1170,15 @@ for {
     <h3 id="pkg-note-bug">Bugs <a class="permalink" href="#pkg-index">&para;</a></h3>
     <p><a title="View Source" href="https://github.com/golang/go/blob/master/src/net/iprawsock_posix.go?name=release#14">☞</a>在任何POSIX平台上，从"ip4"网络使用ReadFrom或ReadFromIP方法读取数据时，即使有足够的空间，都可能不会返回完整的IPv4数据包，包括数据包的头域。即使Read或ReadMsgIP方法可以返回完整的数据包，也有可能出现这种情况。因为对go 1的兼容性要求，这个情况无法被修正。因此，当必须获取完整数据包时，建议你不要使用这两个方法，请使用Read或ReadMsgIP代替。
     <p><a title="View Source" href="https://github.com/golang/go/blob/master/src/net/tcpsock_posix.go?name=release#16">☞</a>在OpenBSD系统中，在"tcp"网络监听时不会同时监听IPv4和IPv6连接。 因为该系统中IPv4通信不会导入IPv6套接字中。请使用两个独立的监听，如果有必要的话。    </div>
+<div id="x-footer" class="clearfix">
+  <div class="container">
+    <a href="http://studygolang.com/">Go语言中文网</a>
+    <span class="text-muted">|</span> <a href="http://golang.org/">Go Language</a>
+    <span class="pull-right"><a href="#">Back to top</a></span>
+  </div>
+</div>
+<script src="../assets/jquery-2.0.3.min.js"></script>
+<script src="../assets/bootstrap.min.js"></script>
+<script src="../assets/site.js"></script>
 </body>
 </html>

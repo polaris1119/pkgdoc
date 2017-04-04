@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="../assets/site.css" rel="stylesheet">
+  <title>regexp/syntax</title>
+  
+    <meta name="twitter:title" content="Package syntax">
+    <meta property="og:title" content="Package syntax">
+    <meta name="description" content="Package syntax parses regular expressions into parse trees and compiles parse trees into programs.">
+    <meta name="twitter:description" content="Package syntax parses regular expressions into parse trees and compiles parse trees into programs.">
+    <meta property="og:description" content="Package syntax parses regular expressions into parse trees and compiles parse trees into programs.">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:site" content="@golang">
+  
+  
+
+  
+
+</head>
+<body>
+
+<div class="container">
+
+        <h2 id="pkg-overview">package syntax</h2>
+
+        <p><code>import "regexp/syntax"</code>
+
+        <p>
+Package syntax parses regular expressions into parse trees and compiles
+parse trees into programs. Most clients of regular expressions will use the
+facilities of package <a href="/regexp">regexp</a> (such as Compile and Match) instead of this package.
+</p>
+<h4 id="hdr-Syntax">Syntax <a class="permalink" href="#hdr-Syntax">&para</a></h4>
+<p>
+The regular expression syntax understood by this package when parsing with the Perl flag is as follows.
+Parts of the syntax can be disabled by passing alternate flags to Parse.
+</p>
+<p>
+Single characters:
+</p>
+<pre>.              any character, possibly including newline (flag s=true)
+[xyz]          character class
+[^xyz]         negated character class
+\d             Perl character class
+\D             negated Perl character class
+[[:alpha:]]    ASCII character class
+[[:^alpha:]]   negated ASCII character class
+\pN            Unicode character class (one-letter name)
+\p{Greek}      Unicode character class
+\PN            negated Unicode character class (one-letter name)
+\P{Greek}      negated Unicode character class
+</pre>
+<p>
+Composites:
+</p>
+<pre>xy             x followed by y
+x|y            x or y (prefer x)
+</pre>
+<p>
+Repetitions:
+</p>
+<pre>x*             zero or more x, prefer more
+x+             one or more x, prefer more
+x?             zero or one x, prefer one
+x{n,m}         n or n+1 or ... or m x, prefer more
+x{n,}          n or more x, prefer more
+x{n}           exactly n x
+x*?            zero or more x, prefer fewer
+x+?            one or more x, prefer fewer
+x??            zero or one x, prefer zero
+x{n,m}?        n or n+1 or ... or m x, prefer fewer
+x{n,}?         n or more x, prefer fewer
+x{n}?          exactly n x
+</pre>
+<p>
+Implementation restriction: The counting forms x{n,m}, x{n,}, and x{n}
+reject forms that create a minimum or maximum repetition count above 1000.
+Unlimited repetitions are not subject to this restriction.
+</p>
+<p>
+Grouping:
+</p>
+<pre>(re)           numbered capturing group (submatch)
+(?P&lt;name&gt;re)   named &amp; numbered capturing group (submatch)
+(?:re)         non-capturing group
+(?flags)       set flags within current group; non-capturing
+(?flags:re)    set flags during re; non-capturing
+
+Flag syntax is xyz (set) or -xyz (clear) or xy-z (set xy, clear z). The flags are:
+
+i              case-insensitive (default false)
+m              multi-line mode: ^ and $ match begin/end line in addition to begin/end text (default false)
+s              let . match \n (default false)
+U              ungreedy: swap meaning of x* and x*?, x+ and x+?, etc (default false)
+</pre>
+<p>
+Empty strings:
+</p>
+<pre>^              at beginning of text or line (flag m=true)
+$              at end of text (like \z not Perl&#39;s \Z) or line (flag m=true)
+\A             at beginning of text
+\b             at ASCII word boundary (\w on one side and \W, \A, or \z on the other)
+\B             not at ASCII word boundary
+\z             at end of text
+</pre>
+<p>
+Escape sequences:
+</p>
+<pre>\a             bell (== \007)
+\f             form feed (== \014)
+\t             horizontal tab (== \011)
+\n             newline (== \012)
+\r             carriage return (== \015)
+\v             vertical tab character (== \013)
+\*             literal *, for any punctuation character *
+\123           octal character code (up to three digits)
+\x7F           hex character code (exactly two digits)
+\x{10FFFF}     hex character code
+\Q...\E        literal text ... even if ... has punctuation
+</pre>
+<p>
+Character class elements:
+</p>
+<pre>x              single character
+A-Z            character range (inclusive)
+\d             Perl character class
+[:foo:]        ASCII character class foo
+\p{Foo}        Unicode character class Foo
+\pF            Unicode character class F (one-letter name)
+</pre>
+<p>
+Named character classes as character class elements:
+</p>
+<pre>[\d]           digits (== \d)
+[^\d]          not digits (== \D)
+[\D]           not digits (== \D)
+[^\D]          not not digits (== \d)
+[[:name:]]     named ASCII class inside character class (== [:name:])
+[^[:name:]]    named ASCII class inside negated character class (== [:^name:])
+[\p{Name}]     named Unicode property inside character class (== \p{Name})
+[^\p{Name}]    named Unicode property inside negated character class (== \P{Name})
+</pre>
+<p>
+Perl character classes (all ASCII-only):
+</p>
+<pre>\d             digits (== [0-9])
+\D             not digits (== [^0-9])
+\s             whitespace (== [\t\n\f\r ])
+\S             not whitespace (== [^\t\n\f\r ])
+\w             word characters (== [0-9A-Za-z_])
+\W             not word characters (== [^0-9A-Za-z_])
+</pre>
+<p>
+ASCII character classes:
+</p>
+<pre>[[:alnum:]]    alphanumeric (== [0-9A-Za-z])
+[[:alpha:]]    alphabetic (== [A-Za-z])
+[[:ascii:]]    ASCII (== [\x00-\x7F])
+[[:blank:]]    blank (== [\t ])
+[[:cntrl:]]    control (== [\x00-\x1F\x7F])
+[[:digit:]]    digits (== [0-9])
+[[:graph:]]    graphical (== [!-~] == [A-Za-z0-9!&#34;#$%&amp;&#39;()*+,\-./:;&lt;=&gt;?@[\\\]^_`{|}~])
+[[:lower:]]    lower case (== [a-z])
+[[:print:]]    printable (== [ -~] == [ [:graph:]])
+[[:punct:]]    punctuation (== [!-/:-@[-`{-~])
+[[:space:]]    whitespace (== [\t\n\v\f\r ])
+[[:upper:]]    upper case (== [A-Z])
+[[:word:]]     word characters (== [0-9A-Za-z_])
+[[:xdigit:]]   hex digit (== [0-9A-Fa-f])</pre>
+
+
+        
+  
+
+
+        
+        <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+
+        
+
+        <ul class="list-unstyled">
+          
+          
+          <li><a href="#IsWordChar">func IsWordChar(r rune) bool</a></li>
+          
+            <li><a href="#EmptyOp">type EmptyOp</a></li>
+            <ul>
+            <li><a href="#EmptyOpContext">func EmptyOpContext(r1, r2 rune) EmptyOp</a></li>
+            
+            </ul>
+          
+            <li><a href="#Error">type Error</a></li>
+            <ul>
+            
+            <li><a href="#Error.Error">func (e *Error) Error() string</a></li>
+            </ul>
+          
+            <li><a href="#ErrorCode">type ErrorCode</a></li>
+            <ul>
+            
+            <li><a href="#ErrorCode.String">func (e ErrorCode) String() string</a></li>
+            </ul>
+          
+            <li><a href="#Flags">type Flags</a></li>
+            
+            
+            
+            
+          
+            <li><a href="#Inst">type Inst</a></li>
+            <ul>
+            
+            <li><a href="#Inst.MatchEmptyWidth">func (i *Inst) MatchEmptyWidth(before rune, after rune) bool</a></li><li><a href="#Inst.MatchRune">func (i *Inst) MatchRune(r rune) bool</a></li><li><a href="#Inst.MatchRunePos">func (i *Inst) MatchRunePos(r rune) int</a></li><li><a href="#Inst.String">func (i *Inst) String() string</a></li>
+            </ul>
+          
+            <li><a href="#InstOp">type InstOp</a></li>
+            <ul>
+            
+            <li><a href="#InstOp.String">func (i InstOp) String() string</a></li>
+            </ul>
+          
+            <li><a href="#Op">type Op</a></li>
+            
+            
+            
+            
+          
+            <li><a href="#Prog">type Prog</a></li>
+            <ul>
+            <li><a href="#Compile">func Compile(re *Regexp) (*Prog, error)</a></li>
+            <li><a href="#Prog.Prefix">func (p *Prog) Prefix() (prefix string, complete bool)</a></li><li><a href="#Prog.StartCond">func (p *Prog) StartCond() EmptyOp</a></li><li><a href="#Prog.String">func (p *Prog) String() string</a></li>
+            </ul>
+          
+            <li><a href="#Regexp">type Regexp</a></li>
+            <ul>
+            <li><a href="#Parse">func Parse(s string, flags Flags) (*Regexp, error)</a></li>
+            <li><a href="#Regexp.CapNames">func (re *Regexp) CapNames() []string</a></li><li><a href="#Regexp.Equal">func (x *Regexp) Equal(y *Regexp) bool</a></li><li><a href="#Regexp.MaxCap">func (re *Regexp) MaxCap() int</a></li><li><a href="#Regexp.Simplify">func (re *Regexp) Simplify() *Regexp</a></li><li><a href="#Regexp.String">func (re *Regexp) String() string</a></li>
+            </ul>
+          
+          
+        </ul>
+
+        
+        
+          <span id="pkg-examples"></span>
+        
+
+        
+        
+<h4 id="pkg-files">
+  <a href="https://github.com/golang/go/blob/master/src/regexp/syntax/">Package Files</a>
+  <a class="permalink" href="#pkg-files">&para;</a>
+</h4>
+
+<p><a href="https://github.com/golang/go/blob/master/src/regexp/syntax/compile.go">compile.go</a> <a href="https://github.com/golang/go/blob/master/src/regexp/syntax/doc.go">doc.go</a> <a href="https://github.com/golang/go/blob/master/src/regexp/syntax/parse.go">parse.go</a> <a href="https://github.com/golang/go/blob/master/src/regexp/syntax/perl_groups.go">perl_groups.go</a> <a href="https://github.com/golang/go/blob/master/src/regexp/syntax/prog.go">prog.go</a> <a href="https://github.com/golang/go/blob/master/src/regexp/syntax/regexp.go">regexp.go</a> <a href="https://github.com/golang/go/blob/master/src/regexp/syntax/simplify.go">simplify.go</a> </p>
+
+        
+        
+
+        
+        
+
+        
+        
+        
+          <h3 id="IsWordChar" data-kind="f">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/regexp/syntax/prog.go#L107">IsWordChar</a> <a class="permalink" href="#IsWordChar">&para;</a> <a class="uses" title="List Function Callers" href="https://sourcegraph.com/-/godoc/refs?def=IsWordChar&amp;pkg=regexp%2Fsyntax&amp;repo=">Uses</a></h3>
+          <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/regexp/syntax/prog.go#L107">❖</a><pre>func IsWordChar(r <a href="/builtin#rune">rune</a>) <a href="/builtin#bool">bool</a></pre></div><p>
+IsWordChar reports whether r is consider a &ldquo;word character&rdquo;
+during the evaluation of the \b and \B zero-width assertions.
+These assertions are ASCII-only: the word characters are [A-Za-z0-9_].
+</p>
+
+          
+  
+
+        
+
+        
+        
+
+        
+          <h3 id="EmptyOp" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/regexp/syntax/prog.go#L62">EmptyOp</a> <a class="permalink" href="#EmptyOp">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=EmptyOp&amp;pkg=regexp%2Fsyntax&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/regexp/syntax/prog.go#L62">❖</a><pre>type EmptyOp <a href="/builtin#uint8">uint8</a></pre></div><p>
+An EmptyOp specifies a kind or mixture of zero-width assertions.
+</p>
+
+          <div class="decl" data-kind="c"><a title="View Source" href="https://github.com/golang/go/blob/master/src/regexp/syntax/prog.go#L64">❖</a><pre>const (
+    <span id="EmptyBeginLine">EmptyBeginLine</span> <a href="#EmptyOp">EmptyOp</a> = 1 &lt;&lt; <a href="/builtin#iota">iota</a>
+    <span id="EmptyEndLine">EmptyEndLine</span>
+    <span id="EmptyBeginText">EmptyBeginText</span>
+    <span id="EmptyEndText">EmptyEndText</span>
+    <span id="EmptyWordBoundary">EmptyWordBoundary</span>
+    <span id="EmptyNoWordBoundary">EmptyNoWordBoundary</span>
+)</pre></div>
+          
+          
+  
+
+
+          
+            <h4 id="EmptyOpContext" data-kind="f">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/regexp/syntax/prog.go#L79">EmptyOpContext</a> <a class="permalink" href="#EmptyOpContext">&para;</a> <a class="uses" title="List Function Callers" href="https://sourcegraph.com/-/godoc/refs?def=EmptyOpContext&amp;pkg=regexp%2Fsyntax&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/regexp/syntax/prog.go#L79">❖</a><pre>func EmptyOpContext(r1, r2 <a href="/builtin#rune">rune</a>) <a href="#EmptyOp">EmptyOp</a></pre></div><p>
+EmptyOpContext returns the zero-width assertions
+satisfied at the position between the runes r1 and r2.
+Passing r1 == -1 indicates that the position is
+at the beginning of the text.
+Passing r2 == -1 indicates that the position is
+at the end of the text.
+</p>
+
+            
+  
+
+          
+
+          
+        
+          <h3 id="Error" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/regexp/syntax/parse.go#L16">Error</a> <a class="permalink" href="#Error">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=Error&amp;pkg=regexp%2Fsyntax&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/regexp/syntax/parse.go#L16">❖</a><pre>type Error struct {
+    <span id="Error.Code">Code</span> <a href="#ErrorCode">ErrorCode</a>
+    <span id="Error.Expr">Expr</span> <a href="/builtin#string">string</a>
+}</pre></div><p>
+An Error describes a failure to parse a regular expression
+and gives the offending expression.
+</p>
+
+          
+          
+          
+  
+
+
+          
+
+          
+            <h4 id="Error.Error" data-kind="m">func (*Error) <a title="View Source" href="https://github.com/golang/go/blob/master/src/regexp/syntax/parse.go#L21">Error</a> <a class="permalink" href="#Error.Error">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=Error%2FError&amp;pkg=regexp%2Fsyntax&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/regexp/syntax/parse.go#L21">❖</a><pre>func (e *<a href="#Error">Error</a>) Error() <a href="/builtin#string">string</a></pre></div>
+            
+  
+
+          
+        
+          <h3 id="ErrorCode" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/regexp/syntax/parse.go#L26">ErrorCode</a> <a class="permalink" href="#ErrorCode">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=ErrorCode&amp;pkg=regexp%2Fsyntax&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/regexp/syntax/parse.go#L26">❖</a><pre>type ErrorCode <a href="/builtin#string">string</a></pre></div><p>
+An ErrorCode describes a failure to parse a regular expression.
+</p>
+
+          <div class="decl" data-kind="c"><a title="View Source" href="https://github.com/golang/go/blob/master/src/regexp/syntax/parse.go#L28">❖</a><pre>const (
+    <span class="com">// Unexpected error</span>
+    <span id="ErrInternalError">ErrInternalError</span> <a href="#ErrorCode">ErrorCode</a> = &#34;regexp/syntax: internal error&#34;
+
+    <span class="com">// Parse errors</span>
+    <span id="ErrInvalidCharClass">ErrInvalidCharClass</span>      <a href="#ErrorCode">ErrorCode</a> = &#34;invalid character class&#34;
+    <span id="ErrInvalidCharRange">ErrInvalidCharRange</span>      <a href="#ErrorCode">ErrorCode</a> = &#34;invalid character class range&#34;
+    <span id="ErrInvalidEscape">ErrInvalidEscape</span>         <a href="#ErrorCode">ErrorCode</a> = &#34;invalid escape sequence&#34;
+    <span id="ErrInvalidNamedCapture">ErrInvalidNamedCapture</span>   <a href="#ErrorCode">ErrorCode</a> = &#34;invalid named capture&#34;
+    <span id="ErrInvalidPerlOp">ErrInvalidPerlOp</span>         <a href="#ErrorCode">ErrorCode</a> = &#34;invalid or unsupported Perl syntax&#34;
+    <span id="ErrInvalidRepeatOp">ErrInvalidRepeatOp</span>       <a href="#ErrorCode">ErrorCode</a> = &#34;invalid nested repetition operator&#34;
+    <span id="ErrInvalidRepeatSize">ErrInvalidRepeatSize</span>     <a href="#ErrorCode">ErrorCode</a> = &#34;invalid repeat count&#34;
+    <span id="ErrInvalidUTF8">ErrInvalidUTF8</span>           <a href="#ErrorCode">ErrorCode</a> = &#34;invalid UTF-8&#34;
+    <span id="ErrMissingBracket">ErrMissingBracket</span>        <a href="#ErrorCode">ErrorCode</a> = &#34;missing closing ]&#34;
+    <span id="ErrMissingParen">ErrMissingParen</span>          <a href="#ErrorCode">ErrorCode</a> = &#34;missing closing )&#34;
+    <span id="ErrMissingRepeatArgument">ErrMissingRepeatArgument</span> <a href="#ErrorCode">ErrorCode</a> = &#34;missing argument to repetition operator&#34;
+    <span id="ErrTrailingBackslash">ErrTrailingBackslash</span>     <a href="#ErrorCode">ErrorCode</a> = &#34;trailing backslash at end of expression&#34;
+    <span id="ErrUnexpectedParen">ErrUnexpectedParen</span>       <a href="#ErrorCode">ErrorCode</a> = &#34;unexpected )&#34;
+)</pre></div>
+          
+          
+  
+
+
+          
+
+          
+            <h4 id="ErrorCode.String" data-kind="m">func (ErrorCode) <a title="View Source" href="https://github.com/golang/go/blob/master/src/regexp/syntax/parse.go#L48">String</a> <a class="permalink" href="#ErrorCode.String">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=ErrorCode%2FString&amp;pkg=regexp%2Fsyntax&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/regexp/syntax/parse.go#L48">❖</a><pre>func (e <a href="#ErrorCode">ErrorCode</a>) String() <a href="/builtin#string">string</a></pre></div>
+            
+  
+
+          
+        
+          <h3 id="Flags" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/regexp/syntax/parse.go#L53">Flags</a> <a class="permalink" href="#Flags">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=Flags&amp;pkg=regexp%2Fsyntax&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/regexp/syntax/parse.go#L53">❖</a><pre>type Flags <a href="/builtin#uint16">uint16</a></pre></div><p>
+Flags control the behavior of the parser and record information about regexp context.
+</p>
+
+          <div class="decl" data-kind="c"><a title="View Source" href="https://github.com/golang/go/blob/master/src/regexp/syntax/parse.go#L55">❖</a><pre>const (
+    <span id="FoldCase">FoldCase</span>      <a href="#Flags">Flags</a> = 1 &lt;&lt; <a href="/builtin#iota">iota</a> <span class="com">// case-insensitive match</span>
+    <span id="Literal">Literal</span>                         <span class="com">// treat pattern as literal string</span>
+    <span id="ClassNL">ClassNL</span>                         <span class="com">// allow character classes like [^a-z] and [[:space:]] to match newline</span>
+    <span id="DotNL">DotNL</span>                           <span class="com">// allow . to match newline</span>
+    <span id="OneLine">OneLine</span>                         <span class="com">// treat ^ and $ as only matching at beginning and end of text</span>
+    <span id="NonGreedy">NonGreedy</span>                       <span class="com">// make repetition operators default to non-greedy</span>
+    <span id="PerlX">PerlX</span>                           <span class="com">// allow Perl extensions</span>
+    <span id="UnicodeGroups">UnicodeGroups</span>                   <span class="com">// allow \p{Han}, \P{Han} for Unicode group and negation</span>
+    <span id="WasDollar">WasDollar</span>                       <span class="com">// regexp OpEndText was $, not \z</span>
+    <span id="Simple">Simple</span>                          <span class="com">// regexp contains no counted repetition</span>
+
+    <span id="MatchNL">MatchNL</span> = <a href="#ClassNL">ClassNL</a> | <a href="#DotNL">DotNL</a>
+
+    <span id="Perl">Perl</span>        = <a href="#ClassNL">ClassNL</a> | <a href="#OneLine">OneLine</a> | <a href="#PerlX">PerlX</a> | <a href="#UnicodeGroups">UnicodeGroups</a> <span class="com">// as close to Perl as possible</span>
+    <span id="POSIX">POSIX</span> <a href="#Flags">Flags</a> = 0                                         <span class="com">// POSIX syntax</span>
+)</pre></div>
+          
+          
+  
+
+
+          
+
+          
+        
+          <h3 id="Inst" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/regexp/syntax/prog.go#L112">Inst</a> <a class="permalink" href="#Inst">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=Inst&amp;pkg=regexp%2Fsyntax&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/regexp/syntax/prog.go#L112">❖</a><pre>type Inst struct {
+    <span id="Inst.Op">Op</span>   <a href="#InstOp">InstOp</a>
+    <span id="Inst.Out">Out</span>  <a href="/builtin#uint32">uint32</a> <span class="com">// all but InstMatch, InstFail</span>
+    <span id="Inst.Arg">Arg</span>  <a href="/builtin#uint32">uint32</a> <span class="com">// InstAlt, InstAltMatch, InstCapture, InstEmptyWidth</span>
+    <span id="Inst.Rune">Rune</span> []<a href="/builtin#rune">rune</a>
+}</pre></div><p>
+An Inst is a single instruction in a regular expression program.
+</p>
+
+          
+          
+          
+  
+
+
+          
+
+          
+            <h4 id="Inst.MatchEmptyWidth" data-kind="m">func (*Inst) <a title="View Source" href="https://github.com/golang/go/blob/master/src/regexp/syntax/prog.go#L262">MatchEmptyWidth</a> <a class="permalink" href="#Inst.MatchEmptyWidth">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=Inst%2FMatchEmptyWidth&amp;pkg=regexp%2Fsyntax&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/regexp/syntax/prog.go#L262">❖</a><pre>func (i *<a href="#Inst">Inst</a>) MatchEmptyWidth(before <a href="/builtin#rune">rune</a>, after <a href="/builtin#rune">rune</a>) <a href="/builtin#bool">bool</a></pre></div><p>
+MatchEmptyWidth reports whether the instruction matches
+an empty string between the runes before and after.
+It should only be called when i.Op == InstEmptyWidth.
+</p>
+
+            
+  
+
+          
+            <h4 id="Inst.MatchRune" data-kind="m">func (*Inst) <a title="View Source" href="https://github.com/golang/go/blob/master/src/regexp/syntax/prog.go#L194">MatchRune</a> <a class="permalink" href="#Inst.MatchRune">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=Inst%2FMatchRune&amp;pkg=regexp%2Fsyntax&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/regexp/syntax/prog.go#L194">❖</a><pre>func (i *<a href="#Inst">Inst</a>) MatchRune(r <a href="/builtin#rune">rune</a>) <a href="/builtin#bool">bool</a></pre></div><p>
+MatchRune reports whether the instruction matches (and consumes) r.
+It should only be called when i.Op == InstRune.
+</p>
+
+            
+  
+
+          
+            <h4 id="Inst.MatchRunePos" data-kind="m">func (*Inst) <a title="View Source" href="https://github.com/golang/go/blob/master/src/regexp/syntax/prog.go#L203">MatchRunePos</a> <a class="permalink" href="#Inst.MatchRunePos">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=Inst%2FMatchRunePos&amp;pkg=regexp%2Fsyntax&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/regexp/syntax/prog.go#L203">❖</a><pre>func (i *<a href="#Inst">Inst</a>) MatchRunePos(r <a href="/builtin#rune">rune</a>) <a href="/builtin#int">int</a></pre></div><p>
+MatchRunePos checks whether the instruction matches (and consumes) r.
+If so, MatchRunePos returns the index of the matching rune pair
+(or, when len(i.Rune) == 1, rune singleton).
+If not, MatchRunePos returns -1.
+MatchRunePos should only be called when i.Op == InstRune.
+</p>
+
+            
+  
+
+          
+            <h4 id="Inst.String" data-kind="m">func (*Inst) <a title="View Source" href="https://github.com/golang/go/blob/master/src/regexp/syntax/prog.go#L280">String</a> <a class="permalink" href="#Inst.String">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=Inst%2FString&amp;pkg=regexp%2Fsyntax&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/regexp/syntax/prog.go#L280">❖</a><pre>func (i *<a href="#Inst">Inst</a>) String() <a href="/builtin#string">string</a></pre></div>
+            
+  
+
+          
+        
+          <h3 id="InstOp" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/regexp/syntax/prog.go#L24">InstOp</a> <a class="permalink" href="#InstOp">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=InstOp&amp;pkg=regexp%2Fsyntax&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/regexp/syntax/prog.go#L24">❖</a><pre>type InstOp <a href="/builtin#uint8">uint8</a></pre></div><p>
+An InstOp is an instruction opcode.
+</p>
+
+          <div class="decl" data-kind="c"><a title="View Source" href="https://github.com/golang/go/blob/master/src/regexp/syntax/prog.go#L26">❖</a><pre>const (
+    <span id="InstAlt">InstAlt</span> <a href="#InstOp">InstOp</a> = <a href="/builtin#iota">iota</a>
+    <span id="InstAltMatch">InstAltMatch</span>
+    <span id="InstCapture">InstCapture</span>
+    <span id="InstEmptyWidth">InstEmptyWidth</span>
+    <span id="InstMatch">InstMatch</span>
+    <span id="InstFail">InstFail</span>
+    <span id="InstNop">InstNop</span>
+    <span id="InstRune">InstRune</span>
+    <span id="InstRune1">InstRune1</span>
+    <span id="InstRuneAny">InstRuneAny</span>
+    <span id="InstRuneAnyNotNL">InstRuneAnyNotNL</span>
+)</pre></div>
+          
+          
+  
+
+
+          
+
+          
+            <h4 id="InstOp.String" data-kind="m">func (InstOp) <a title="View Source" href="https://github.com/golang/go/blob/master/src/regexp/syntax/prog.go#L54">String</a> <a class="permalink" href="#InstOp.String">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=InstOp%2FString&amp;pkg=regexp%2Fsyntax&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/regexp/syntax/prog.go#L54">❖</a><pre>func (i <a href="#InstOp">InstOp</a>) String() <a href="/builtin#string">string</a></pre></div>
+            
+  
+
+          
+        
+          <h3 id="Op" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/regexp/syntax/regexp.go#L31">Op</a> <a class="permalink" href="#Op">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=Op&amp;pkg=regexp%2Fsyntax&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/regexp/syntax/regexp.go#L31">❖</a><pre>type Op <a href="/builtin#uint8">uint8</a></pre></div><p>
+An Op is a single regular expression operator.
+</p>
+
+          <div class="decl" data-kind="c"><a title="View Source" href="https://github.com/golang/go/blob/master/src/regexp/syntax/regexp.go#L37">❖</a><pre>const (
+    <span id="OpNoMatch">OpNoMatch</span>        <a href="#Op">Op</a>  = 1 + <a href="/builtin#iota">iota</a> <span class="com">// matches no strings</span>
+    <span id="OpEmptyMatch">OpEmptyMatch</span>                    <span class="com">// matches empty string</span>
+    <span id="OpLiteral">OpLiteral</span>                       <span class="com">// matches Runes sequence</span>
+    <span id="OpCharClass">OpCharClass</span>                     <span class="com">// matches Runes interpreted as range pair list</span>
+    <span id="OpAnyCharNotNL">OpAnyCharNotNL</span>                  <span class="com">// matches any character except newline</span>
+    <span id="OpAnyChar">OpAnyChar</span>                       <span class="com">// matches any character</span>
+    <span id="OpBeginLine">OpBeginLine</span>                     <span class="com">// matches empty string at beginning of line</span>
+    <span id="OpEndLine">OpEndLine</span>                       <span class="com">// matches empty string at end of line</span>
+    <span id="OpBeginText">OpBeginText</span>                     <span class="com">// matches empty string at beginning of text</span>
+    <span id="OpEndText">OpEndText</span>                       <span class="com">// matches empty string at end of text</span>
+    <span id="OpWordBoundary">OpWordBoundary</span>                  <span class="com">// matches word boundary `\b`</span>
+    <span id="OpNoWordBoundary">OpNoWordBoundary</span>                <span class="com">// matches word non-boundary `\B`</span>
+    <span id="OpCapture">OpCapture</span>                       <span class="com">// capturing subexpression with index Cap, optional name Name</span>
+    <span id="OpStar">OpStar</span>                          <span class="com">// matches Sub[0] zero or more times</span>
+    <span id="OpPlus">OpPlus</span>                          <span class="com">// matches Sub[0] one or more times</span>
+    <span id="OpQuest">OpQuest</span>                         <span class="com">// matches Sub[0] zero or one times</span>
+    <span id="OpRepeat">OpRepeat</span>                        <span class="com">// matches Sub[0] at least Min times, at most Max (Max == -1 is no limit)</span>
+    <span id="OpConcat">OpConcat</span>                        <span class="com">// matches concatenation of Subs</span>
+    <span id="OpAlternate">OpAlternate</span>                     <span class="com">// matches alternation of Subs</span>
+)</pre></div>
+          
+          
+  
+
+
+          
+
+          
+        
+          <h3 id="Prog" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/regexp/syntax/prog.go#L17">Prog</a> <a class="permalink" href="#Prog">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=Prog&amp;pkg=regexp%2Fsyntax&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/regexp/syntax/prog.go#L17">❖</a><pre>type Prog struct {
+    <span id="Prog.Inst">Inst</span>   []<a href="#Inst">Inst</a>
+    <span id="Prog.Start">Start</span>  <a href="/builtin#int">int</a> <span class="com">// index of start instruction</span>
+    <span id="Prog.NumCap">NumCap</span> <a href="/builtin#int">int</a> <span class="com">// number of InstCapture insts in re</span>
+}</pre></div><p>
+A Prog is a compiled regular expression program.
+</p>
+
+          
+          
+          
+  
+
+
+          
+            <h4 id="Compile" data-kind="f">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/regexp/syntax/compile.go#L80">Compile</a> <a class="permalink" href="#Compile">&para;</a> <a class="uses" title="List Function Callers" href="https://sourcegraph.com/-/godoc/refs?def=Compile&amp;pkg=regexp%2Fsyntax&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/regexp/syntax/compile.go#L80">❖</a><pre>func Compile(re *<a href="#Regexp">Regexp</a>) (*<a href="#Prog">Prog</a>, <a href="/builtin#error">error</a>)</pre></div><p>
+Compile compiles the regexp into a program to be executed.
+The regexp should have been simplified already (returned from re.Simplify).
+</p>
+
+            
+  
+
+          
+
+          
+            <h4 id="Prog.Prefix" data-kind="m">func (*Prog) <a title="View Source" href="https://github.com/golang/go/blob/master/src/regexp/syntax/prog.go#L149">Prefix</a> <a class="permalink" href="#Prog.Prefix">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=Prog%2FPrefix&amp;pkg=regexp%2Fsyntax&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/regexp/syntax/prog.go#L149">❖</a><pre>func (p *<a href="#Prog">Prog</a>) Prefix() (prefix <a href="/builtin#string">string</a>, complete <a href="/builtin#bool">bool</a>)</pre></div><p>
+Prefix returns a literal string that all matches for the
+regexp must start with. Complete is true if the prefix
+is the entire match.
+</p>
+
+            
+  
+
+          
+            <h4 id="Prog.StartCond" data-kind="m">func (*Prog) <a title="View Source" href="https://github.com/golang/go/blob/master/src/regexp/syntax/prog.go#L168">StartCond</a> <a class="permalink" href="#Prog.StartCond">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=Prog%2FStartCond&amp;pkg=regexp%2Fsyntax&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/regexp/syntax/prog.go#L168">❖</a><pre>func (p *<a href="#Prog">Prog</a>) StartCond() <a href="#EmptyOp">EmptyOp</a></pre></div><p>
+StartCond returns the leading empty-width conditions that must
+be true in any match. It returns ^EmptyOp(0) if no matches are possible.
+</p>
+
+            
+  
+
+          
+            <h4 id="Prog.String" data-kind="m">func (*Prog) <a title="View Source" href="https://github.com/golang/go/blob/master/src/regexp/syntax/prog.go#L119">String</a> <a class="permalink" href="#Prog.String">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=Prog%2FString&amp;pkg=regexp%2Fsyntax&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/regexp/syntax/prog.go#L119">❖</a><pre>func (p *<a href="#Prog">Prog</a>) String() <a href="/builtin#string">string</a></pre></div>
+            
+  
+
+          
+        
+          <h3 id="Regexp" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/regexp/syntax/regexp.go#L18">Regexp</a> <a class="permalink" href="#Regexp">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=Regexp&amp;pkg=regexp%2Fsyntax&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/regexp/syntax/regexp.go#L18">❖</a><pre>type Regexp struct {
+    <span id="Regexp.Op">Op</span>       <a href="#Op">Op</a>  <span class="com">// operator</span>
+    <span id="Regexp.Flags">Flags</span>    <a href="#Flags">Flags</a>
+    <span id="Regexp.Sub">Sub</span>      []*<a href="#Regexp">Regexp</a>  <span class="com">// subexpressions, if any</span>
+    <span id="Regexp.Sub0">Sub0</span>     [1]*<a href="#Regexp">Regexp</a> <span class="com">// storage for short Sub</span>
+    <span id="Regexp.Rune">Rune</span>     []<a href="/builtin#rune">rune</a>     <span class="com">// matched runes, for OpLiteral, OpCharClass</span>
+    <span id="Regexp.Rune0">Rune0</span>    [2]<a href="/builtin#rune">rune</a>    <span class="com">// storage for short Rune</span>
+    <span id="Regexp.Min">Min</span>, <span id="Regexp.Max">Max</span> <a href="/builtin#int">int</a>        <span class="com">// min, max for OpRepeat</span>
+    <span id="Regexp.Cap">Cap</span>      <a href="/builtin#int">int</a>        <span class="com">// capturing index, for OpCapture</span>
+    <span id="Regexp.Name">Name</span>     <a href="/builtin#string">string</a>     <span class="com">// capturing name, for OpCapture</span>
+}</pre></div><p>
+A Regexp is a node in a regular expression syntax tree.
+</p>
+
+          
+          
+          
+  
+
+
+          
+            <h4 id="Parse" data-kind="f">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/regexp/syntax/parse.go#L701">Parse</a> <a class="permalink" href="#Parse">&para;</a> <a class="uses" title="List Function Callers" href="https://sourcegraph.com/-/godoc/refs?def=Parse&amp;pkg=regexp%2Fsyntax&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/regexp/syntax/parse.go#L701">❖</a><pre>func Parse(s <a href="/builtin#string">string</a>, flags <a href="#Flags">Flags</a>) (*<a href="#Regexp">Regexp</a>, <a href="/builtin#error">error</a>)</pre></div><p>
+Parse parses a regular expression string s, controlled by the specified
+Flags, and returns a regular expression parse tree. The syntax is
+described in the top-level comment.
+</p>
+
+            
+  
+
+          
+
+          
+            <h4 id="Regexp.CapNames" data-kind="m">func (*Regexp) <a title="View Source" href="https://github.com/golang/go/blob/master/src/regexp/syntax/regexp.go#L306">CapNames</a> <a class="permalink" href="#Regexp.CapNames">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=Regexp%2FCapNames&amp;pkg=regexp%2Fsyntax&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/regexp/syntax/regexp.go#L306">❖</a><pre>func (re *<a href="#Regexp">Regexp</a>) CapNames() []<a href="/builtin#string">string</a></pre></div><p>
+CapNames walks the regexp to find the names of capturing groups.
+</p>
+
+            
+  
+
+          
+            <h4 id="Regexp.Equal" data-kind="m">func (*Regexp) <a title="View Source" href="https://github.com/golang/go/blob/master/src/regexp/syntax/regexp.go#L62">Equal</a> <a class="permalink" href="#Regexp.Equal">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=Regexp%2FEqual&amp;pkg=regexp%2Fsyntax&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/regexp/syntax/regexp.go#L62">❖</a><pre>func (x *<a href="#Regexp">Regexp</a>) Equal(y *<a href="#Regexp">Regexp</a>) <a href="/builtin#bool">bool</a></pre></div><p>
+Equal returns true if x and y have identical structure.
+</p>
+
+            
+  
+
+          
+            <h4 id="Regexp.MaxCap" data-kind="m">func (*Regexp) <a title="View Source" href="https://github.com/golang/go/blob/master/src/regexp/syntax/regexp.go#L292">MaxCap</a> <a class="permalink" href="#Regexp.MaxCap">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=Regexp%2FMaxCap&amp;pkg=regexp%2Fsyntax&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/regexp/syntax/regexp.go#L292">❖</a><pre>func (re *<a href="#Regexp">Regexp</a>) MaxCap() <a href="/builtin#int">int</a></pre></div><p>
+MaxCap walks the regexp to find the maximum capture index.
+</p>
+
+            
+  
+
+          
+            <h4 id="Regexp.Simplify" data-kind="m">func (*Regexp) <a title="View Source" href="https://github.com/golang/go/blob/master/src/regexp/syntax/simplify.go#L14">Simplify</a> <a class="permalink" href="#Regexp.Simplify">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=Regexp%2FSimplify&amp;pkg=regexp%2Fsyntax&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/regexp/syntax/simplify.go#L14">❖</a><pre>func (re *<a href="#Regexp">Regexp</a>) Simplify() *<a href="#Regexp">Regexp</a></pre></div><p>
+Simplify returns a regexp equivalent to re but without counted repetitions
+and with various other simplifications, such as rewriting /(?:a+)+/ to /a+/.
+The resulting regexp will execute correctly but its string representation
+will not produce the same parse tree, because capturing parentheses
+may have been duplicated or removed. For example, the simplified form
+for /(x){1,2}/ is /(x)(x)?/ but both parentheses capture as $1.
+The returned regexp may share structure with or be the original.
+</p>
+
+            
+  
+
+          
+            <h4 id="Regexp.String" data-kind="m">func (*Regexp) <a title="View Source" href="https://github.com/golang/go/blob/master/src/regexp/syntax/regexp.go#L245">String</a> <a class="permalink" href="#Regexp.String">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=Regexp%2FString&amp;pkg=regexp%2Fsyntax&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/regexp/syntax/regexp.go#L245">❖</a><pre>func (re *<a href="#Regexp">Regexp</a>) String() <a href="/builtin#string">string</a></pre></div>
+            
+  
+<div id="x-footer" class="clearfix">
+  <div class="container">
+    <a href="http://studygolang.com/">Go语言中文网</a>
+    <span class="text-muted">|</span> <a href="http://golang.org/">Go Language</a>
+    <span class="pull-right"><a href="#">Back to top</a></span>
+  </div>
+</div>
+<script src="../assets/jquery-2.0.3.min.js"></script>
+<script src="../assets/bootstrap.min.js"></script>
+<script src="../assets/site.js"></script>
+</body>
+</html>

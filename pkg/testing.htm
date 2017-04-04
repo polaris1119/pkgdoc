@@ -1,0 +1,1261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="../assets/site.css" rel="stylesheet">
+  <title>testing</title>
+  
+    <meta name="twitter:title" content="Package testing">
+    <meta property="og:title" content="Package testing">
+    <meta name="description" content="Package testing provides support for automated testing of Go packages.">
+    <meta name="twitter:description" content="Package testing provides support for automated testing of Go packages.">
+    <meta property="og:description" content="Package testing provides support for automated testing of Go packages.">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:site" content="@golang">
+  
+
+</head>
+<body>
+
+<div class="container">
+
+        <h2 id="pkg-overview">package testing</h2>
+
+        <p><code>import "testing"</code>
+
+        <p>
+Package testing provides support for automated testing of Go packages.
+It is intended to be used in concert with the &ldquo;go test&rdquo; command, which automates
+execution of any function of the form
+</p>
+<pre>func TestXxx(*testing.T)
+</pre>
+<p>
+where Xxx can be any alphanumeric string (but the first letter must not be in
+[a-z]) and serves to identify the test routine.
+</p>
+<p>
+Within these functions, use the Error, Fail or related methods to signal failure.
+</p>
+<p>
+To write a new test suite, create a file whose name ends _test.go that
+contains the TestXxx functions as described here. Put the file in the same
+package as the one being tested. The file will be excluded from regular
+package builds but will be included when the &ldquo;go test&rdquo; command is run.
+For more detail, run &ldquo;go help test&rdquo; and &ldquo;go help testflag&rdquo;.
+</p>
+<p>
+Tests and benchmarks may be skipped if not applicable with a call to
+the Skip method of *T and *B:
+</p>
+<pre>func TestTimeConsuming(t *testing.T) {
+    if testing.Short() {
+        t.Skip(&#34;skipping test in short mode.&#34;)
+    }
+    ...
+}
+</pre>
+<h4 id="hdr-Benchmarks">Benchmarks <a class="permalink" href="#hdr-Benchmarks">&para</a></h4>
+<p>
+Functions of the form
+</p>
+<pre>func BenchmarkXxx(*testing.B)
+</pre>
+<p>
+are considered benchmarks, and are executed by the &#34;go test&#34; command when
+its -bench flag is provided. Benchmarks are run sequentially.
+</p>
+<p>
+For a description of the testing flags, see
+<a href="https://github.com/golang/go/blob/master/cmd/go/#hdr-Description_of_testing_flags">https://github.com/golang/go/blob/master/cmd/go/#hdr-Description_of_testing_flags</a>.
+</p>
+<p>
+A sample benchmark function looks like this:
+</p>
+<pre>func BenchmarkHello(b *testing.B) {
+    for i := 0; i &lt; b.N; i++ {
+        fmt.Sprintf(&#34;hello&#34;)
+    }
+}
+</pre>
+<p>
+The benchmark function must run the target code b.N times.
+During benchmark execution, b.N is adjusted until the benchmark function lasts
+long enough to be timed reliably. The output
+</p>
+<pre>BenchmarkHello    10000000    282 ns/op
+</pre>
+<p>
+means that the loop ran 10000000 times at a speed of 282 ns per loop.
+</p>
+<p>
+If a benchmark needs some expensive setup before running, the timer
+may be reset:
+</p>
+<pre>func BenchmarkBigLen(b *testing.B) {
+    big := NewBig()
+    b.ResetTimer()
+    for i := 0; i &lt; b.N; i++ {
+        big.Len()
+    }
+}
+</pre>
+<p>
+If a benchmark needs to test performance in a parallel setting, it may use
+the RunParallel helper function; such benchmarks are intended to be used with
+the go test -cpu flag:
+</p>
+<pre>func BenchmarkTemplateParallel(b *testing.B) {
+    templ := template.Must(template.New(&#34;test&#34;).Parse(&#34;Hello, {{.}}!&#34;))
+    b.RunParallel(func(pb *testing.PB) {
+        var buf bytes.Buffer
+        for pb.Next() {
+            buf.Reset()
+            templ.Execute(&amp;buf, &#34;World&#34;)
+        }
+    })
+}
+</pre>
+<h4 id="hdr-Examples">Examples <a class="permalink" href="#hdr-Examples">&para</a></h4>
+<p>
+The package also runs and verifies example code. Example functions may
+include a concluding line comment that begins with &#34;Output:&#34; and is compared with
+the standard output of the function when the tests are run. (The comparison
+ignores leading and trailing space.) These are examples of an example:
+</p>
+<pre>func ExampleHello() {
+        fmt.Println(&#34;hello&#34;)
+        // Output: hello
+}
+
+func ExampleSalutations() {
+        fmt.Println(&#34;hello, and&#34;)
+        fmt.Println(&#34;goodbye&#34;)
+        // Output:
+        // hello, and
+        // goodbye
+}
+</pre>
+<p>
+Example functions without output comments are compiled but not executed.
+</p>
+<p>
+The naming convention to declare examples for the package, a function F, a type T and
+method M on type T are:
+</p>
+<pre>func Example() { ... }
+func ExampleF() { ... }
+func ExampleT() { ... }
+func ExampleT_M() { ... }
+</pre>
+<p>
+Multiple example functions for a package/type/function/method may be provided by
+appending a distinct suffix to the name. The suffix must start with a
+lower-case letter.
+</p>
+<pre>func Example_suffix() { ... }
+func ExampleF_suffix() { ... }
+func ExampleT_suffix() { ... }
+func ExampleT_M_suffix() { ... }
+</pre>
+<p>
+The entire test file is presented as the example when it contains a single
+example function, at least one other function, type, variable, or constant
+declaration, and no test or benchmark functions.
+</p>
+<h4 id="hdr-Subtests_and_Sub_benchmarks">Subtests and Sub-benchmarks <a class="permalink" href="#hdr-Subtests_and_Sub_benchmarks">&para</a></h4>
+<p>
+The Run methods of T and B allow defining subtests and sub-benchmarks,
+without having to define separate functions for each. This enables uses
+like table-driven benchmarks and creating hierarchical tests.
+It also provides a way to share common setup and tear-down code:
+</p>
+<pre>func TestFoo(t *testing.T) {
+    // &lt;setup code&gt;
+    t.Run(&#34;A=1&#34;, func(t *testing.T) { ... })
+    t.Run(&#34;A=2&#34;, func(t *testing.T) { ... })
+    t.Run(&#34;B=1&#34;, func(t *testing.T) { ... })
+    // &lt;tear-down code&gt;
+}
+</pre>
+<p>
+Each subtest and sub-benchmark has a unique name: the combination of the name
+of the top-level test and the sequence of names passed to Run, separated by
+slashes, with an optional trailing sequence number for disambiguation.
+</p>
+<p>
+The argument to the -run and -bench command-line flags is an unanchored regular
+expression that matches the test&#39;s name. For tests with multiple slash-separated
+elements, such as subtests, the argument is itself slash-separated, with
+expressions matching each name element in turn. Because it is unanchored, an
+empty expression matches any string.
+For example, using &#34;matching&#34; to mean &#34;whose name contains&#34;:
+</p>
+<pre>go test -run &#39;&#39;      # Run all tests.
+go test -run Foo     # Run top-level tests matching &#34;Foo&#34;, such as &#34;TestFooBar&#34;.
+go test -run Foo/A=  # For top-level tests matching &#34;Foo&#34;, run subtests matching &#34;A=&#34;.
+go test -run /A=1    # For all top-level tests, run subtests matching &#34;A=1&#34;.
+</pre>
+<p>
+Subtests can also be used to control parallelism. A parent test will only
+complete once all of its subtests complete. In this example, all tests are
+run in parallel with each other, and only with each other, regardless of
+other top-level tests that may be defined:
+</p>
+<pre>func TestGroupedParallel(t *testing.T) {
+    for _, tc := range tests {
+        tc := tc // capture range variable
+        t.Run(tc.Name, func(t *testing.T) {
+            t.Parallel()
+            ...
+        })
+    }
+}
+</pre>
+<p>
+Run does not return until parallel subtests have completed, providing a way
+to clean up after a group of parallel tests:
+</p>
+<pre>func TestTeardownParallel(t *testing.T) {
+    // This Run will not return until the parallel tests finish.
+    t.Run(&#34;group&#34;, func(t *testing.T) {
+        t.Run(&#34;Test1&#34;, parallelTest1)
+        t.Run(&#34;Test2&#34;, parallelTest2)
+        t.Run(&#34;Test3&#34;, parallelTest3)
+    })
+    // &lt;tear-down code&gt;
+}
+</pre>
+<h4 id="hdr-Main">Main <a class="permalink" href="#hdr-Main">&para</a></h4>
+<p>
+It is sometimes necessary for a test program to do extra setup or teardown
+before or after testing. It is also sometimes necessary for a test to control
+which code runs on the main thread. To support these and other cases,
+if a test file contains a function:
+</p>
+<pre>func TestMain(m *testing.M)
+</pre>
+<p>
+then the generated test will call TestMain(m) instead of running the tests
+directly. TestMain runs in the main goroutine and can do whatever setup
+and teardown is necessary around a call to m.Run. It should then call
+os.Exit with the result of m.Run. When TestMain is called, flag.Parse has
+not been run. If TestMain depends on command-line flags, including those
+of the testing package, it should call flag.Parse explicitly.
+</p>
+<p>
+A simple implementation of TestMain is:
+</p>
+<pre>func TestMain(m *testing.M) {
+	// call flag.Parse() here if TestMain uses flags
+	os.Exit(m.Run())
+}</pre>
+
+
+        
+  
+
+
+        
+        <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+
+        
+
+        <ul class="list-unstyled">
+          
+          
+          <li><a href="#AllocsPerRun">func AllocsPerRun(runs int, f func()) (avg float64)</a></li><li><a href="#CoverMode">func CoverMode() string</a></li><li><a href="#Coverage">func Coverage() float64</a></li><li><a href="#Main">func Main(matchString func(pat, str string) (bool, error), tests []InternalTest, benchmarks []InternalBenchmark, examples []InternalExample)</a></li><li><a href="#RegisterCover">func RegisterCover(c Cover)</a></li><li><a href="#RunBenchmarks">func RunBenchmarks(matchString func(pat, str string) (bool, error), benchmarks []InternalBenchmark)</a></li><li><a href="#RunExamples">func RunExamples(matchString func(pat, str string) (bool, error), examples []InternalExample) (ok bool)</a></li><li><a href="#RunTests">func RunTests(matchString func(pat, str string) (bool, error), tests []InternalTest) (ok bool)</a></li><li><a href="#Short">func Short() bool</a></li><li><a href="#Verbose">func Verbose() bool</a></li>
+          
+            <li><a href="#B">type B</a></li>
+            <ul>
+            
+            <li><a href="#B.Error">func (c *B) Error(args ...interface{})</a></li><li><a href="#B.Errorf">func (c *B) Errorf(format string, args ...interface{})</a></li><li><a href="#B.Fail">func (c *B) Fail()</a></li><li><a href="#B.FailNow">func (c *B) FailNow()</a></li><li><a href="#B.Failed">func (c *B) Failed() bool</a></li><li><a href="#B.Fatal">func (c *B) Fatal(args ...interface{})</a></li><li><a href="#B.Fatalf">func (c *B) Fatalf(format string, args ...interface{})</a></li><li><a href="#B.Log">func (c *B) Log(args ...interface{})</a></li><li><a href="#B.Logf">func (c *B) Logf(format string, args ...interface{})</a></li><li><a href="#B.Name">func (c *B) Name() string</a></li><li><a href="#B.ReportAllocs">func (b *B) ReportAllocs()</a></li><li><a href="#B.ResetTimer">func (b *B) ResetTimer()</a></li><li><a href="#B.Run">func (b *B) Run(name string, f func(b *B)) bool</a></li><li><a href="#B.RunParallel">func (b *B) RunParallel(body func(*PB))</a></li><li><a href="#B.SetBytes">func (b *B) SetBytes(n int64)</a></li><li><a href="#B.SetParallelism">func (b *B) SetParallelism(p int)</a></li><li><a href="#B.Skip">func (c *B) Skip(args ...interface{})</a></li><li><a href="#B.SkipNow">func (c *B) SkipNow()</a></li><li><a href="#B.Skipf">func (c *B) Skipf(format string, args ...interface{})</a></li><li><a href="#B.Skipped">func (c *B) Skipped() bool</a></li><li><a href="#B.StartTimer">func (b *B) StartTimer()</a></li><li><a href="#B.StopTimer">func (b *B) StopTimer()</a></li>
+            </ul>
+          
+            <li><a href="#BenchmarkResult">type BenchmarkResult</a></li>
+            <ul>
+            <li><a href="#Benchmark">func Benchmark(f func(b *B)) BenchmarkResult</a></li>
+            <li><a href="#BenchmarkResult.AllocedBytesPerOp">func (r BenchmarkResult) AllocedBytesPerOp() int64</a></li><li><a href="#BenchmarkResult.AllocsPerOp">func (r BenchmarkResult) AllocsPerOp() int64</a></li><li><a href="#BenchmarkResult.MemString">func (r BenchmarkResult) MemString() string</a></li><li><a href="#BenchmarkResult.NsPerOp">func (r BenchmarkResult) NsPerOp() int64</a></li><li><a href="#BenchmarkResult.String">func (r BenchmarkResult) String() string</a></li>
+            </ul>
+          
+            <li><a href="#Cover">type Cover</a></li>
+            
+            
+            
+            
+          
+            <li><a href="#CoverBlock">type CoverBlock</a></li>
+            
+            
+            
+            
+          
+            <li><a href="#InternalBenchmark">type InternalBenchmark</a></li>
+            
+            
+            
+            
+          
+            <li><a href="#InternalExample">type InternalExample</a></li>
+            
+            
+            
+            
+          
+            <li><a href="#InternalTest">type InternalTest</a></li>
+            
+            
+            
+            
+          
+            <li><a href="#M">type M</a></li>
+            <ul>
+            <li><a href="#MainStart">func MainStart(deps testDeps, tests []InternalTest, benchmarks []InternalBenchmark, examples []InternalExample) *M</a></li>
+            <li><a href="#M.Run">func (m *M) Run() int</a></li>
+            </ul>
+          
+            <li><a href="#PB">type PB</a></li>
+            <ul>
+            
+            <li><a href="#PB.Next">func (pb *PB) Next() bool</a></li>
+            </ul>
+          
+            <li><a href="#T">type T</a></li>
+            <ul>
+            
+            <li><a href="#T.Error">func (c *T) Error(args ...interface{})</a></li><li><a href="#T.Errorf">func (c *T) Errorf(format string, args ...interface{})</a></li><li><a href="#T.Fail">func (c *T) Fail()</a></li><li><a href="#T.FailNow">func (c *T) FailNow()</a></li><li><a href="#T.Failed">func (c *T) Failed() bool</a></li><li><a href="#T.Fatal">func (c *T) Fatal(args ...interface{})</a></li><li><a href="#T.Fatalf">func (c *T) Fatalf(format string, args ...interface{})</a></li><li><a href="#T.Log">func (c *T) Log(args ...interface{})</a></li><li><a href="#T.Logf">func (c *T) Logf(format string, args ...interface{})</a></li><li><a href="#T.Name">func (c *T) Name() string</a></li><li><a href="#T.Parallel">func (t *T) Parallel()</a></li><li><a href="#T.Run">func (t *T) Run(name string, f func(t *T)) bool</a></li><li><a href="#T.Skip">func (c *T) Skip(args ...interface{})</a></li><li><a href="#T.SkipNow">func (c *T) SkipNow()</a></li><li><a href="#T.Skipf">func (c *T) Skipf(format string, args ...interface{})</a></li><li><a href="#T.Skipped">func (c *T) Skipped() bool</a></li>
+            </ul>
+          
+            <li><a href="#TB">type TB</a></li>
+            
+            
+            
+            
+          
+          
+        </ul>
+
+        
+        
+          <h4 id="pkg-examples">Examples <a class="permalink" href="#pkg-examples">&para;</a></h4>
+          <ul class="list-unstyled">
+            <li><a href="#example-B-RunParallel" onclick="$('#ex-B-RunParallel').addClass('in').removeClass('collapse').height('auto')">B.RunParallel</a></li>
+          </ul>
+        
+
+        
+        
+<h4 id="pkg-files">
+  <a href="https://github.com/golang/go/blob/master/src/testing/">Package Files</a>
+  <a class="permalink" href="#pkg-files">&para;</a>
+</h4>
+
+<p><a href="https://github.com/golang/go/blob/master/src/testing/allocs.go">allocs.go</a> <a href="https://github.com/golang/go/blob/master/src/testing/benchmark.go">benchmark.go</a> <a href="https://github.com/golang/go/blob/master/src/testing/cover.go">cover.go</a> <a href="https://github.com/golang/go/blob/master/src/testing/example.go">example.go</a> <a href="https://github.com/golang/go/blob/master/src/testing/match.go">match.go</a> <a href="https://github.com/golang/go/blob/master/src/testing/testing.go">testing.go</a> </p>
+
+        
+        
+
+        
+        
+
+        
+        
+        
+          <h3 id="AllocsPerRun" data-kind="f">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/allocs.go#L20">AllocsPerRun</a> <a class="permalink" href="#AllocsPerRun">&para;</a> <a class="uses" title="List Function Callers" href="https://sourcegraph.com/-/godoc/refs?def=AllocsPerRun&amp;pkg=testing&amp;repo=">Uses</a></h3>
+          <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/allocs.go#L20">❖</a><pre>func AllocsPerRun(runs <a href="/builtin#int">int</a>, f func()) (avg <a href="/builtin#float64">float64</a>)</pre></div><p>
+AllocsPerRun returns the average number of allocations during calls to f.
+Although the return value has type float64, it will always be an integral value.
+</p>
+<p>
+To compute the number of allocations, the function will first be run once as
+a warm-up. The average number of allocations over the specified number of
+runs will then be measured and returned.
+</p>
+<p>
+AllocsPerRun sets GOMAXPROCS to 1 during its measurement and will restore
+it before returning.
+</p>
+
+          
+  
+
+        
+          <h3 id="CoverMode" data-kind="f">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L292">CoverMode</a> <a class="permalink" href="#CoverMode">&para;</a> <a class="uses" title="List Function Callers" href="https://sourcegraph.com/-/godoc/refs?def=CoverMode&amp;pkg=testing&amp;repo=">Uses</a></h3>
+          <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L292">❖</a><pre>func CoverMode() <a href="/builtin#string">string</a></pre></div><p>
+CoverMode reports what the test coverage mode is set to. The
+values are &#34;set&#34;, &#34;count&#34;, or &#34;atomic&#34;. The return value will be
+empty if test coverage is not enabled.
+</p>
+
+          
+  
+
+        
+          <h3 id="Coverage" data-kind="f">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/cover.go#L45">Coverage</a> <a class="permalink" href="#Coverage">&para;</a> <a class="uses" title="List Function Callers" href="https://sourcegraph.com/-/godoc/refs?def=Coverage&amp;pkg=testing&amp;repo=">Uses</a></h3>
+          <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/cover.go#L45">❖</a><pre>func Coverage() <a href="/builtin#float64">float64</a></pre></div><p>
+Coverage reports the current code coverage as a fraction in the range [0, 1].
+If coverage is not enabled, Coverage returns 0.
+</p>
+<p>
+When running a large set of sequential test cases, checking Coverage after each one
+can be useful for identifying which test cases exercise new code paths.
+It is not a replacement for the reports generated by &#39;go test -cover&#39; and
+&#39;go tool cover&#39;.
+</p>
+
+          
+  
+
+        
+          <h3 id="Main" data-kind="f">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L774">Main</a> <a class="permalink" href="#Main">&para;</a> <a class="uses" title="List Function Callers" href="https://sourcegraph.com/-/godoc/refs?def=Main&amp;pkg=testing&amp;repo=">Uses</a></h3>
+          <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L774">❖</a><pre>func Main(matchString func(pat, str <a href="/builtin#string">string</a>) (<a href="/builtin#bool">bool</a>, <a href="/builtin#error">error</a>), tests []<a href="#InternalTest">InternalTest</a>, benchmarks []<a href="#InternalBenchmark">InternalBenchmark</a>, examples []<a href="#InternalExample">InternalExample</a>)</pre></div><p>
+Main is an internal function, part of the implementation of the &#34;go test&#34; command.
+It was exported because it is cross-package and predates &#34;internal&#34; packages.
+It is no longer used by &#34;go test&#34; but preserved, as much as possible, for other
+systems that simulate &#34;go test&#34; using Main, but Main sometimes cannot be updated as
+new functionality is added to the testing package.
+Systems simulating &#34;go test&#34; should be updated to use MainStart.
+</p>
+
+          
+  
+
+        
+          <h3 id="RegisterCover" data-kind="f">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/cover.go#L64">RegisterCover</a> <a class="permalink" href="#RegisterCover">&para;</a> <a class="uses" title="List Function Callers" href="https://sourcegraph.com/-/godoc/refs?def=RegisterCover&amp;pkg=testing&amp;repo=">Uses</a></h3>
+          <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/cover.go#L64">❖</a><pre>func RegisterCover(c <a href="#Cover">Cover</a>)</pre></div><p>
+RegisterCover records the coverage data accumulators for the tests.
+NOTE: This function is internal to the testing infrastructure and may change.
+It is not covered (yet) by the Go 1 compatibility guidelines.
+</p>
+
+          
+  
+
+        
+          <h3 id="RunBenchmarks" data-kind="f">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/benchmark.go#L365">RunBenchmarks</a> <a class="permalink" href="#RunBenchmarks">&para;</a> <a class="uses" title="List Function Callers" href="https://sourcegraph.com/-/godoc/refs?def=RunBenchmarks&amp;pkg=testing&amp;repo=">Uses</a></h3>
+          <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/benchmark.go#L365">❖</a><pre>func RunBenchmarks(matchString func(pat, str <a href="/builtin#string">string</a>) (<a href="/builtin#bool">bool</a>, <a href="/builtin#error">error</a>), benchmarks []<a href="#InternalBenchmark">InternalBenchmark</a>)</pre></div><p>
+An internal function but exported because it is cross-package; part of the implementation
+of the &#34;go test&#34; command.
+</p>
+
+          
+  
+
+        
+          <h3 id="RunExamples" data-kind="f">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/example.go#L26">RunExamples</a> <a class="permalink" href="#RunExamples">&para;</a> <a class="uses" title="List Function Callers" href="https://sourcegraph.com/-/godoc/refs?def=RunExamples&amp;pkg=testing&amp;repo=">Uses</a></h3>
+          <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/example.go#L26">❖</a><pre>func RunExamples(matchString func(pat, str <a href="/builtin#string">string</a>) (<a href="/builtin#bool">bool</a>, <a href="/builtin#error">error</a>), examples []<a href="#InternalExample">InternalExample</a>) (ok <a href="/builtin#bool">bool</a>)</pre></div><p>
+An internal function but exported because it is cross-package; part of the implementation
+of the &#34;go test&#34; command.
+</p>
+
+          
+  
+
+        
+          <h3 id="RunTests" data-kind="f">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L858">RunTests</a> <a class="permalink" href="#RunTests">&para;</a> <a class="uses" title="List Function Callers" href="https://sourcegraph.com/-/godoc/refs?def=RunTests&amp;pkg=testing&amp;repo=">Uses</a></h3>
+          <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L858">❖</a><pre>func RunTests(matchString func(pat, str <a href="/builtin#string">string</a>) (<a href="/builtin#bool">bool</a>, <a href="/builtin#error">error</a>), tests []<a href="#InternalTest">InternalTest</a>) (ok <a href="/builtin#bool">bool</a>)</pre></div><p>
+An internal function but exported because it is cross-package; part of the implementation
+of the &#34;go test&#34; command.
+</p>
+
+          
+  
+
+        
+          <h3 id="Short" data-kind="f">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L285">Short</a> <a class="permalink" href="#Short">&para;</a> <a class="uses" title="List Function Callers" href="https://sourcegraph.com/-/godoc/refs?def=Short&amp;pkg=testing&amp;repo=">Uses</a></h3>
+          <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L285">❖</a><pre>func Short() <a href="/builtin#bool">bool</a></pre></div><p>
+Short reports whether the -test.short flag is set.
+</p>
+
+          
+  
+
+        
+          <h3 id="Verbose" data-kind="f">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L297">Verbose</a> <a class="permalink" href="#Verbose">&para;</a> <a class="uses" title="List Function Callers" href="https://sourcegraph.com/-/godoc/refs?def=Verbose&amp;pkg=testing&amp;repo=">Uses</a></h3>
+          <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L297">❖</a><pre>func Verbose() <a href="/builtin#bool">bool</a></pre></div><p>
+Verbose reports whether the -test.v flag is set.
+</p>
+
+          
+  
+
+        
+
+        
+        
+
+        
+          <h3 id="B" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/benchmark.go#L48">B</a> <a class="permalink" href="#B">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=B&amp;pkg=testing&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/benchmark.go#L48">❖</a><pre>type B struct {
+    <span id="B.N">N</span> <a href="/builtin#int">int</a>
+    <span class="com">// contains filtered or unexported fields</span>
+}</pre></div><p>
+B is a type passed to Benchmark functions to manage benchmark
+timing and to specify the number of iterations to run.
+</p>
+<p>
+A benchmark ends when its Benchmark function returns or calls any of the methods
+FailNow, Fatal, Fatalf, SkipNow, Skip, or Skipf. Those methods must be called
+only from the goroutine running the Benchmark function.
+The other reporting methods, such as the variations of Log and Error,
+may be called simultaneously from multiple goroutines.
+</p>
+<p>
+Like in tests, benchmark logs are accumulated during execution
+and dumped to standard error when done. Unlike in tests, benchmark logs
+are always printed, so as not to hide output whose existence may be
+affecting benchmark results.
+</p>
+
+          
+          
+          
+  
+
+
+          
+
+          
+            <h4 id="B.Error" data-kind="m">func (*B) <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L510">Error</a> <a class="permalink" href="#B.Error">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=common%2FError&amp;pkg=testing&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L510">❖</a><pre>func (c *B) Error(args ...interface{})</pre></div><p>
+Error is equivalent to Log followed by Fail.
+</p>
+
+            
+  
+
+          
+            <h4 id="B.Errorf" data-kind="m">func (*B) <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L516">Errorf</a> <a class="permalink" href="#B.Errorf">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=common%2FErrorf&amp;pkg=testing&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L516">❖</a><pre>func (c *B) Errorf(format <a href="/builtin#string">string</a>, args ...interface{})</pre></div><p>
+Errorf is equivalent to Logf followed by Fail.
+</p>
+
+            
+  
+
+          
+            <h4 id="B.Fail" data-kind="m">func (*B) <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L437">Fail</a> <a class="permalink" href="#B.Fail">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=common%2FFail&amp;pkg=testing&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L437">❖</a><pre>func (c *B) Fail()</pre></div><p>
+Fail marks the function as having failed but continues execution.
+</p>
+
+            
+  
+
+          
+            <h4 id="B.FailNow" data-kind="m">func (*B) <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L463">FailNow</a> <a class="permalink" href="#B.FailNow">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=common%2FFailNow&amp;pkg=testing&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L463">❖</a><pre>func (c *B) FailNow()</pre></div><p>
+FailNow marks the function as having failed and stops its execution.
+Execution will continue at the next test or benchmark.
+FailNow must be called from the goroutine running the
+test or benchmark function, not from other goroutines
+created during the test. Calling FailNow does not stop
+those other goroutines.
+</p>
+
+            
+  
+
+          
+            <h4 id="B.Failed" data-kind="m">func (*B) <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L451">Failed</a> <a class="permalink" href="#B.Failed">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=common%2FFailed&amp;pkg=testing&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L451">❖</a><pre>func (c *B) Failed() <a href="/builtin#bool">bool</a></pre></div><p>
+Failed reports whether the function has failed.
+</p>
+
+            
+  
+
+          
+            <h4 id="B.Fatal" data-kind="m">func (*B) <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L522">Fatal</a> <a class="permalink" href="#B.Fatal">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=common%2FFatal&amp;pkg=testing&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L522">❖</a><pre>func (c *B) Fatal(args ...interface{})</pre></div><p>
+Fatal is equivalent to Log followed by FailNow.
+</p>
+
+            
+  
+
+          
+            <h4 id="B.Fatalf" data-kind="m">func (*B) <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L528">Fatalf</a> <a class="permalink" href="#B.Fatalf">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=common%2FFatalf&amp;pkg=testing&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L528">❖</a><pre>func (c *B) Fatalf(format <a href="/builtin#string">string</a>, args ...interface{})</pre></div><p>
+Fatalf is equivalent to Logf followed by FailNow.
+</p>
+
+            
+  
+
+          
+            <h4 id="B.Log" data-kind="m">func (*B) <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L500">Log</a> <a class="permalink" href="#B.Log">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=common%2FLog&amp;pkg=testing&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L500">❖</a><pre>func (c *B) Log(args ...interface{})</pre></div><p>
+Log formats its arguments using default formatting, analogous to Println,
+and records the text in the error log. For tests, the text will be printed only if
+the test fails or the -test.v flag is set. For benchmarks, the text is always
+printed to avoid having performance depend on the value of the -test.v flag.
+</p>
+
+            
+  
+
+          
+            <h4 id="B.Logf" data-kind="m">func (*B) <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L507">Logf</a> <a class="permalink" href="#B.Logf">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=common%2FLogf&amp;pkg=testing&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L507">❖</a><pre>func (c *B) Logf(format <a href="/builtin#string">string</a>, args ...interface{})</pre></div><p>
+Logf formats its arguments according to the format, analogous to Printf, and
+records the text in the error log. A final newline is added if not provided. For
+tests, the text will be printed only if the test fails or the -test.v flag is
+set. For benchmarks, the text is always printed to avoid having performance
+depend on the value of the -test.v flag.
+</p>
+
+            
+  
+
+          
+            <h4 id="B.Name" data-kind="m">func (*B) <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L423">Name</a> <a class="permalink" href="#B.Name">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=common%2FName&amp;pkg=testing&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L423">❖</a><pre>func (c *B) Name() <a href="/builtin#string">string</a></pre></div><p>
+Name returns the name of the running test or benchmark.
+</p>
+
+            
+  
+
+          
+            <h4 id="B.ReportAllocs" data-kind="m">func (*B) <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/benchmark.go#L117">ReportAllocs</a> <a class="permalink" href="#B.ReportAllocs">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=B%2FReportAllocs&amp;pkg=testing&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/benchmark.go#L117">❖</a><pre>func (b *<a href="#B">B</a>) ReportAllocs()</pre></div><p>
+ReportAllocs enables malloc statistics for this benchmark.
+It is equivalent to setting -test.benchmem, but it only affects the
+benchmark function that calls ReportAllocs.
+</p>
+
+            
+  
+
+          
+            <h4 id="B.ResetTimer" data-kind="m">func (*B) <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/benchmark.go#L98">ResetTimer</a> <a class="permalink" href="#B.ResetTimer">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=B%2FResetTimer&amp;pkg=testing&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/benchmark.go#L98">❖</a><pre>func (b *<a href="#B">B</a>) ResetTimer()</pre></div><p>
+ResetTimer zeros the elapsed benchmark time and memory allocation counters.
+It does not affect whether the timer is running.
+</p>
+
+            
+  
+
+          
+            <h4 id="B.Run" data-kind="m">func (*B) <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/benchmark.go#L466">Run</a> <a class="permalink" href="#B.Run">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=B%2FRun&amp;pkg=testing&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/benchmark.go#L466">❖</a><pre>func (b *<a href="#B">B</a>) Run(name <a href="/builtin#string">string</a>, f func(b *<a href="#B">B</a>)) <a href="/builtin#bool">bool</a></pre></div><p>
+Run benchmarks f as a subbenchmark with the given name. It reports
+whether there were any failures.
+</p>
+<p>
+A subbenchmark is like any other benchmark. A benchmark that calls Run at
+least once will not be measured itself and will be called once with N=1.
+</p>
+<p>
+Run may be called simultaneously from multiple goroutines, but all such
+calls must happen before the outer benchmark function for b returns.
+</p>
+
+            
+  
+
+          
+            <h4 id="B.RunParallel" data-kind="m">func (*B) <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/benchmark.go#L573">RunParallel</a> <a class="permalink" href="#B.RunParallel">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=B%2FRunParallel&amp;pkg=testing&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/benchmark.go#L573">❖</a><pre>func (b *<a href="#B">B</a>) RunParallel(body func(*<a href="#PB">PB</a>))</pre></div><p>
+RunParallel runs a benchmark in parallel.
+It creates multiple goroutines and distributes b.N iterations among them.
+The number of goroutines defaults to GOMAXPROCS. To increase parallelism for
+non-CPU-bound benchmarks, call SetParallelism before RunParallel.
+RunParallel is usually used with the go test -cpu flag.
+</p>
+<p>
+The body function will be run in each goroutine. It should set up any
+goroutine-local state and then iterate until pb.Next returns false.
+It should not use the StartTimer, StopTimer, or ResetTimer functions,
+because they have global effect. It should also not call Run.
+</p>
+
+            
+  
+    <div class="panel-group">
+    
+      <div class="panel panel-default" id="example-B-RunParallel">
+        <div class="panel-heading"><a class="accordion-toggle" data-toggle="collapse" href="#ex-B-RunParallel">Example</a></div>
+        <div id="ex-B-RunParallel" class="panel-collapse collapse"><div class="panel-body">
+          
+          <p>Code:<span class="pull-right"><a href="?play=B-RunParallel">play</a>&nbsp;</span>
+          <pre>
+<span class="com">// Parallel benchmark for text/template.Template.Execute on a single object.</span>
+testing.Benchmark(func(b *testing.B) {
+    templ := template.Must(template.New(&#34;test&#34;).Parse(&#34;Hello, {{.}}!&#34;))
+    <span class="com">// RunParallel will create GOMAXPROCS goroutines
+    // and distribute work among them.</span>
+    b.RunParallel(func(pb *testing.PB) {
+        <span class="com">// Each goroutine has its own bytes.Buffer.</span>
+        var buf bytes.Buffer
+        for pb.Next() {
+            <span class="com">// The loop body is executed b.N times total across all goroutines.</span>
+            buf.Reset()
+            templ.Execute(&amp;buf, &#34;World&#34;)
+        }
+    })
+})
+</pre>
+          
+        </div></div>
+      </div>
+    
+    </div>
+  
+
+          
+            <h4 id="B.SetBytes" data-kind="m">func (*B) <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/benchmark.go#L112">SetBytes</a> <a class="permalink" href="#B.SetBytes">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=B%2FSetBytes&amp;pkg=testing&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/benchmark.go#L112">❖</a><pre>func (b *<a href="#B">B</a>) SetBytes(n <a href="/builtin#int64">int64</a>)</pre></div><p>
+SetBytes records the number of bytes processed in a single operation.
+If this is called, the benchmark will report ns/op and MB/s.
+</p>
+
+            
+  
+
+          
+            <h4 id="B.SetParallelism" data-kind="m">func (*B) <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/benchmark.go#L617">SetParallelism</a> <a class="permalink" href="#B.SetParallelism">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=B%2FSetParallelism&amp;pkg=testing&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/benchmark.go#L617">❖</a><pre>func (b *<a href="#B">B</a>) SetParallelism(p <a href="/builtin#int">int</a>)</pre></div><p>
+SetParallelism sets the number of goroutines used by RunParallel to p*GOMAXPROCS.
+There is usually no need to call SetParallelism for CPU-bound benchmarks.
+If p is less than 1, this call will have no effect.
+</p>
+
+            
+  
+
+          
+            <h4 id="B.Skip" data-kind="m">func (*B) <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L534">Skip</a> <a class="permalink" href="#B.Skip">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=common%2FSkip&amp;pkg=testing&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L534">❖</a><pre>func (c *B) Skip(args ...interface{})</pre></div><p>
+Skip is equivalent to Log followed by SkipNow.
+</p>
+
+            
+  
+
+          
+            <h4 id="B.SkipNow" data-kind="m">func (*B) <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L552">SkipNow</a> <a class="permalink" href="#B.SkipNow">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=common%2FSkipNow&amp;pkg=testing&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L552">❖</a><pre>func (c *B) SkipNow()</pre></div><p>
+SkipNow marks the test as having been skipped and stops its execution.
+If a test fails (see Error, Errorf, Fail) and is then skipped,
+it is still considered to have failed.
+Execution will continue at the next test or benchmark. See also FailNow.
+SkipNow must be called from the goroutine running the test, not from
+other goroutines created during the test. Calling SkipNow does not stop
+those other goroutines.
+</p>
+
+            
+  
+
+          
+            <h4 id="B.Skipf" data-kind="m">func (*B) <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L540">Skipf</a> <a class="permalink" href="#B.Skipf">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=common%2FSkipf&amp;pkg=testing&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L540">❖</a><pre>func (c *B) Skipf(format <a href="/builtin#string">string</a>, args ...interface{})</pre></div><p>
+Skipf is equivalent to Logf followed by SkipNow.
+</p>
+
+            
+  
+
+          
+            <h4 id="B.Skipped" data-kind="m">func (*B) <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L565">Skipped</a> <a class="permalink" href="#B.Skipped">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=common%2FSkipped&amp;pkg=testing&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L565">❖</a><pre>func (c *B) Skipped() <a href="/builtin#bool">bool</a></pre></div><p>
+Skipped reports whether the test was skipped.
+</p>
+
+            
+  
+
+          
+            <h4 id="B.StartTimer" data-kind="m">func (*B) <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/benchmark.go#L73">StartTimer</a> <a class="permalink" href="#B.StartTimer">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=B%2FStartTimer&amp;pkg=testing&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/benchmark.go#L73">❖</a><pre>func (b *<a href="#B">B</a>) StartTimer()</pre></div><p>
+StartTimer starts timing a test. This function is called automatically
+before a benchmark starts, but it can also used to resume timing after
+a call to StopTimer.
+</p>
+
+            
+  
+
+          
+            <h4 id="B.StopTimer" data-kind="m">func (*B) <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/benchmark.go#L86">StopTimer</a> <a class="permalink" href="#B.StopTimer">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=B%2FStopTimer&amp;pkg=testing&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/benchmark.go#L86">❖</a><pre>func (b *<a href="#B">B</a>) StopTimer()</pre></div><p>
+StopTimer stops timing a test. This can be used to pause the timer
+while performing complex initialization that you don&#39;t
+want to measure.
+</p>
+
+            
+  
+
+          
+        
+          <h3 id="BenchmarkResult" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/benchmark.go#L287">BenchmarkResult</a> <a class="permalink" href="#BenchmarkResult">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=BenchmarkResult&amp;pkg=testing&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/benchmark.go#L287">❖</a><pre>type BenchmarkResult struct {
+    <span id="BenchmarkResult.N">N</span>         <a href="/builtin#int">int</a>           <span class="com">// The number of iterations.</span>
+    <span id="BenchmarkResult.T">T</span>         <a href="/time">time</a>.<a href="/time#Duration">Duration</a> <span class="com">// The total time taken.</span>
+    <span id="BenchmarkResult.Bytes">Bytes</span>     <a href="/builtin#int64">int64</a>         <span class="com">// Bytes processed in one iteration.</span>
+    <span id="BenchmarkResult.MemAllocs">MemAllocs</span> <a href="/builtin#uint64">uint64</a>        <span class="com">// The total number of memory allocations.</span>
+    <span id="BenchmarkResult.MemBytes">MemBytes</span>  <a href="/builtin#uint64">uint64</a>        <span class="com">// The total number of bytes allocated.</span>
+}</pre></div><p>
+The results of a benchmark run.
+</p>
+
+          
+          
+          
+  
+
+
+          
+            <h4 id="Benchmark" data-kind="f">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/benchmark.go#L628">Benchmark</a> <a class="permalink" href="#Benchmark">&para;</a> <a class="uses" title="List Function Callers" href="https://sourcegraph.com/-/godoc/refs?def=Benchmark&amp;pkg=testing&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/benchmark.go#L628">❖</a><pre>func Benchmark(f func(b *<a href="#B">B</a>)) <a href="#BenchmarkResult">BenchmarkResult</a></pre></div><p>
+Benchmark benchmarks a single function. Useful for creating
+custom benchmarks that do not use the &#34;go test&#34; command.
+</p>
+<p>
+If f calls Run, the result will be an estimate of running all its
+subbenchmarks that don&#39;t call Run in sequence in a single benchmark.
+</p>
+
+            
+  
+
+          
+
+          
+            <h4 id="BenchmarkResult.AllocedBytesPerOp" data-kind="m">func (BenchmarkResult) <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/benchmark.go#L316">AllocedBytesPerOp</a> <a class="permalink" href="#BenchmarkResult.AllocedBytesPerOp">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=BenchmarkResult%2FAllocedBytesPerOp&amp;pkg=testing&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/benchmark.go#L316">❖</a><pre>func (r <a href="#BenchmarkResult">BenchmarkResult</a>) AllocedBytesPerOp() <a href="/builtin#int64">int64</a></pre></div>
+            
+  
+
+          
+            <h4 id="BenchmarkResult.AllocsPerOp" data-kind="m">func (BenchmarkResult) <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/benchmark.go#L309">AllocsPerOp</a> <a class="permalink" href="#BenchmarkResult.AllocsPerOp">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=BenchmarkResult%2FAllocsPerOp&amp;pkg=testing&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/benchmark.go#L309">❖</a><pre>func (r <a href="#BenchmarkResult">BenchmarkResult</a>) AllocsPerOp() <a href="/builtin#int64">int64</a></pre></div>
+            
+  
+
+          
+            <h4 id="BenchmarkResult.MemString" data-kind="m">func (BenchmarkResult) <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/benchmark.go#L343">MemString</a> <a class="permalink" href="#BenchmarkResult.MemString">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=BenchmarkResult%2FMemString&amp;pkg=testing&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/benchmark.go#L343">❖</a><pre>func (r <a href="#BenchmarkResult">BenchmarkResult</a>) MemString() <a href="/builtin#string">string</a></pre></div>
+            
+  
+
+          
+            <h4 id="BenchmarkResult.NsPerOp" data-kind="m">func (BenchmarkResult) <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/benchmark.go#L295">NsPerOp</a> <a class="permalink" href="#BenchmarkResult.NsPerOp">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=BenchmarkResult%2FNsPerOp&amp;pkg=testing&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/benchmark.go#L295">❖</a><pre>func (r <a href="#BenchmarkResult">BenchmarkResult</a>) NsPerOp() <a href="/builtin#int64">int64</a></pre></div>
+            
+  
+
+          
+            <h4 id="BenchmarkResult.String" data-kind="m">func (BenchmarkResult) <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/benchmark.go#L323">String</a> <a class="permalink" href="#BenchmarkResult.String">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=BenchmarkResult%2FString&amp;pkg=testing&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/benchmark.go#L323">❖</a><pre>func (r <a href="#BenchmarkResult">BenchmarkResult</a>) String() <a href="/builtin#string">string</a></pre></div>
+            
+  
+
+          
+        
+          <h3 id="Cover" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/cover.go#L31">Cover</a> <a class="permalink" href="#Cover">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=Cover&amp;pkg=testing&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/cover.go#L31">❖</a><pre>type Cover struct {
+    <span id="Cover.Mode">Mode</span>            <a href="/builtin#string">string</a>
+    <span id="Cover.Counters">Counters</span>        map[<a href="/builtin#string">string</a>][]<a href="/builtin#uint32">uint32</a>
+    <span id="Cover.Blocks">Blocks</span>          map[<a href="/builtin#string">string</a>][]<a href="#CoverBlock">CoverBlock</a>
+    <span id="Cover.CoveredPackages">CoveredPackages</span> <a href="/builtin#string">string</a>
+}</pre></div><p>
+Cover records information about test coverage checking.
+NOTE: This struct is internal to the testing infrastructure and may change.
+It is not covered (yet) by the Go 1 compatibility guidelines.
+</p>
+
+          
+          
+          
+  
+
+
+          
+
+          
+        
+          <h3 id="CoverBlock" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/cover.go#L18">CoverBlock</a> <a class="permalink" href="#CoverBlock">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=CoverBlock&amp;pkg=testing&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/cover.go#L18">❖</a><pre>type CoverBlock struct {
+    <span id="CoverBlock.Line0">Line0</span> <a href="/builtin#uint32">uint32</a>
+    <span id="CoverBlock.Col0">Col0</span>  <a href="/builtin#uint16">uint16</a>
+    <span id="CoverBlock.Line1">Line1</span> <a href="/builtin#uint32">uint32</a>
+    <span id="CoverBlock.Col1">Col1</span>  <a href="/builtin#uint16">uint16</a>
+    <span id="CoverBlock.Stmts">Stmts</span> <a href="/builtin#uint16">uint16</a>
+}</pre></div><p>
+CoverBlock records the coverage data for a single basic block.
+NOTE: This struct is internal to the testing infrastructure and may change.
+It is not covered (yet) by the Go 1 compatibility guidelines.
+</p>
+
+          
+          
+          
+  
+
+
+          
+
+          
+        
+          <h3 id="InternalBenchmark" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/benchmark.go#L30">InternalBenchmark</a> <a class="permalink" href="#InternalBenchmark">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=InternalBenchmark&amp;pkg=testing&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/benchmark.go#L30">❖</a><pre>type InternalBenchmark struct {
+    <span id="InternalBenchmark.Name">Name</span> <a href="/builtin#string">string</a>
+    <span id="InternalBenchmark.F">F</span>    func(b *<a href="#B">B</a>)
+}</pre></div><p>
+An internal type but exported because it is cross-package; part of the implementation
+of the &#34;go test&#34; command.
+</p>
+
+          
+          
+          
+  
+
+
+          
+
+          
+        
+          <h3 id="InternalExample" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/example.go#L17">InternalExample</a> <a class="permalink" href="#InternalExample">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=InternalExample&amp;pkg=testing&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/example.go#L17">❖</a><pre>type InternalExample struct {
+    <span id="InternalExample.Name">Name</span>      <a href="/builtin#string">string</a>
+    <span id="InternalExample.F">F</span>         func()
+    <span id="InternalExample.Output">Output</span>    <a href="/builtin#string">string</a>
+    <span id="InternalExample.Unordered">Unordered</span> <a href="/builtin#bool">bool</a>
+}</pre></div>
+          
+          
+          
+  
+
+
+          
+
+          
+        
+          <h3 id="InternalTest" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L597">InternalTest</a> <a class="permalink" href="#InternalTest">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=InternalTest&amp;pkg=testing&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L597">❖</a><pre>type InternalTest struct {
+    <span id="InternalTest.Name">Name</span> <a href="/builtin#string">string</a>
+    <span id="InternalTest.F">F</span>    func(*<a href="#T">T</a>)
+}</pre></div><p>
+An internal type but exported because it is cross-package; part of the implementation
+of the &#34;go test&#34; command.
+</p>
+
+          
+          
+          
+  
+
+
+          
+
+          
+        
+          <h3 id="M" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L779">M</a> <a class="permalink" href="#M">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=M&amp;pkg=testing&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L779">❖</a><pre>type M struct {
+    <span class="com">// contains filtered or unexported fields</span>
+}</pre></div><p>
+M is a type passed to a TestMain function to run the actual tests.
+</p>
+
+          
+          
+          
+  
+
+
+          
+            <h4 id="MainStart" data-kind="f">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L801">MainStart</a> <a class="permalink" href="#MainStart">&para;</a> <a class="uses" title="List Function Callers" href="https://sourcegraph.com/-/godoc/refs?def=MainStart&amp;pkg=testing&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L801">❖</a><pre>func MainStart(deps testDeps, tests []<a href="#InternalTest">InternalTest</a>, benchmarks []<a href="#InternalBenchmark">InternalBenchmark</a>, examples []<a href="#InternalExample">InternalExample</a>) *<a href="#M">M</a></pre></div><p>
+MainStart is meant for use by tests generated by &#39;go test&#39;.
+It is not meant to be called directly and is not subject to the Go 1 compatibility document.
+It may change signature from release to release.
+</p>
+
+            
+  
+
+          
+
+          
+            <h4 id="M.Run" data-kind="m">func (*M) <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L811">Run</a> <a class="permalink" href="#M.Run">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=M%2FRun&amp;pkg=testing&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L811">❖</a><pre>func (m *<a href="#M">M</a>) Run() <a href="/builtin#int">int</a></pre></div><p>
+Run runs the tests. It returns an exit code to pass to os.Exit.
+</p>
+
+            
+  
+
+          
+        
+          <h3 id="PB" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/benchmark.go#L540">PB</a> <a class="permalink" href="#PB">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=PB&amp;pkg=testing&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/benchmark.go#L540">❖</a><pre>type PB struct {
+    <span class="com">// contains filtered or unexported fields</span>
+}</pre></div><p>
+A PB is used by RunParallel for running parallel benchmarks.
+</p>
+
+          
+          
+          
+  
+
+
+          
+
+          
+            <h4 id="PB.Next" data-kind="m">func (*PB) <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/benchmark.go#L548">Next</a> <a class="permalink" href="#PB.Next">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=PB%2FNext&amp;pkg=testing&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/benchmark.go#L548">❖</a><pre>func (pb *<a href="#PB">PB</a>) Next() <a href="/builtin#bool">bool</a></pre></div><p>
+Next reports whether there are more iterations to execute.
+</p>
+
+            
+  
+
+          
+        
+          <h3 id="T" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L414">T</a> <a class="permalink" href="#T">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=T&amp;pkg=testing&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L414">❖</a><pre>type T struct {
+    <span class="com">// contains filtered or unexported fields</span>
+}</pre></div><p>
+T is a type passed to Test functions to manage test state and support formatted test logs.
+Logs are accumulated during execution and dumped to standard output when done.
+</p>
+<p>
+A test ends when its Test function returns or calls any of the methods
+FailNow, Fatal, Fatalf, SkipNow, Skip, or Skipf. Those methods, as well as
+the Parallel method, must be called only from the goroutine running the
+Test function.
+</p>
+<p>
+The other reporting methods, such as the variations of Log and Error,
+may be called simultaneously from multiple goroutines.
+</p>
+
+          
+          
+          
+  
+
+
+          
+
+          
+            <h4 id="T.Error" data-kind="m">func (*T) <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L510">Error</a> <a class="permalink" href="#T.Error">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=common%2FError&amp;pkg=testing&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L510">❖</a><pre>func (c *T) Error(args ...interface{})</pre></div><p>
+Error is equivalent to Log followed by Fail.
+</p>
+
+            
+  
+
+          
+            <h4 id="T.Errorf" data-kind="m">func (*T) <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L516">Errorf</a> <a class="permalink" href="#T.Errorf">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=common%2FErrorf&amp;pkg=testing&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L516">❖</a><pre>func (c *T) Errorf(format <a href="/builtin#string">string</a>, args ...interface{})</pre></div><p>
+Errorf is equivalent to Logf followed by Fail.
+</p>
+
+            
+  
+
+          
+            <h4 id="T.Fail" data-kind="m">func (*T) <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L437">Fail</a> <a class="permalink" href="#T.Fail">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=common%2FFail&amp;pkg=testing&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L437">❖</a><pre>func (c *T) Fail()</pre></div><p>
+Fail marks the function as having failed but continues execution.
+</p>
+
+            
+  
+
+          
+            <h4 id="T.FailNow" data-kind="m">func (*T) <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L463">FailNow</a> <a class="permalink" href="#T.FailNow">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=common%2FFailNow&amp;pkg=testing&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L463">❖</a><pre>func (c *T) FailNow()</pre></div><p>
+FailNow marks the function as having failed and stops its execution.
+Execution will continue at the next test or benchmark.
+FailNow must be called from the goroutine running the
+test or benchmark function, not from other goroutines
+created during the test. Calling FailNow does not stop
+those other goroutines.
+</p>
+
+            
+  
+
+          
+            <h4 id="T.Failed" data-kind="m">func (*T) <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L451">Failed</a> <a class="permalink" href="#T.Failed">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=common%2FFailed&amp;pkg=testing&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L451">❖</a><pre>func (c *T) Failed() <a href="/builtin#bool">bool</a></pre></div><p>
+Failed reports whether the function has failed.
+</p>
+
+            
+  
+
+          
+            <h4 id="T.Fatal" data-kind="m">func (*T) <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L522">Fatal</a> <a class="permalink" href="#T.Fatal">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=common%2FFatal&amp;pkg=testing&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L522">❖</a><pre>func (c *T) Fatal(args ...interface{})</pre></div><p>
+Fatal is equivalent to Log followed by FailNow.
+</p>
+
+            
+  
+
+          
+            <h4 id="T.Fatalf" data-kind="m">func (*T) <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L528">Fatalf</a> <a class="permalink" href="#T.Fatalf">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=common%2FFatalf&amp;pkg=testing&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L528">❖</a><pre>func (c *T) Fatalf(format <a href="/builtin#string">string</a>, args ...interface{})</pre></div><p>
+Fatalf is equivalent to Logf followed by FailNow.
+</p>
+
+            
+  
+
+          
+            <h4 id="T.Log" data-kind="m">func (*T) <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L500">Log</a> <a class="permalink" href="#T.Log">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=common%2FLog&amp;pkg=testing&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L500">❖</a><pre>func (c *T) Log(args ...interface{})</pre></div><p>
+Log formats its arguments using default formatting, analogous to Println,
+and records the text in the error log. For tests, the text will be printed only if
+the test fails or the -test.v flag is set. For benchmarks, the text is always
+printed to avoid having performance depend on the value of the -test.v flag.
+</p>
+
+            
+  
+
+          
+            <h4 id="T.Logf" data-kind="m">func (*T) <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L507">Logf</a> <a class="permalink" href="#T.Logf">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=common%2FLogf&amp;pkg=testing&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L507">❖</a><pre>func (c *T) Logf(format <a href="/builtin#string">string</a>, args ...interface{})</pre></div><p>
+Logf formats its arguments according to the format, analogous to Printf, and
+records the text in the error log. A final newline is added if not provided. For
+tests, the text will be printed only if the test fails or the -test.v flag is
+set. For benchmarks, the text is always printed to avoid having performance
+depend on the value of the -test.v flag.
+</p>
+
+            
+  
+
+          
+            <h4 id="T.Name" data-kind="m">func (*T) <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L423">Name</a> <a class="permalink" href="#T.Name">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=common%2FName&amp;pkg=testing&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L423">❖</a><pre>func (c *T) Name() <a href="/builtin#string">string</a></pre></div><p>
+Name returns the name of the running test or benchmark.
+</p>
+
+            
+  
+
+          
+            <h4 id="T.Parallel" data-kind="m">func (*T) <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L573">Parallel</a> <a class="permalink" href="#T.Parallel">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=T%2FParallel&amp;pkg=testing&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L573">❖</a><pre>func (t *<a href="#T">T</a>) Parallel()</pre></div><p>
+Parallel signals that this test is to be run in parallel with (and only with)
+other parallel tests.
+</p>
+
+            
+  
+
+          
+            <h4 id="T.Run" data-kind="m">func (*T) <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L666">Run</a> <a class="permalink" href="#T.Run">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=T%2FRun&amp;pkg=testing&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L666">❖</a><pre>func (t *<a href="#T">T</a>) Run(name <a href="/builtin#string">string</a>, f func(t *<a href="#T">T</a>)) <a href="/builtin#bool">bool</a></pre></div><p>
+Run runs f as a subtest of t called name. It reports whether f succeeded.
+Run will block until all its parallel subtests have completed.
+</p>
+<p>
+Run may be called simultaneously from multiple goroutines, but all such
+calls must happen before the outer test function for t returns.
+</p>
+
+            
+  
+
+          
+            <h4 id="T.Skip" data-kind="m">func (*T) <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L534">Skip</a> <a class="permalink" href="#T.Skip">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=common%2FSkip&amp;pkg=testing&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L534">❖</a><pre>func (c *T) Skip(args ...interface{})</pre></div><p>
+Skip is equivalent to Log followed by SkipNow.
+</p>
+
+            
+  
+
+          
+            <h4 id="T.SkipNow" data-kind="m">func (*T) <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L552">SkipNow</a> <a class="permalink" href="#T.SkipNow">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=common%2FSkipNow&amp;pkg=testing&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L552">❖</a><pre>func (c *T) SkipNow()</pre></div><p>
+SkipNow marks the test as having been skipped and stops its execution.
+If a test fails (see Error, Errorf, Fail) and is then skipped,
+it is still considered to have failed.
+Execution will continue at the next test or benchmark. See also FailNow.
+SkipNow must be called from the goroutine running the test, not from
+other goroutines created during the test. Calling SkipNow does not stop
+those other goroutines.
+</p>
+
+            
+  
+
+          
+            <h4 id="T.Skipf" data-kind="m">func (*T) <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L540">Skipf</a> <a class="permalink" href="#T.Skipf">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=common%2FSkipf&amp;pkg=testing&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L540">❖</a><pre>func (c *T) Skipf(format <a href="/builtin#string">string</a>, args ...interface{})</pre></div><p>
+Skipf is equivalent to Logf followed by SkipNow.
+</p>
+
+            
+  
+
+          
+            <h4 id="T.Skipped" data-kind="m">func (*T) <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L565">Skipped</a> <a class="permalink" href="#T.Skipped">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=common%2FSkipped&amp;pkg=testing&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L565">❖</a><pre>func (c *T) Skipped() <a href="/builtin#bool">bool</a></pre></div><p>
+Skipped reports whether the test was skipped.
+</p>
+
+            
+  
+
+          
+        
+          <h3 id="TB" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L379">TB</a> <a class="permalink" href="#TB">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=TB&amp;pkg=testing&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="m"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L379">❖</a><pre>type TB interface {
+    <span id="TB.Error">Error</span>(args ...interface{})
+    <span id="TB.Errorf">Errorf</span>(format <a href="/builtin#string">string</a>, args ...interface{})
+    <span id="TB.Fail">Fail</span>()
+    <span id="TB.FailNow">FailNow</span>()
+    <span id="TB.Failed">Failed</span>() <a href="/builtin#bool">bool</a>
+    <span id="TB.Fatal">Fatal</span>(args ...interface{})
+    <span id="TB.Fatalf">Fatalf</span>(format <a href="/builtin#string">string</a>, args ...interface{})
+    <span id="TB.Log">Log</span>(args ...interface{})
+    <span id="TB.Logf">Logf</span>(format <a href="/builtin#string">string</a>, args ...interface{})
+    <span id="TB.Name">Name</span>() <a href="/builtin#string">string</a>
+    <span id="TB.Skip">Skip</span>(args ...interface{})
+    <span id="TB.SkipNow">SkipNow</span>()
+    <span id="TB.Skipf">Skipf</span>(format <a href="/builtin#string">string</a>, args ...interface{})
+    <span id="TB.Skipped">Skipped</span>() <a href="/builtin#bool">bool</a>
+    <span class="com">// contains filtered or unexported methods</span>
+}</pre></div><p>
+TB is the interface common to T and B.
+</p>
+
+          
+          
+
+<h3 id="pkg-subdirectories">Directories <a class="permalink" href="#pkg-subdirectories">&para;</a></h3>
+    <table class="table table-condensed">
+    <thead><tr><th>Path</th><th>Synopsis</th></tr></thead>
+    <tbody><tr><td><a href="testing_iotest.htm">iotest</a><td>Package iotest implements Readers and Writers useful mainly for testing.</td></tr><tr><td><a href="testing_quick.htm">quick</a><td>Package quick implements utility functions to help with black box testing.</td></tr></tbody>
+    </table>
+
+<div id="x-footer" class="clearfix">
+  <div class="container">
+    <a href="http://studygolang.com/">Go语言中文网</a>
+    <span class="text-muted">|</span> <a href="http://golang.org/">Go Language</a>
+    <span class="pull-right"><a href="#">Back to top</a></span>
+  </div>
+</div>
+<script src="../assets/jquery-2.0.3.min.js"></script>
+<script src="../assets/bootstrap.min.js"></script>
+<script src="../assets/site.js"></script>
+</body>
+</html>

@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="../assets/site.css" rel="stylesheet">
+  <title>go/token</title>
+  
+    <meta name="twitter:title" content="Package token">
+    <meta property="og:title" content="Package token">
+    <meta name="description" content="Package token defines constants representing the lexical tokens of the Go programming language and basic operations on tokens (printing, predicates).">
+    <meta name="twitter:description" content="Package token defines constants representing the lexical tokens of the Go programming language and basic operations on tokens (printing, predicates).">
+    <meta property="og:description" content="Package token defines constants representing the lexical tokens of the Go programming language and basic operations on tokens (printing, predicates).">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:site" content="@golang">
+  
+</head>
+<body>
+
+<div class="container">
+
+        <h2 id="pkg-overview">package token</h2>
+
+        <p><code>import "go/token"</code>
+
+        <p>
+Package token defines constants representing the lexical tokens of the Go
+programming language and basic operations on tokens (printing, predicates).</p>
+
+
+        
+  
+
+
+        
+        <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+
+        
+
+        <ul class="list-unstyled">
+          <li><a href="#pkg-constants">Constants</a></li>
+          
+          
+          
+            <li><a href="#File">type File</a></li>
+            <ul>
+            
+            <li><a href="#File.AddLine">func (f *File) AddLine(offset int)</a></li><li><a href="#File.AddLineInfo">func (f *File) AddLineInfo(offset int, filename string, line int)</a></li><li><a href="#File.Base">func (f *File) Base() int</a></li><li><a href="#File.Line">func (f *File) Line(p Pos) int</a></li><li><a href="#File.LineCount">func (f *File) LineCount() int</a></li><li><a href="#File.MergeLine">func (f *File) MergeLine(line int)</a></li><li><a href="#File.Name">func (f *File) Name() string</a></li><li><a href="#File.Offset">func (f *File) Offset(p Pos) int</a></li><li><a href="#File.Pos">func (f *File) Pos(offset int) Pos</a></li><li><a href="#File.Position">func (f *File) Position(p Pos) (pos Position)</a></li><li><a href="#File.PositionFor">func (f *File) PositionFor(p Pos, adjusted bool) (pos Position)</a></li><li><a href="#File.SetLines">func (f *File) SetLines(lines []int) bool</a></li><li><a href="#File.SetLinesForContent">func (f *File) SetLinesForContent(content []byte)</a></li><li><a href="#File.Size">func (f *File) Size() int</a></li>
+            </ul>
+          
+            <li><a href="#FileSet">type FileSet</a></li>
+            <ul>
+            <li><a href="#NewFileSet">func NewFileSet() *FileSet</a></li>
+            <li><a href="#FileSet.AddFile">func (s *FileSet) AddFile(filename string, base, size int) *File</a></li><li><a href="#FileSet.Base">func (s *FileSet) Base() int</a></li><li><a href="#FileSet.File">func (s *FileSet) File(p Pos) (f *File)</a></li><li><a href="#FileSet.Iterate">func (s *FileSet) Iterate(f func(*File) bool)</a></li><li><a href="#FileSet.Position">func (s *FileSet) Position(p Pos) (pos Position)</a></li><li><a href="#FileSet.PositionFor">func (s *FileSet) PositionFor(p Pos, adjusted bool) (pos Position)</a></li><li><a href="#FileSet.Read">func (s *FileSet) Read(decode func(interface{}) error) error</a></li><li><a href="#FileSet.Write">func (s *FileSet) Write(encode func(interface{}) error) error</a></li>
+            </ul>
+          
+            <li><a href="#Pos">type Pos</a></li>
+            <ul>
+            
+            <li><a href="#Pos.IsValid">func (p Pos) IsValid() bool</a></li>
+            </ul>
+          
+            <li><a href="#Position">type Position</a></li>
+            <ul>
+            
+            <li><a href="#Position.IsValid">func (pos *Position) IsValid() bool</a></li><li><a href="#Position.String">func (pos Position) String() string</a></li>
+            </ul>
+          
+            <li><a href="#Token">type Token</a></li>
+            <ul>
+            <li><a href="#Lookup">func Lookup(ident string) Token</a></li>
+            <li><a href="#Token.IsKeyword">func (tok Token) IsKeyword() bool</a></li><li><a href="#Token.IsLiteral">func (tok Token) IsLiteral() bool</a></li><li><a href="#Token.IsOperator">func (tok Token) IsOperator() bool</a></li><li><a href="#Token.Precedence">func (op Token) Precedence() int</a></li><li><a href="#Token.String">func (tok Token) String() string</a></li>
+            </ul>
+          
+          
+        </ul>
+
+        
+        
+          <span id="pkg-examples"></span>
+        
+
+        
+        
+<h4 id="pkg-files">
+  <a href="https://github.com/golang/go/blob/master/src/go/token/">Package Files</a>
+  <a class="permalink" href="#pkg-files">&para;</a>
+</h4>
+
+<p><a href="https://github.com/golang/go/blob/master/src/go/token/position.go">position.go</a> <a href="https://github.com/golang/go/blob/master/src/go/token/serialize.go">serialize.go</a> <a href="https://github.com/golang/go/blob/master/src/go/token/token.go">token.go</a> </p>
+
+        
+        
+          <h3 id="pkg-constants">Constants <a class="permalink" href="#pkg-constants">&para;</a></h3>
+          <div class="decl" data-kind="c"><a title="View Source" href="https://github.com/golang/go/blob/master/src/go/token/token.go#L249">❖</a><pre>const (
+    <span id="LowestPrec">LowestPrec</span>  = 0 <span class="com">// non-operators</span>
+    <span id="UnaryPrec">UnaryPrec</span>   = 6
+    <span id="HighestPrec">HighestPrec</span> = 7
+)</pre></div><p>
+A set of constants for precedence-based expression parsing.
+Non-operators have lowest precedence, followed by operators
+starting with precedence 1 up to unary operators. The highest
+precedence serves as &#34;catch-all&#34; precedence for selector,
+indexing, and other operator and delimiter tokens.
+</p>
+
+        
+
+        
+        
+
+        
+        
+        
+
+        
+        
+
+        
+          <h3 id="File" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/go/token/position.go#L91">File</a> <a class="permalink" href="#File">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=File&amp;pkg=go%2Ftoken&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/go/token/position.go#L91">❖</a><pre>type File struct {
+    <span class="com">// contains filtered or unexported fields</span>
+}</pre></div><p>
+A File is a handle for a file belonging to a FileSet.
+A File has a name, size, and line offset table.
+</p>
+
+          
+          
+          
+  
+
+
+          
+
+          
+            <h4 id="File.AddLine" data-kind="m">func (*File) <a title="View Source" href="https://github.com/golang/go/blob/master/src/go/token/position.go#L129">AddLine</a> <a class="permalink" href="#File.AddLine">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=File%2FAddLine&amp;pkg=go%2Ftoken&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/go/token/position.go#L129">❖</a><pre>func (f *<a href="#File">File</a>) AddLine(offset <a href="/builtin#int">int</a>)</pre></div><p>
+AddLine adds the line offset for a new line.
+The line offset must be larger than the offset for the previous line
+and smaller than the file size; otherwise the line offset is ignored.
+</p>
+
+            
+  
+
+          
+            <h4 id="File.AddLineInfo" data-kind="m">func (*File) <a title="View Source" href="https://github.com/golang/go/blob/master/src/go/token/position.go#L224">AddLineInfo</a> <a class="permalink" href="#File.AddLineInfo">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=File%2FAddLineInfo&amp;pkg=go%2Ftoken&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/go/token/position.go#L224">❖</a><pre>func (f *<a href="#File">File</a>) AddLineInfo(offset <a href="/builtin#int">int</a>, filename <a href="/builtin#string">string</a>, line <a href="/builtin#int">int</a>)</pre></div><p>
+AddLineInfo adds alternative file and line number information for
+a given file offset. The offset must be larger than the offset for
+the previously added alternative line info and smaller than the
+file size; otherwise the information is ignored.
+</p>
+<p>
+AddLineInfo is typically used to register alternative position
+information for //line filename:line comments in source files.
+</p>
+
+            
+  
+
+          
+            <h4 id="File.Base" data-kind="m">func (*File) <a title="View Source" href="https://github.com/golang/go/blob/master/src/go/token/position.go#L108">Base</a> <a class="permalink" href="#File.Base">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=File%2FBase&amp;pkg=go%2Ftoken&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/go/token/position.go#L108">❖</a><pre>func (f *<a href="#File">File</a>) Base() <a href="/builtin#int">int</a></pre></div><p>
+Base returns the base offset of file f as registered with AddFile.
+</p>
+
+            
+  
+
+          
+            <h4 id="File.Line" data-kind="m">func (*File) <a title="View Source" href="https://github.com/golang/go/blob/master/src/go/token/position.go#L257">Line</a> <a class="permalink" href="#File.Line">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=File%2FLine&amp;pkg=go%2Ftoken&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/go/token/position.go#L257">❖</a><pre>func (f *<a href="#File">File</a>) Line(p <a href="#Pos">Pos</a>) <a href="/builtin#int">int</a></pre></div><p>
+Line returns the line number for the given file position p;
+p must be a Pos value in that file or NoPos.
+</p>
+
+            
+  
+
+          
+            <h4 id="File.LineCount" data-kind="m">func (*File) <a title="View Source" href="https://github.com/golang/go/blob/master/src/go/token/position.go#L118">LineCount</a> <a class="permalink" href="#File.LineCount">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=File%2FLineCount&amp;pkg=go%2Ftoken&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/go/token/position.go#L118">❖</a><pre>func (f *<a href="#File">File</a>) LineCount() <a href="/builtin#int">int</a></pre></div><p>
+LineCount returns the number of lines in file f.
+</p>
+
+            
+  
+
+          
+            <h4 id="File.MergeLine" data-kind="m">func (*File) <a title="View Source" href="https://github.com/golang/go/blob/master/src/go/token/position.go#L142">MergeLine</a> <a class="permalink" href="#File.MergeLine">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=File%2FMergeLine&amp;pkg=go%2Ftoken&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/go/token/position.go#L142">❖</a><pre>func (f *<a href="#File">File</a>) MergeLine(line <a href="/builtin#int">int</a>)</pre></div><p>
+MergeLine merges a line with the following line. It is akin to replacing
+the newline character at the end of the line with a space (to not change the
+remaining offsets). To obtain the line number, consult e.g. Position.Line.
+MergeLine will panic if given an invalid line number.
+</p>
+
+            
+  
+
+          
+            <h4 id="File.Name" data-kind="m">func (*File) <a title="View Source" href="https://github.com/golang/go/blob/master/src/go/token/position.go#L103">Name</a> <a class="permalink" href="#File.Name">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=File%2FName&amp;pkg=go%2Ftoken&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/go/token/position.go#L103">❖</a><pre>func (f *<a href="#File">File</a>) Name() <a href="/builtin#string">string</a></pre></div><p>
+Name returns the file name of file f as registered with AddFile.
+</p>
+
+            
+  
+
+          
+            <h4 id="File.Offset" data-kind="m">func (*File) <a title="View Source" href="https://github.com/golang/go/blob/master/src/go/token/position.go#L247">Offset</a> <a class="permalink" href="#File.Offset">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=File%2FOffset&amp;pkg=go%2Ftoken&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/go/token/position.go#L247">❖</a><pre>func (f *<a href="#File">File</a>) Offset(p <a href="#Pos">Pos</a>) <a href="/builtin#int">int</a></pre></div><p>
+Offset returns the offset for the given file position p;
+p must be a valid Pos value in that file.
+f.Offset(f.Pos(offset)) == offset.
+</p>
+
+            
+  
+
+          
+            <h4 id="File.Pos" data-kind="m">func (*File) <a title="View Source" href="https://github.com/golang/go/blob/master/src/go/token/position.go#L236">Pos</a> <a class="permalink" href="#File.Pos">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=File%2FPos&amp;pkg=go%2Ftoken&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/go/token/position.go#L236">❖</a><pre>func (f *<a href="#File">File</a>) Pos(offset <a href="/builtin#int">int</a>) <a href="#Pos">Pos</a></pre></div><p>
+Pos returns the Pos value for the given file offset;
+the offset must be &lt;= f.Size().
+f.Pos(f.Offset(p)) == p.
+</p>
+
+            
+  
+
+          
+            <h4 id="File.Position" data-kind="m">func (*File) <a title="View Source" href="https://github.com/golang/go/blob/master/src/go/token/position.go#L312">Position</a> <a class="permalink" href="#File.Position">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=File%2FPosition&amp;pkg=go%2Ftoken&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/go/token/position.go#L312">❖</a><pre>func (f *<a href="#File">File</a>) Position(p <a href="#Pos">Pos</a>) (pos <a href="#Position">Position</a>)</pre></div><p>
+Position returns the Position value for the given file position p.
+Calling f.Position(p) is equivalent to calling f.PositionFor(p, true).
+</p>
+
+            
+  
+
+          
+            <h4 id="File.PositionFor" data-kind="m">func (*File) <a title="View Source" href="https://github.com/golang/go/blob/master/src/go/token/position.go#L299">PositionFor</a> <a class="permalink" href="#File.PositionFor">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=File%2FPositionFor&amp;pkg=go%2Ftoken&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/go/token/position.go#L299">❖</a><pre>func (f *<a href="#File">File</a>) PositionFor(p <a href="#Pos">Pos</a>, adjusted <a href="/builtin#bool">bool</a>) (pos <a href="#Position">Position</a>)</pre></div><p>
+PositionFor returns the Position value for the given file position p.
+If adjusted is set, the position may be adjusted by position-altering
+//line comments; otherwise those comments are ignored.
+p must be a Pos value in f or NoPos.
+</p>
+
+            
+  
+
+          
+            <h4 id="File.SetLines" data-kind="m">func (*File) <a title="View Source" href="https://github.com/golang/go/blob/master/src/go/token/position.go#L169">SetLines</a> <a class="permalink" href="#File.SetLines">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=File%2FSetLines&amp;pkg=go%2Ftoken&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/go/token/position.go#L169">❖</a><pre>func (f *<a href="#File">File</a>) SetLines(lines []<a href="/builtin#int">int</a>) <a href="/builtin#bool">bool</a></pre></div><p>
+SetLines sets the line offsets for a file and reports whether it succeeded.
+The line offsets are the offsets of the first character of each line;
+for instance for the content &#34;ab\nc\n&#34; the line offsets are {0, 3}.
+An empty file has an empty line offset table.
+Each line offset must be larger than the offset for the previous line
+and smaller than the file size; otherwise SetLines fails and returns
+false.
+Callers must not mutate the provided slice after SetLines returns.
+</p>
+
+            
+  
+
+          
+            <h4 id="File.SetLinesForContent" data-kind="m">func (*File) <a title="View Source" href="https://github.com/golang/go/blob/master/src/go/token/position.go#L187">SetLinesForContent</a> <a class="permalink" href="#File.SetLinesForContent">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=File%2FSetLinesForContent&amp;pkg=go%2Ftoken&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/go/token/position.go#L187">❖</a><pre>func (f *<a href="#File">File</a>) SetLinesForContent(content []<a href="/builtin#byte">byte</a>)</pre></div><p>
+SetLinesForContent sets the line offsets for the given file content.
+It ignores position-altering //line comments.
+</p>
+
+            
+  
+
+          
+            <h4 id="File.Size" data-kind="m">func (*File) <a title="View Source" href="https://github.com/golang/go/blob/master/src/go/token/position.go#L113">Size</a> <a class="permalink" href="#File.Size">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=File%2FSize&amp;pkg=go%2Ftoken&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/go/token/position.go#L113">❖</a><pre>func (f *<a href="#File">File</a>) Size() <a href="/builtin#int">int</a></pre></div><p>
+Size returns the size of file f as registered with AddFile.
+</p>
+
+            
+  
+
+          
+        
+          <h3 id="FileSet" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/go/token/position.go#L323">FileSet</a> <a class="permalink" href="#FileSet">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=FileSet&amp;pkg=go%2Ftoken&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/go/token/position.go#L323">❖</a><pre>type FileSet struct {
+    <span class="com">// contains filtered or unexported fields</span>
+}</pre></div><p>
+A FileSet represents a set of source files.
+Methods of file sets are synchronized; multiple goroutines
+may invoke them concurrently.
+</p>
+
+          
+          
+          
+  
+
+
+          
+            <h4 id="NewFileSet" data-kind="f">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/go/token/position.go#L331">NewFileSet</a> <a class="permalink" href="#NewFileSet">&para;</a> <a class="uses" title="List Function Callers" href="https://sourcegraph.com/-/godoc/refs?def=NewFileSet&amp;pkg=go%2Ftoken&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/go/token/position.go#L331">❖</a><pre>func NewFileSet() *<a href="#FileSet">FileSet</a></pre></div><p>
+NewFileSet creates a new file set.
+</p>
+
+            
+  
+
+          
+
+          
+            <h4 id="FileSet.AddFile" data-kind="m">func (*FileSet) <a title="View Source" href="https://github.com/golang/go/blob/master/src/go/token/position.go#L364">AddFile</a> <a class="permalink" href="#FileSet.AddFile">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=FileSet%2FAddFile&amp;pkg=go%2Ftoken&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/go/token/position.go#L364">❖</a><pre>func (s *<a href="#FileSet">FileSet</a>) AddFile(filename <a href="/builtin#string">string</a>, base, size <a href="/builtin#int">int</a>) *<a href="#File">File</a></pre></div><p>
+AddFile adds a new file with a given filename, base offset, and file size
+to the file set s and returns the file. Multiple files may have the same
+name. The base offset must not be smaller than the FileSet&#39;s Base(), and
+size must not be negative. As a special case, if a negative base is provided,
+the current value of the FileSet&#39;s Base() is used instead.
+</p>
+<p>
+Adding the file will set the file set&#39;s Base() value to base + size + 1
+as the minimum base value for the next file. The following relationship
+exists between a Pos value p for a given file offset offs:
+</p>
+<pre>int(p) = base + offs
+</pre>
+<p>
+with offs in the range [0, size] and thus p in the range [base, base+size].
+For convenience, File.Pos may be used to create file-specific position
+values from a file offset.
+</p>
+
+            
+  
+
+          
+            <h4 id="FileSet.Base" data-kind="m">func (*FileSet) <a title="View Source" href="https://github.com/golang/go/blob/master/src/go/token/position.go#L340">Base</a> <a class="permalink" href="#FileSet.Base">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=FileSet%2FBase&amp;pkg=go%2Ftoken&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/go/token/position.go#L340">❖</a><pre>func (s *<a href="#FileSet">FileSet</a>) Base() <a href="/builtin#int">int</a></pre></div><p>
+Base returns the minimum base offset that must be provided to
+AddFile when adding the next file.
+</p>
+
+            
+  
+
+          
+            <h4 id="FileSet.File" data-kind="m">func (*FileSet) <a title="View Source" href="https://github.com/golang/go/blob/master/src/go/token/position.go#L434">File</a> <a class="permalink" href="#FileSet.File">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=FileSet%2FFile&amp;pkg=go%2Ftoken&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/go/token/position.go#L434">❖</a><pre>func (s *<a href="#FileSet">FileSet</a>) File(p <a href="#Pos">Pos</a>) (f *<a href="#File">File</a>)</pre></div><p>
+File returns the file that contains the position p.
+If no such file is found (for instance for p == NoPos),
+the result is nil.
+</p>
+
+            
+  
+
+          
+            <h4 id="FileSet.Iterate" data-kind="m">func (*FileSet) <a title="View Source" href="https://github.com/golang/go/blob/master/src/go/token/position.go#L389">Iterate</a> <a class="permalink" href="#FileSet.Iterate">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=FileSet%2FIterate&amp;pkg=go%2Ftoken&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/go/token/position.go#L389">❖</a><pre>func (s *<a href="#FileSet">FileSet</a>) Iterate(f func(*<a href="#File">File</a>) <a href="/builtin#bool">bool</a>)</pre></div><p>
+Iterate calls f for the files in the file set in the order they were added
+until f returns false.
+</p>
+
+            
+  
+
+          
+            <h4 id="FileSet.Position" data-kind="m">func (*FileSet) <a title="View Source" href="https://github.com/golang/go/blob/master/src/go/token/position.go#L460">Position</a> <a class="permalink" href="#FileSet.Position">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=FileSet%2FPosition&amp;pkg=go%2Ftoken&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/go/token/position.go#L460">❖</a><pre>func (s *<a href="#FileSet">FileSet</a>) Position(p <a href="#Pos">Pos</a>) (pos <a href="#Position">Position</a>)</pre></div><p>
+Position converts a Pos p in the fileset into a Position value.
+Calling s.Position(p) is equivalent to calling s.PositionFor(p, true).
+</p>
+
+            
+  
+
+          
+            <h4 id="FileSet.PositionFor" data-kind="m">func (*FileSet) <a title="View Source" href="https://github.com/golang/go/blob/master/src/go/token/position.go#L446">PositionFor</a> <a class="permalink" href="#FileSet.PositionFor">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=FileSet%2FPositionFor&amp;pkg=go%2Ftoken&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/go/token/position.go#L446">❖</a><pre>func (s *<a href="#FileSet">FileSet</a>) PositionFor(p <a href="#Pos">Pos</a>, adjusted <a href="/builtin#bool">bool</a>) (pos <a href="#Position">Position</a>)</pre></div><p>
+PositionFor converts a Pos p in the fileset into a Position value.
+If adjusted is set, the position may be adjusted by position-altering
+//line comments; otherwise those comments are ignored.
+p must be a Pos value in s or NoPos.
+</p>
+
+            
+  
+
+          
+            <h4 id="FileSet.Read" data-kind="m">func (*FileSet) <a title="View Source" href="https://github.com/golang/go/blob/master/src/go/token/serialize.go#L22">Read</a> <a class="permalink" href="#FileSet.Read">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=FileSet%2FRead&amp;pkg=go%2Ftoken&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/go/token/serialize.go#L22">❖</a><pre>func (s *<a href="#FileSet">FileSet</a>) Read(decode func(interface{}) <a href="/builtin#error">error</a>) <a href="/builtin#error">error</a></pre></div><p>
+Read calls decode to deserialize a file set into s; s must not be nil.
+</p>
+
+            
+  
+
+          
+            <h4 id="FileSet.Write" data-kind="m">func (*FileSet) <a title="View Source" href="https://github.com/golang/go/blob/master/src/go/token/serialize.go#L43">Write</a> <a class="permalink" href="#FileSet.Write">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=FileSet%2FWrite&amp;pkg=go%2Ftoken&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/go/token/serialize.go#L43">❖</a><pre>func (s *<a href="#FileSet">FileSet</a>) Write(encode func(interface{}) <a href="/builtin#error">error</a>) <a href="/builtin#error">error</a></pre></div><p>
+Write calls encode to serialize the file set s.
+</p>
+
+            
+  
+
+          
+        
+          <h3 id="Pos" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/go/token/position.go#L71">Pos</a> <a class="permalink" href="#Pos">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=Pos&amp;pkg=go%2Ftoken&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/go/token/position.go#L71">❖</a><pre>type Pos <a href="/builtin#int">int</a></pre></div><p>
+Pos is a compact encoding of a source position within a file set.
+It can be converted into a Position for a more convenient, but much
+larger, representation.
+</p>
+<p>
+The Pos value for a given file is a number in the range [base, base+size],
+where base and size are specified when adding the file to the file set via
+AddFile.
+</p>
+<p>
+To create the Pos value for a specific source offset (measured in bytes),
+first add the respective file to the current file set using FileSet.AddFile
+and then call File.Pos(offset) for that file. Given a Pos value p
+for a specific file set fset, the corresponding Position value is
+obtained by calling fset.Position(p).
+</p>
+<p>
+Pos values can be compared directly with the usual comparison operators:
+If two Pos values p and q are in the same file, comparing p and q is
+equivalent to comparing the respective source file offsets. If p and q
+are in different files, p &lt; q is true if the file implied by p was added
+to the respective file set before the file implied by q.
+</p>
+
+          <div class="decl" data-kind="c"><a title="View Source" href="https://github.com/golang/go/blob/master/src/go/token/position.go#L78">❖</a><pre>const <span id="NoPos">NoPos</span> <a href="#Pos">Pos</a> = 0</pre></div><p>
+The zero value for Pos is NoPos; there is no file and line information
+associated with it, and NoPos().IsValid() is false. NoPos is always
+smaller than any other Pos value. The corresponding Position value
+for NoPos is the zero value for Position.
+</p>
+
+          
+          
+  
+
+
+          
+
+          
+            <h4 id="Pos.IsValid" data-kind="m">func (Pos) <a title="View Source" href="https://github.com/golang/go/blob/master/src/go/token/position.go#L81">IsValid</a> <a class="permalink" href="#Pos.IsValid">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=Pos%2FIsValid&amp;pkg=go%2Ftoken&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/go/token/position.go#L81">❖</a><pre>func (p <a href="#Pos">Pos</a>) IsValid() <a href="/builtin#bool">bool</a></pre></div><p>
+IsValid reports whether the position is valid.
+</p>
+
+            
+  
+
+          
+        
+          <h3 id="Position" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/go/token/position.go#L20">Position</a> <a class="permalink" href="#Position">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=Position&amp;pkg=go%2Ftoken&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/go/token/position.go#L20">❖</a><pre>type Position struct {
+    <span id="Position.Filename">Filename</span> <a href="/builtin#string">string</a> <span class="com">// filename, if any</span>
+    <span id="Position.Offset">Offset</span>   <a href="/builtin#int">int</a>    <span class="com">// offset, starting at 0</span>
+    <span id="Position.Line">Line</span>     <a href="/builtin#int">int</a>    <span class="com">// line number, starting at 1</span>
+    <span id="Position.Column">Column</span>   <a href="/builtin#int">int</a>    <span class="com">// column number, starting at 1 (byte count)</span>
+}</pre></div><p>
+Position describes an arbitrary source position
+including the file, line, and column location.
+A Position is valid if the line number is &gt; 0.
+</p>
+
+          
+          
+          
+  
+
+
+          
+
+          
+            <h4 id="Position.IsValid" data-kind="m">func (*Position) <a title="View Source" href="https://github.com/golang/go/blob/master/src/go/token/position.go#L28">IsValid</a> <a class="permalink" href="#Position.IsValid">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=Position%2FIsValid&amp;pkg=go%2Ftoken&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/go/token/position.go#L28">❖</a><pre>func (pos *<a href="#Position">Position</a>) IsValid() <a href="/builtin#bool">bool</a></pre></div><p>
+IsValid reports whether the position is valid.
+</p>
+
+            
+  
+
+          
+            <h4 id="Position.String" data-kind="m">func (Position) <a title="View Source" href="https://github.com/golang/go/blob/master/src/go/token/position.go#L37">String</a> <a class="permalink" href="#Position.String">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=Position%2FString&amp;pkg=go%2Ftoken&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/go/token/position.go#L37">❖</a><pre>func (pos <a href="#Position">Position</a>) String() <a href="/builtin#string">string</a></pre></div><p>
+String returns a string in one of several forms:
+</p>
+<pre>file:line:column    valid position with file name
+line:column         valid position without file name
+file                invalid position with file name
+-                   invalid position without file name
+</pre>
+
+            
+  
+
+          
+        
+          <h3 id="Token" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/go/token/token.go#L13">Token</a> <a class="permalink" href="#Token">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=Token&amp;pkg=go%2Ftoken&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/go/token/token.go#L13">❖</a><pre>type Token <a href="/builtin#int">int</a></pre></div><p>
+Token is the set of lexical tokens of the Go programming language.
+</p>
+
+          <div class="decl" data-kind="c"><a title="View Source" href="https://github.com/golang/go/blob/master/src/go/token/token.go#L16">❖</a><pre>const (
+    <span class="com">// Special tokens</span>
+    <span id="ILLEGAL">ILLEGAL</span> <a href="#Token">Token</a> = <a href="/builtin#iota">iota</a>
+    <span id="EOF">EOF</span>
+    <span id="COMMENT">COMMENT</span>
+
+    <span class="com">// Identifiers and basic type literals
+    // (these tokens stand for classes of literals)</span>
+    <span id="IDENT">IDENT</span>  <span class="com">// main</span>
+    <span id="INT">INT</span>    <span class="com">// 12345</span>
+    <span id="FLOAT">FLOAT</span>  <span class="com">// 123.45</span>
+    <span id="IMAG">IMAG</span>   <span class="com">// 123.45i</span>
+    <span id="CHAR">CHAR</span>   <span class="com">// &#39;a&#39;</span>
+    <span id="STRING">STRING</span> <span class="com">// &#34;abc&#34;
+
+    // Operators and delimiters</span>
+    <span id="ADD">ADD</span> <span class="com">// +</span>
+    <span id="SUB">SUB</span> <span class="com">// -</span>
+    <span id="MUL">MUL</span> <span class="com">// *</span>
+    <span id="QUO">QUO</span> <span class="com">// /</span>
+    <span id="REM">REM</span> <span class="com">// %</span>
+
+    <span id="AND">AND</span>     <span class="com">// &amp;</span>
+    <span id="OR">OR</span>      <span class="com">// |</span>
+    <span id="XOR">XOR</span>     <span class="com">// ^</span>
+    <span id="SHL">SHL</span>     <span class="com">// &lt;&lt;</span>
+    <span id="SHR">SHR</span>     <span class="com">// &gt;&gt;</span>
+    <span id="AND_NOT">AND_NOT</span> <span class="com">// &amp;^</span>
+
+    <span id="ADD_ASSIGN">ADD_ASSIGN</span> <span class="com">// +=</span>
+    <span id="SUB_ASSIGN">SUB_ASSIGN</span> <span class="com">// -=</span>
+    <span id="MUL_ASSIGN">MUL_ASSIGN</span> <span class="com">// *=</span>
+    <span id="QUO_ASSIGN">QUO_ASSIGN</span> <span class="com">// /=</span>
+    <span id="REM_ASSIGN">REM_ASSIGN</span> <span class="com">// %=</span>
+
+    <span id="AND_ASSIGN">AND_ASSIGN</span>     <span class="com">// &amp;=</span>
+    <span id="OR_ASSIGN">OR_ASSIGN</span>      <span class="com">// |=</span>
+    <span id="XOR_ASSIGN">XOR_ASSIGN</span>     <span class="com">// ^=</span>
+    <span id="SHL_ASSIGN">SHL_ASSIGN</span>     <span class="com">// &lt;&lt;=</span>
+    <span id="SHR_ASSIGN">SHR_ASSIGN</span>     <span class="com">// &gt;&gt;=</span>
+    <span id="AND_NOT_ASSIGN">AND_NOT_ASSIGN</span> <span class="com">// &amp;^=</span>
+
+    <span id="LAND">LAND</span>  <span class="com">// &amp;&amp;</span>
+    <span id="LOR">LOR</span>   <span class="com">// ||</span>
+    <span id="ARROW">ARROW</span> <span class="com">// &lt;-</span>
+    <span id="INC">INC</span>   <span class="com">// ++</span>
+    <span id="DEC">DEC</span>   <span class="com">// --</span>
+
+    <span id="EQL">EQL</span>    <span class="com">// ==</span>
+    <span id="LSS">LSS</span>    <span class="com">// &lt;</span>
+    <span id="GTR">GTR</span>    <span class="com">// &gt;</span>
+    <span id="ASSIGN">ASSIGN</span> <span class="com">// =</span>
+    <span id="NOT">NOT</span>    <span class="com">// !</span>
+
+    <span id="NEQ">NEQ</span>      <span class="com">// !=</span>
+    <span id="LEQ">LEQ</span>      <span class="com">// &lt;=</span>
+    <span id="GEQ">GEQ</span>      <span class="com">// &gt;=</span>
+    <span id="DEFINE">DEFINE</span>   <span class="com">// :=</span>
+    <span id="ELLIPSIS">ELLIPSIS</span> <span class="com">// ...</span>
+
+    <span id="LPAREN">LPAREN</span> <span class="com">// (</span>
+    <span id="LBRACK">LBRACK</span> <span class="com">// [</span>
+    <span id="LBRACE">LBRACE</span> <span class="com">// {</span>
+    <span id="COMMA">COMMA</span>  <span class="com">// ,</span>
+    <span id="PERIOD">PERIOD</span> <span class="com">// .</span>
+
+    <span id="RPAREN">RPAREN</span>    <span class="com">// )</span>
+    <span id="RBRACK">RBRACK</span>    <span class="com">// ]</span>
+    <span id="RBRACE">RBRACE</span>    <span class="com">// }</span>
+    <span id="SEMICOLON">SEMICOLON</span> <span class="com">// ;</span>
+    <span id="COLON">COLON</span>     <span class="com">// :
+
+    // Keywords</span>
+    <span id="BREAK">BREAK</span>
+    <span id="CASE">CASE</span>
+    <span id="CHAN">CHAN</span>
+    <span id="CONST">CONST</span>
+    <span id="CONTINUE">CONTINUE</span>
+
+    <span id="DEFAULT">DEFAULT</span>
+    <span id="DEFER">DEFER</span>
+    <span id="ELSE">ELSE</span>
+    <span id="FALLTHROUGH">FALLTHROUGH</span>
+    <span id="FOR">FOR</span>
+
+    <span id="FUNC">FUNC</span>
+    <span id="GO">GO</span>
+    <span id="GOTO">GOTO</span>
+    <span id="IF">IF</span>
+    <span id="IMPORT">IMPORT</span>
+
+    <span id="INTERFACE">INTERFACE</span>
+    <span id="MAP">MAP</span>
+    <span id="PACKAGE">PACKAGE</span>
+    <span id="RANGE">RANGE</span>
+    <span id="RETURN">RETURN</span>
+
+    <span id="SELECT">SELECT</span>
+    <span id="STRUCT">STRUCT</span>
+    <span id="SWITCH">SWITCH</span>
+    <span id="TYPE">TYPE</span>
+    <span id="VAR">VAR</span>
+)</pre></div><p>
+The list of tokens.
+</p>
+
+          
+          
+  
+
+
+          
+            <h4 id="Lookup" data-kind="f">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/go/token/token.go#L286">Lookup</a> <a class="permalink" href="#Lookup">&para;</a> <a class="uses" title="List Function Callers" href="https://sourcegraph.com/-/godoc/refs?def=Lookup&amp;pkg=go%2Ftoken&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/go/token/token.go#L286">❖</a><pre>func Lookup(ident <a href="/builtin#string">string</a>) <a href="#Token">Token</a></pre></div><p>
+Lookup maps an identifier to its keyword token or IDENT (if not a keyword).
+</p>
+
+            
+  
+
+          
+
+          
+            <h4 id="Token.IsKeyword" data-kind="m">func (Token) <a title="View Source" href="https://github.com/golang/go/blob/master/src/go/token/token.go#L308">IsKeyword</a> <a class="permalink" href="#Token.IsKeyword">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=Token%2FIsKeyword&amp;pkg=go%2Ftoken&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/go/token/token.go#L308">❖</a><pre>func (tok <a href="#Token">Token</a>) IsKeyword() <a href="/builtin#bool">bool</a></pre></div><p>
+IsKeyword returns true for tokens corresponding to keywords;
+it returns false otherwise.
+</p>
+
+            
+  
+
+          
+            <h4 id="Token.IsLiteral" data-kind="m">func (Token) <a title="View Source" href="https://github.com/golang/go/blob/master/src/go/token/token.go#L298">IsLiteral</a> <a class="permalink" href="#Token.IsLiteral">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=Token%2FIsLiteral&amp;pkg=go%2Ftoken&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/go/token/token.go#L298">❖</a><pre>func (tok <a href="#Token">Token</a>) IsLiteral() <a href="/builtin#bool">bool</a></pre></div><p>
+IsLiteral returns true for tokens corresponding to identifiers
+and basic type literals; it returns false otherwise.
+</p>
+
+            
+  
+
+          
+            <h4 id="Token.IsOperator" data-kind="m">func (Token) <a title="View Source" href="https://github.com/golang/go/blob/master/src/go/token/token.go#L303">IsOperator</a> <a class="permalink" href="#Token.IsOperator">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=Token%2FIsOperator&amp;pkg=go%2Ftoken&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/go/token/token.go#L303">❖</a><pre>func (tok <a href="#Token">Token</a>) IsOperator() <a href="/builtin#bool">bool</a></pre></div><p>
+IsOperator returns true for tokens corresponding to operators and
+delimiters; it returns false otherwise.
+</p>
+
+            
+  
+
+          
+            <h4 id="Token.Precedence" data-kind="m">func (Token) <a title="View Source" href="https://github.com/golang/go/blob/master/src/go/token/token.go#L259">Precedence</a> <a class="permalink" href="#Token.Precedence">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=Token%2FPrecedence&amp;pkg=go%2Ftoken&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/go/token/token.go#L259">❖</a><pre>func (op <a href="#Token">Token</a>) Precedence() <a href="/builtin#int">int</a></pre></div><p>
+Precedence returns the operator precedence of the binary
+operator op. If op is not a binary operator, the result
+is LowestPrecedence.
+</p>
+
+            
+  
+
+          
+            <h4 id="Token.String" data-kind="m">func (Token) <a title="View Source" href="https://github.com/golang/go/blob/master/src/go/token/token.go#L232">String</a> <a class="permalink" href="#Token.String">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=Token%2FString&amp;pkg=go%2Ftoken&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/go/token/token.go#L232">❖</a><pre>func (tok <a href="#Token">Token</a>) String() <a href="/builtin#string">string</a></pre></div><p>
+String returns the string corresponding to the token tok.
+For operators, delimiters, and keywords the string is the actual
+token character sequence (e.g., for the token ADD, the string is
+&#34;+&#34;). For all other tokens the string corresponds to the token
+constant name (e.g. for the token IDENT, the string is &#34;IDENT&#34;).
+</p>
+
+
+<div id="x-footer" class="clearfix">
+  <div class="container">
+    <a href="http://studygolang.com/">Go语言中文网</a>
+    <span class="text-muted">|</span> <a href="http://golang.org/">Go Language</a>
+    <span class="pull-right"><a href="#">Back to top</a></span>
+  </div>
+</div>
+<script src="../assets/jquery-2.0.3.min.js"></script>
+<script src="../assets/bootstrap.min.js"></script>
+<script src="../assets/site.js"></script>
+</body>
+</html>

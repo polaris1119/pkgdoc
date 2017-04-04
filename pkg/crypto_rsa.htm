@@ -3,7 +3,7 @@
 <head profile="http://a9.com/-/spec/opensearch/1.1/">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link href="./site.css" rel="stylesheet">
+<link href="../assets/site.css" rel="stylesheet">
 <title>crypto/rsa</title>
 </head>
 <body>
@@ -131,6 +131,7 @@
     <pre class="funcdecl">func VerifyPSS(pub *<a href="#PublicKey">PublicKey</a>, hash <a href="crypto.htm">crypto</a>.<a href="crypto.htm#Hash">Hash</a>, hashed []<a href="builtin.htm#byte">byte</a>, sig []<a href="builtin.htm#byte">byte</a>, opts *<a href="#PSSOptions">PSSOptions</a>) <a href="builtin.htm#error">error</a></pre>
     <p>VerifyPSS认证一个PSS签名。hashed是使用提供给本函数的hash参数对（要签名的）原始数据进行hash的结果。合法的签名会返回nil，否则表示签名不合法。opts参数可以为nil，此时会使用默认参数。</p>
 </div>
+
 <div id="x-footer" class="clearfix">
   <div class="container">
     <a href="http://studygolang.com/">Go语言中文网</a>
@@ -139,7 +140,7 @@
   </div>
 </div>
 <script src="../assets/jquery-2.0.3.min.js"></script>
-<script src="../bootstrap.min.js"></script>
-<script src="../site.js"></script>
+<script src="../assets/bootstrap.min.js"></script>
+<script src="../assets/site.js"></script>
 </body>
 </html>

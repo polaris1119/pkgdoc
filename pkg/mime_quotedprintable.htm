@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="../assets/site.css" rel="stylesheet">
+  <title>mime/quotedprintable</title>
+  
+    <meta name="twitter:title" content="Package quotedprintable">
+    <meta property="og:title" content="Package quotedprintable">
+    <meta name="description" content="Package quotedprintable implements quoted-printable encoding as specified by RFC 2045.">
+    <meta name="twitter:description" content="Package quotedprintable implements quoted-printable encoding as specified by RFC 2045.">
+    <meta property="og:description" content="Package quotedprintable implements quoted-printable encoding as specified by RFC 2045.">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:site" content="@golang">
+  
+  
+
+  
+
+</head>
+<body>
+
+<div class="container">
+
+        <h2 id="pkg-overview">package quotedprintable</h2>
+
+        <p><code>import "mime/quotedprintable"</code>
+
+        <p>
+Package quotedprintable implements quoted-printable encoding as specified by
+<a href="http://tools.ietf.org/html/rfc2045">RFC 2045</a>.</p>
+
+
+        
+  
+
+
+        
+        <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+
+        
+
+        <ul class="list-unstyled">
+          
+          
+          
+          
+            <li><a href="#Reader">type Reader</a></li>
+            <ul>
+            <li><a href="#NewReader">func NewReader(r io.Reader) *Reader</a></li>
+            <li><a href="#Reader.Read">func (r *Reader) Read(p []byte) (n int, err error)</a></li>
+            </ul>
+          
+            <li><a href="#Writer">type Writer</a></li>
+            <ul>
+            <li><a href="#NewWriter">func NewWriter(w io.Writer) *Writer</a></li>
+            <li><a href="#Writer.Close">func (w *Writer) Close() error</a></li><li><a href="#Writer.Write">func (w *Writer) Write(p []byte) (n int, err error)</a></li>
+            </ul>
+          
+          
+        </ul>
+
+        
+        
+          <h4 id="pkg-examples">Examples <a class="permalink" href="#pkg-examples">&para;</a></h4>
+          <ul class="list-unstyled">
+            <li><a href="#example-NewReader" onclick="$('#ex-NewReader').addClass('in').removeClass('collapse').height('auto')">NewReader</a></li><li><a href="#example-NewWriter" onclick="$('#ex-NewWriter').addClass('in').removeClass('collapse').height('auto')">NewWriter</a></li>
+          </ul>
+        
+
+        
+        
+<h4 id="pkg-files">
+  <a href="https://github.com/golang/go/blob/master/src/mime/quotedprintable/">Package Files</a>
+  <a class="permalink" href="#pkg-files">&para;</a>
+</h4>
+
+<p><a href="https://github.com/golang/go/blob/master/src/mime/quotedprintable/reader.go">reader.go</a> <a href="https://github.com/golang/go/blob/master/src/mime/quotedprintable/writer.go">writer.go</a> </p>
+
+        
+        
+
+        
+        
+
+        
+        
+        
+
+        
+        
+
+        
+          <h3 id="Reader" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/mime/quotedprintable/reader.go#L17">Reader</a> <a class="permalink" href="#Reader">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=Reader&amp;pkg=mime%2Fquotedprintable&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/mime/quotedprintable/reader.go#L17">❖</a><pre>type Reader struct {
+    <span class="com">// contains filtered or unexported fields</span>
+}</pre></div><p>
+Reader is a quoted-printable decoder.
+</p>
+
+          
+          
+          
+  
+
+
+          
+            <h4 id="NewReader" data-kind="f">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/mime/quotedprintable/reader.go#L24">NewReader</a> <a class="permalink" href="#NewReader">&para;</a> <a class="uses" title="List Function Callers" href="https://sourcegraph.com/-/godoc/refs?def=NewReader&amp;pkg=mime%2Fquotedprintable&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/mime/quotedprintable/reader.go#L24">❖</a><pre>func NewReader(r <a href="/io">io</a>.<a href="/io#Reader">Reader</a>) *<a href="#Reader">Reader</a></pre></div><p>
+NewReader returns a quoted-printable reader, decoding from r.
+</p>
+
+            
+  
+    <div class="panel-group">
+    
+      <div class="panel panel-default" id="example-NewReader">
+        <div class="panel-heading"><a class="accordion-toggle" data-toggle="collapse" href="#ex-NewReader">Example</a></div>
+        <div id="ex-NewReader" class="panel-collapse collapse"><div class="panel-body">
+          
+          <p>Code:<span class="pull-right"><a href="?play=NewReader">play</a>&nbsp;</span>
+          <pre>for _, s := range []string{
+    `=48=65=6C=6C=6F=2C=20=47=6F=70=68=65=72=73=21`,
+    `invalid escape: &lt;b style=&#34;font-size: 200%&#34;&gt;hello&lt;/b&gt;`,
+    &#34;Hello, Gophers! This symbol will be unescaped: =3D and this will be written in =\r\none line.&#34;,
+} {
+    b, err := ioutil.ReadAll(quotedprintable.NewReader(strings.NewReader(s)))
+    fmt.Printf(&#34;%s %v\n&#34;, b, err)
+}</pre>
+          <p>Output:<pre>Hello, Gophers! &lt;nil&gt;
+invalid escape: &lt;b style=&#34;font-size: 200%&#34;&gt;hello&lt;/b&gt; &lt;nil&gt;
+Hello, Gophers! This symbol will be unescaped: = and this will be written in one line. &lt;nil&gt;
+</pre>
+        </div></div>
+      </div>
+    
+    </div>
+  
+
+          
+
+          
+            <h4 id="Reader.Read" data-kind="m">func (*Reader) <a title="View Source" href="https://github.com/golang/go/blob/master/src/mime/quotedprintable/reader.go#L72">Read</a> <a class="permalink" href="#Reader.Read">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=Reader%2FRead&amp;pkg=mime%2Fquotedprintable&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/mime/quotedprintable/reader.go#L72">❖</a><pre>func (r *<a href="#Reader">Reader</a>) Read(p []<a href="/builtin#byte">byte</a>) (n <a href="/builtin#int">int</a>, err <a href="/builtin#error">error</a>)</pre></div><p>
+Read reads and decodes quoted-printable data from the underlying reader.
+</p>
+
+            
+  
+
+          
+        
+          <h3 id="Writer" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/mime/quotedprintable/writer.go#L12">Writer</a> <a class="permalink" href="#Writer">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=Writer&amp;pkg=mime%2Fquotedprintable&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/mime/quotedprintable/writer.go#L12">❖</a><pre>type Writer struct {
+    <span class="com">// Binary mode treats the writer&#39;s input as pure binary and processes end of
+    // line bytes as binary data.</span>
+    <span id="Writer.Binary">Binary</span> <a href="/builtin#bool">bool</a>
+    <span class="com">// contains filtered or unexported fields</span>
+}</pre></div><p>
+A Writer is a quoted-printable writer that implements io.WriteCloser.
+</p>
+
+          
+          
+          
+  
+
+
+          
+            <h4 id="NewWriter" data-kind="f">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/mime/quotedprintable/writer.go#L24">NewWriter</a> <a class="permalink" href="#NewWriter">&para;</a> <a class="uses" title="List Function Callers" href="https://sourcegraph.com/-/godoc/refs?def=NewWriter&amp;pkg=mime%2Fquotedprintable&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/mime/quotedprintable/writer.go#L24">❖</a><pre>func NewWriter(w <a href="/io">io</a>.<a href="/io#Writer">Writer</a>) *<a href="#Writer">Writer</a></pre></div><p>
+NewWriter returns a new Writer that writes to w.
+</p>
+
+            
+  
+    <div class="panel-group">
+    
+      <div class="panel panel-default" id="example-NewWriter">
+        <div class="panel-heading"><a class="accordion-toggle" data-toggle="collapse" href="#ex-NewWriter">Example</a></div>
+        <div id="ex-NewWriter" class="panel-collapse collapse"><div class="panel-body">
+          
+          <p>Code:<span class="pull-right"><a href="?play=NewWriter">play</a>&nbsp;</span>
+          <pre>w := quotedprintable.NewWriter(os.Stdout)
+w.Write([]byte(&#34;These symbols will be escaped: = \t&#34;))
+w.Close()</pre>
+          <p>Output:<pre>These symbols will be escaped: =3D =09
+</pre>
+        </div></div>
+      </div>
+    
+    </div>
+  
+
+          
+
+          
+            <h4 id="Writer.Close" data-kind="m">func (*Writer) <a title="View Source" href="https://github.com/golang/go/blob/master/src/mime/quotedprintable/writer.go#L67">Close</a> <a class="permalink" href="#Writer.Close">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=Writer%2FClose&amp;pkg=mime%2Fquotedprintable&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/mime/quotedprintable/writer.go#L67">❖</a><pre>func (w *<a href="#Writer">Writer</a>) Close() <a href="/builtin#error">error</a></pre></div><p>
+Close closes the Writer, flushing any unwritten data to the underlying
+io.Writer, but does not close the underlying io.Writer.
+</p>
+
+            
+  
+
+          
+            <h4 id="Writer.Write" data-kind="m">func (*Writer) <a title="View Source" href="https://github.com/golang/go/blob/master/src/mime/quotedprintable/writer.go#L31">Write</a> <a class="permalink" href="#Writer.Write">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=Writer%2FWrite&amp;pkg=mime%2Fquotedprintable&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/mime/quotedprintable/writer.go#L31">❖</a><pre>func (w *<a href="#Writer">Writer</a>) Write(p []<a href="/builtin#byte">byte</a>) (n <a href="/builtin#int">int</a>, err <a href="/builtin#error">error</a>)</pre></div><p>
+Write encodes p using quoted-printable encoding and writes it to the
+underlying io.Writer. It limits line length to 76 characters. The encoded
+bytes are not necessarily flushed until the Writer is closed.
+</p>
+
+<div id="x-footer" class="clearfix">
+  <div class="container">
+    <a href="http://studygolang.com/">Go语言中文网</a>
+    <span class="text-muted">|</span> <a href="http://golang.org/">Go Language</a>
+    <span class="pull-right"><a href="#">Back to top</a></span>
+  </div>
+</div>
+<script src="../assets/jquery-2.0.3.min.js"></script>
+<script src="../assets/bootstrap.min.js"></script>
+<script src="../assets/site.js"></script>
+</body>
+</html>

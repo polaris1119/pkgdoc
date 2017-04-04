@@ -1,0 +1,1087 @@
+<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="../assets/site.css" rel="stylesheet">
+  <title>text/template/parse</title>
+  
+    <meta name="twitter:title" content="Package parse">
+    <meta property="og:title" content="Package parse">
+    <meta name="description" content="Package parse builds parse trees for templates as defined by text/template and html/template.">
+    <meta name="twitter:description" content="Package parse builds parse trees for templates as defined by text/template and html/template.">
+    <meta property="og:description" content="Package parse builds parse trees for templates as defined by text/template and html/template.">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:site" content="@golang">
+  
+  
+
+  
+
+</head>
+<body>
+
+<div class="container">
+
+        <h2 id="pkg-overview">package parse</h2>
+
+        <p><code>import "text/template/parse"</code>
+
+        <p>
+Package parse builds parse trees for templates as defined by text/template
+and html/template. Clients should use those packages to construct templates
+rather than this one, which provides shared internal data structures not
+intended for general use.</p>
+
+
+        
+  
+
+
+        
+        <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+
+        
+
+        <ul class="list-unstyled">
+          
+          
+          <li><a href="#IsEmptyTree">func IsEmptyTree(n Node) bool</a></li><li><a href="#Parse">func Parse(name, text, leftDelim, rightDelim string, funcs ...map[string]interface{}) (map[string]*Tree, error)</a></li>
+          
+            <li><a href="#ActionNode">type ActionNode</a></li>
+            <ul>
+            
+            <li><a href="#ActionNode.Copy">func (a *ActionNode) Copy() Node</a></li><li><a href="#ActionNode.String">func (a *ActionNode) String() string</a></li>
+            </ul>
+          
+            <li><a href="#BoolNode">type BoolNode</a></li>
+            <ul>
+            
+            <li><a href="#BoolNode.Copy">func (b *BoolNode) Copy() Node</a></li><li><a href="#BoolNode.String">func (b *BoolNode) String() string</a></li>
+            </ul>
+          
+            <li><a href="#BranchNode">type BranchNode</a></li>
+            <ul>
+            
+            <li><a href="#BranchNode.Copy">func (b *BranchNode) Copy() Node</a></li><li><a href="#BranchNode.String">func (b *BranchNode) String() string</a></li>
+            </ul>
+          
+            <li><a href="#ChainNode">type ChainNode</a></li>
+            <ul>
+            
+            <li><a href="#ChainNode.Add">func (c *ChainNode) Add(field string)</a></li><li><a href="#ChainNode.Copy">func (c *ChainNode) Copy() Node</a></li><li><a href="#ChainNode.String">func (c *ChainNode) String() string</a></li>
+            </ul>
+          
+            <li><a href="#CommandNode">type CommandNode</a></li>
+            <ul>
+            
+            <li><a href="#CommandNode.Copy">func (c *CommandNode) Copy() Node</a></li><li><a href="#CommandNode.String">func (c *CommandNode) String() string</a></li>
+            </ul>
+          
+            <li><a href="#DotNode">type DotNode</a></li>
+            <ul>
+            
+            <li><a href="#DotNode.Copy">func (d *DotNode) Copy() Node</a></li><li><a href="#DotNode.String">func (d *DotNode) String() string</a></li><li><a href="#DotNode.Type">func (d *DotNode) Type() NodeType</a></li>
+            </ul>
+          
+            <li><a href="#FieldNode">type FieldNode</a></li>
+            <ul>
+            
+            <li><a href="#FieldNode.Copy">func (f *FieldNode) Copy() Node</a></li><li><a href="#FieldNode.String">func (f *FieldNode) String() string</a></li>
+            </ul>
+          
+            <li><a href="#IdentifierNode">type IdentifierNode</a></li>
+            <ul>
+            <li><a href="#NewIdentifier">func NewIdentifier(ident string) *IdentifierNode</a></li>
+            <li><a href="#IdentifierNode.Copy">func (i *IdentifierNode) Copy() Node</a></li><li><a href="#IdentifierNode.SetPos">func (i *IdentifierNode) SetPos(pos Pos) *IdentifierNode</a></li><li><a href="#IdentifierNode.SetTree">func (i *IdentifierNode) SetTree(t *Tree) *IdentifierNode</a></li><li><a href="#IdentifierNode.String">func (i *IdentifierNode) String() string</a></li>
+            </ul>
+          
+            <li><a href="#IfNode">type IfNode</a></li>
+            <ul>
+            
+            <li><a href="#IfNode.Copy">func (i *IfNode) Copy() Node</a></li>
+            </ul>
+          
+            <li><a href="#ListNode">type ListNode</a></li>
+            <ul>
+            
+            <li><a href="#ListNode.Copy">func (l *ListNode) Copy() Node</a></li><li><a href="#ListNode.CopyList">func (l *ListNode) CopyList() *ListNode</a></li><li><a href="#ListNode.String">func (l *ListNode) String() string</a></li>
+            </ul>
+          
+            <li><a href="#NilNode">type NilNode</a></li>
+            <ul>
+            
+            <li><a href="#NilNode.Copy">func (n *NilNode) Copy() Node</a></li><li><a href="#NilNode.String">func (n *NilNode) String() string</a></li><li><a href="#NilNode.Type">func (n *NilNode) Type() NodeType</a></li>
+            </ul>
+          
+            <li><a href="#Node">type Node</a></li>
+            
+            
+            
+            
+          
+            <li><a href="#NodeType">type NodeType</a></li>
+            <ul>
+            
+            <li><a href="#NodeType.Type">func (t NodeType) Type() NodeType</a></li>
+            </ul>
+          
+            <li><a href="#NumberNode">type NumberNode</a></li>
+            <ul>
+            
+            <li><a href="#NumberNode.Copy">func (n *NumberNode) Copy() Node</a></li><li><a href="#NumberNode.String">func (n *NumberNode) String() string</a></li>
+            </ul>
+          
+            <li><a href="#PipeNode">type PipeNode</a></li>
+            <ul>
+            
+            <li><a href="#PipeNode.Copy">func (p *PipeNode) Copy() Node</a></li><li><a href="#PipeNode.CopyPipe">func (p *PipeNode) CopyPipe() *PipeNode</a></li><li><a href="#PipeNode.String">func (p *PipeNode) String() string</a></li>
+            </ul>
+          
+            <li><a href="#Pos">type Pos</a></li>
+            <ul>
+            
+            <li><a href="#Pos.Position">func (p Pos) Position() Pos</a></li>
+            </ul>
+          
+            <li><a href="#RangeNode">type RangeNode</a></li>
+            <ul>
+            
+            <li><a href="#RangeNode.Copy">func (r *RangeNode) Copy() Node</a></li>
+            </ul>
+          
+            <li><a href="#StringNode">type StringNode</a></li>
+            <ul>
+            
+            <li><a href="#StringNode.Copy">func (s *StringNode) Copy() Node</a></li><li><a href="#StringNode.String">func (s *StringNode) String() string</a></li>
+            </ul>
+          
+            <li><a href="#TemplateNode">type TemplateNode</a></li>
+            <ul>
+            
+            <li><a href="#TemplateNode.Copy">func (t *TemplateNode) Copy() Node</a></li><li><a href="#TemplateNode.String">func (t *TemplateNode) String() string</a></li>
+            </ul>
+          
+            <li><a href="#TextNode">type TextNode</a></li>
+            <ul>
+            
+            <li><a href="#TextNode.Copy">func (t *TextNode) Copy() Node</a></li><li><a href="#TextNode.String">func (t *TextNode) String() string</a></li>
+            </ul>
+          
+            <li><a href="#Tree">type Tree</a></li>
+            <ul>
+            <li><a href="#New">func New(name string, funcs ...map[string]interface{}) *Tree</a></li>
+            <li><a href="#Tree.Copy">func (t *Tree) Copy() *Tree</a></li><li><a href="#Tree.ErrorContext">func (t *Tree) ErrorContext(n Node) (location, context string)</a></li><li><a href="#Tree.Parse">func (t *Tree) Parse(text, leftDelim, rightDelim string, treeSet map[string]*Tree, funcs ...map[string]interface{}) (tree *Tree, err error)</a></li>
+            </ul>
+          
+            <li><a href="#VariableNode">type VariableNode</a></li>
+            <ul>
+            
+            <li><a href="#VariableNode.Copy">func (v *VariableNode) Copy() Node</a></li><li><a href="#VariableNode.String">func (v *VariableNode) String() string</a></li>
+            </ul>
+          
+            <li><a href="#WithNode">type WithNode</a></li>
+            <ul>
+            
+            <li><a href="#WithNode.Copy">func (w *WithNode) Copy() Node</a></li>
+            </ul>
+          
+          
+        </ul>
+
+        
+        
+          <span id="pkg-examples"></span>
+        
+
+        
+        
+<h4 id="pkg-files">
+  <a href="https://github.com/golang/go/blob/master/src/text/template/parse/">Package Files</a>
+  <a class="permalink" href="#pkg-files">&para;</a>
+</h4>
+
+<p><a href="https://github.com/golang/go/blob/master/src/text/template/parse/lex.go">lex.go</a> <a href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go">node.go</a> <a href="https://github.com/golang/go/blob/master/src/text/template/parse/parse.go">parse.go</a> </p>
+
+        
+        
+
+        
+        
+
+        
+        
+        
+          <h3 id="IsEmptyTree" data-kind="f">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/parse.go#L253">IsEmptyTree</a> <a class="permalink" href="#IsEmptyTree">&para;</a> <a class="uses" title="List Function Callers" href="https://sourcegraph.com/-/godoc/refs?def=IsEmptyTree&amp;pkg=text%2Ftemplate%2Fparse&amp;repo=">Uses</a></h3>
+          <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/parse.go#L253">❖</a><pre>func IsEmptyTree(n <a href="#Node">Node</a>) <a href="/builtin#bool">bool</a></pre></div><p>
+IsEmptyTree reports whether this tree (node) is empty of everything but space.
+</p>
+
+          
+  
+
+        
+          <h3 id="Parse" data-kind="f">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/parse.go#L51">Parse</a> <a class="permalink" href="#Parse">&para;</a> <a class="uses" title="List Function Callers" href="https://sourcegraph.com/-/godoc/refs?def=Parse&amp;pkg=text%2Ftemplate%2Fparse&amp;repo=">Uses</a></h3>
+          <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/parse.go#L51">❖</a><pre>func Parse(name, text, leftDelim, rightDelim <a href="/builtin#string">string</a>, funcs ...map[<a href="/builtin#string">string</a>]interface{}) (map[<a href="/builtin#string">string</a>]*<a href="#Tree">Tree</a>, <a href="/builtin#error">error</a>)</pre></div><p>
+Parse returns a map from template name to parse.Tree, created by parsing the
+templates described in the argument string. The top-level template will be
+given the specified name. If an error is encountered, parsing stops and an
+empty map is returned with the error.
+</p>
+
+          
+  
+
+        
+
+        
+        
+
+        
+          <h3 id="ActionNode" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L207">ActionNode</a> <a class="permalink" href="#ActionNode">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=ActionNode&amp;pkg=text%2Ftemplate%2Fparse&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L207">❖</a><pre>type ActionNode struct {
+    <a href="#NodeType">NodeType</a>
+    <a href="#Pos">Pos</a>
+
+    <span id="ActionNode.Line">Line</span> <a href="/builtin#int">int</a>       <span class="com">// The line number in the input. Deprecated: Kept for compatibility.</span>
+    <span id="ActionNode.Pipe">Pipe</span> *<a href="#PipeNode">PipeNode</a> <span class="com">// The pipeline in the action.
+    // contains filtered or unexported fields</span>
+}</pre></div><p>
+ActionNode holds an action (something bounded by delimiters).
+Control actions have their own nodes; ActionNode represents simple
+ones such as field evaluations and parenthesized pipelines.
+</p>
+
+          
+          
+          
+  
+
+
+          
+
+          
+            <h4 id="ActionNode.Copy" data-kind="m">func (*ActionNode) <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L228">Copy</a> <a class="permalink" href="#ActionNode.Copy">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=ActionNode%2FCopy&amp;pkg=text%2Ftemplate%2Fparse&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L228">❖</a><pre>func (a *<a href="#ActionNode">ActionNode</a>) Copy() <a href="#Node">Node</a></pre></div>
+            
+  
+
+          
+            <h4 id="ActionNode.String" data-kind="m">func (*ActionNode) <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L219">String</a> <a class="permalink" href="#ActionNode.String">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=ActionNode%2FString&amp;pkg=text%2Ftemplate%2Fparse&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L219">❖</a><pre>func (a *<a href="#ActionNode">ActionNode</a>) String() <a href="/builtin#string">string</a></pre></div>
+            
+  
+
+          
+        
+          <h3 id="BoolNode" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L489">BoolNode</a> <a class="permalink" href="#BoolNode">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=BoolNode&amp;pkg=text%2Ftemplate%2Fparse&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L489">❖</a><pre>type BoolNode struct {
+    <a href="#NodeType">NodeType</a>
+    <a href="#Pos">Pos</a>
+
+    <span id="BoolNode.True">True</span> <a href="/builtin#bool">bool</a> <span class="com">// The value of the boolean constant.
+    // contains filtered or unexported fields</span>
+}</pre></div><p>
+BoolNode holds a boolean constant.
+</p>
+
+          
+          
+          
+  
+
+
+          
+
+          
+            <h4 id="BoolNode.Copy" data-kind="m">func (*BoolNode) <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L511">Copy</a> <a class="permalink" href="#BoolNode.Copy">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=BoolNode%2FCopy&amp;pkg=text%2Ftemplate%2Fparse&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L511">❖</a><pre>func (b *<a href="#BoolNode">BoolNode</a>) Copy() <a href="#Node">Node</a></pre></div>
+            
+  
+
+          
+            <h4 id="BoolNode.String" data-kind="m">func (*BoolNode) <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L500">String</a> <a class="permalink" href="#BoolNode.String">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=BoolNode%2FString&amp;pkg=text%2Ftemplate%2Fparse&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L500">❖</a><pre>func (b *<a href="#BoolNode">BoolNode</a>) String() <a href="/builtin#string">string</a></pre></div>
+            
+  
+
+          
+        
+          <h3 id="BranchNode" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L728">BranchNode</a> <a class="permalink" href="#BranchNode">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=BranchNode&amp;pkg=text%2Ftemplate%2Fparse&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L728">❖</a><pre>type BranchNode struct {
+    <a href="#NodeType">NodeType</a>
+    <a href="#Pos">Pos</a>
+
+    <span id="BranchNode.Line">Line</span>     <a href="/builtin#int">int</a>       <span class="com">// The line number in the input. Deprecated: Kept for compatibility.</span>
+    <span id="BranchNode.Pipe">Pipe</span>     *<a href="#PipeNode">PipeNode</a> <span class="com">// The pipeline to be evaluated.</span>
+    <span id="BranchNode.List">List</span>     *<a href="#ListNode">ListNode</a> <span class="com">// What to execute if the value is non-empty.</span>
+    <span id="BranchNode.ElseList">ElseList</span> *<a href="#ListNode">ListNode</a> <span class="com">// What to execute if the value is empty (nil if absent).
+    // contains filtered or unexported fields</span>
+}</pre></div><p>
+BranchNode is the common representation of if, range, and with.
+</p>
+
+          
+          
+          
+  
+
+
+          
+
+          
+            <h4 id="BranchNode.Copy" data-kind="m">func (*BranchNode) <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L760">Copy</a> <a class="permalink" href="#BranchNode.Copy">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=BranchNode%2FCopy&amp;pkg=text%2Ftemplate%2Fparse&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L760">❖</a><pre>func (b *<a href="#BranchNode">BranchNode</a>) Copy() <a href="#Node">Node</a></pre></div>
+            
+  
+
+          
+            <h4 id="BranchNode.String" data-kind="m">func (*BranchNode) <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L738">String</a> <a class="permalink" href="#BranchNode.String">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=BranchNode%2FString&amp;pkg=text%2Ftemplate%2Fparse&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L738">❖</a><pre>func (b *<a href="#BranchNode">BranchNode</a>) String() <a href="/builtin#string">string</a></pre></div>
+            
+  
+
+          
+        
+          <h3 id="ChainNode" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L445">ChainNode</a> <a class="permalink" href="#ChainNode">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=ChainNode&amp;pkg=text%2Ftemplate%2Fparse&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L445">❖</a><pre>type ChainNode struct {
+    <a href="#NodeType">NodeType</a>
+    <a href="#Pos">Pos</a>
+
+    <span id="ChainNode.Node">Node</span>  <a href="#Node">Node</a>
+    <span id="ChainNode.Field">Field</span> []<a href="/builtin#string">string</a> <span class="com">// The identifiers in lexical order.
+    // contains filtered or unexported fields</span>
+}</pre></div><p>
+ChainNode holds a term followed by a chain of field accesses (identifier starting with &#39;.&#39;).
+The names may be chained (&#39;.x.y&#39;).
+The periods are dropped from each ident.
+</p>
+
+          
+          
+          
+  
+
+
+          
+
+          
+            <h4 id="ChainNode.Add" data-kind="m">func (*ChainNode) <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L458">Add</a> <a class="permalink" href="#ChainNode.Add">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=ChainNode%2FAdd&amp;pkg=text%2Ftemplate%2Fparse&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L458">❖</a><pre>func (c *<a href="#ChainNode">ChainNode</a>) Add(field <a href="/builtin#string">string</a>)</pre></div><p>
+Add adds the named field (which should start with a period) to the end of the chain.
+</p>
+
+            
+  
+
+          
+            <h4 id="ChainNode.Copy" data-kind="m">func (*ChainNode) <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L484">Copy</a> <a class="permalink" href="#ChainNode.Copy">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=ChainNode%2FCopy&amp;pkg=text%2Ftemplate%2Fparse&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L484">❖</a><pre>func (c *<a href="#ChainNode">ChainNode</a>) Copy() <a href="#Node">Node</a></pre></div>
+            
+  
+
+          
+            <h4 id="ChainNode.String" data-kind="m">func (*ChainNode) <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L469">String</a> <a class="permalink" href="#ChainNode.String">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=ChainNode%2FString&amp;pkg=text%2Ftemplate%2Fparse&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L469">❖</a><pre>func (c *<a href="#ChainNode">ChainNode</a>) String() <a href="/builtin#string">string</a></pre></div>
+            
+  
+
+          
+        
+          <h3 id="CommandNode" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L234">CommandNode</a> <a class="permalink" href="#CommandNode">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=CommandNode&amp;pkg=text%2Ftemplate%2Fparse&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L234">❖</a><pre>type CommandNode struct {
+    <a href="#NodeType">NodeType</a>
+    <a href="#Pos">Pos</a>
+
+    <span id="CommandNode.Args">Args</span> []<a href="#Node">Node</a> <span class="com">// Arguments in lexical order: Identifier, field, or constant.
+    // contains filtered or unexported fields</span>
+}</pre></div><p>
+CommandNode holds a command (a pipeline inside an evaluating action).
+</p>
+
+          
+          
+          
+  
+
+
+          
+
+          
+            <h4 id="CommandNode.Copy" data-kind="m">func (*CommandNode) <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L268">Copy</a> <a class="permalink" href="#CommandNode.Copy">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=CommandNode%2FCopy&amp;pkg=text%2Ftemplate%2Fparse&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L268">❖</a><pre>func (c *<a href="#CommandNode">CommandNode</a>) Copy() <a href="#Node">Node</a></pre></div>
+            
+  
+
+          
+            <h4 id="CommandNode.String" data-kind="m">func (*CommandNode) <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L249">String</a> <a class="permalink" href="#CommandNode.String">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=CommandNode%2FString&amp;pkg=text%2Ftemplate%2Fparse&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L249">❖</a><pre>func (c *<a href="#CommandNode">CommandNode</a>) String() <a href="/builtin#string">string</a></pre></div>
+            
+  
+
+          
+        
+          <h3 id="DotNode" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L353">DotNode</a> <a class="permalink" href="#DotNode">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=DotNode&amp;pkg=text%2Ftemplate%2Fparse&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L353">❖</a><pre>type DotNode struct {
+    <a href="#NodeType">NodeType</a>
+    <a href="#Pos">Pos</a>
+    <span class="com">// contains filtered or unexported fields</span>
+}</pre></div><p>
+DotNode holds the special identifier &#39;.&#39;.
+</p>
+
+          
+          
+          
+  
+
+
+          
+
+          
+            <h4 id="DotNode.Copy" data-kind="m">func (*DotNode) <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L378">Copy</a> <a class="permalink" href="#DotNode.Copy">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=DotNode%2FCopy&amp;pkg=text%2Ftemplate%2Fparse&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L378">❖</a><pre>func (d *<a href="#DotNode">DotNode</a>) Copy() <a href="#Node">Node</a></pre></div>
+            
+  
+
+          
+            <h4 id="DotNode.String" data-kind="m">func (*DotNode) <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L370">String</a> <a class="permalink" href="#DotNode.String">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=DotNode%2FString&amp;pkg=text%2Ftemplate%2Fparse&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L370">❖</a><pre>func (d *<a href="#DotNode">DotNode</a>) String() <a href="/builtin#string">string</a></pre></div>
+            
+  
+
+          
+            <h4 id="DotNode.Type" data-kind="m">func (*DotNode) <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L363">Type</a> <a class="permalink" href="#DotNode.Type">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=DotNode%2FType&amp;pkg=text%2Ftemplate%2Fparse&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L363">❖</a><pre>func (d *<a href="#DotNode">DotNode</a>) Type() <a href="#NodeType">NodeType</a></pre></div>
+            
+  
+
+          
+        
+          <h3 id="FieldNode" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L415">FieldNode</a> <a class="permalink" href="#FieldNode">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=FieldNode&amp;pkg=text%2Ftemplate%2Fparse&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L415">❖</a><pre>type FieldNode struct {
+    <a href="#NodeType">NodeType</a>
+    <a href="#Pos">Pos</a>
+
+    <span id="FieldNode.Ident">Ident</span> []<a href="/builtin#string">string</a> <span class="com">// The identifiers in lexical order.
+    // contains filtered or unexported fields</span>
+}</pre></div><p>
+FieldNode holds a field (identifier starting with &#39;.&#39;).
+The names may be chained (&#39;.x.y&#39;).
+The period is dropped from each ident.
+</p>
+
+          
+          
+          
+  
+
+
+          
+
+          
+            <h4 id="FieldNode.Copy" data-kind="m">func (*FieldNode) <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L438">Copy</a> <a class="permalink" href="#FieldNode.Copy">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=FieldNode%2FCopy&amp;pkg=text%2Ftemplate%2Fparse&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L438">❖</a><pre>func (f *<a href="#FieldNode">FieldNode</a>) Copy() <a href="#Node">Node</a></pre></div>
+            
+  
+
+          
+            <h4 id="FieldNode.String" data-kind="m">func (*FieldNode) <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L426">String</a> <a class="permalink" href="#FieldNode.String">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=FieldNode%2FString&amp;pkg=text%2Ftemplate%2Fparse&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L426">❖</a><pre>func (f *<a href="#FieldNode">FieldNode</a>) String() <a href="/builtin#string">string</a></pre></div>
+            
+  
+
+          
+        
+          <h3 id="IdentifierNode" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L280">IdentifierNode</a> <a class="permalink" href="#IdentifierNode">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=IdentifierNode&amp;pkg=text%2Ftemplate%2Fparse&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L280">❖</a><pre>type IdentifierNode struct {
+    <a href="#NodeType">NodeType</a>
+    <a href="#Pos">Pos</a>
+
+    <span id="IdentifierNode.Ident">Ident</span> <a href="/builtin#string">string</a> <span class="com">// The identifier&#39;s name.
+    // contains filtered or unexported fields</span>
+}</pre></div><p>
+IdentifierNode holds an identifier.
+</p>
+
+          
+          
+          
+  
+
+
+          
+            <h4 id="NewIdentifier" data-kind="f">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L288">NewIdentifier</a> <a class="permalink" href="#NewIdentifier">&para;</a> <a class="uses" title="List Function Callers" href="https://sourcegraph.com/-/godoc/refs?def=NewIdentifier&amp;pkg=text%2Ftemplate%2Fparse&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L288">❖</a><pre>func NewIdentifier(ident <a href="/builtin#string">string</a>) *<a href="#IdentifierNode">IdentifierNode</a></pre></div><p>
+NewIdentifier returns a new IdentifierNode with the given identifier name.
+</p>
+
+            
+  
+
+          
+
+          
+            <h4 id="IdentifierNode.Copy" data-kind="m">func (*IdentifierNode) <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L316">Copy</a> <a class="permalink" href="#IdentifierNode.Copy">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=IdentifierNode%2FCopy&amp;pkg=text%2Ftemplate%2Fparse&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L316">❖</a><pre>func (i *<a href="#IdentifierNode">IdentifierNode</a>) Copy() <a href="#Node">Node</a></pre></div>
+            
+  
+
+          
+            <h4 id="IdentifierNode.SetPos" data-kind="m">func (*IdentifierNode) <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L295">SetPos</a> <a class="permalink" href="#IdentifierNode.SetPos">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=IdentifierNode%2FSetPos&amp;pkg=text%2Ftemplate%2Fparse&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L295">❖</a><pre>func (i *<a href="#IdentifierNode">IdentifierNode</a>) SetPos(pos <a href="#Pos">Pos</a>) *<a href="#IdentifierNode">IdentifierNode</a></pre></div><p>
+SetPos sets the position. NewIdentifier is a public method so we can&#39;t modify its signature.
+Chained for convenience.
+TODO: fix one day?
+</p>
+
+            
+  
+
+          
+            <h4 id="IdentifierNode.SetTree" data-kind="m">func (*IdentifierNode) <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L303">SetTree</a> <a class="permalink" href="#IdentifierNode.SetTree">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=IdentifierNode%2FSetTree&amp;pkg=text%2Ftemplate%2Fparse&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L303">❖</a><pre>func (i *<a href="#IdentifierNode">IdentifierNode</a>) SetTree(t *<a href="#Tree">Tree</a>) *<a href="#IdentifierNode">IdentifierNode</a></pre></div><p>
+SetTree sets the parent tree for the node. NewIdentifier is a public method so we can&#39;t modify its signature.
+Chained for convenience.
+TODO: fix one day?
+</p>
+
+            
+  
+
+          
+            <h4 id="IdentifierNode.String" data-kind="m">func (*IdentifierNode) <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L308">String</a> <a class="permalink" href="#IdentifierNode.String">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=IdentifierNode%2FString&amp;pkg=text%2Ftemplate%2Fparse&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L308">❖</a><pre>func (i *<a href="#IdentifierNode">IdentifierNode</a>) String() <a href="/builtin#string">string</a></pre></div>
+            
+  
+
+          
+        
+          <h3 id="IfNode" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L774">IfNode</a> <a class="permalink" href="#IfNode">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=IfNode&amp;pkg=text%2Ftemplate%2Fparse&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L774">❖</a><pre>type IfNode struct {
+    <a href="#BranchNode">BranchNode</a>
+}</pre></div><p>
+IfNode represents an {{if}} action and its commands.
+</p>
+
+          
+          
+          
+  
+
+
+          
+
+          
+            <h4 id="IfNode.Copy" data-kind="m">func (*IfNode) <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L782">Copy</a> <a class="permalink" href="#IfNode.Copy">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=IfNode%2FCopy&amp;pkg=text%2Ftemplate%2Fparse&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L782">❖</a><pre>func (i *<a href="#IfNode">IfNode</a>) Copy() <a href="#Node">Node</a></pre></div>
+            
+  
+
+          
+        
+          <h3 id="ListNode" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L77">ListNode</a> <a class="permalink" href="#ListNode">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=ListNode&amp;pkg=text%2Ftemplate%2Fparse&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L77">❖</a><pre>type ListNode struct {
+    <a href="#NodeType">NodeType</a>
+    <a href="#Pos">Pos</a>
+
+    <span id="ListNode.Nodes">Nodes</span> []<a href="#Node">Node</a> <span class="com">// The element nodes in lexical order.
+    // contains filtered or unexported fields</span>
+}</pre></div><p>
+ListNode holds a sequence of nodes.
+</p>
+
+          
+          
+          
+  
+
+
+          
+
+          
+            <h4 id="ListNode.Copy" data-kind="m">func (*ListNode) <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L115">Copy</a> <a class="permalink" href="#ListNode.Copy">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=ListNode%2FCopy&amp;pkg=text%2Ftemplate%2Fparse&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L115">❖</a><pre>func (l *<a href="#ListNode">ListNode</a>) Copy() <a href="#Node">Node</a></pre></div>
+            
+  
+
+          
+            <h4 id="ListNode.CopyList" data-kind="m">func (*ListNode) <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L104">CopyList</a> <a class="permalink" href="#ListNode.CopyList">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=ListNode%2FCopyList&amp;pkg=text%2Ftemplate%2Fparse&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L104">❖</a><pre>func (l *<a href="#ListNode">ListNode</a>) CopyList() *<a href="#ListNode">ListNode</a></pre></div>
+            
+  
+
+          
+            <h4 id="ListNode.String" data-kind="m">func (*ListNode) <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L96">String</a> <a class="permalink" href="#ListNode.String">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=ListNode%2FString&amp;pkg=text%2Ftemplate%2Fparse&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L96">❖</a><pre>func (l *<a href="#ListNode">ListNode</a>) String() <a href="/builtin#string">string</a></pre></div>
+            
+  
+
+          
+        
+          <h3 id="NilNode" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L383">NilNode</a> <a class="permalink" href="#NilNode">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=NilNode&amp;pkg=text%2Ftemplate%2Fparse&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L383">❖</a><pre>type NilNode struct {
+    <a href="#NodeType">NodeType</a>
+    <a href="#Pos">Pos</a>
+    <span class="com">// contains filtered or unexported fields</span>
+}</pre></div><p>
+NilNode holds the special identifier &#39;nil&#39; representing an untyped nil constant.
+</p>
+
+          
+          
+          
+  
+
+
+          
+
+          
+            <h4 id="NilNode.Copy" data-kind="m">func (*NilNode) <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L408">Copy</a> <a class="permalink" href="#NilNode.Copy">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=NilNode%2FCopy&amp;pkg=text%2Ftemplate%2Fparse&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L408">❖</a><pre>func (n *<a href="#NilNode">NilNode</a>) Copy() <a href="#Node">Node</a></pre></div>
+            
+  
+
+          
+            <h4 id="NilNode.String" data-kind="m">func (*NilNode) <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L400">String</a> <a class="permalink" href="#NilNode.String">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=NilNode%2FString&amp;pkg=text%2Ftemplate%2Fparse&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L400">❖</a><pre>func (n *<a href="#NilNode">NilNode</a>) String() <a href="/builtin#string">string</a></pre></div>
+            
+  
+
+          
+            <h4 id="NilNode.Type" data-kind="m">func (*NilNode) <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L393">Type</a> <a class="permalink" href="#NilNode.Type">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=NilNode%2FType&amp;pkg=text%2Ftemplate%2Fparse&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L393">❖</a><pre>func (n *<a href="#NilNode">NilNode</a>) Type() <a href="#NodeType">NodeType</a></pre></div>
+            
+  
+
+          
+        
+          <h3 id="Node" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L21">Node</a> <a class="permalink" href="#Node">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=Node&amp;pkg=text%2Ftemplate%2Fparse&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="m"><a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L21">❖</a><pre>type Node interface {
+    <span id="Node.Type">Type</span>() <a href="#NodeType">NodeType</a>
+    <span id="Node.String">String</span>() <a href="/builtin#string">string</a>
+    <span class="com">// Copy does a deep copy of the Node and all its components.
+    // To avoid type assertions, some XxxNodes also have specialized
+    // CopyXxx methods that return *XxxNode.</span>
+    <span id="Node.Copy">Copy</span>() <a href="#Node">Node</a>
+    <span id="Node.Position">Position</span>() <a href="#Pos">Pos</a> <span class="com">// byte position of start of node in full original input string
+    // contains filtered or unexported methods</span>
+}</pre></div><p>
+A Node is an element in the parse tree. The interface is trivial.
+The interface contains an unexported method so that only
+types local to this package can satisfy it.
+</p>
+
+          
+          
+          
+  
+
+
+          
+
+          
+        
+          <h3 id="NodeType" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L35">NodeType</a> <a class="permalink" href="#NodeType">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=NodeType&amp;pkg=text%2Ftemplate%2Fparse&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L35">❖</a><pre>type NodeType <a href="/builtin#int">int</a></pre></div><p>
+NodeType identifies the type of a parse tree node.
+</p>
+
+          <div class="decl" data-kind="c"><a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L51">❖</a><pre>const (
+    <span id="NodeText">NodeText</span>    <a href="#NodeType">NodeType</a> = <a href="/builtin#iota">iota</a> <span class="com">// Plain text.</span>
+    <span id="NodeAction">NodeAction</span>                  <span class="com">// A non-control action such as a field evaluation.</span>
+    <span id="NodeBool">NodeBool</span>                    <span class="com">// A boolean constant.</span>
+    <span id="NodeChain">NodeChain</span>                   <span class="com">// A sequence of field accesses.</span>
+    <span id="NodeCommand">NodeCommand</span>                 <span class="com">// An element of a pipeline.</span>
+    <span id="NodeDot">NodeDot</span>                     <span class="com">// The cursor, dot.</span>
+
+    <span id="NodeField">NodeField</span>      <span class="com">// A field or method name.</span>
+    <span id="NodeIdentifier">NodeIdentifier</span> <span class="com">// An identifier; always a function name.</span>
+    <span id="NodeIf">NodeIf</span>         <span class="com">// An if action.</span>
+    <span id="NodeList">NodeList</span>       <span class="com">// A list of Nodes.</span>
+    <span id="NodeNil">NodeNil</span>        <span class="com">// An untyped nil constant.</span>
+    <span id="NodeNumber">NodeNumber</span>     <span class="com">// A numerical constant.</span>
+    <span id="NodePipe">NodePipe</span>       <span class="com">// A pipeline of commands.</span>
+    <span id="NodeRange">NodeRange</span>      <span class="com">// A range action.</span>
+    <span id="NodeString">NodeString</span>     <span class="com">// A string constant.</span>
+    <span id="NodeTemplate">NodeTemplate</span>   <span class="com">// A template invocation action.</span>
+    <span id="NodeVariable">NodeVariable</span>   <span class="com">// A $ variable.</span>
+    <span id="NodeWith">NodeWith</span>       <span class="com">// A with action.</span>
+)</pre></div>
+          
+          
+  
+
+
+          
+
+          
+            <h4 id="NodeType.Type" data-kind="m">func (NodeType) <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L47">Type</a> <a class="permalink" href="#NodeType.Type">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=NodeType%2FType&amp;pkg=text%2Ftemplate%2Fparse&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L47">❖</a><pre>func (t <a href="#NodeType">NodeType</a>) Type() <a href="#NodeType">NodeType</a></pre></div><p>
+Type returns itself and provides an easy default implementation
+for embedding in a Node. Embedded in all non-trivial Nodes.
+</p>
+
+            
+  
+
+          
+        
+          <h3 id="NumberNode" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L518">NumberNode</a> <a class="permalink" href="#NumberNode">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=NumberNode&amp;pkg=text%2Ftemplate%2Fparse&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L518">❖</a><pre>type NumberNode struct {
+    <a href="#NodeType">NodeType</a>
+    <a href="#Pos">Pos</a>
+
+    <span id="NumberNode.IsInt">IsInt</span>      <a href="/builtin#bool">bool</a>       <span class="com">// Number has an integral value.</span>
+    <span id="NumberNode.IsUint">IsUint</span>     <a href="/builtin#bool">bool</a>       <span class="com">// Number has an unsigned integral value.</span>
+    <span id="NumberNode.IsFloat">IsFloat</span>    <a href="/builtin#bool">bool</a>       <span class="com">// Number has a floating-point value.</span>
+    <span id="NumberNode.IsComplex">IsComplex</span>  <a href="/builtin#bool">bool</a>       <span class="com">// Number is complex.</span>
+    <span id="NumberNode.Int64">Int64</span>      <a href="/builtin#int64">int64</a>      <span class="com">// The signed integer value.</span>
+    <span id="NumberNode.Uint64">Uint64</span>     <a href="/builtin#uint64">uint64</a>     <span class="com">// The unsigned integer value.</span>
+    <span id="NumberNode.Float64">Float64</span>    <a href="/builtin#float64">float64</a>    <span class="com">// The floating-point value.</span>
+    <span id="NumberNode.Complex128">Complex128</span> <a href="/builtin#complex128">complex128</a> <span class="com">// The complex value.</span>
+    <span id="NumberNode.Text">Text</span>       <a href="/builtin#string">string</a>     <span class="com">// The original textual representation from the input.
+    // contains filtered or unexported fields</span>
+}</pre></div><p>
+NumberNode holds a number: signed or unsigned integer, float, or complex.
+The value is parsed and stored under all the types that can represent the value.
+This simulates in a small amount of code the behavior of Go&#39;s ideal constants.
+</p>
+
+          
+          
+          
+  
+
+
+          
+
+          
+            <h4 id="NumberNode.Copy" data-kind="m">func (*NumberNode) <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L644">Copy</a> <a class="permalink" href="#NumberNode.Copy">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=NumberNode%2FCopy&amp;pkg=text%2Ftemplate%2Fparse&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L644">❖</a><pre>func (n *<a href="#NumberNode">NumberNode</a>) Copy() <a href="#Node">Node</a></pre></div>
+            
+  
+
+          
+            <h4 id="NumberNode.String" data-kind="m">func (*NumberNode) <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L636">String</a> <a class="permalink" href="#NumberNode.String">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=NumberNode%2FString&amp;pkg=text%2Ftemplate%2Fparse&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L636">❖</a><pre>func (n *<a href="#NumberNode">NumberNode</a>) String() <a href="/builtin#string">string</a></pre></div>
+            
+  
+
+          
+        
+          <h3 id="PipeNode" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L144">PipeNode</a> <a class="permalink" href="#PipeNode">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=PipeNode&amp;pkg=text%2Ftemplate%2Fparse&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L144">❖</a><pre>type PipeNode struct {
+    <a href="#NodeType">NodeType</a>
+    <a href="#Pos">Pos</a>
+
+    <span id="PipeNode.Line">Line</span> <a href="/builtin#int">int</a>             <span class="com">// The line number in the input. Deprecated: Kept for compatibility.</span>
+    <span id="PipeNode.Decl">Decl</span> []*<a href="#VariableNode">VariableNode</a> <span class="com">// Variable declarations in lexical order.</span>
+    <span id="PipeNode.Cmds">Cmds</span> []*<a href="#CommandNode">CommandNode</a>  <span class="com">// The commands in lexical order.
+    // contains filtered or unexported fields</span>
+}</pre></div><p>
+PipeNode holds a pipeline with optional declaration
+</p>
+
+          
+          
+          
+  
+
+
+          
+
+          
+            <h4 id="PipeNode.Copy" data-kind="m">func (*PipeNode) <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L200">Copy</a> <a class="permalink" href="#PipeNode.Copy">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=PipeNode%2FCopy&amp;pkg=text%2Ftemplate%2Fparse&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L200">❖</a><pre>func (p *<a href="#PipeNode">PipeNode</a>) Copy() <a href="#Node">Node</a></pre></div>
+            
+  
+
+          
+            <h4 id="PipeNode.CopyPipe" data-kind="m">func (*PipeNode) <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L185">CopyPipe</a> <a class="permalink" href="#PipeNode.CopyPipe">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=PipeNode%2FCopyPipe&amp;pkg=text%2Ftemplate%2Fparse&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L185">❖</a><pre>func (p *<a href="#PipeNode">PipeNode</a>) CopyPipe() *<a href="#PipeNode">PipeNode</a></pre></div>
+            
+  
+
+          
+            <h4 id="PipeNode.String" data-kind="m">func (*PipeNode) <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L161">String</a> <a class="permalink" href="#PipeNode.String">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=PipeNode%2FString&amp;pkg=text%2Ftemplate%2Fparse&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L161">❖</a><pre>func (p *<a href="#PipeNode">PipeNode</a>) String() <a href="/builtin#string">string</a></pre></div>
+            
+  
+
+          
+        
+          <h3 id="Pos" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L39">Pos</a> <a class="permalink" href="#Pos">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=Pos&amp;pkg=text%2Ftemplate%2Fparse&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L39">❖</a><pre>type Pos <a href="/builtin#int">int</a></pre></div><p>
+Pos represents a byte position in the original input text from which
+this template was parsed.
+</p>
+
+          
+          
+          
+  
+
+
+          
+
+          
+            <h4 id="Pos.Position" data-kind="m">func (Pos) <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L41">Position</a> <a class="permalink" href="#Pos.Position">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=Pos%2FPosition&amp;pkg=text%2Ftemplate%2Fparse&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L41">❖</a><pre>func (p <a href="#Pos">Pos</a>) Position() <a href="#Pos">Pos</a></pre></div>
+            
+  
+
+          
+        
+          <h3 id="RangeNode" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L787">RangeNode</a> <a class="permalink" href="#RangeNode">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=RangeNode&amp;pkg=text%2Ftemplate%2Fparse&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L787">❖</a><pre>type RangeNode struct {
+    <a href="#BranchNode">BranchNode</a>
+}</pre></div><p>
+RangeNode represents a {{range}} action and its commands.
+</p>
+
+          
+          
+          
+  
+
+
+          
+
+          
+            <h4 id="RangeNode.Copy" data-kind="m">func (*RangeNode) <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L795">Copy</a> <a class="permalink" href="#RangeNode.Copy">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=RangeNode%2FCopy&amp;pkg=text%2Ftemplate%2Fparse&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L795">❖</a><pre>func (r *<a href="#RangeNode">RangeNode</a>) Copy() <a href="#Node">Node</a></pre></div>
+            
+  
+
+          
+        
+          <h3 id="StringNode" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L651">StringNode</a> <a class="permalink" href="#StringNode">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=StringNode&amp;pkg=text%2Ftemplate%2Fparse&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L651">❖</a><pre>type StringNode struct {
+    <a href="#NodeType">NodeType</a>
+    <a href="#Pos">Pos</a>
+
+    <span id="StringNode.Quoted">Quoted</span> <a href="/builtin#string">string</a> <span class="com">// The original text of the string, with quotes.</span>
+    <span id="StringNode.Text">Text</span>   <a href="/builtin#string">string</a> <span class="com">// The string, after quote processing.
+    // contains filtered or unexported fields</span>
+}</pre></div><p>
+StringNode holds a string constant. The value has been &#34;unquoted&#34;.
+</p>
+
+          
+          
+          
+  
+
+
+          
+
+          
+            <h4 id="StringNode.Copy" data-kind="m">func (*StringNode) <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L671">Copy</a> <a class="permalink" href="#StringNode.Copy">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=StringNode%2FCopy&amp;pkg=text%2Ftemplate%2Fparse&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L671">❖</a><pre>func (s *<a href="#StringNode">StringNode</a>) Copy() <a href="#Node">Node</a></pre></div>
+            
+  
+
+          
+            <h4 id="StringNode.String" data-kind="m">func (*StringNode) <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L663">String</a> <a class="permalink" href="#StringNode.String">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=StringNode%2FString&amp;pkg=text%2Ftemplate%2Fparse&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L663">❖</a><pre>func (s *<a href="#StringNode">StringNode</a>) String() <a href="/builtin#string">string</a></pre></div>
+            
+  
+
+          
+        
+          <h3 id="TemplateNode" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L813">TemplateNode</a> <a class="permalink" href="#TemplateNode">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=TemplateNode&amp;pkg=text%2Ftemplate%2Fparse&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L813">❖</a><pre>type TemplateNode struct {
+    <a href="#NodeType">NodeType</a>
+    <a href="#Pos">Pos</a>
+
+    <span id="TemplateNode.Line">Line</span> <a href="/builtin#int">int</a>       <span class="com">// The line number in the input. Deprecated: Kept for compatibility.</span>
+    <span id="TemplateNode.Name">Name</span> <a href="/builtin#string">string</a>    <span class="com">// The name of the template (unquoted).</span>
+    <span id="TemplateNode.Pipe">Pipe</span> *<a href="#PipeNode">PipeNode</a> <span class="com">// The command to evaluate as dot for the template.
+    // contains filtered or unexported fields</span>
+}</pre></div><p>
+TemplateNode represents a {{template}} action.
+</p>
+
+          
+          
+          
+  
+
+
+          
+
+          
+            <h4 id="TemplateNode.Copy" data-kind="m">func (*TemplateNode) <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L837">Copy</a> <a class="permalink" href="#TemplateNode.Copy">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=TemplateNode%2FCopy&amp;pkg=text%2Ftemplate%2Fparse&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L837">❖</a><pre>func (t *<a href="#TemplateNode">TemplateNode</a>) Copy() <a href="#Node">Node</a></pre></div>
+            
+  
+
+          
+            <h4 id="TemplateNode.String" data-kind="m">func (*TemplateNode) <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L826">String</a> <a class="permalink" href="#TemplateNode.String">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=TemplateNode%2FString&amp;pkg=text%2Ftemplate%2Fparse&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L826">❖</a><pre>func (t *<a href="#TemplateNode">TemplateNode</a>) String() <a href="/builtin#string">string</a></pre></div>
+            
+  
+
+          
+        
+          <h3 id="TextNode" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L120">TextNode</a> <a class="permalink" href="#TextNode">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=TextNode&amp;pkg=text%2Ftemplate%2Fparse&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L120">❖</a><pre>type TextNode struct {
+    <a href="#NodeType">NodeType</a>
+    <a href="#Pos">Pos</a>
+
+    <span id="TextNode.Text">Text</span> []<a href="/builtin#byte">byte</a> <span class="com">// The text; may span newlines.
+    // contains filtered or unexported fields</span>
+}</pre></div><p>
+TextNode holds plain text.
+</p>
+
+          
+          
+          
+  
+
+
+          
+
+          
+            <h4 id="TextNode.Copy" data-kind="m">func (*TextNode) <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L139">Copy</a> <a class="permalink" href="#TextNode.Copy">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=TextNode%2FCopy&amp;pkg=text%2Ftemplate%2Fparse&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L139">❖</a><pre>func (t *<a href="#TextNode">TextNode</a>) Copy() <a href="#Node">Node</a></pre></div>
+            
+  
+
+          
+            <h4 id="TextNode.String" data-kind="m">func (*TextNode) <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L131">String</a> <a class="permalink" href="#TextNode.String">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=TextNode%2FString&amp;pkg=text%2Ftemplate%2Fparse&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L131">❖</a><pre>func (t *<a href="#TextNode">TextNode</a>) String() <a href="/builtin#string">string</a></pre></div>
+            
+  
+
+          
+        
+          <h3 id="Tree" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/parse.go#L20">Tree</a> <a class="permalink" href="#Tree">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=Tree&amp;pkg=text%2Ftemplate%2Fparse&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/parse.go#L20">❖</a><pre>type Tree struct {
+    <span id="Tree.Name">Name</span>      <a href="/builtin#string">string</a>    <span class="com">// name of the template represented by the tree.</span>
+    <span id="Tree.ParseName">ParseName</span> <a href="/builtin#string">string</a>    <span class="com">// name of the top-level template during parsing, for error messages.</span>
+    <span id="Tree.Root">Root</span>      *<a href="#ListNode">ListNode</a> <span class="com">// top-level root of the tree.
+    // contains filtered or unexported fields</span>
+}</pre></div><p>
+Tree is the representation of a single parsed template.
+</p>
+
+          
+          
+          
+  
+
+
+          
+            <h4 id="New" data-kind="f">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/parse.go#L125">New</a> <a class="permalink" href="#New">&para;</a> <a class="uses" title="List Function Callers" href="https://sourcegraph.com/-/godoc/refs?def=New&amp;pkg=text%2Ftemplate%2Fparse&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/parse.go#L125">❖</a><pre>func New(name <a href="/builtin#string">string</a>, funcs ...map[<a href="/builtin#string">string</a>]interface{}) *<a href="#Tree">Tree</a></pre></div><p>
+New allocates a new parse tree with the given name.
+</p>
+
+            
+  
+
+          
+
+          
+            <h4 id="Tree.Copy" data-kind="m">func (*Tree) <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/parse.go#L35">Copy</a> <a class="permalink" href="#Tree.Copy">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=Tree%2FCopy&amp;pkg=text%2Ftemplate%2Fparse&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/parse.go#L35">❖</a><pre>func (t *<a href="#Tree">Tree</a>) Copy() *<a href="#Tree">Tree</a></pre></div><p>
+Copy returns a copy of the Tree. Any parsing state is discarded.
+</p>
+
+            
+  
+
+          
+            <h4 id="Tree.ErrorContext" data-kind="m">func (*Tree) <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/parse.go#L135">ErrorContext</a> <a class="permalink" href="#Tree.ErrorContext">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=Tree%2FErrorContext&amp;pkg=text%2Ftemplate%2Fparse&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/parse.go#L135">❖</a><pre>func (t *<a href="#Tree">Tree</a>) ErrorContext(n <a href="#Node">Node</a>) (location, context <a href="/builtin#string">string</a>)</pre></div><p>
+ErrorContext returns a textual representation of the location of the node in the input text.
+The receiver is only used when the node does not have a pointer to the tree inside,
+which can occur in old code.
+</p>
+
+            
+  
+
+          
+            <h4 id="Tree.Parse" data-kind="m">func (*Tree) <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/parse.go#L229">Parse</a> <a class="permalink" href="#Tree.Parse">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=Tree%2FParse&amp;pkg=text%2Ftemplate%2Fparse&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/parse.go#L229">❖</a><pre>func (t *<a href="#Tree">Tree</a>) Parse(text, leftDelim, rightDelim <a href="/builtin#string">string</a>, treeSet map[<a href="/builtin#string">string</a>]*<a href="#Tree">Tree</a>, funcs ...map[<a href="/builtin#string">string</a>]interface{}) (tree *<a href="#Tree">Tree</a>, err <a href="/builtin#error">error</a>)</pre></div><p>
+Parse parses the template definition string to construct a representation of
+the template for execution. If either action delimiter string is empty, the
+default (&#34;{{&#34; or &#34;}}&#34;) is used. Embedded template definitions are added to
+the treeSet map.
+</p>
+
+            
+  
+
+          
+        
+          <h3 id="VariableNode" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L322">VariableNode</a> <a class="permalink" href="#VariableNode">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=VariableNode&amp;pkg=text%2Ftemplate%2Fparse&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L322">❖</a><pre>type VariableNode struct {
+    <a href="#NodeType">NodeType</a>
+    <a href="#Pos">Pos</a>
+
+    <span id="VariableNode.Ident">Ident</span> []<a href="/builtin#string">string</a> <span class="com">// Variable name and fields in lexical order.
+    // contains filtered or unexported fields</span>
+}</pre></div><p>
+VariableNode holds a list of variable names, possibly with chained field
+accesses. The dollar sign is part of the (first) name.
+</p>
+
+          
+          
+          
+  
+
+
+          
+
+          
+            <h4 id="VariableNode.Copy" data-kind="m">func (*VariableNode) <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L348">Copy</a> <a class="permalink" href="#VariableNode.Copy">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=VariableNode%2FCopy&amp;pkg=text%2Ftemplate%2Fparse&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L348">❖</a><pre>func (v *<a href="#VariableNode">VariableNode</a>) Copy() <a href="#Node">Node</a></pre></div>
+            
+  
+
+          
+            <h4 id="VariableNode.String" data-kind="m">func (*VariableNode) <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L333">String</a> <a class="permalink" href="#VariableNode.String">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=VariableNode%2FString&amp;pkg=text%2Ftemplate%2Fparse&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L333">❖</a><pre>func (v *<a href="#VariableNode">VariableNode</a>) String() <a href="/builtin#string">string</a></pre></div>
+            
+  
+
+          
+        
+          <h3 id="WithNode" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L800">WithNode</a> <a class="permalink" href="#WithNode">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=WithNode&amp;pkg=text%2Ftemplate%2Fparse&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L800">❖</a><pre>type WithNode struct {
+    <a href="#BranchNode">BranchNode</a>
+}</pre></div><p>
+WithNode represents a {{with}} action and its commands.
+</p>
+
+          
+          
+          
+  
+
+
+          
+
+          
+            <h4 id="WithNode.Copy" data-kind="m">func (*WithNode) <a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L808">Copy</a> <a class="permalink" href="#WithNode.Copy">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=WithNode%2FCopy&amp;pkg=text%2Ftemplate%2Fparse&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/text/template/parse/node.go#L808">❖</a><pre>func (w *<a href="#WithNode">WithNode</a>) Copy() <a href="#Node">Node</a></pre></div>
+            
+  
+<div id="x-footer" class="clearfix">
+  <div class="container">
+    <a href="http://studygolang.com/">Go语言中文网</a>
+    <span class="text-muted">|</span> <a href="http://golang.org/">Go Language</a>
+    <span class="pull-right"><a href="#">Back to top</a></span>
+  </div>
+</div>
+<script src="../assets/jquery-2.0.3.min.js"></script>
+<script src="../assets/bootstrap.min.js"></script>
+<script src="../assets/site.js"></script>
+</body>
+</html>

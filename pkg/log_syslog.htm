@@ -3,25 +3,344 @@
 <head profile="http://a9.com/-/spec/opensearch/1.1/">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link href="./site.css" rel="stylesheet">
-<title>log/syslog</title>
+<link href="../assets/site.css" rel="stylesheet">
+  <title>log/syslog</title>
+  
+    <meta name="twitter:title" content="Package syslog">
+    <meta property="og:title" content="Package syslog">
+    <meta name="description" content="Package syslog provides a simple interface to the system log service.">
+    <meta name="twitter:description" content="Package syslog provides a simple interface to the system log service.">
+    <meta property="og:description" content="Package syslog provides a simple interface to the system log service.">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:site" content="@golang">
+  
+  
+
 </head>
 <body>
+
 <div class="container">
-    <h2 id="pkg-overview">package syslog</h2>
-    <p><code>import "log.syslog"</code>
-    <p>syslog包提供一个简单的系统日志服务的接口</p>
-    <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
-    <a href="../main.html"><h3>返回首页</h3></a>
-		</br>
-        <li><a href="#pkg-note-BUG">Bugs</a></li>
-    </ul>
-    <h3 id="pkg-note-BUG">Bugs</h3>
-    <ul style="list-style: none; padding: 0;">            
-        <li><a href="/src/pkg/log/syslog/syslog_windows.go?s=249:314#L1">☞</a> 这个包还没有Windows实现.
-        </li>
-    </ul>
-</div>
+  
+
+        <h2 id="pkg-overview">package syslog</h2>
+
+        <p><code>import "log/syslog"</code>
+
+        <p>
+syslog 包提供一个简单的系统日志服务的接口。 It can send messages to the syslog daemon using UNIX
+domain sockets, UDP or TCP.
+</p>
+<p>
+Only one call to Dial is necessary. On write failures,
+the syslog client will attempt to reconnect to the server
+and write again.
+</p>
+<p>
+The syslog package is frozen and is not accepting new features.
+Some external packages provide more functionality. See:
+</p>
+<pre><a href="https://godoc.org/?q=syslog">https://godoc.org/?q=syslog</a></pre>
+
+
+        
+  
+
+
+        
+        <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+
+        
+
+        <ul class="list-unstyled">
+          
+          
+          <li><a href="#NewLogger">func NewLogger(p Priority, logFlag int) (*log.Logger, error)</a></li>
+          
+            <li><a href="#Priority">type Priority</a></li>
+            
+            
+            
+            
+          
+            <li><a href="#Writer">type Writer</a></li>
+            <ul>
+            <li><a href="#Dial">func Dial(network, raddr string, priority Priority, tag string) (*Writer, error)</a></li><li><a href="#New">func New(priority Priority, tag string) (*Writer, error)</a></li>
+            <li><a href="#Writer.Alert">func (w *Writer) Alert(m string) error</a></li><li><a href="#Writer.Close">func (w *Writer) Close() error</a></li><li><a href="#Writer.Crit">func (w *Writer) Crit(m string) error</a></li><li><a href="#Writer.Debug">func (w *Writer) Debug(m string) error</a></li><li><a href="#Writer.Emerg">func (w *Writer) Emerg(m string) error</a></li><li><a href="#Writer.Err">func (w *Writer) Err(m string) error</a></li><li><a href="#Writer.Info">func (w *Writer) Info(m string) error</a></li><li><a href="#Writer.Notice">func (w *Writer) Notice(m string) error</a></li><li><a href="#Writer.Warning">func (w *Writer) Warning(m string) error</a></li><li><a href="#Writer.Write">func (w *Writer) Write(b []byte) (int, error)</a></li>
+            </ul>
+          
+          <li><a href="#pkg-note-bug">Bugs</a></li>
+        </ul>
+
+        
+        
+          <h4 id="pkg-examples">Examples <a class="permalink" href="#pkg-examples">&para;</a></h4>
+          <ul class="list-unstyled">
+            <li><a href="#example-Dial" onclick="$('#ex-Dial').addClass('in').removeClass('collapse').height('auto')">Dial</a></li>
+          </ul>
+        
+
+        
+        
+<h4 id="pkg-files">
+  <a href="https://github.com/golang/go/blob/master/src/log/syslog/">Package Files</a>
+  <a class="permalink" href="#pkg-files">&para;</a>
+</h4>
+
+<p><a href="https://github.com/golang/go/blob/master/src/log/syslog/doc.go">doc.go</a> <a href="https://github.com/golang/go/blob/master/src/log/syslog/syslog.go">syslog.go</a> <a href="https://github.com/golang/go/blob/master/src/log/syslog/syslog_unix.go">syslog_unix.go</a> </p>
+
+        
+        
+
+        
+        
+
+        
+        
+        
+          <h3 id="NewLogger" data-kind="f">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/log/syslog/syslog.go#L308">NewLogger</a> <a class="permalink" href="#NewLogger">&para;</a> <a class="uses" title="List Function Callers" href="https://sourcegraph.com/-/godoc/refs?def=NewLogger&amp;pkg=log%2Fsyslog&amp;repo=">Uses</a></h3>
+          <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/log/syslog/syslog.go#L308">❖</a><pre>func NewLogger(p <a href="#Priority">Priority</a>, logFlag <a href="/builtin#int">int</a>) (*<a href="/log">log</a>.<a href="/log#Logger">Logger</a>, <a href="/builtin#error">error</a>)</pre></div><p>
+NewLogger creates a log.Logger whose output is written to
+the system log service with the specified priority. The logFlag
+argument is the flag set passed through to log.New to create
+the Logger.
+</p>
+
+          
+  
+
+        
+
+        
+        
+
+        
+          <h3 id="Priority" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/log/syslog/syslog.go#L24">Priority</a> <a class="permalink" href="#Priority">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=Priority&amp;pkg=log%2Fsyslog&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/log/syslog/syslog.go#L24">❖</a><pre>type Priority <a href="/builtin#int">int</a></pre></div><p>
+The Priority is a combination of the syslog facility and
+severity. For example, LOG_ALERT | LOG_FTP sends an alert severity
+message from the FTP facility. The default severity is LOG_EMERG;
+the default facility is LOG_KERN.
+</p>
+
+          <div class="decl" data-kind="c"><a title="View Source" href="https://github.com/golang/go/blob/master/src/log/syslog/syslog.go#L29">❖</a><pre>const (
+
+    <span class="com">// From /usr/include/sys/syslog.h.
+    // These are the same on Linux, BSD, and OS X.</span>
+    <span id="LOG_EMERG">LOG_EMERG</span> <a href="#Priority">Priority</a> = <a href="/builtin#iota">iota</a>
+    <span id="LOG_ALERT">LOG_ALERT</span>
+    <span id="LOG_CRIT">LOG_CRIT</span>
+    <span id="LOG_ERR">LOG_ERR</span>
+    <span id="LOG_WARNING">LOG_WARNING</span>
+    <span id="LOG_NOTICE">LOG_NOTICE</span>
+    <span id="LOG_INFO">LOG_INFO</span>
+    <span id="LOG_DEBUG">LOG_DEBUG</span>
+)</pre></div><div class="decl" data-kind="c"><a title="View Source" href="https://github.com/golang/go/blob/master/src/log/syslog/syslog.go#L44">❖</a><pre>const (
+
+    <span class="com">// From /usr/include/sys/syslog.h.
+    // These are the same up to LOG_FTP on Linux, BSD, and OS X.</span>
+    <span id="LOG_KERN">LOG_KERN</span> <a href="#Priority">Priority</a> = <a href="/builtin#iota">iota</a> &lt;&lt; 3
+    <span id="LOG_USER">LOG_USER</span>
+    <span id="LOG_MAIL">LOG_MAIL</span>
+    <span id="LOG_DAEMON">LOG_DAEMON</span>
+    <span id="LOG_AUTH">LOG_AUTH</span>
+    <span id="LOG_SYSLOG">LOG_SYSLOG</span>
+    <span id="LOG_LPR">LOG_LPR</span>
+    <span id="LOG_NEWS">LOG_NEWS</span>
+    <span id="LOG_UUCP">LOG_UUCP</span>
+    <span id="LOG_CRON">LOG_CRON</span>
+    <span id="LOG_AUTHPRIV">LOG_AUTHPRIV</span>
+    <span id="LOG_FTP">LOG_FTP</span>
+
+    <span id="LOG_LOCAL0">LOG_LOCAL0</span>
+    <span id="LOG_LOCAL1">LOG_LOCAL1</span>
+    <span id="LOG_LOCAL2">LOG_LOCAL2</span>
+    <span id="LOG_LOCAL3">LOG_LOCAL3</span>
+    <span id="LOG_LOCAL4">LOG_LOCAL4</span>
+    <span id="LOG_LOCAL5">LOG_LOCAL5</span>
+    <span id="LOG_LOCAL6">LOG_LOCAL6</span>
+    <span id="LOG_LOCAL7">LOG_LOCAL7</span>
+)</pre></div>
+          
+          
+  
+
+
+          
+
+          
+        
+          <h3 id="Writer" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/log/syslog/syslog.go#L76">Writer</a> <a class="permalink" href="#Writer">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=Writer&amp;pkg=log%2Fsyslog&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/log/syslog/syslog.go#L76">❖</a><pre>type Writer struct {
+    <span class="com">// contains filtered or unexported fields</span>
+}</pre></div><p>
+A Writer is a connection to a syslog server.
+</p>
+
+          
+          
+          
+  
+
+
+          
+            <h4 id="Dial" data-kind="f">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/log/syslog/syslog.go#L117">Dial</a> <a class="permalink" href="#Dial">&para;</a> <a class="uses" title="List Function Callers" href="https://sourcegraph.com/-/godoc/refs?def=Dial&amp;pkg=log%2Fsyslog&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/log/syslog/syslog.go#L117">❖</a><pre>func Dial(network, raddr <a href="/builtin#string">string</a>, priority <a href="#Priority">Priority</a>, tag <a href="/builtin#string">string</a>) (*<a href="#Writer">Writer</a>, <a href="/builtin#error">error</a>)</pre></div><p>
+Dial establishes a connection to a log daemon by connecting to
+address raddr on the specified network. Each write to the returned
+writer sends a log message with the given facility, severity and
+tag.
+If network is empty, Dial will connect to the local syslog server.
+Otherwise, see the documentation for net.Dial for valid values
+of network and raddr.
+</p>
+
+            
+  
+    <div class="panel-group">
+    
+      <div class="panel panel-default" id="example-Dial">
+        <div class="panel-heading"><a class="accordion-toggle" data-toggle="collapse" href="#ex-Dial">Example</a></div>
+        <div id="ex-Dial" class="panel-collapse collapse"><div class="panel-body">
+          
+          <p>Code:<span class="pull-right"><a href="?play=Dial">play</a>&nbsp;</span>
+          <pre>
+sysLog, err := syslog.Dial(&#34;tcp&#34;, &#34;localhost:1234&#34;,
+    syslog.LOG_WARNING|syslog.LOG_DAEMON, &#34;demotag&#34;)
+if err != nil {
+    log.Fatal(err)
+}
+fmt.Fprintf(sysLog, &#34;This is a daemon warning with demotag.&#34;)
+sysLog.Emerg(&#34;And this is a daemon emergency with demotag.&#34;)
+</pre>
+          
+        </div></div>
+      </div>
+    
+    </div>
+  
+
+          
+            <h4 id="New" data-kind="f">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/log/syslog/syslog.go#L106">New</a> <a class="permalink" href="#New">&para;</a> <a class="uses" title="List Function Callers" href="https://sourcegraph.com/-/godoc/refs?def=New&amp;pkg=log%2Fsyslog&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/log/syslog/syslog.go#L106">❖</a><pre>func New(priority <a href="#Priority">Priority</a>, tag <a href="/builtin#string">string</a>) (*<a href="#Writer">Writer</a>, <a href="/builtin#error">error</a>)</pre></div><p>
+New establishes a new connection to the system log daemon. Each
+write to the returned writer sends a log message with the given
+priority and prefix.
+</p>
+
+            
+  
+
+          
+
+          
+            <h4 id="Writer.Alert" data-kind="m">func (*Writer) <a title="View Source" href="https://github.com/golang/go/blob/master/src/log/syslog/syslog.go#L199">Alert</a> <a class="permalink" href="#Writer.Alert">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=Writer%2FAlert&amp;pkg=log%2Fsyslog&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/log/syslog/syslog.go#L199">❖</a><pre>func (w *<a href="#Writer">Writer</a>) Alert(m <a href="/builtin#string">string</a>) <a href="/builtin#error">error</a></pre></div><p>
+Alert logs a message with severity LOG_ALERT, ignoring the severity
+passed to New.
+</p>
+
+            
+  
+
+          
+            <h4 id="Writer.Close" data-kind="m">func (*Writer) <a title="View Source" href="https://github.com/golang/go/blob/master/src/log/syslog/syslog.go#L178">Close</a> <a class="permalink" href="#Writer.Close">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=Writer%2FClose&amp;pkg=log%2Fsyslog&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/log/syslog/syslog.go#L178">❖</a><pre>func (w *<a href="#Writer">Writer</a>) Close() <a href="/builtin#error">error</a></pre></div><p>
+Close closes a connection to the syslog daemon.
+</p>
+
+            
+  
+
+          
+            <h4 id="Writer.Crit" data-kind="m">func (*Writer) <a title="View Source" href="https://github.com/golang/go/blob/master/src/log/syslog/syslog.go#L206">Crit</a> <a class="permalink" href="#Writer.Crit">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=Writer%2FCrit&amp;pkg=log%2Fsyslog&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/log/syslog/syslog.go#L206">❖</a><pre>func (w *<a href="#Writer">Writer</a>) Crit(m <a href="/builtin#string">string</a>) <a href="/builtin#error">error</a></pre></div><p>
+Crit logs a message with severity LOG_CRIT, ignoring the severity
+passed to New.
+</p>
+
+            
+  
+
+          
+            <h4 id="Writer.Debug" data-kind="m">func (*Writer) <a title="View Source" href="https://github.com/golang/go/blob/master/src/log/syslog/syslog.go#L241">Debug</a> <a class="permalink" href="#Writer.Debug">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=Writer%2FDebug&amp;pkg=log%2Fsyslog&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/log/syslog/syslog.go#L241">❖</a><pre>func (w *<a href="#Writer">Writer</a>) Debug(m <a href="/builtin#string">string</a>) <a href="/builtin#error">error</a></pre></div><p>
+Debug logs a message with severity LOG_DEBUG, ignoring the severity
+passed to New.
+</p>
+
+            
+  
+
+          
+            <h4 id="Writer.Emerg" data-kind="m">func (*Writer) <a title="View Source" href="https://github.com/golang/go/blob/master/src/log/syslog/syslog.go#L192">Emerg</a> <a class="permalink" href="#Writer.Emerg">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=Writer%2FEmerg&amp;pkg=log%2Fsyslog&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/log/syslog/syslog.go#L192">❖</a><pre>func (w *<a href="#Writer">Writer</a>) Emerg(m <a href="/builtin#string">string</a>) <a href="/builtin#error">error</a></pre></div><p>
+Emerg logs a message with severity LOG_EMERG, ignoring the severity
+passed to New.
+</p>
+
+            
+  
+
+          
+            <h4 id="Writer.Err" data-kind="m">func (*Writer) <a title="View Source" href="https://github.com/golang/go/blob/master/src/log/syslog/syslog.go#L213">Err</a> <a class="permalink" href="#Writer.Err">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=Writer%2FErr&amp;pkg=log%2Fsyslog&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/log/syslog/syslog.go#L213">❖</a><pre>func (w *<a href="#Writer">Writer</a>) Err(m <a href="/builtin#string">string</a>) <a href="/builtin#error">error</a></pre></div><p>
+Err logs a message with severity LOG_ERR, ignoring the severity
+passed to New.
+</p>
+
+            
+  
+
+          
+            <h4 id="Writer.Info" data-kind="m">func (*Writer) <a title="View Source" href="https://github.com/golang/go/blob/master/src/log/syslog/syslog.go#L234">Info</a> <a class="permalink" href="#Writer.Info">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=Writer%2FInfo&amp;pkg=log%2Fsyslog&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/log/syslog/syslog.go#L234">❖</a><pre>func (w *<a href="#Writer">Writer</a>) Info(m <a href="/builtin#string">string</a>) <a href="/builtin#error">error</a></pre></div><p>
+Info logs a message with severity LOG_INFO, ignoring the severity
+passed to New.
+</p>
+
+            
+  
+
+          
+            <h4 id="Writer.Notice" data-kind="m">func (*Writer) <a title="View Source" href="https://github.com/golang/go/blob/master/src/log/syslog/syslog.go#L227">Notice</a> <a class="permalink" href="#Writer.Notice">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=Writer%2FNotice&amp;pkg=log%2Fsyslog&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/log/syslog/syslog.go#L227">❖</a><pre>func (w *<a href="#Writer">Writer</a>) Notice(m <a href="/builtin#string">string</a>) <a href="/builtin#error">error</a></pre></div><p>
+Notice logs a message with severity LOG_NOTICE, ignoring the
+severity passed to New.
+</p>
+
+            
+  
+
+          
+            <h4 id="Writer.Warning" data-kind="m">func (*Writer) <a title="View Source" href="https://github.com/golang/go/blob/master/src/log/syslog/syslog.go#L220">Warning</a> <a class="permalink" href="#Writer.Warning">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=Writer%2FWarning&amp;pkg=log%2Fsyslog&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/log/syslog/syslog.go#L220">❖</a><pre>func (w *<a href="#Writer">Writer</a>) Warning(m <a href="/builtin#string">string</a>) <a href="/builtin#error">error</a></pre></div><p>
+Warning logs a message with severity LOG_WARNING, ignoring the
+severity passed to New.
+</p>
+
+            
+  
+
+          
+            <h4 id="Writer.Write" data-kind="m">func (*Writer) <a title="View Source" href="https://github.com/golang/go/blob/master/src/log/syslog/syslog.go#L173">Write</a> <a class="permalink" href="#Writer.Write">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=Writer%2FWrite&amp;pkg=log%2Fsyslog&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/log/syslog/syslog.go#L173">❖</a><pre>func (w *<a href="#Writer">Writer</a>) Write(b []<a href="/builtin#byte">byte</a>) (<a href="/builtin#int">int</a>, <a href="/builtin#error">error</a>)</pre></div><p>
+Write sends a log message to the syslog daemon.
+</p>
+
+            
+  
+
+          
+        
+        
+
+
+  <h3 id="pkg-note-bug">Bugs <a class="permalink" href="#pkg-note-bug">&para;</a></h3><p><a title="View Source" href="https://github.com/golang/go/blob/master/src/log/syslog/doc.go#L19">☞</a> This package is not implemented on Windows. As the
+syslog package is frozen, Windows users are encouraged to
+use a package outside of the standard library. For background,
+see https://github.com/golang/go/blob/master/issue/1108.<p><a title="View Source" href="https://github.com/golang/go/blob/master/src/log/syslog/doc.go#L24">☞</a> This package is not implemented on Plan 9.<p><a title="View Source" href="https://github.com/golang/go/blob/master/src/log/syslog/doc.go#L26">☞</a> This package is not implemented on NaCl (Native Client).
+
+
 
 <div id="x-footer" class="clearfix">
   <div class="container">
@@ -31,7 +350,7 @@
   </div>
 </div>
 <script src="../assets/jquery-2.0.3.min.js"></script>
-<script src="../bootstrap.min.js"></script>
-<script src="../site.js"></script>
+<script src="../assets/bootstrap.min.js"></script>
+<script src="../assets/site.js"></script>
 </body>
 </html>

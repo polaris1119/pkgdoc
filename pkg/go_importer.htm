@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="../assets/site.css" rel="stylesheet">
+  <title>go/importer</title>
+  
+    <meta name="twitter:title" content="Package importer">
+    <meta property="og:title" content="Package importer">
+    <meta name="description" content="Package importer provides access to export data importers.">
+    <meta name="twitter:description" content="Package importer provides access to export data importers.">
+    <meta property="og:description" content="Package importer provides access to export data importers.">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:site" content="@golang">
+  
+  
+
+  
+
+</head>
+<body>
+
+<div class="container">
+
+        <h2 id="pkg-overview">package importer</h2>
+
+        <p><code>import "go/importer"</code>
+
+        <p>
+Package importer provides access to export data importers.</p>
+
+
+        
+  
+
+
+        
+        <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+
+        
+
+        <ul class="list-unstyled">
+          
+          
+          <li><a href="#Default">func Default() types.Importer</a></li><li><a href="#For">func For(compiler string, lookup Lookup) types.Importer</a></li>
+          
+            <li><a href="#Lookup">type Lookup</a></li>
+            
+            
+            
+            
+          
+          <li><a href="#pkg-note-bug">Bugs</a></li>
+        </ul>
+
+        
+        
+          <span id="pkg-examples"></span>
+        
+
+        
+        
+<h4 id="pkg-files">
+  <a href="https://github.com/golang/go/blob/master/src/go/importer/">Package Files</a>
+  <a class="permalink" href="#pkg-files">&para;</a>
+</h4>
+
+<p><a href="https://github.com/golang/go/blob/master/src/go/importer/importer.go">importer.go</a> </p>
+
+        
+        
+
+        
+        
+
+        
+        
+        
+          <h3 id="Default" data-kind="f">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/go/importer/importer.go#L54">Default</a> <a class="permalink" href="#Default">&para;</a> <a class="uses" title="List Function Callers" href="https://sourcegraph.com/-/godoc/refs?def=Default&amp;pkg=go%2Fimporter&amp;repo=">Uses</a></h3>
+          <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/go/importer/importer.go#L54">❖</a><pre>func Default() <a href="/go/types">types</a>.<a href="/go/types#Importer">Importer</a></pre></div><p>
+Default returns an Importer for the compiler that built the running binary.
+If available, the result implements types.ImporterFrom.
+</p>
+
+          
+  
+
+        
+          <h3 id="For" data-kind="f">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/go/importer/importer.go#L24">For</a> <a class="permalink" href="#For">&para;</a> <a class="uses" title="List Function Callers" href="https://sourcegraph.com/-/godoc/refs?def=For&amp;pkg=go%2Fimporter&amp;repo=">Uses</a></h3>
+          <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/go/importer/importer.go#L24">❖</a><pre>func For(compiler <a href="/builtin#string">string</a>, lookup <a href="#Lookup">Lookup</a>) <a href="/go/types">types</a>.<a href="/go/types#Importer">Importer</a></pre></div><p>
+For returns an Importer for the given compiler and lookup interface,
+or nil. Supported compilers are &#34;gc&#34;, and &#34;gccgo&#34;. If lookup is nil,
+the default package lookup mechanism for the given compiler is used.
+BUG(issue13847): For does not support non-nil lookup functions.
+</p>
+
+          
+  
+
+        
+
+        
+        
+
+        
+          <h3 id="Lookup" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/go/importer/importer.go#L18">Lookup</a> <a class="permalink" href="#Lookup">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=Lookup&amp;pkg=go%2Fimporter&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/go/importer/importer.go#L18">❖</a><pre>type Lookup func(path <a href="/builtin#string">string</a>) (<a href="/io">io</a>.<a href="/io#ReadCloser">ReadCloser</a>, <a href="/builtin#error">error</a>)</pre></div><p>
+A Lookup function returns a reader to access package data for
+a given import path, or an error if no matching package is found.
+</p>
+
+          
+          
+          
+  
+
+
+          
+
+          
+        
+        
+
+
+  <h3 id="pkg-note-bug">Bugs <a class="permalink" href="#pkg-note-bug">&para;</a></h3><p><a title="View Source" href="https://github.com/golang/go/blob/master/src/go/importer/importer.go#L23">☞</a> For does not support non-nil lookup functions.
+
+<div id="x-footer" class="clearfix">
+  <div class="container">
+    <a href="http://studygolang.com/">Go语言中文网</a>
+    <span class="text-muted">|</span> <a href="http://golang.org/">Go Language</a>
+    <span class="pull-right"><a href="#">Back to top</a></span>
+  </div>
+</div>
+<script src="../assets/jquery-2.0.3.min.js"></script>
+<script src="../assets/bootstrap.min.js"></script>
+<script src="../assets/site.js"></script>
+</body>
+</html>

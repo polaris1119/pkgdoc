@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="../assets/site.css" rel="stylesheet">
+  <title>testing/quick</title>
+  
+    <meta name="twitter:title" content="Package quick">
+    <meta property="og:title" content="Package quick">
+    <meta name="description" content="Package quick implements utility functions to help with black box testing.">
+    <meta name="twitter:description" content="Package quick implements utility functions to help with black box testing.">
+    <meta property="og:description" content="Package quick implements utility functions to help with black box testing.">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:site" content="@golang">
+  
+  
+</head>
+<body>
+
+<div class="container">
+ 
+        <h2 id="pkg-overview">package quick</h2>
+
+        <p><code>import "testing/quick"</code>
+
+        <p>
+Package quick implements utility functions to help with black box testing.
+</p>
+<p>
+The testing/quick package is frozen and is not accepting new features.</p>
+
+
+        
+  
+
+
+        
+        <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+
+        
+
+        <ul class="list-unstyled">
+          
+          
+          <li><a href="#Check">func Check(f interface{}, config *Config) error</a></li><li><a href="#CheckEqual">func CheckEqual(f, g interface{}, config *Config) error</a></li><li><a href="#Value">func Value(t reflect.Type, rand *rand.Rand) (value reflect.Value, ok bool)</a></li>
+          
+            <li><a href="#CheckEqualError">type CheckEqualError</a></li>
+            <ul>
+            
+            <li><a href="#CheckEqualError.Error">func (s *CheckEqualError) Error() string</a></li>
+            </ul>
+          
+            <li><a href="#CheckError">type CheckError</a></li>
+            <ul>
+            
+            <li><a href="#CheckError.Error">func (s *CheckError) Error() string</a></li>
+            </ul>
+          
+            <li><a href="#Config">type Config</a></li>
+            
+            
+            
+            
+          
+            <li><a href="#Generator">type Generator</a></li>
+            
+            
+            
+            
+          
+            <li><a href="#SetupError">type SetupError</a></li>
+            <ul>
+            
+            <li><a href="#SetupError.Error">func (s SetupError) Error() string</a></li>
+            </ul>
+          
+          
+        </ul>
+
+        
+        
+          <span id="pkg-examples"></span>
+        
+
+        
+        
+<h4 id="pkg-files">
+  <a href="https://github.com/golang/go/blob/master/src/testing/quick/">Package Files</a>
+  <a class="permalink" href="#pkg-files">&para;</a>
+</h4>
+
+<p><a href="https://github.com/golang/go/blob/master/src/testing/quick/quick.go">quick.go</a> </p>
+
+        
+        
+
+        
+        
+
+        
+        
+        
+          <h3 id="Check" data-kind="f">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/quick/quick.go#L258">Check</a> <a class="permalink" href="#Check">&para;</a> <a class="uses" title="List Function Callers" href="https://sourcegraph.com/-/godoc/refs?def=Check&amp;pkg=testing%2Fquick&amp;repo=">Uses</a></h3>
+          <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/quick/quick.go#L258">❖</a><pre>func Check(f interface{}, config *<a href="#Config">Config</a>) <a href="/builtin#error">error</a></pre></div><p>
+Check looks for an input to f, any function that returns bool,
+such that f returns false. It calls f repeatedly, with arbitrary
+values for each argument. If f returns false on a given input,
+Check returns that input as a *CheckError.
+For example:
+</p>
+<pre>func TestOddMultipleOfThree(t *testing.T) {
+	f := func(x int) bool {
+		y := OddMultipleOfThree(x)
+		return y%2 == 1 &amp;&amp; y%3 == 0
+	}
+	if err := quick.Check(f, nil); err != nil {
+		t.Error(err)
+	}
+}
+</pre>
+
+          
+  
+
+        
+          <h3 id="CheckEqual" data-kind="f">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/quick/quick.go#L297">CheckEqual</a> <a class="permalink" href="#CheckEqual">&para;</a> <a class="uses" title="List Function Callers" href="https://sourcegraph.com/-/godoc/refs?def=CheckEqual&amp;pkg=testing%2Fquick&amp;repo=">Uses</a></h3>
+          <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/quick/quick.go#L297">❖</a><pre>func CheckEqual(f, g interface{}, config *<a href="#Config">Config</a>) <a href="/builtin#error">error</a></pre></div><p>
+CheckEqual looks for an input on which f and g return different results.
+It calls f and g repeatedly with arbitrary values for each argument.
+If f and g return different answers, CheckEqual returns a *CheckEqualError
+describing the input and the outputs.
+</p>
+
+          
+  
+
+        
+          <h3 id="Value" data-kind="f">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/quick/quick.go#L56">Value</a> <a class="permalink" href="#Value">&para;</a> <a class="uses" title="List Function Callers" href="https://sourcegraph.com/-/godoc/refs?def=Value&amp;pkg=testing%2Fquick&amp;repo=">Uses</a></h3>
+          <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/quick/quick.go#L56">❖</a><pre>func Value(t <a href="/reflect">reflect</a>.<a href="/reflect#Type">Type</a>, rand *<a href="/math/rand">rand</a>.<a href="/math/rand#Rand">Rand</a>) (value <a href="/reflect">reflect</a>.<a href="/reflect#Value">Value</a>, ok <a href="/builtin#bool">bool</a>)</pre></div><p>
+Value returns an arbitrary value of the given type.
+If the type implements the Generator interface, that will be used.
+Note: To create arbitrary values for structs, all the fields must be exported.
+</p>
+
+          
+  
+
+        
+
+        
+        
+
+        
+          <h3 id="CheckEqualError" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/quick/quick.go#L233">CheckEqualError</a> <a class="permalink" href="#CheckEqualError">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=CheckEqualError&amp;pkg=testing%2Fquick&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/quick/quick.go#L233">❖</a><pre>type CheckEqualError struct {
+    <a href="#CheckError">CheckError</a>
+    <span id="CheckEqualError.Out1">Out1</span> []interface{}
+    <span id="CheckEqualError.Out2">Out2</span> []interface{}
+}</pre></div><p>
+A CheckEqualError is the result CheckEqual finding an error.
+</p>
+
+          
+          
+          
+  
+
+
+          
+
+          
+            <h4 id="CheckEqualError.Error" data-kind="m">func (*CheckEqualError) <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/quick/quick.go#L239">Error</a> <a class="permalink" href="#CheckEqualError.Error">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=CheckEqualError%2FError&amp;pkg=testing%2Fquick&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/quick/quick.go#L239">❖</a><pre>func (s *<a href="#CheckEqualError">CheckEqualError</a>) Error() <a href="/builtin#string">string</a></pre></div>
+            
+  
+
+          
+        
+          <h3 id="CheckError" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/quick/quick.go#L223">CheckError</a> <a class="permalink" href="#CheckError">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=CheckError&amp;pkg=testing%2Fquick&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/quick/quick.go#L223">❖</a><pre>type CheckError struct {
+    <span id="CheckError.Count">Count</span> <a href="/builtin#int">int</a>
+    <span id="CheckError.In">In</span>    []interface{}
+}</pre></div><p>
+A CheckError is the result of Check finding an error.
+</p>
+
+          
+          
+          
+  
+
+
+          
+
+          
+            <h4 id="CheckError.Error" data-kind="m">func (*CheckError) <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/quick/quick.go#L228">Error</a> <a class="permalink" href="#CheckError.Error">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=CheckError%2FError&amp;pkg=testing%2Fquick&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/quick/quick.go#L228">❖</a><pre>func (s *<a href="#CheckError">CheckError</a>) Error() <a href="/builtin#string">string</a></pre></div>
+            
+  
+
+          
+        
+          <h3 id="Config" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/quick/quick.go#L174">Config</a> <a class="permalink" href="#Config">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=Config&amp;pkg=testing%2Fquick&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/quick/quick.go#L174">❖</a><pre>type Config struct {
+    <span class="com">// MaxCount sets the maximum number of iterations. If zero,
+    // MaxCountScale is used.</span>
+    <span id="Config.MaxCount">MaxCount</span> <a href="/builtin#int">int</a>
+    <span class="com">// MaxCountScale is a non-negative scale factor applied to the default
+    // maximum. If zero, the default is unchanged.</span>
+    <span id="Config.MaxCountScale">MaxCountScale</span> <a href="/builtin#float64">float64</a>
+    <span class="com">// If non-nil, rand is a source of random numbers. Otherwise a default
+    // pseudo-random source will be used.</span>
+    <span id="Config.Rand">Rand</span> *<a href="/math/rand">rand</a>.<a href="/math/rand#Rand">Rand</a>
+    <span class="com">// If non-nil, the Values function generates a slice of arbitrary
+    // reflect.Values that are congruent with the arguments to the function
+    // being tested. Otherwise, the top-level Value function is used
+    // to generate them.</span>
+    <span id="Config.Values">Values</span> func([]<a href="/reflect">reflect</a>.<a href="/reflect#Value">Value</a>, *<a href="/math/rand">rand</a>.<a href="/math/rand#Rand">Rand</a>)
+}</pre></div><p>
+A Config structure contains options for running a test.
+</p>
+
+          
+          
+          
+  
+
+
+          
+
+          
+        
+          <h3 id="Generator" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/quick/quick.go#L22">Generator</a> <a class="permalink" href="#Generator">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=Generator&amp;pkg=testing%2Fquick&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="m"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/quick/quick.go#L22">❖</a><pre>type Generator interface {
+    <span class="com">// Generate returns a random instance of the type on which it is a
+    // method using the size as a size hint.</span>
+    <span id="Generator.Generate">Generate</span>(rand *<a href="/math/rand">rand</a>.<a href="/math/rand#Rand">Rand</a>, size <a href="/builtin#int">int</a>) <a href="/reflect">reflect</a>.<a href="/reflect#Value">Value</a>
+}</pre></div><p>
+A Generator can generate random values of its own type.
+</p>
+
+          
+          
+          
+  
+
+
+          
+
+          
+        
+          <h3 id="SetupError" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/quick/quick.go#L218">SetupError</a> <a class="permalink" href="#SetupError">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=SetupError&amp;pkg=testing%2Fquick&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/quick/quick.go#L218">❖</a><pre>type SetupError <a href="/builtin#string">string</a></pre></div><p>
+A SetupError is the result of an error in the way that check is being
+used, independent of the functions being tested.
+</p>
+
+          
+          
+          
+  
+
+
+          
+
+          
+            <h4 id="SetupError.Error" data-kind="m">func (SetupError) <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/quick/quick.go#L220">Error</a> <a class="permalink" href="#SetupError.Error">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=SetupError%2FError&amp;pkg=testing%2Fquick&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/quick/quick.go#L220">❖</a><pre>func (s <a href="#SetupError">SetupError</a>) Error() <a href="/builtin#string">string</a></pre></div>
+            
+  
+<div id="x-footer" class="clearfix">
+  <div class="container">
+    <a href="http://studygolang.com/">Go语言中文网</a>
+    <span class="text-muted">|</span> <a href="http://golang.org/">Go Language</a>
+    <span class="pull-right"><a href="#">Back to top</a></span>
+  </div>
+</div>
+<script src="../assets/jquery-2.0.3.min.js"></script>
+<script src="../assets/bootstrap.min.js"></script>
+<script src="../assets/site.js"></script>
+</body>
+</html>

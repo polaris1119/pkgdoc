@@ -3,7 +3,7 @@
 <head profile="http://a9.com/-/spec/opensearch/1.1/">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link href="./site.css" rel="stylesheet">
+<link href="../assets/site.css" rel="stylesheet">
 <title>net/smtp</title>
 <meta name="private:description" content="刘志曦翻译于2014年夏，Go 1.3版本">
 </head>
@@ -189,5 +189,15 @@ if err != nil {
     <pre class="funcdecl">func SendMail(addr <a href="builtin.htm#string">string</a>, a <a href="#Auth">Auth</a>, from <a href="builtin.htm#string">string</a>, to []<a href="builtin.htm#string">string</a>, msg []<a href="builtin.htm#byte">byte</a>) <a href="builtin.htm#error">error</a></pre>
     <p>SendMail连接到addr指定的服务器；如果支持会开启TLS；如果支持会使用a认证身份；然后以from为邮件源地址发送邮件msg到目标地址to。（可以是多个目标地址：群发）</p>
 </div>
+<div id="x-footer" class="clearfix">
+  <div class="container">
+    <a href="http://studygolang.com/">Go语言中文网</a>
+    <span class="text-muted">|</span> <a href="http://golang.org/">Go Language</a>
+    <span class="pull-right"><a href="#">Back to top</a></span>
+  </div>
+</div>
+<script src="../assets/jquery-2.0.3.min.js"></script>
+<script src="../assets/bootstrap.min.js"></script>
+<script src="../assets/site.js"></script>
 </body>
 </html>

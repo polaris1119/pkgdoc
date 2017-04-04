@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="../assets/site.css" rel="stylesheet">
+  <title>testing/iotest</title>
+  
+    <meta name="twitter:title" content="Package iotest">
+    <meta property="og:title" content="Package iotest">
+    <meta name="description" content="Package iotest implements Readers and Writers useful mainly for testing.">
+    <meta name="twitter:description" content="Package iotest implements Readers and Writers useful mainly for testing.">
+    <meta property="og:description" content="Package iotest implements Readers and Writers useful mainly for testing.">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:site" content="@golang">
+  
+  
+
+  
+
+</head>
+<body>
+
+<div class="container">
+  
+
+        <h2 id="pkg-overview">package iotest</h2>
+
+        <p><code>import "testing/iotest"</code>
+
+        <p>
+Package iotest implements Readers and Writers useful mainly for testing.</p>
+
+
+        
+  
+
+
+        
+        <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+
+        
+
+        <ul class="list-unstyled">
+          
+          <li><a href="#pkg-variables">Variables</a></li>
+          <li><a href="#DataErrReader">func DataErrReader(r io.Reader) io.Reader</a></li><li><a href="#HalfReader">func HalfReader(r io.Reader) io.Reader</a></li><li><a href="#NewReadLogger">func NewReadLogger(prefix string, r io.Reader) io.Reader</a></li><li><a href="#NewWriteLogger">func NewWriteLogger(prefix string, w io.Writer) io.Writer</a></li><li><a href="#OneByteReader">func OneByteReader(r io.Reader) io.Reader</a></li><li><a href="#TimeoutReader">func TimeoutReader(r io.Reader) io.Reader</a></li><li><a href="#TruncateWriter">func TruncateWriter(w io.Writer, n int64) io.Writer</a></li>
+          
+          
+        </ul>
+
+        
+        
+          <span id="pkg-examples"></span>
+        
+
+        
+        
+<h4 id="pkg-files">
+  <a href="https://github.com/golang/go/blob/master/src/testing/iotest/">Package Files</a>
+  <a class="permalink" href="#pkg-files">&para;</a>
+</h4>
+
+<p><a href="https://github.com/golang/go/blob/master/src/testing/iotest/logger.go">logger.go</a> <a href="https://github.com/golang/go/blob/master/src/testing/iotest/reader.go">reader.go</a> <a href="https://github.com/golang/go/blob/master/src/testing/iotest/writer.go">writer.go</a> </p>
+
+        
+        
+
+        
+        
+          <h3 id="pkg-variables">Variables <a class="permalink" href="#pkg-variables">&para;</a></h3>
+          <div class="decl" data-kind="v"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/iotest/reader.go#L71">❖</a><pre>var <span id="ErrTimeout">ErrTimeout</span> = <a href="/errors">errors</a>.<a href="/errors#New">New</a>(&#34;timeout&#34;)</pre></div>
+        
+
+        
+        
+        
+          <h3 id="DataErrReader" data-kind="f">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/iotest/reader.go#L45">DataErrReader</a> <a class="permalink" href="#DataErrReader">&para;</a> <a class="uses" title="List Function Callers" href="https://sourcegraph.com/-/godoc/refs?def=DataErrReader&amp;pkg=testing%2Fiotest&amp;repo=">Uses</a></h3>
+          <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/iotest/reader.go#L45">❖</a><pre>func DataErrReader(r <a href="/io">io</a>.<a href="/io#Reader">Reader</a>) <a href="/io">io</a>.<a href="/io#Reader">Reader</a></pre></div><p>
+DataErrReader changes the way errors are handled by a Reader. Normally, a
+Reader returns an error (typically EOF) from the first Read call after the
+last piece of data is read. DataErrReader wraps a Reader and changes its
+behavior so the final error is returned along with the final data, instead
+of in the first call after the final data.
+</p>
+
+          
+  
+
+        
+          <h3 id="HalfReader" data-kind="f">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/iotest/reader.go#L30">HalfReader</a> <a class="permalink" href="#HalfReader">&para;</a> <a class="uses" title="List Function Callers" href="https://sourcegraph.com/-/godoc/refs?def=HalfReader&amp;pkg=testing%2Fiotest&amp;repo=">Uses</a></h3>
+          <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/iotest/reader.go#L30">❖</a><pre>func HalfReader(r <a href="/io">io</a>.<a href="/io#Reader">Reader</a>) <a href="/io">io</a>.<a href="/io#Reader">Reader</a></pre></div><p>
+HalfReader returns a Reader that implements Read
+by reading half as many requested bytes from r.
+</p>
+
+          
+  
+
+        
+          <h3 id="NewReadLogger" data-kind="f">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/iotest/logger.go#L52">NewReadLogger</a> <a class="permalink" href="#NewReadLogger">&para;</a> <a class="uses" title="List Function Callers" href="https://sourcegraph.com/-/godoc/refs?def=NewReadLogger&amp;pkg=testing%2Fiotest&amp;repo=">Uses</a></h3>
+          <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/iotest/logger.go#L52">❖</a><pre>func NewReadLogger(prefix <a href="/builtin#string">string</a>, r <a href="/io">io</a>.<a href="/io#Reader">Reader</a>) <a href="/io">io</a>.<a href="/io#Reader">Reader</a></pre></div><p>
+NewReadLogger returns a reader that behaves like r except
+that it logs (using log.Print) each read to standard error,
+printing the prefix and the hexadecimal data read.
+</p>
+
+          
+  
+
+        
+          <h3 id="NewWriteLogger" data-kind="f">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/iotest/logger.go#L30">NewWriteLogger</a> <a class="permalink" href="#NewWriteLogger">&para;</a> <a class="uses" title="List Function Callers" href="https://sourcegraph.com/-/godoc/refs?def=NewWriteLogger&amp;pkg=testing%2Fiotest&amp;repo=">Uses</a></h3>
+          <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/iotest/logger.go#L30">❖</a><pre>func NewWriteLogger(prefix <a href="/builtin#string">string</a>, w <a href="/io">io</a>.<a href="/io#Writer">Writer</a>) <a href="/io">io</a>.<a href="/io#Writer">Writer</a></pre></div><p>
+NewWriteLogger returns a writer that behaves like w except
+that it logs (using log.Printf) each write to standard error,
+printing the prefix and the hexadecimal data written.
+</p>
+
+          
+  
+
+        
+          <h3 id="OneByteReader" data-kind="f">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/iotest/reader.go#L15">OneByteReader</a> <a class="permalink" href="#OneByteReader">&para;</a> <a class="uses" title="List Function Callers" href="https://sourcegraph.com/-/godoc/refs?def=OneByteReader&amp;pkg=testing%2Fiotest&amp;repo=">Uses</a></h3>
+          <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/iotest/reader.go#L15">❖</a><pre>func OneByteReader(r <a href="/io">io</a>.<a href="/io#Reader">Reader</a>) <a href="/io">io</a>.<a href="/io#Reader">Reader</a></pre></div><p>
+OneByteReader returns a Reader that implements
+each non-empty Read by reading one byte from r.
+</p>
+
+          
+  
+
+        
+          <h3 id="TimeoutReader" data-kind="f">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/iotest/reader.go#L75">TimeoutReader</a> <a class="permalink" href="#TimeoutReader">&para;</a> <a class="uses" title="List Function Callers" href="https://sourcegraph.com/-/godoc/refs?def=TimeoutReader&amp;pkg=testing%2Fiotest&amp;repo=">Uses</a></h3>
+          <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/iotest/reader.go#L75">❖</a><pre>func TimeoutReader(r <a href="/io">io</a>.<a href="/io#Reader">Reader</a>) <a href="/io">io</a>.<a href="/io#Reader">Reader</a></pre></div><p>
+TimeoutReader returns ErrTimeout on the second read
+with no data. Subsequent calls to read succeed.
+</p>
+
+          
+  
+
+        
+          <h3 id="TruncateWriter" data-kind="f">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/iotest/writer.go#L11">TruncateWriter</a> <a class="permalink" href="#TruncateWriter">&para;</a> <a class="uses" title="List Function Callers" href="https://sourcegraph.com/-/godoc/refs?def=TruncateWriter&amp;pkg=testing%2Fiotest&amp;repo=">Uses</a></h3>
+          <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/iotest/writer.go#L11">❖</a><pre>func TruncateWriter(w <a href="/io">io</a>.<a href="/io#Writer">Writer</a>, n <a href="/builtin#int64">int64</a>) <a href="/io">io</a>.<a href="/io#Writer">Writer</a></pre></div><p>
+TruncateWriter returns a Writer that writes to w
+but stops silently after n bytes.
+</p>
+
+          
+<div id="x-footer" class="clearfix">
+  <div class="container">
+    <a href="http://studygolang.com/">Go语言中文网</a>
+    <span class="text-muted">|</span> <a href="http://golang.org/">Go Language</a>
+    <span class="pull-right"><a href="#">Back to top</a></span>
+  </div>
+</div>
+<script src="../assets/jquery-2.0.3.min.js"></script>
+<script src="../assets/bootstrap.min.js"></script>
+<script src="../assets/site.js"></script>
+</body>
+</html>

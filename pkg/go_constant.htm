@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="../assets/site.css" rel="stylesheet">
+  <title>go/constant</title>
+  
+    <meta name="twitter:title" content="Package constant">
+    <meta property="og:title" content="Package constant">
+    <meta name="description" content="Package constant implements Values representing untyped Go constants and their corresponding operations.">
+    <meta name="twitter:description" content="Package constant implements Values representing untyped Go constants and their corresponding operations.">
+    <meta property="og:description" content="Package constant implements Values representing untyped Go constants and their corresponding operations.">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:site" content="@golang">
+  
+  
+
+  
+
+</head>
+<body>
+<div class="container">
+  <h2 id="pkg-overview">package constant</h2>
+
+        <p><code>import "go/constant"</code>
+
+        <p>
+Package constant implements Values representing untyped
+Go constants and their corresponding operations.
+</p>
+<p>
+A special Unknown value may be used when a value
+is unknown due to an error. Operations on unknown
+values produce unknown values unless specified
+otherwise.</p>
+
+
+        
+  
+
+
+        
+        <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+
+        
+
+        <ul class="list-unstyled">
+          
+          
+          <li><a href="#BitLen">func BitLen(x Value) int</a></li><li><a href="#BoolVal">func BoolVal(x Value) bool</a></li><li><a href="#Bytes">func Bytes(x Value) []byte</a></li><li><a href="#Compare">func Compare(x_ Value, op token.Token, y_ Value) bool</a></li><li><a href="#Float32Val">func Float32Val(x Value) (float32, bool)</a></li><li><a href="#Float64Val">func Float64Val(x Value) (float64, bool)</a></li><li><a href="#Int64Val">func Int64Val(x Value) (int64, bool)</a></li><li><a href="#Sign">func Sign(x Value) int</a></li><li><a href="#StringVal">func StringVal(x Value) string</a></li><li><a href="#Uint64Val">func Uint64Val(x Value) (uint64, bool)</a></li>
+          
+            <li><a href="#Kind">type Kind</a></li>
+            
+            
+            
+            
+          
+            <li><a href="#Value">type Value</a></li>
+            <ul>
+            <li><a href="#BinaryOp">func BinaryOp(x_ Value, op token.Token, y_ Value) Value</a></li><li><a href="#Denom">func Denom(x Value) Value</a></li><li><a href="#Imag">func Imag(x Value) Value</a></li><li><a href="#MakeBool">func MakeBool(b bool) Value</a></li><li><a href="#MakeFloat64">func MakeFloat64(x float64) Value</a></li><li><a href="#MakeFromBytes">func MakeFromBytes(bytes []byte) Value</a></li><li><a href="#MakeFromLiteral">func MakeFromLiteral(lit string, tok token.Token, zero uint) Value</a></li><li><a href="#MakeImag">func MakeImag(x Value) Value</a></li><li><a href="#MakeInt64">func MakeInt64(x int64) Value</a></li><li><a href="#MakeString">func MakeString(s string) Value</a></li><li><a href="#MakeUint64">func MakeUint64(x uint64) Value</a></li><li><a href="#MakeUnknown">func MakeUnknown() Value</a></li><li><a href="#Num">func Num(x Value) Value</a></li><li><a href="#Real">func Real(x Value) Value</a></li><li><a href="#Shift">func Shift(x Value, op token.Token, s uint) Value</a></li><li><a href="#ToComplex">func ToComplex(x Value) Value</a></li><li><a href="#ToFloat">func ToFloat(x Value) Value</a></li><li><a href="#ToInt">func ToInt(x Value) Value</a></li><li><a href="#UnaryOp">func UnaryOp(op token.Token, y Value, prec uint) Value</a></li>
+            
+            </ul>
+          
+          
+        </ul>
+
+        
+        
+          <span id="pkg-examples"></span>
+        
+
+        
+        
+<h4 id="pkg-files">
+  <a href="https://github.com/golang/go/blob/master/src/go/constant/">Package Files</a>
+  <a class="permalink" href="#pkg-files">&para;</a>
+</h4>
+
+<p><a href="https://github.com/golang/go/blob/master/src/go/constant/value.go">value.go</a> </p>
+
+        
+        
+
+        
+        
+
+        
+        
+        
+          <h3 id="BitLen" data-kind="f">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/go/constant/value.go#L473">BitLen</a> <a class="permalink" href="#BitLen">&para;</a> <a class="uses" title="List Function Callers" href="https://sourcegraph.com/-/godoc/refs?def=BitLen&amp;pkg=go%2Fconstant&amp;repo=">Uses</a></h3>
+          <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/go/constant/value.go#L473">❖</a><pre>func BitLen(x <a href="#Value">Value</a>) <a href="/builtin#int">int</a></pre></div><p>
+BitLen returns the number of bits required to represent
+the absolute value x in binary representation; x must be an Int or an Unknown.
+If x is Unknown, the result is 0.
+</p>
+
+          
+  
+
+        
+          <h3 id="BoolVal" data-kind="f">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/go/constant/value.go#L368">BoolVal</a> <a class="permalink" href="#BoolVal">&para;</a> <a class="uses" title="List Function Callers" href="https://sourcegraph.com/-/godoc/refs?def=BoolVal&amp;pkg=go%2Fconstant&amp;repo=">Uses</a></h3>
+          <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/go/constant/value.go#L368">❖</a><pre>func BoolVal(x <a href="#Value">Value</a>) <a href="/builtin#bool">bool</a></pre></div><p>
+BoolVal returns the Go boolean value of x, which must be a Bool or an Unknown.
+If x is Unknown, the result is false.
+</p>
+
+          
+  
+
+        
+          <h3 id="Bytes" data-kind="f">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/go/constant/value.go#L526">Bytes</a> <a class="permalink" href="#Bytes">&para;</a> <a class="uses" title="List Function Callers" href="https://sourcegraph.com/-/godoc/refs?def=Bytes&amp;pkg=go%2Fconstant&amp;repo=">Uses</a></h3>
+          <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/go/constant/value.go#L526">❖</a><pre>func Bytes(x <a href="#Value">Value</a>) []<a href="/builtin#byte">byte</a></pre></div><p>
+Bytes returns the bytes for the absolute value of x in little-
+endian binary representation; x must be an Int.
+</p>
+
+          
+  
+
+        
+          <h3 id="Compare" data-kind="f">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/go/constant/value.go#L1184">Compare</a> <a class="permalink" href="#Compare">&para;</a> <a class="uses" title="List Function Callers" href="https://sourcegraph.com/-/godoc/refs?def=Compare&amp;pkg=go%2Fconstant&amp;repo=">Uses</a></h3>
+          <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/go/constant/value.go#L1184">❖</a><pre>func Compare(x_ <a href="#Value">Value</a>, op <a href="/go/token">token</a>.<a href="/go/token#Token">Token</a>, y_ <a href="#Value">Value</a>) <a href="/builtin#bool">bool</a></pre></div><p>
+Compare returns the result of the comparison x op y.
+The comparison must be defined for the operands.
+If one of the operands is Unknown, the result is
+false.
+</p>
+
+          
+  
+
+        
+          <h3 id="Float32Val" data-kind="f">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/go/constant/value.go#L425">Float32Val</a> <a class="permalink" href="#Float32Val">&para;</a> <a class="uses" title="List Function Callers" href="https://sourcegraph.com/-/godoc/refs?def=Float32Val&amp;pkg=go%2Fconstant&amp;repo=">Uses</a></h3>
+          <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/go/constant/value.go#L425">❖</a><pre>func Float32Val(x <a href="#Value">Value</a>) (<a href="/builtin#float32">float32</a>, <a href="/builtin#bool">bool</a>)</pre></div><p>
+Float32Val is like Float64Val but for float32 instead of float64.
+</p>
+
+          
+  
+
+        
+          <h3 id="Float64Val" data-kind="f">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/go/constant/value.go#L450">Float64Val</a> <a class="permalink" href="#Float64Val">&para;</a> <a class="uses" title="List Function Callers" href="https://sourcegraph.com/-/godoc/refs?def=Float64Val&amp;pkg=go%2Fconstant&amp;repo=">Uses</a></h3>
+          <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/go/constant/value.go#L450">❖</a><pre>func Float64Val(x <a href="#Value">Value</a>) (<a href="/builtin#float64">float64</a>, <a href="/builtin#bool">bool</a>)</pre></div><p>
+Float64Val returns the nearest Go float64 value of x and whether the result is exact;
+x must be numeric or an Unknown, but not Complex. For values too small (too close to 0)
+to represent as float64, Float64Val silently underflows to 0. The result sign always
+matches the sign of x, even for 0.
+If x is Unknown, the result is (0, false).
+</p>
+
+          
+  
+
+        
+          <h3 id="Int64Val" data-kind="f">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/go/constant/value.go#L395">Int64Val</a> <a class="permalink" href="#Int64Val">&para;</a> <a class="uses" title="List Function Callers" href="https://sourcegraph.com/-/godoc/refs?def=Int64Val&amp;pkg=go%2Fconstant&amp;repo=">Uses</a></h3>
+          <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/go/constant/value.go#L395">❖</a><pre>func Int64Val(x <a href="#Value">Value</a>) (<a href="/builtin#int64">int64</a>, <a href="/builtin#bool">bool</a>)</pre></div><p>
+Int64Val returns the Go int64 value of x and whether the result is exact;
+x must be an Int or an Unknown. If the result is not exact, its value is undefined.
+If x is Unknown, the result is (0, false).
+</p>
+
+          
+  
+
+        
+          <h3 id="Sign" data-kind="f">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/go/constant/value.go#L489">Sign</a> <a class="permalink" href="#Sign">&para;</a> <a class="uses" title="List Function Callers" href="https://sourcegraph.com/-/godoc/refs?def=Sign&amp;pkg=go%2Fconstant&amp;repo=">Uses</a></h3>
+          <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/go/constant/value.go#L489">❖</a><pre>func Sign(x <a href="#Value">Value</a>) <a href="/builtin#int">int</a></pre></div><p>
+Sign returns -1, 0, or 1 depending on whether x &lt; 0, x == 0, or x &gt; 0;
+x must be numeric or Unknown. For complex values x, the sign is 0 if x == 0,
+otherwise it is != 0. If x is Unknown, the result is 1.
+</p>
+
+          
+  
+
+        
+          <h3 id="StringVal" data-kind="f">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/go/constant/value.go#L381">StringVal</a> <a class="permalink" href="#StringVal">&para;</a> <a class="uses" title="List Function Callers" href="https://sourcegraph.com/-/godoc/refs?def=StringVal&amp;pkg=go%2Fconstant&amp;repo=">Uses</a></h3>
+          <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/go/constant/value.go#L381">❖</a><pre>func StringVal(x <a href="#Value">Value</a>) <a href="/builtin#string">string</a></pre></div><p>
+StringVal returns the Go string value of x, which must be a String or an Unknown.
+If x is Unknown, the result is &#34;&#34;.
+</p>
+
+          
+  
+
+        
+          <h3 id="Uint64Val" data-kind="f">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/go/constant/value.go#L411">Uint64Val</a> <a class="permalink" href="#Uint64Val">&para;</a> <a class="uses" title="List Function Callers" href="https://sourcegraph.com/-/godoc/refs?def=Uint64Val&amp;pkg=go%2Fconstant&amp;repo=">Uses</a></h3>
+          <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/go/constant/value.go#L411">❖</a><pre>func Uint64Val(x <a href="#Value">Value</a>) (<a href="/builtin#uint64">uint64</a>, <a href="/builtin#bool">bool</a>)</pre></div><p>
+Uint64Val returns the Go uint64 value of x and whether the result is exact;
+x must be an Int or an Unknown. If the result is not exact, its value is undefined.
+If x is Unknown, the result is (0, false).
+</p>
+
+          
+  
+
+        
+
+        
+        
+
+        
+          <h3 id="Kind" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/go/constant/value.go#L25">Kind</a> <a class="permalink" href="#Kind">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=Kind&amp;pkg=go%2Fconstant&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/go/constant/value.go#L25">❖</a><pre>type Kind <a href="/builtin#int">int</a></pre></div><p>
+Kind specifies the kind of value represented by a Value.
+</p>
+
+          <div class="decl" data-kind="c"><a title="View Source" href="https://github.com/golang/go/blob/master/src/go/constant/value.go#L27">❖</a><pre>const (
+    <span class="com">// unknown values</span>
+    <span id="Unknown">Unknown</span> <a href="#Kind">Kind</a> = <a href="/builtin#iota">iota</a>
+
+    <span class="com">// non-numeric values</span>
+    <span id="Bool">Bool</span>
+    <span id="String">String</span>
+
+    <span class="com">// numeric values</span>
+    <span id="Int">Int</span>
+    <span id="Float">Float</span>
+    <span id="Complex">Complex</span>
+)</pre></div>
+          
+          
+  
+
+
+          
+
+          
+        
+          <h3 id="Value" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/go/constant/value.go#L42">Value</a> <a class="permalink" href="#Value">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=Value&amp;pkg=go%2Fconstant&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="m"><a title="View Source" href="https://github.com/golang/go/blob/master/src/go/constant/value.go#L42">❖</a><pre>type Value interface {
+    <span class="com">// Kind returns the value kind.</span>
+    <span id="Value.Kind">Kind</span>() <a href="#Kind">Kind</a>
+
+    <span class="com">// String returns a short, quoted (human-readable) form of the value.
+    // For numeric values, the result may be an approximation;
+    // for String values the result may be a shortened string.
+    // Use ExactString for a string representing a value exactly.</span>
+    <span id="Value.String">String</span>() <a href="/builtin#string">string</a>
+
+    <span class="com">// ExactString returns an exact, quoted (human-readable) form of the value.
+    // If the Value is of Kind String, use StringVal to obtain the unquoted string.</span>
+    <span id="Value.ExactString">ExactString</span>() <a href="/builtin#string">string</a>
+    <span class="com">// contains filtered or unexported methods</span>
+}</pre></div><p>
+A Value represents the value of a Go constant.
+</p>
+
+          
+          
+          
+  
+
+
+          
+            <h4 id="BinaryOp" data-kind="f">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/go/constant/value.go#L948">BinaryOp</a> <a class="permalink" href="#BinaryOp">&para;</a> <a class="uses" title="List Function Callers" href="https://sourcegraph.com/-/godoc/refs?def=BinaryOp&amp;pkg=go%2Fconstant&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/go/constant/value.go#L948">❖</a><pre>func BinaryOp(x_ <a href="#Value">Value</a>, op <a href="/go/token">token</a>.<a href="/go/token#Token">Token</a>, y_ <a href="#Value">Value</a>) <a href="#Value">Value</a></pre></div><p>
+BinaryOp returns the result of the binary expression x op y.
+The operation must be defined for the operands. If one of the
+operands is Unknown, the result is Unknown.
+BinaryOp doesn&#39;t handle comparisons or shifts; use Compare
+or Shift instead.
+</p>
+<p>
+To force integer division of Int operands, use op == token.QUO_ASSIGN
+instead of token.QUO; the result is guaranteed to be Int in this case.
+Division by zero leads to a run-time panic.
+</p>
+
+            
+  
+
+          
+            <h4 id="Denom" data-kind="f">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/go/constant/value.go#L612">Denom</a> <a class="permalink" href="#Denom">&para;</a> <a class="uses" title="List Function Callers" href="https://sourcegraph.com/-/godoc/refs?def=Denom&amp;pkg=go%2Fconstant&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/go/constant/value.go#L612">❖</a><pre>func Denom(x <a href="#Value">Value</a>) <a href="#Value">Value</a></pre></div><p>
+Denom returns the denominator of x; x must be Int, Float, or Unknown.
+If x is Unknown, or if it is too large or small to represent as a
+fraction, the result is Unknown. Otherwise the result is an Int &gt;= 1.
+</p>
+
+            
+  
+
+          
+            <h4 id="Imag" data-kind="f">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/go/constant/value.go#L660">Imag</a> <a class="permalink" href="#Imag">&para;</a> <a class="uses" title="List Function Callers" href="https://sourcegraph.com/-/godoc/refs?def=Imag&amp;pkg=go%2Fconstant&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/go/constant/value.go#L660">❖</a><pre>func Imag(x <a href="#Value">Value</a>) <a href="#Value">Value</a></pre></div><p>
+Imag returns the imaginary part of x, which must be a numeric or unknown value.
+If x is Unknown, the result is Unknown.
+</p>
+
+            
+  
+
+          
+            <h4 id="MakeBool" data-kind="f">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/go/constant/value.go#L281">MakeBool</a> <a class="permalink" href="#MakeBool">&para;</a> <a class="uses" title="List Function Callers" href="https://sourcegraph.com/-/godoc/refs?def=MakeBool&amp;pkg=go%2Fconstant&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/go/constant/value.go#L281">❖</a><pre>func MakeBool(b <a href="/builtin#bool">bool</a>) <a href="#Value">Value</a></pre></div><p>
+MakeBool returns the Bool value for b.
+</p>
+
+            
+  
+
+          
+            <h4 id="MakeFloat64" data-kind="f">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/go/constant/value.go#L299">MakeFloat64</a> <a class="permalink" href="#MakeFloat64">&para;</a> <a class="uses" title="List Function Callers" href="https://sourcegraph.com/-/godoc/refs?def=MakeFloat64&amp;pkg=go%2Fconstant&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/go/constant/value.go#L299">❖</a><pre>func MakeFloat64(x <a href="/builtin#float64">float64</a>) <a href="#Value">Value</a></pre></div><p>
+MakeFloat64 returns the Float value for x.
+If x is not finite, the result is an Unknown.
+</p>
+
+            
+  
+
+          
+            <h4 id="MakeFromBytes" data-kind="f">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/go/constant/value.go#L558">MakeFromBytes</a> <a class="permalink" href="#MakeFromBytes">&para;</a> <a class="uses" title="List Function Callers" href="https://sourcegraph.com/-/godoc/refs?def=MakeFromBytes&amp;pkg=go%2Fconstant&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/go/constant/value.go#L558">❖</a><pre>func MakeFromBytes(bytes []<a href="/builtin#byte">byte</a>) <a href="#Value">Value</a></pre></div><p>
+MakeFromBytes returns the Int value given the bytes of its little-endian
+binary representation. An empty byte slice argument represents 0.
+</p>
+
+            
+  
+
+          
+            <h4 id="MakeFromLiteral" data-kind="f">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/go/constant/value.go#L315">MakeFromLiteral</a> <a class="permalink" href="#MakeFromLiteral">&para;</a> <a class="uses" title="List Function Callers" href="https://sourcegraph.com/-/godoc/refs?def=MakeFromLiteral&amp;pkg=go%2Fconstant&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/go/constant/value.go#L315">❖</a><pre>func MakeFromLiteral(lit <a href="/builtin#string">string</a>, tok <a href="/go/token">token</a>.<a href="/go/token#Token">Token</a>, zero <a href="/builtin#uint">uint</a>) <a href="#Value">Value</a></pre></div><p>
+MakeFromLiteral returns the corresponding integer, floating-point,
+imaginary, character, or string value for a Go literal string. The
+tok value must be one of token.INT, token.FLOAT, token.IMAG,
+token.CHAR, or token.STRING. The final argument must be zero.
+If the literal string syntax is invalid, the result is an Unknown.
+</p>
+
+            
+  
+
+          
+            <h4 id="MakeImag" data-kind="f">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/go/constant/value.go#L634">MakeImag</a> <a class="permalink" href="#MakeImag">&para;</a> <a class="uses" title="List Function Callers" href="https://sourcegraph.com/-/godoc/refs?def=MakeImag&amp;pkg=go%2Fconstant&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/go/constant/value.go#L634">❖</a><pre>func MakeImag(x <a href="#Value">Value</a>) <a href="#Value">Value</a></pre></div><p>
+MakeImag returns the Complex value x*i;
+x must be Int, Float, or Unknown.
+If x is Unknown, the result is Unknown.
+</p>
+
+            
+  
+
+          
+            <h4 id="MakeInt64" data-kind="f">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/go/constant/value.go#L287">MakeInt64</a> <a class="permalink" href="#MakeInt64">&para;</a> <a class="uses" title="List Function Callers" href="https://sourcegraph.com/-/godoc/refs?def=MakeInt64&amp;pkg=go%2Fconstant&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/go/constant/value.go#L287">❖</a><pre>func MakeInt64(x <a href="/builtin#int64">int64</a>) <a href="#Value">Value</a></pre></div><p>
+MakeInt64 returns the Int value for x.
+</p>
+
+            
+  
+
+          
+            <h4 id="MakeString" data-kind="f">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/go/constant/value.go#L284">MakeString</a> <a class="permalink" href="#MakeString">&para;</a> <a class="uses" title="List Function Callers" href="https://sourcegraph.com/-/godoc/refs?def=MakeString&amp;pkg=go%2Fconstant&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/go/constant/value.go#L284">❖</a><pre>func MakeString(s <a href="/builtin#string">string</a>) <a href="#Value">Value</a></pre></div><p>
+MakeString returns the String value for s.
+</p>
+
+            
+  
+
+          
+            <h4 id="MakeUint64" data-kind="f">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/go/constant/value.go#L290">MakeUint64</a> <a class="permalink" href="#MakeUint64">&para;</a> <a class="uses" title="List Function Callers" href="https://sourcegraph.com/-/godoc/refs?def=MakeUint64&amp;pkg=go%2Fconstant&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/go/constant/value.go#L290">❖</a><pre>func MakeUint64(x <a href="/builtin#uint64">uint64</a>) <a href="#Value">Value</a></pre></div><p>
+MakeUint64 returns the Int value for x.
+</p>
+
+            
+  
+
+          
+            <h4 id="MakeUnknown" data-kind="f">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/go/constant/value.go#L278">MakeUnknown</a> <a class="permalink" href="#MakeUnknown">&para;</a> <a class="uses" title="List Function Callers" href="https://sourcegraph.com/-/godoc/refs?def=MakeUnknown&amp;pkg=go%2Fconstant&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/go/constant/value.go#L278">❖</a><pre>func MakeUnknown() <a href="#Value">Value</a></pre></div><p>
+MakeUnknown returns the Unknown value.
+</p>
+
+            
+  
+
+          
+            <h4 id="Num" data-kind="f">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/go/constant/value.go#L590">Num</a> <a class="permalink" href="#Num">&para;</a> <a class="uses" title="List Function Callers" href="https://sourcegraph.com/-/godoc/refs?def=Num&amp;pkg=go%2Fconstant&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/go/constant/value.go#L590">❖</a><pre>func Num(x <a href="#Value">Value</a>) <a href="#Value">Value</a></pre></div><p>
+Num returns the numerator of x; x must be Int, Float, or Unknown.
+If x is Unknown, or if it is too large or small to represent as a
+fraction, the result is Unknown. Otherwise the result is an Int
+with the same sign as x.
+</p>
+
+            
+  
+
+          
+            <h4 id="Real" data-kind="f">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/go/constant/value.go#L647">Real</a> <a class="permalink" href="#Real">&para;</a> <a class="uses" title="List Function Callers" href="https://sourcegraph.com/-/godoc/refs?def=Real&amp;pkg=go%2Fconstant&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/go/constant/value.go#L647">❖</a><pre>func Real(x <a href="#Value">Value</a>) <a href="#Value">Value</a></pre></div><p>
+Real returns the real part of x, which must be a numeric or unknown value.
+If x is Unknown, the result is Unknown.
+</p>
+
+            
+  
+
+          
+            <h4 id="Shift" data-kind="f">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/go/constant/value.go#L1128">Shift</a> <a class="permalink" href="#Shift">&para;</a> <a class="uses" title="List Function Callers" href="https://sourcegraph.com/-/godoc/refs?def=Shift&amp;pkg=go%2Fconstant&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/go/constant/value.go#L1128">❖</a><pre>func Shift(x <a href="#Value">Value</a>, op <a href="/go/token">token</a>.<a href="/go/token#Token">Token</a>, s <a href="/builtin#uint">uint</a>) <a href="#Value">Value</a></pre></div><p>
+Shift returns the result of the shift expression x op s
+with op == token.SHL or token.SHR (&lt;&lt; or &gt;&gt;). x must be
+an Int or an Unknown. If x is Unknown, the result is x.
+</p>
+
+            
+  
+
+          
+            <h4 id="ToComplex" data-kind="f">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/go/constant/value.go#L751">ToComplex</a> <a class="permalink" href="#ToComplex">&para;</a> <a class="uses" title="List Function Callers" href="https://sourcegraph.com/-/godoc/refs?def=ToComplex&amp;pkg=go%2Fconstant&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/go/constant/value.go#L751">❖</a><pre>func ToComplex(x <a href="#Value">Value</a>) <a href="#Value">Value</a></pre></div><p>
+ToComplex converts x to a Complex value if x is representable as a Complex.
+Otherwise it returns an Unknown.
+</p>
+
+            
+  
+
+          
+            <h4 id="ToFloat" data-kind="f">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/go/constant/value.go#L732">ToFloat</a> <a class="permalink" href="#ToFloat">&para;</a> <a class="uses" title="List Function Callers" href="https://sourcegraph.com/-/godoc/refs?def=ToFloat&amp;pkg=go%2Fconstant&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/go/constant/value.go#L732">❖</a><pre>func ToFloat(x <a href="#Value">Value</a>) <a href="#Value">Value</a></pre></div><p>
+ToFloat converts x to a Float value if x is representable as a Float.
+Otherwise it returns an Unknown.
+</p>
+
+            
+  
+
+          
+            <h4 id="ToInt" data-kind="f">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/go/constant/value.go#L678">ToInt</a> <a class="permalink" href="#ToInt">&para;</a> <a class="uses" title="List Function Callers" href="https://sourcegraph.com/-/godoc/refs?def=ToInt&amp;pkg=go%2Fconstant&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/go/constant/value.go#L678">❖</a><pre>func ToInt(x <a href="#Value">Value</a>) <a href="#Value">Value</a></pre></div><p>
+ToInt converts x to an Int value if x is representable as an Int.
+Otherwise it returns an Unknown.
+</p>
+
+            
+  
+
+          
+            <h4 id="UnaryOp" data-kind="f">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/go/constant/value.go#L787">UnaryOp</a> <a class="permalink" href="#UnaryOp">&para;</a> <a class="uses" title="List Function Callers" href="https://sourcegraph.com/-/godoc/refs?def=UnaryOp&amp;pkg=go%2Fconstant&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/go/constant/value.go#L787">❖</a><pre>func UnaryOp(op <a href="/go/token">token</a>.<a href="/go/token#Token">Token</a>, y <a href="#Value">Value</a>, prec <a href="/builtin#uint">uint</a>) <a href="#Value">Value</a></pre></div><p>
+UnaryOp returns the result of the unary expression op y.
+The operation must be defined for the operand.
+If prec &gt; 0 it specifies the ^ (xor) result size in bits.
+If y is Unknown, the result is Unknown.
+</p>
+
+<div id="x-footer" class="clearfix">
+  <div class="container">
+    <a href="http://studygolang.com/">Go语言中文网</a>
+    <span class="text-muted">|</span> <a href="http://golang.org/">Go Language</a>
+    <span class="pull-right"><a href="#">Back to top</a></span>
+  </div>
+</div>
+<script src="../assets/jquery-2.0.3.min.js"></script>
+<script src="../assets/bootstrap.min.js"></script>
+<script src="../assets/site.js"></script>
+</body>
+</html>

@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="../assets/site.css" rel="stylesheet">
+  <title>debug/plan9obj</title>
+  
+    <meta name="twitter:title" content="Package plan9obj">
+    <meta property="og:title" content="Package plan9obj">
+    <meta name="description" content="Package plan9obj implements access to Plan 9 a.out object files.">
+    <meta name="twitter:description" content="Package plan9obj implements access to Plan 9 a.out object files.">
+    <meta property="og:description" content="Package plan9obj implements access to Plan 9 a.out object files.">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:site" content="@golang">
+  
+
+</head>
+<body>
+
+<div class="container">
+  
+        <h2 id="pkg-overview">package plan9obj</h2>
+
+        <p><code>import "debug/plan9obj"</code>
+
+        <p>
+Package plan9obj implements access to Plan 9 a.out object files.</p>
+
+
+        
+  
+
+
+        
+        <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+
+        
+
+        <ul class="list-unstyled">
+          <li><a href="#pkg-constants">Constants</a></li>
+          
+          
+          
+            <li><a href="#File">type File</a></li>
+            <ul>
+            <li><a href="#NewFile">func NewFile(r io.ReaderAt) (*File, error)</a></li><li><a href="#Open">func Open(name string) (*File, error)</a></li>
+            <li><a href="#File.Close">func (f *File) Close() error</a></li><li><a href="#File.Section">func (f *File) Section(name string) *Section</a></li><li><a href="#File.Symbols">func (f *File) Symbols() ([]Sym, error)</a></li>
+            </ul>
+          
+            <li><a href="#FileHeader">type FileHeader</a></li>
+            
+            
+            
+            
+          
+            <li><a href="#Section">type Section</a></li>
+            <ul>
+            
+            <li><a href="#Section.Data">func (s *Section) Data() ([]byte, error)</a></li><li><a href="#Section.Open">func (s *Section) Open() io.ReadSeeker</a></li>
+            </ul>
+          
+            <li><a href="#SectionHeader">type SectionHeader</a></li>
+            
+            
+            
+            
+          
+            <li><a href="#Sym">type Sym</a></li>
+            
+            
+            
+            
+          
+          
+        </ul>
+
+        
+        
+          <span id="pkg-examples"></span>
+        
+
+        
+        
+<h4 id="pkg-files">
+  <a href="https://github.com/golang/go/blob/master/src/debug/plan9obj/">Package Files</a>
+  <a class="permalink" href="#pkg-files">&para;</a>
+</h4>
+
+<p><a href="https://github.com/golang/go/blob/master/src/debug/plan9obj/file.go">file.go</a> <a href="https://github.com/golang/go/blob/master/src/debug/plan9obj/plan9obj.go">plan9obj.go</a> </p>
+
+        
+        
+          <h3 id="pkg-constants">Constants <a class="permalink" href="#pkg-constants">&para;</a></h3>
+          <div class="decl" data-kind="c"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/plan9obj/plan9obj.go#L30">❖</a><pre>const (
+    <span id="Magic64">Magic64</span> = 0x8000 <span class="com">// 64-bit expanded header</span>
+
+    <span id="Magic386">Magic386</span>   = (4*11+0)*11 + 7
+    <span id="MagicAMD64">MagicAMD64</span> = (4*26+0)*26 + 7 + <a href="#Magic64">Magic64</a>
+    <span id="MagicARM">MagicARM</span>   = (4*20+0)*20 + 7
+)</pre></div>
+        
+
+        
+        
+
+        
+        
+        
+
+        
+        
+
+        
+          <h3 id="File" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/plan9obj/file.go#L27">File</a> <a class="permalink" href="#File">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=File&amp;pkg=debug%2Fplan9obj&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/plan9obj/file.go#L27">❖</a><pre>type File struct {
+    <a href="#FileHeader">FileHeader</a>
+    <span id="File.Sections">Sections</span> []*<a href="#Section">Section</a>
+    <span class="com">// contains filtered or unexported fields</span>
+}</pre></div><p>
+A File represents an open Plan 9 a.out file.
+</p>
+
+          
+          
+          
+  
+
+
+          
+            <h4 id="NewFile" data-kind="f">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/plan9obj/file.go#L135">NewFile</a> <a class="permalink" href="#NewFile">&para;</a> <a class="uses" title="List Function Callers" href="https://sourcegraph.com/-/godoc/refs?def=NewFile&amp;pkg=debug%2Fplan9obj&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/plan9obj/file.go#L135">❖</a><pre>func NewFile(r <a href="/io">io</a>.<a href="/io#ReaderAt">ReaderAt</a>) (*<a href="#File">File</a>, <a href="/builtin#error">error</a>)</pre></div><p>
+NewFile creates a new File for accessing a Plan 9 binary in an underlying reader.
+The Plan 9 binary is expected to start at position 0 in the ReaderAt.
+</p>
+
+            
+  
+
+          
+            <h4 id="Open" data-kind="f">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/plan9obj/file.go#L98">Open</a> <a class="permalink" href="#Open">&para;</a> <a class="uses" title="List Function Callers" href="https://sourcegraph.com/-/godoc/refs?def=Open&amp;pkg=debug%2Fplan9obj&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/plan9obj/file.go#L98">❖</a><pre>func Open(name <a href="/builtin#string">string</a>) (*<a href="#File">File</a>, <a href="/builtin#error">error</a>)</pre></div><p>
+Open opens the named file using os.Open and prepares it for use as a Plan 9 a.out binary.
+</p>
+
+            
+  
+
+          
+
+          
+            <h4 id="File.Close" data-kind="m">func (*File) <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/plan9obj/file.go#L115">Close</a> <a class="permalink" href="#File.Close">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=File%2FClose&amp;pkg=debug%2Fplan9obj&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/plan9obj/file.go#L115">❖</a><pre>func (f *<a href="#File">File</a>) Close() <a href="/builtin#error">error</a></pre></div><p>
+Close closes the File.
+If the File was created using NewFile directly instead of Open,
+Close has no effect.
+</p>
+
+            
+  
+
+          
+            <h4 id="File.Section" data-kind="m">func (*File) <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/plan9obj/file.go#L321">Section</a> <a class="permalink" href="#File.Section">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=File%2FSection&amp;pkg=debug%2Fplan9obj&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/plan9obj/file.go#L321">❖</a><pre>func (f *<a href="#File">File</a>) Section(name <a href="/builtin#string">string</a>) *<a href="#Section">Section</a></pre></div><p>
+Section returns a section with the given name, or nil if no such
+section exists.
+</p>
+
+            
+  
+
+          
+            <h4 id="File.Symbols" data-kind="m">func (*File) <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/plan9obj/file.go#L305">Symbols</a> <a class="permalink" href="#File.Symbols">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=File%2FSymbols&amp;pkg=debug%2Fplan9obj&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/plan9obj/file.go#L305">❖</a><pre>func (f *<a href="#File">File</a>) Symbols() ([]<a href="#Sym">Sym</a>, <a href="/builtin#error">error</a>)</pre></div><p>
+Symbols returns the symbol table for f.
+</p>
+
+            
+  
+
+          
+        
+          <h3 id="FileHeader" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/plan9obj/file.go#L17">FileHeader</a> <a class="permalink" href="#FileHeader">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=FileHeader&amp;pkg=debug%2Fplan9obj&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/plan9obj/file.go#L17">❖</a><pre>type FileHeader struct {
+    <span id="FileHeader.Magic">Magic</span>       <a href="/builtin#uint32">uint32</a>
+    <span id="FileHeader.Bss">Bss</span>         <a href="/builtin#uint32">uint32</a>
+    <span id="FileHeader.Entry">Entry</span>       <a href="/builtin#uint64">uint64</a>
+    <span id="FileHeader.PtrSize">PtrSize</span>     <a href="/builtin#int">int</a>
+    <span id="FileHeader.LoadAddress">LoadAddress</span> <a href="/builtin#uint64">uint64</a>
+    <span id="FileHeader.HdrSize">HdrSize</span>     <a href="/builtin#uint64">uint64</a>
+}</pre></div><p>
+A FileHeader represents a Plan 9 a.out file header.
+</p>
+
+          
+          
+          
+  
+
+
+          
+
+          
+        
+          <h3 id="Section" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/plan9obj/file.go#L43">Section</a> <a class="permalink" href="#Section">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=Section&amp;pkg=debug%2Fplan9obj&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/plan9obj/file.go#L43">❖</a><pre>type Section struct {
+    <a href="#SectionHeader">SectionHeader</a>
+
+    <span class="com">// Embed ReaderAt for ReadAt method.
+    // Do not embed SectionReader directly
+    // to avoid having Read and Seek.
+    // If a client wants Read and Seek it must use
+    // Open() to avoid fighting over the seek offset
+    // with other clients.</span>
+    <a href="/io">io</a>.<a href="/io#ReaderAt">ReaderAt</a>
+    <span class="com">// contains filtered or unexported fields</span>
+}</pre></div><p>
+A Section represents a single section in a Plan 9 a.out file.
+</p>
+
+          
+          
+          
+  
+
+
+          
+
+          
+            <h4 id="Section.Data" data-kind="m">func (*Section) <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/plan9obj/file.go#L57">Data</a> <a class="permalink" href="#Section.Data">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=Section%2FData&amp;pkg=debug%2Fplan9obj&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/plan9obj/file.go#L57">❖</a><pre>func (s *<a href="#Section">Section</a>) Data() ([]<a href="/builtin#byte">byte</a>, <a href="/builtin#error">error</a>)</pre></div><p>
+Data reads and returns the contents of the Plan 9 a.out section.
+</p>
+
+            
+  
+
+          
+            <h4 id="Section.Open" data-kind="m">func (*Section) <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/plan9obj/file.go#L67">Open</a> <a class="permalink" href="#Section.Open">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=Section%2FOpen&amp;pkg=debug%2Fplan9obj&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/plan9obj/file.go#L67">❖</a><pre>func (s *<a href="#Section">Section</a>) Open() <a href="/io">io</a>.<a href="/io#ReadSeeker">ReadSeeker</a></pre></div><p>
+Open returns a new ReadSeeker reading the Plan 9 a.out section.
+</p>
+
+            
+  
+
+          
+        
+          <h3 id="SectionHeader" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/plan9obj/file.go#L36">SectionHeader</a> <a class="permalink" href="#SectionHeader">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=SectionHeader&amp;pkg=debug%2Fplan9obj&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/plan9obj/file.go#L36">❖</a><pre>type SectionHeader struct {
+    <span id="SectionHeader.Name">Name</span>   <a href="/builtin#string">string</a>
+    <span id="SectionHeader.Size">Size</span>   <a href="/builtin#uint32">uint32</a>
+    <span id="SectionHeader.Offset">Offset</span> <a href="/builtin#uint32">uint32</a>
+}</pre></div><p>
+A SectionHeader represents a single Plan 9 a.out section header.
+This structure doesn&#39;t exist on-disk, but eases navigation
+through the object file.
+</p>
+
+          
+          
+          
+  
+
+
+          
+
+          
+        
+          <h3 id="Sym" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/plan9obj/file.go#L70">Sym</a> <a class="permalink" href="#Sym">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=Sym&amp;pkg=debug%2Fplan9obj&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/plan9obj/file.go#L70">❖</a><pre>type Sym struct {
+    <span id="Sym.Value">Value</span> <a href="/builtin#uint64">uint64</a>
+    <span id="Sym.Type">Type</span>  <a href="/builtin#rune">rune</a>
+    <span id="Sym.Name">Name</span>  <a href="/builtin#string">string</a>
+}</pre></div><p>
+A Symbol represents an entry in a Plan 9 a.out symbol table section.
+</p>
+
+<div id="x-footer" class="clearfix">
+  <div class="container">
+    <a href="http://studygolang.com/">Go语言中文网</a>
+    <span class="text-muted">|</span> <a href="http://golang.org/">Go Language</a>
+    <span class="pull-right"><a href="#">Back to top</a></span>
+  </div>
+</div>
+<script src="../assets/jquery-2.0.3.min.js"></script>
+<script src="../assets/bootstrap.min.js"></script>
+<script src="../assets/site.js"></script>
+</body>
+</html>

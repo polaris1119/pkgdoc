@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="../assets/site.css" rel="stylesheet">
+  <title>net/http/httptrace</title>
+  
+    <meta name="twitter:title" content="Package httptrace">
+    <meta property="og:title" content="Package httptrace">
+    <meta name="description" content="Package httptrace provides mechanisms to trace the events within HTTP client requests.">
+    <meta name="twitter:description" content="Package httptrace provides mechanisms to trace the events within HTTP client requests.">
+    <meta property="og:description" content="Package httptrace provides mechanisms to trace the events within HTTP client requests.">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:site" content="@golang">
+  
+  
+
+  
+
+</head>
+<body>
+
+<div class="container">
+  
+        <h2 id="pkg-overview">package httptrace</h2>
+
+        <p><code>import "net/http/httptrace"</code>
+
+        <p>
+Package httptrace provides mechanisms to trace the events within
+HTTP client requests.</p>
+
+
+        
+  
+    <div class="panel-group">
+    
+      <div class="panel panel-default" id="example-package">
+        <div class="panel-heading"><a class="accordion-toggle" data-toggle="collapse" href="#ex-package">Example</a></div>
+        <div id="ex-package" class="panel-collapse collapse"><div class="panel-body">
+          
+          <p>Code:<span class="pull-right"><a href="?play=package">play</a>&nbsp;</span>
+          <pre>
+req, _ := http.NewRequest(&#34;GET&#34;, &#34;http://example.com&#34;, nil)
+trace := &amp;httptrace.ClientTrace{
+    GotConn: func(connInfo httptrace.GotConnInfo) {
+        fmt.Printf(&#34;Got Conn: %+v\n&#34;, connInfo)
+    },
+    DNSDone: func(dnsInfo httptrace.DNSDoneInfo) {
+        fmt.Printf(&#34;DNS Info: %+v\n&#34;, dnsInfo)
+    },
+}
+req = req.WithContext(httptrace.WithClientTrace(req.Context(), trace))
+_, err := http.DefaultTransport.RoundTrip(req)
+if err != nil {
+    log.Fatal(err)
+}
+</pre>
+          
+        </div></div>
+      </div>
+    
+    </div>
+  
+
+
+        
+        <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+
+        
+
+        <ul class="list-unstyled">
+          
+          
+          <li><a href="#WithClientTrace">func WithClientTrace(ctx context.Context, trace *ClientTrace) context.Context</a></li>
+          
+            <li><a href="#ClientTrace">type ClientTrace</a></li>
+            <ul>
+            <li><a href="#ContextClientTrace">func ContextClientTrace(ctx context.Context) *ClientTrace</a></li>
+            
+            </ul>
+          
+            <li><a href="#DNSDoneInfo">type DNSDoneInfo</a></li>
+            
+            
+            
+            
+          
+            <li><a href="#DNSStartInfo">type DNSStartInfo</a></li>
+            
+            
+            
+            
+          
+            <li><a href="#GotConnInfo">type GotConnInfo</a></li>
+            
+            
+            
+            
+          
+            <li><a href="#WroteRequestInfo">type WroteRequestInfo</a></li>
+            
+            
+            
+            
+          
+          
+        </ul>
+
+        
+        
+          <h4 id="pkg-examples">Examples <a class="permalink" href="#pkg-examples">&para;</a></h4>
+          <ul class="list-unstyled">
+            <li><a href="#example-package" onclick="$('#ex-package').addClass('in').removeClass('collapse').height('auto')">package</a></li>
+          </ul>
+        
+
+        
+        
+<h4 id="pkg-files">
+  <a href="https://github.com/golang/go/blob/master/src/net/http/httptrace/">Package Files</a>
+  <a class="permalink" href="#pkg-files">&para;</a>
+</h4>
+
+<p><a href="https://github.com/golang/go/blob/master/src/net/http/httptrace/trace.go">trace.go</a> </p>
+
+        
+        
+
+        
+        
+
+        
+        
+        
+          <h3 id="WithClientTrace" data-kind="f">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/httptrace/trace.go#L33">WithClientTrace</a> <a class="permalink" href="#WithClientTrace">&para;</a> <a class="uses" title="List Function Callers" href="https://sourcegraph.com/-/godoc/refs?def=WithClientTrace&amp;pkg=net%2Fhttp%2Fhttptrace&amp;repo=">Uses</a></h3>
+          <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/httptrace/trace.go#L33">❖</a><pre>func WithClientTrace(ctx <a href="/context">context</a>.<a href="/context#Context">Context</a>, trace *<a href="#ClientTrace">ClientTrace</a>) <a href="/context">context</a>.<a href="/context#Context">Context</a></pre></div><p>
+WithClientTrace returns a new context based on the provided parent
+ctx. HTTP client requests made with the returned context will use
+the provided trace hooks, in addition to any previous hooks
+registered with ctx. Any hooks defined in the provided trace will
+be called first.
+</p>
+
+          
+  
+
+        
+
+        
+        
+
+        
+          <h3 id="ClientTrace" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/httptrace/trace.go#L79">ClientTrace</a> <a class="permalink" href="#ClientTrace">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=ClientTrace&amp;pkg=net%2Fhttp%2Fhttptrace&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/httptrace/trace.go#L79">❖</a><pre>type ClientTrace struct {
+    <span class="com">// GetConn is called before a connection is created or
+    // retrieved from an idle pool. The hostPort is the
+    // &#34;host:port&#34; of the target or proxy. GetConn is called even
+    // if there&#39;s already an idle cached connection available.</span>
+    <span id="ClientTrace.GetConn">GetConn</span> func(hostPort <a href="/builtin#string">string</a>)
+
+    <span class="com">// GotConn is called after a successful connection is
+    // obtained. There is no hook for failure to obtain a
+    // connection; instead, use the error from
+    // Transport.RoundTrip.</span>
+    <span id="ClientTrace.GotConn">GotConn</span> func(<a href="#GotConnInfo">GotConnInfo</a>)
+
+    <span class="com">// PutIdleConn is called when the connection is returned to
+    // the idle pool. If err is nil, the connection was
+    // successfully returned to the idle pool. If err is non-nil,
+    // it describes why not. PutIdleConn is not called if
+    // connection reuse is disabled via Transport.DisableKeepAlives.
+    // PutIdleConn is called before the caller&#39;s Response.Body.Close
+    // call returns.
+    // For HTTP/2, this hook is not currently used.</span>
+    <span id="ClientTrace.PutIdleConn">PutIdleConn</span> func(err <a href="/builtin#error">error</a>)
+
+    <span class="com">// GotFirstResponseByte is called when the first byte of the response
+    // headers is available.</span>
+    <span id="ClientTrace.GotFirstResponseByte">GotFirstResponseByte</span> func()
+
+    <span class="com">// Got100Continue is called if the server replies with a &#34;100
+    // Continue&#34; response.</span>
+    <span id="ClientTrace.Got100Continue">Got100Continue</span> func()
+
+    <span class="com">// DNSStart is called when a DNS lookup begins.</span>
+    <span id="ClientTrace.DNSStart">DNSStart</span> func(<a href="#DNSStartInfo">DNSStartInfo</a>)
+
+    <span class="com">// DNSDone is called when a DNS lookup ends.</span>
+    <span id="ClientTrace.DNSDone">DNSDone</span> func(<a href="#DNSDoneInfo">DNSDoneInfo</a>)
+
+    <span class="com">// ConnectStart is called when a new connection&#39;s Dial begins.
+    // If net.Dialer.DualStack (IPv6 &#34;Happy Eyeballs&#34;) support is
+    // enabled, this may be called multiple times.</span>
+    <span id="ClientTrace.ConnectStart">ConnectStart</span> func(network, addr <a href="/builtin#string">string</a>)
+
+    <span class="com">// ConnectDone is called when a new connection&#39;s Dial
+    // completes. The provided err indicates whether the
+    // connection completedly successfully.
+    // If net.Dialer.DualStack (&#34;Happy Eyeballs&#34;) support is
+    // enabled, this may be called multiple times.</span>
+    <span id="ClientTrace.ConnectDone">ConnectDone</span> func(network, addr <a href="/builtin#string">string</a>, err <a href="/builtin#error">error</a>)
+
+    <span class="com">// TLSHandshakeStart is called when the TLS handshake is started. When
+    // connecting to a HTTPS site via a HTTP proxy, the handshake happens after
+    // the CONNECT request is processed by the proxy.</span>
+    <span id="ClientTrace.TLSHandshakeStart">TLSHandshakeStart</span> func()
+
+    <span class="com">// TLSHandshakeDone is called after the TLS handshake with either the
+    // successful handshake&#39;s connection state, or a non-nil error on handshake
+    // failure.</span>
+    <span id="ClientTrace.TLSHandshakeDone">TLSHandshakeDone</span> func(<a href="/crypto/tls">tls</a>.<a href="/crypto/tls#ConnectionState">ConnectionState</a>, <a href="/builtin#error">error</a>)
+
+    <span class="com">// WroteHeaders is called after the Transport has written
+    // the request headers.</span>
+    <span id="ClientTrace.WroteHeaders">WroteHeaders</span> func()
+
+    <span class="com">// Wait100Continue is called if the Request specified
+    // &#34;Expected: 100-continue&#34; and the Transport has written the
+    // request headers but is waiting for &#34;100 Continue&#34; from the
+    // server before writing the request body.</span>
+    <span id="ClientTrace.Wait100Continue">Wait100Continue</span> func()
+
+    <span class="com">// WroteRequest is called with the result of writing the
+    // request and any body. It may be called multiple times
+    // in the case of retried requests.</span>
+    <span id="ClientTrace.WroteRequest">WroteRequest</span> func(<a href="#WroteRequestInfo">WroteRequestInfo</a>)
+}</pre></div><p>
+ClientTrace is a set of hooks to run at various stages of an outgoing
+HTTP request. Any particular hook may be nil. Functions may be
+called concurrently from different goroutines and some may be called
+after the request has completed or failed.
+</p>
+<p>
+ClientTrace currently traces a single HTTP request &amp; response
+during a single round trip and has no hooks that span a series
+of redirected requests.
+</p>
+<p>
+See <a href="https://blog.golang.org/http-tracing">https://blog.golang.org/http-tracing</a> for more.
+</p>
+
+          
+          
+          
+  
+
+
+          
+            <h4 id="ContextClientTrace" data-kind="f">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/httptrace/trace.go#L23">ContextClientTrace</a> <a class="permalink" href="#ContextClientTrace">&para;</a> <a class="uses" title="List Function Callers" href="https://sourcegraph.com/-/godoc/refs?def=ContextClientTrace&amp;pkg=net%2Fhttp%2Fhttptrace&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/httptrace/trace.go#L23">❖</a><pre>func ContextClientTrace(ctx <a href="/context">context</a>.<a href="/context#Context">Context</a>) *<a href="#ClientTrace">ClientTrace</a></pre></div><p>
+ContextClientTrace returns the ClientTrace associated with the
+provided context. If none, it returns nil.
+</p>
+
+            
+  
+
+          
+
+          
+        
+          <h3 id="DNSDoneInfo" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/httptrace/trace.go#L204">DNSDoneInfo</a> <a class="permalink" href="#DNSDoneInfo">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=DNSDoneInfo&amp;pkg=net%2Fhttp%2Fhttptrace&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/httptrace/trace.go#L204">❖</a><pre>type DNSDoneInfo struct {
+    <span class="com">// Addrs are the IPv4 and/or IPv6 addresses found in the DNS
+    // lookup. The contents of the slice should not be mutated.</span>
+    <span id="DNSDoneInfo.Addrs">Addrs</span> []<a href="/net">net</a>.<a href="/net#IPAddr">IPAddr</a>
+
+    <span class="com">// Err is any error that occurred during the DNS lookup.</span>
+    <span id="DNSDoneInfo.Err">Err</span> <a href="/builtin#error">error</a>
+
+    <span class="com">// Coalesced is whether the Addrs were shared with another
+    // caller who was doing the same DNS lookup concurrently.</span>
+    <span id="DNSDoneInfo.Coalesced">Coalesced</span> <a href="/builtin#bool">bool</a>
+}</pre></div><p>
+DNSDoneInfo contains information about the results of a DNS lookup.
+</p>
+
+          
+          
+          
+  
+
+
+          
+
+          
+        
+          <h3 id="DNSStartInfo" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/httptrace/trace.go#L199">DNSStartInfo</a> <a class="permalink" href="#DNSStartInfo">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=DNSStartInfo&amp;pkg=net%2Fhttp%2Fhttptrace&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/httptrace/trace.go#L199">❖</a><pre>type DNSStartInfo struct {
+    <span id="DNSStartInfo.Host">Host</span> <a href="/builtin#string">string</a>
+}</pre></div><p>
+DNSStartInfo contains information about a DNS request.
+</p>
+
+          
+          
+          
+  
+
+
+          
+
+          
+        
+          <h3 id="GotConnInfo" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/httptrace/trace.go#L226">GotConnInfo</a> <a class="permalink" href="#GotConnInfo">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=GotConnInfo&amp;pkg=net%2Fhttp%2Fhttptrace&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/httptrace/trace.go#L226">❖</a><pre>type GotConnInfo struct {
+    <span class="com">// Conn is the connection that was obtained. It is owned by
+    // the http.Transport and should not be read, written or
+    // closed by users of ClientTrace.</span>
+    <span id="GotConnInfo.Conn">Conn</span> <a href="/net">net</a>.<a href="/net#Conn">Conn</a>
+
+    <span class="com">// Reused is whether this connection has been previously
+    // used for another HTTP request.</span>
+    <span id="GotConnInfo.Reused">Reused</span> <a href="/builtin#bool">bool</a>
+
+    <span class="com">// WasIdle is whether this connection was obtained from an
+    // idle pool.</span>
+    <span id="GotConnInfo.WasIdle">WasIdle</span> <a href="/builtin#bool">bool</a>
+
+    <span class="com">// IdleTime reports how long the connection was previously
+    // idle, if WasIdle is true.</span>
+    <span id="GotConnInfo.IdleTime">IdleTime</span> <a href="/time">time</a>.<a href="/time#Duration">Duration</a>
+}</pre></div><p>
+GotConnInfo is the argument to the ClientTrace.GotConn function and
+contains information about the obtained connection.
+</p>
+
+          
+          
+          
+  
+
+
+          
+
+          
+        
+          <h3 id="WroteRequestInfo" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/httptrace/trace.go#L156">WroteRequestInfo</a> <a class="permalink" href="#WroteRequestInfo">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=WroteRequestInfo&amp;pkg=net%2Fhttp%2Fhttptrace&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/httptrace/trace.go#L156">❖</a><pre>type WroteRequestInfo struct {
+    <span class="com">// Err is any error encountered while writing the Request.</span>
+    <span id="WroteRequestInfo.Err">Err</span> <a href="/builtin#error">error</a>
+}</pre></div><p>
+WroteRequestInfo contains information provided to the WroteRequest
+hook.
+</p>
+
+<div id="x-footer" class="clearfix">
+  <div class="container">
+    <a href="http://studygolang.com/">Go语言中文网</a>
+    <span class="text-muted">|</span> <a href="http://golang.org/">Go Language</a>
+    <span class="pull-right"><a href="#">Back to top</a></span>
+  </div>
+</div>
+<script src="../assets/jquery-2.0.3.min.js"></script>
+<script src="../assets/bootstrap.min.js"></script>
+<script src="../assets/site.js"></script>
+</body>
+</html>

@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="../assets/site.css" rel="stylesheet">
+  <title>debug/pe</title>
+  
+    <meta name="twitter:title" content="Package pe">
+    <meta property="og:title" content="Package pe">
+    <meta name="description" content="Package pe implements access to PE (Microsoft Windows Portable Executable) files.">
+    <meta name="twitter:description" content="Package pe implements access to PE (Microsoft Windows Portable Executable) files.">
+    <meta property="og:description" content="Package pe implements access to PE (Microsoft Windows Portable Executable) files.">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:site" content="@golang">
+  
+
+</head>
+<body>
+
+<div class="container">
+        <h2 id="pkg-overview">package pe</h2>
+
+        <p><code>import "debug/pe"</code>
+
+        <p>
+Package pe implements access to PE (Microsoft Windows Portable Executable) files.</p>
+
+
+        
+  
+
+
+        
+        <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+
+        
+
+        <ul class="list-unstyled">
+          <li><a href="#pkg-constants">Constants</a></li>
+          
+          
+          
+            <li><a href="#COFFSymbol">type COFFSymbol</a></li>
+            <ul>
+            
+            <li><a href="#COFFSymbol.FullName">func (sym *COFFSymbol) FullName(st StringTable) (string, error)</a></li>
+            </ul>
+          
+            <li><a href="#DataDirectory">type DataDirectory</a></li>
+            
+            
+            
+            
+          
+            <li><a href="#File">type File</a></li>
+            <ul>
+            <li><a href="#NewFile">func NewFile(r io.ReaderAt) (*File, error)</a></li><li><a href="#Open">func Open(name string) (*File, error)</a></li>
+            <li><a href="#File.Close">func (f *File) Close() error</a></li><li><a href="#File.DWARF">func (f *File) DWARF() (*dwarf.Data, error)</a></li><li><a href="#File.ImportedLibraries">func (f *File) ImportedLibraries() ([]string, error)</a></li><li><a href="#File.ImportedSymbols">func (f *File) ImportedSymbols() ([]string, error)</a></li><li><a href="#File.Section">func (f *File) Section(name string) *Section</a></li>
+            </ul>
+          
+            <li><a href="#FileHeader">type FileHeader</a></li>
+            
+            
+            
+            
+          
+            <li><a href="#FormatError">type FormatError</a></li>
+            <ul>
+            
+            <li><a href="#FormatError.Error">func (e *FormatError) Error() string</a></li>
+            </ul>
+          
+            <li><a href="#ImportDirectory">type ImportDirectory</a></li>
+            
+            
+            
+            
+          
+            <li><a href="#OptionalHeader32">type OptionalHeader32</a></li>
+            
+            
+            
+            
+          
+            <li><a href="#OptionalHeader64">type OptionalHeader64</a></li>
+            
+            
+            
+            
+          
+            <li><a href="#Reloc">type Reloc</a></li>
+            
+            
+            
+            
+          
+            <li><a href="#Section">type Section</a></li>
+            <ul>
+            
+            <li><a href="#Section.Data">func (s *Section) Data() ([]byte, error)</a></li><li><a href="#Section.Open">func (s *Section) Open() io.ReadSeeker</a></li>
+            </ul>
+          
+            <li><a href="#SectionHeader">type SectionHeader</a></li>
+            
+            
+            
+            
+          
+            <li><a href="#SectionHeader32">type SectionHeader32</a></li>
+            
+            
+            
+            
+          
+            <li><a href="#StringTable">type StringTable</a></li>
+            <ul>
+            
+            <li><a href="#StringTable.String">func (st StringTable) String(start uint32) (string, error)</a></li>
+            </ul>
+          
+            <li><a href="#Symbol">type Symbol</a></li>
+            
+            
+            
+            
+          
+          
+        </ul>
+
+        
+        
+          <span id="pkg-examples"></span>
+        
+
+        
+        
+<h4 id="pkg-files">
+  <a href="https://github.com/golang/go/blob/master/src/debug/pe/">Package Files</a>
+  <a class="permalink" href="#pkg-files">&para;</a>
+</h4>
+
+<p><a href="https://github.com/golang/go/blob/master/src/debug/pe/file.go">file.go</a> <a href="https://github.com/golang/go/blob/master/src/debug/pe/pe.go">pe.go</a> <a href="https://github.com/golang/go/blob/master/src/debug/pe/section.go">section.go</a> <a href="https://github.com/golang/go/blob/master/src/debug/pe/string.go">string.go</a> <a href="https://github.com/golang/go/blob/master/src/debug/pe/symbol.go">symbol.go</a> </p>
+
+        
+        
+          <h3 id="pkg-constants">Constants <a class="permalink" href="#pkg-constants">&para;</a></h3>
+          <div class="decl" data-kind="c"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/pe/pe.go#L89">❖</a><pre>const (
+    <span id="IMAGE_FILE_MACHINE_UNKNOWN">IMAGE_FILE_MACHINE_UNKNOWN</span>   = 0x0
+    <span id="IMAGE_FILE_MACHINE_AM33">IMAGE_FILE_MACHINE_AM33</span>      = 0x1d3
+    <span id="IMAGE_FILE_MACHINE_AMD64">IMAGE_FILE_MACHINE_AMD64</span>     = 0x8664
+    <span id="IMAGE_FILE_MACHINE_ARM">IMAGE_FILE_MACHINE_ARM</span>       = 0x1c0
+    <span id="IMAGE_FILE_MACHINE_EBC">IMAGE_FILE_MACHINE_EBC</span>       = 0xebc
+    <span id="IMAGE_FILE_MACHINE_I386">IMAGE_FILE_MACHINE_I386</span>      = 0x14c
+    <span id="IMAGE_FILE_MACHINE_IA64">IMAGE_FILE_MACHINE_IA64</span>      = 0x200
+    <span id="IMAGE_FILE_MACHINE_M32R">IMAGE_FILE_MACHINE_M32R</span>      = 0x9041
+    <span id="IMAGE_FILE_MACHINE_MIPS16">IMAGE_FILE_MACHINE_MIPS16</span>    = 0x266
+    <span id="IMAGE_FILE_MACHINE_MIPSFPU">IMAGE_FILE_MACHINE_MIPSFPU</span>   = 0x366
+    <span id="IMAGE_FILE_MACHINE_MIPSFPU16">IMAGE_FILE_MACHINE_MIPSFPU16</span> = 0x466
+    <span id="IMAGE_FILE_MACHINE_POWERPC">IMAGE_FILE_MACHINE_POWERPC</span>   = 0x1f0
+    <span id="IMAGE_FILE_MACHINE_POWERPCFP">IMAGE_FILE_MACHINE_POWERPCFP</span> = 0x1f1
+    <span id="IMAGE_FILE_MACHINE_R4000">IMAGE_FILE_MACHINE_R4000</span>     = 0x166
+    <span id="IMAGE_FILE_MACHINE_SH3">IMAGE_FILE_MACHINE_SH3</span>       = 0x1a2
+    <span id="IMAGE_FILE_MACHINE_SH3DSP">IMAGE_FILE_MACHINE_SH3DSP</span>    = 0x1a3
+    <span id="IMAGE_FILE_MACHINE_SH4">IMAGE_FILE_MACHINE_SH4</span>       = 0x1a6
+    <span id="IMAGE_FILE_MACHINE_SH5">IMAGE_FILE_MACHINE_SH5</span>       = 0x1a8
+    <span id="IMAGE_FILE_MACHINE_THUMB">IMAGE_FILE_MACHINE_THUMB</span>     = 0x1c2
+    <span id="IMAGE_FILE_MACHINE_WCEMIPSV2">IMAGE_FILE_MACHINE_WCEMIPSV2</span> = 0x169
+)</pre></div><div class="decl" data-kind="c"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/pe/symbol.go#L13">❖</a><pre>const <span id="COFFSymbolSize">COFFSymbolSize</span> = 18</pre></div>
+        
+
+        
+        
+
+        
+        
+        
+
+        
+        
+
+        
+          <h3 id="COFFSymbol" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/pe/symbol.go#L16">COFFSymbol</a> <a class="permalink" href="#COFFSymbol">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=COFFSymbol&amp;pkg=debug%2Fpe&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/pe/symbol.go#L16">❖</a><pre>type COFFSymbol struct {
+    <span id="COFFSymbol.Name">Name</span>               [8]<a href="/builtin#uint8">uint8</a>
+    <span id="COFFSymbol.Value">Value</span>              <a href="/builtin#uint32">uint32</a>
+    <span id="COFFSymbol.SectionNumber">SectionNumber</span>      <a href="/builtin#int16">int16</a>
+    <span id="COFFSymbol.Type">Type</span>               <a href="/builtin#uint16">uint16</a>
+    <span id="COFFSymbol.StorageClass">StorageClass</span>       <a href="/builtin#uint8">uint8</a>
+    <span id="COFFSymbol.NumberOfAuxSymbols">NumberOfAuxSymbols</span> <a href="/builtin#uint8">uint8</a>
+}</pre></div><p>
+COFFSymbol represents single COFF symbol table record.
+</p>
+
+          
+          
+          
+  
+
+
+          
+
+          
+            <h4 id="COFFSymbol.FullName" data-kind="m">func (*COFFSymbol) <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/pe/symbol.go#L55">FullName</a> <a class="permalink" href="#COFFSymbol.FullName">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=COFFSymbol%2FFullName&amp;pkg=debug%2Fpe&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/pe/symbol.go#L55">❖</a><pre>func (sym *<a href="#COFFSymbol">COFFSymbol</a>) FullName(st <a href="#StringTable">StringTable</a>) (<a href="/builtin#string">string</a>, <a href="/builtin#error">error</a>)</pre></div><p>
+FullName finds real name of symbol sym. Normally name is stored
+in sym.Name, but if it is longer then 8 characters, it is stored
+in COFF string table st instead.
+</p>
+
+            
+  
+
+          
+        
+          <h3 id="DataDirectory" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/pe/pe.go#L17">DataDirectory</a> <a class="permalink" href="#DataDirectory">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=DataDirectory&amp;pkg=debug%2Fpe&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/pe/pe.go#L17">❖</a><pre>type DataDirectory struct {
+    <span id="DataDirectory.VirtualAddress">VirtualAddress</span> <a href="/builtin#uint32">uint32</a>
+    <span id="DataDirectory.Size">Size</span>           <a href="/builtin#uint32">uint32</a>
+}</pre></div>
+          
+          
+          
+  
+
+
+          
+
+          
+        
+          <h3 id="File" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/pe/file.go#L20">File</a> <a class="permalink" href="#File">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=File&amp;pkg=debug%2Fpe&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/pe/file.go#L20">❖</a><pre>type File struct {
+    <a href="#FileHeader">FileHeader</a>
+    <span id="File.OptionalHeader">OptionalHeader</span> interface{} <span class="com">// of type *OptionalHeader32 or *OptionalHeader64</span>
+    <span id="File.Sections">Sections</span>       []*<a href="#Section">Section</a>
+    <span id="File.Symbols">Symbols</span>        []*<a href="#Symbol">Symbol</a>    <span class="com">// COFF symbols with auxiliary symbol records removed</span>
+    <span id="File.COFFSymbols">COFFSymbols</span>    []<a href="#COFFSymbol">COFFSymbol</a> <span class="com">// all COFF symbols (including auxiliary symbol records)</span>
+    <span id="File.StringTable">StringTable</span>    <a href="#StringTable">StringTable</a>
+    <span class="com">// contains filtered or unexported fields</span>
+}</pre></div><p>
+A File represents an open PE file.
+</p>
+
+          
+          
+          
+  
+
+
+          
+            <h4 id="NewFile" data-kind="f">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/pe/file.go#L66">NewFile</a> <a class="permalink" href="#NewFile">&para;</a> <a class="uses" title="List Function Callers" href="https://sourcegraph.com/-/godoc/refs?def=NewFile&amp;pkg=debug%2Fpe&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/pe/file.go#L66">❖</a><pre>func NewFile(r <a href="/io">io</a>.<a href="/io#ReaderAt">ReaderAt</a>) (*<a href="#File">File</a>, <a href="/builtin#error">error</a>)</pre></div><p>
+NewFile creates a new File for accessing a PE binary in an underlying reader.
+</p>
+
+            
+  
+
+          
+            <h4 id="Open" data-kind="f">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/pe/file.go#L32">Open</a> <a class="permalink" href="#Open">&para;</a> <a class="uses" title="List Function Callers" href="https://sourcegraph.com/-/godoc/refs?def=Open&amp;pkg=debug%2Fpe&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/pe/file.go#L32">❖</a><pre>func Open(name <a href="/builtin#string">string</a>) (*<a href="#File">File</a>, <a href="/builtin#error">error</a>)</pre></div><p>
+Open opens the named file using os.Open and prepares it for use as a PE binary.
+</p>
+
+            
+  
+
+          
+
+          
+            <h4 id="File.Close" data-kind="m">func (*File) <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/pe/file.go#L49">Close</a> <a class="permalink" href="#File.Close">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=File%2FClose&amp;pkg=debug%2Fpe&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/pe/file.go#L49">❖</a><pre>func (f *<a href="#File">File</a>) Close() <a href="/builtin#error">error</a></pre></div><p>
+Close closes the File.
+If the File was created using NewFile directly instead of Open,
+Close has no effect.
+</p>
+
+            
+  
+
+          
+            <h4 id="File.DWARF" data-kind="m">func (*File) <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/pe/file.go#L219">DWARF</a> <a class="permalink" href="#File.DWARF">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=File%2FDWARF&amp;pkg=debug%2Fpe&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/pe/file.go#L219">❖</a><pre>func (f *<a href="#File">File</a>) DWARF() (*<a href="/debug/dwarf">dwarf</a>.<a href="/debug/dwarf#Data">Data</a>, <a href="/builtin#error">error</a>)</pre></div>
+            
+  
+
+          
+            <h4 id="File.ImportedLibraries" data-kind="m">func (*File) <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/pe/file.go#L333">ImportedLibraries</a> <a class="permalink" href="#File.ImportedLibraries">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=File%2FImportedLibraries&amp;pkg=debug%2Fpe&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/pe/file.go#L333">❖</a><pre>func (f *<a href="#File">File</a>) ImportedLibraries() ([]<a href="/builtin#string">string</a>, <a href="/builtin#error">error</a>)</pre></div><p>
+ImportedLibraries returns the names of all libraries
+referred to by the binary f that are expected to be
+linked with the binary at dynamic link time.
+</p>
+
+            
+  
+
+          
+            <h4 id="File.ImportedSymbols" data-kind="m">func (*File) <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/pe/file.go#L261">ImportedSymbols</a> <a class="permalink" href="#File.ImportedSymbols">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=File%2FImportedSymbols&amp;pkg=debug%2Fpe&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/pe/file.go#L261">❖</a><pre>func (f *<a href="#File">File</a>) ImportedSymbols() ([]<a href="/builtin#string">string</a>, <a href="/builtin#error">error</a>)</pre></div><p>
+ImportedSymbols returns the names of all symbols
+referred to by the binary f that are expected to be
+satisfied by other libraries at dynamic load time.
+It does not return weak symbols.
+</p>
+
+            
+  
+
+          
+            <h4 id="File.Section" data-kind="m">func (*File) <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/pe/file.go#L210">Section</a> <a class="permalink" href="#File.Section">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=File%2FSection&amp;pkg=debug%2Fpe&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/pe/file.go#L210">❖</a><pre>func (f *<a href="#File">File</a>) Section(name <a href="/builtin#string">string</a>) *<a href="#Section">Section</a></pre></div><p>
+Section returns the first section with the given name, or nil if no such
+section exists.
+</p>
+
+            
+  
+
+          
+        
+          <h3 id="FileHeader" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/pe/pe.go#L7">FileHeader</a> <a class="permalink" href="#FileHeader">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=FileHeader&amp;pkg=debug%2Fpe&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/pe/pe.go#L7">❖</a><pre>type FileHeader struct {
+    <span id="FileHeader.Machine">Machine</span>              <a href="/builtin#uint16">uint16</a>
+    <span id="FileHeader.NumberOfSections">NumberOfSections</span>     <a href="/builtin#uint16">uint16</a>
+    <span id="FileHeader.TimeDateStamp">TimeDateStamp</span>        <a href="/builtin#uint32">uint32</a>
+    <span id="FileHeader.PointerToSymbolTable">PointerToSymbolTable</span> <a href="/builtin#uint32">uint32</a>
+    <span id="FileHeader.NumberOfSymbols">NumberOfSymbols</span>      <a href="/builtin#uint32">uint32</a>
+    <span id="FileHeader.SizeOfOptionalHeader">SizeOfOptionalHeader</span> <a href="/builtin#uint16">uint16</a>
+    <span id="FileHeader.Characteristics">Characteristics</span>      <a href="/builtin#uint16">uint16</a>
+}</pre></div>
+          
+          
+          
+  
+
+
+          
+
+          
+        
+          <h3 id="FormatError" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/pe/file.go#L341">FormatError</a> <a class="permalink" href="#FormatError">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=FormatError&amp;pkg=debug%2Fpe&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/pe/file.go#L341">❖</a><pre>type FormatError struct {
+}</pre></div><p>
+FormatError is unused.
+The type is retained for compatibility.
+</p>
+
+          
+          
+          
+  
+
+
+          
+
+          
+            <h4 id="FormatError.Error" data-kind="m">func (*FormatError) <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/pe/file.go#L344">Error</a> <a class="permalink" href="#FormatError.Error">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=FormatError%2FError&amp;pkg=debug%2Fpe&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/pe/file.go#L344">❖</a><pre>func (e *<a href="#FormatError">FormatError</a>) Error() <a href="/builtin#string">string</a></pre></div>
+            
+  
+
+          
+        
+          <h3 id="ImportDirectory" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/pe/file.go#L247">ImportDirectory</a> <a class="permalink" href="#ImportDirectory">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=ImportDirectory&amp;pkg=debug%2Fpe&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/pe/file.go#L247">❖</a><pre>type ImportDirectory struct {
+    <span id="ImportDirectory.OriginalFirstThunk">OriginalFirstThunk</span> <a href="/builtin#uint32">uint32</a>
+    <span id="ImportDirectory.TimeDateStamp">TimeDateStamp</span>      <a href="/builtin#uint32">uint32</a>
+    <span id="ImportDirectory.ForwarderChain">ForwarderChain</span>     <a href="/builtin#uint32">uint32</a>
+    <span id="ImportDirectory.Name">Name</span>               <a href="/builtin#uint32">uint32</a>
+    <span id="ImportDirectory.FirstThunk">FirstThunk</span>         <a href="/builtin#uint32">uint32</a>
+    <span class="com">// contains filtered or unexported fields</span>
+}</pre></div>
+          
+          
+          
+  
+
+
+          
+
+          
+        
+          <h3 id="OptionalHeader32" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/pe/pe.go#L22">OptionalHeader32</a> <a class="permalink" href="#OptionalHeader32">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=OptionalHeader32&amp;pkg=debug%2Fpe&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/pe/pe.go#L22">❖</a><pre>type OptionalHeader32 struct {
+    <span id="OptionalHeader32.Magic">Magic</span>                       <a href="/builtin#uint16">uint16</a>
+    <span id="OptionalHeader32.MajorLinkerVersion">MajorLinkerVersion</span>          <a href="/builtin#uint8">uint8</a>
+    <span id="OptionalHeader32.MinorLinkerVersion">MinorLinkerVersion</span>          <a href="/builtin#uint8">uint8</a>
+    <span id="OptionalHeader32.SizeOfCode">SizeOfCode</span>                  <a href="/builtin#uint32">uint32</a>
+    <span id="OptionalHeader32.SizeOfInitializedData">SizeOfInitializedData</span>       <a href="/builtin#uint32">uint32</a>
+    <span id="OptionalHeader32.SizeOfUninitializedData">SizeOfUninitializedData</span>     <a href="/builtin#uint32">uint32</a>
+    <span id="OptionalHeader32.AddressOfEntryPoint">AddressOfEntryPoint</span>         <a href="/builtin#uint32">uint32</a>
+    <span id="OptionalHeader32.BaseOfCode">BaseOfCode</span>                  <a href="/builtin#uint32">uint32</a>
+    <span id="OptionalHeader32.BaseOfData">BaseOfData</span>                  <a href="/builtin#uint32">uint32</a>
+    <span id="OptionalHeader32.ImageBase">ImageBase</span>                   <a href="/builtin#uint32">uint32</a>
+    <span id="OptionalHeader32.SectionAlignment">SectionAlignment</span>            <a href="/builtin#uint32">uint32</a>
+    <span id="OptionalHeader32.FileAlignment">FileAlignment</span>               <a href="/builtin#uint32">uint32</a>
+    <span id="OptionalHeader32.MajorOperatingSystemVersion">MajorOperatingSystemVersion</span> <a href="/builtin#uint16">uint16</a>
+    <span id="OptionalHeader32.MinorOperatingSystemVersion">MinorOperatingSystemVersion</span> <a href="/builtin#uint16">uint16</a>
+    <span id="OptionalHeader32.MajorImageVersion">MajorImageVersion</span>           <a href="/builtin#uint16">uint16</a>
+    <span id="OptionalHeader32.MinorImageVersion">MinorImageVersion</span>           <a href="/builtin#uint16">uint16</a>
+    <span id="OptionalHeader32.MajorSubsystemVersion">MajorSubsystemVersion</span>       <a href="/builtin#uint16">uint16</a>
+    <span id="OptionalHeader32.MinorSubsystemVersion">MinorSubsystemVersion</span>       <a href="/builtin#uint16">uint16</a>
+    <span id="OptionalHeader32.Win32VersionValue">Win32VersionValue</span>           <a href="/builtin#uint32">uint32</a>
+    <span id="OptionalHeader32.SizeOfImage">SizeOfImage</span>                 <a href="/builtin#uint32">uint32</a>
+    <span id="OptionalHeader32.SizeOfHeaders">SizeOfHeaders</span>               <a href="/builtin#uint32">uint32</a>
+    <span id="OptionalHeader32.CheckSum">CheckSum</span>                    <a href="/builtin#uint32">uint32</a>
+    <span id="OptionalHeader32.Subsystem">Subsystem</span>                   <a href="/builtin#uint16">uint16</a>
+    <span id="OptionalHeader32.DllCharacteristics">DllCharacteristics</span>          <a href="/builtin#uint16">uint16</a>
+    <span id="OptionalHeader32.SizeOfStackReserve">SizeOfStackReserve</span>          <a href="/builtin#uint32">uint32</a>
+    <span id="OptionalHeader32.SizeOfStackCommit">SizeOfStackCommit</span>           <a href="/builtin#uint32">uint32</a>
+    <span id="OptionalHeader32.SizeOfHeapReserve">SizeOfHeapReserve</span>           <a href="/builtin#uint32">uint32</a>
+    <span id="OptionalHeader32.SizeOfHeapCommit">SizeOfHeapCommit</span>            <a href="/builtin#uint32">uint32</a>
+    <span id="OptionalHeader32.LoaderFlags">LoaderFlags</span>                 <a href="/builtin#uint32">uint32</a>
+    <span id="OptionalHeader32.NumberOfRvaAndSizes">NumberOfRvaAndSizes</span>         <a href="/builtin#uint32">uint32</a>
+    <span id="OptionalHeader32.DataDirectory">DataDirectory</span>               [16]<a href="#DataDirectory">DataDirectory</a>
+}</pre></div>
+          
+          
+          
+  
+
+
+          
+
+          
+        
+          <h3 id="OptionalHeader64" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/pe/pe.go#L56">OptionalHeader64</a> <a class="permalink" href="#OptionalHeader64">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=OptionalHeader64&amp;pkg=debug%2Fpe&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/pe/pe.go#L56">❖</a><pre>type OptionalHeader64 struct {
+    <span id="OptionalHeader64.Magic">Magic</span>                       <a href="/builtin#uint16">uint16</a>
+    <span id="OptionalHeader64.MajorLinkerVersion">MajorLinkerVersion</span>          <a href="/builtin#uint8">uint8</a>
+    <span id="OptionalHeader64.MinorLinkerVersion">MinorLinkerVersion</span>          <a href="/builtin#uint8">uint8</a>
+    <span id="OptionalHeader64.SizeOfCode">SizeOfCode</span>                  <a href="/builtin#uint32">uint32</a>
+    <span id="OptionalHeader64.SizeOfInitializedData">SizeOfInitializedData</span>       <a href="/builtin#uint32">uint32</a>
+    <span id="OptionalHeader64.SizeOfUninitializedData">SizeOfUninitializedData</span>     <a href="/builtin#uint32">uint32</a>
+    <span id="OptionalHeader64.AddressOfEntryPoint">AddressOfEntryPoint</span>         <a href="/builtin#uint32">uint32</a>
+    <span id="OptionalHeader64.BaseOfCode">BaseOfCode</span>                  <a href="/builtin#uint32">uint32</a>
+    <span id="OptionalHeader64.ImageBase">ImageBase</span>                   <a href="/builtin#uint64">uint64</a>
+    <span id="OptionalHeader64.SectionAlignment">SectionAlignment</span>            <a href="/builtin#uint32">uint32</a>
+    <span id="OptionalHeader64.FileAlignment">FileAlignment</span>               <a href="/builtin#uint32">uint32</a>
+    <span id="OptionalHeader64.MajorOperatingSystemVersion">MajorOperatingSystemVersion</span> <a href="/builtin#uint16">uint16</a>
+    <span id="OptionalHeader64.MinorOperatingSystemVersion">MinorOperatingSystemVersion</span> <a href="/builtin#uint16">uint16</a>
+    <span id="OptionalHeader64.MajorImageVersion">MajorImageVersion</span>           <a href="/builtin#uint16">uint16</a>
+    <span id="OptionalHeader64.MinorImageVersion">MinorImageVersion</span>           <a href="/builtin#uint16">uint16</a>
+    <span id="OptionalHeader64.MajorSubsystemVersion">MajorSubsystemVersion</span>       <a href="/builtin#uint16">uint16</a>
+    <span id="OptionalHeader64.MinorSubsystemVersion">MinorSubsystemVersion</span>       <a href="/builtin#uint16">uint16</a>
+    <span id="OptionalHeader64.Win32VersionValue">Win32VersionValue</span>           <a href="/builtin#uint32">uint32</a>
+    <span id="OptionalHeader64.SizeOfImage">SizeOfImage</span>                 <a href="/builtin#uint32">uint32</a>
+    <span id="OptionalHeader64.SizeOfHeaders">SizeOfHeaders</span>               <a href="/builtin#uint32">uint32</a>
+    <span id="OptionalHeader64.CheckSum">CheckSum</span>                    <a href="/builtin#uint32">uint32</a>
+    <span id="OptionalHeader64.Subsystem">Subsystem</span>                   <a href="/builtin#uint16">uint16</a>
+    <span id="OptionalHeader64.DllCharacteristics">DllCharacteristics</span>          <a href="/builtin#uint16">uint16</a>
+    <span id="OptionalHeader64.SizeOfStackReserve">SizeOfStackReserve</span>          <a href="/builtin#uint64">uint64</a>
+    <span id="OptionalHeader64.SizeOfStackCommit">SizeOfStackCommit</span>           <a href="/builtin#uint64">uint64</a>
+    <span id="OptionalHeader64.SizeOfHeapReserve">SizeOfHeapReserve</span>           <a href="/builtin#uint64">uint64</a>
+    <span id="OptionalHeader64.SizeOfHeapCommit">SizeOfHeapCommit</span>            <a href="/builtin#uint64">uint64</a>
+    <span id="OptionalHeader64.LoaderFlags">LoaderFlags</span>                 <a href="/builtin#uint32">uint32</a>
+    <span id="OptionalHeader64.NumberOfRvaAndSizes">NumberOfRvaAndSizes</span>         <a href="/builtin#uint32">uint32</a>
+    <span id="OptionalHeader64.DataDirectory">DataDirectory</span>               [16]<a href="#DataDirectory">DataDirectory</a>
+}</pre></div>
+          
+          
+          
+  
+
+
+          
+
+          
+        
+          <h3 id="Reloc" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/pe/section.go#L46">Reloc</a> <a class="permalink" href="#Reloc">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=Reloc&amp;pkg=debug%2Fpe&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/pe/section.go#L46">❖</a><pre>type Reloc struct {
+    <span id="Reloc.VirtualAddress">VirtualAddress</span>   <a href="/builtin#uint32">uint32</a>
+    <span id="Reloc.SymbolTableIndex">SymbolTableIndex</span> <a href="/builtin#uint32">uint32</a>
+    <span id="Reloc.Type">Type</span>             <a href="/builtin#uint16">uint16</a>
+}</pre></div><p>
+Reloc represents a PE COFF relocation.
+Each section contains its own relocation list.
+</p>
+
+          
+          
+          
+  
+
+
+          
+
+          
+        
+          <h3 id="Section" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/pe/section.go#L84">Section</a> <a class="permalink" href="#Section">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=Section&amp;pkg=debug%2Fpe&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/pe/section.go#L84">❖</a><pre>type Section struct {
+    <a href="#SectionHeader">SectionHeader</a>
+    <span id="Section.Relocs">Relocs</span> []<a href="#Reloc">Reloc</a>
+
+    <span class="com">// Embed ReaderAt for ReadAt method.
+    // Do not embed SectionReader directly
+    // to avoid having Read and Seek.
+    // If a client wants Read and Seek it must use
+    // Open() to avoid fighting over the seek offset
+    // with other clients.</span>
+    <a href="/io">io</a>.<a href="/io#ReaderAt">ReaderAt</a>
+    <span class="com">// contains filtered or unexported fields</span>
+}</pre></div><p>
+Section provides access to PE COFF section.
+</p>
+
+          
+          
+          
+  
+
+
+          
+
+          
+            <h4 id="Section.Data" data-kind="m">func (*Section) <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/pe/section.go#L99">Data</a> <a class="permalink" href="#Section.Data">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=Section%2FData&amp;pkg=debug%2Fpe&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/pe/section.go#L99">❖</a><pre>func (s *<a href="#Section">Section</a>) Data() ([]<a href="/builtin#byte">byte</a>, <a href="/builtin#error">error</a>)</pre></div><p>
+Data reads and returns the contents of the PE section s.
+</p>
+
+            
+  
+
+          
+            <h4 id="Section.Open" data-kind="m">func (*Section) <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/pe/section.go#L109">Open</a> <a class="permalink" href="#Section.Open">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=Section%2FOpen&amp;pkg=debug%2Fpe&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/pe/section.go#L109">❖</a><pre>func (s *<a href="#Section">Section</a>) Open() <a href="/io">io</a>.<a href="/io#ReadSeeker">ReadSeeker</a></pre></div><p>
+Open returns a new ReadSeeker reading the PE section s.
+</p>
+
+            
+  
+
+          
+        
+          <h3 id="SectionHeader" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/pe/section.go#L70">SectionHeader</a> <a class="permalink" href="#SectionHeader">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=SectionHeader&amp;pkg=debug%2Fpe&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/pe/section.go#L70">❖</a><pre>type SectionHeader struct {
+    <span id="SectionHeader.Name">Name</span>                 <a href="/builtin#string">string</a>
+    <span id="SectionHeader.VirtualSize">VirtualSize</span>          <a href="/builtin#uint32">uint32</a>
+    <span id="SectionHeader.VirtualAddress">VirtualAddress</span>       <a href="/builtin#uint32">uint32</a>
+    <span id="SectionHeader.Size">Size</span>                 <a href="/builtin#uint32">uint32</a>
+    <span id="SectionHeader.Offset">Offset</span>               <a href="/builtin#uint32">uint32</a>
+    <span id="SectionHeader.PointerToRelocations">PointerToRelocations</span> <a href="/builtin#uint32">uint32</a>
+    <span id="SectionHeader.PointerToLineNumbers">PointerToLineNumbers</span> <a href="/builtin#uint32">uint32</a>
+    <span id="SectionHeader.NumberOfRelocations">NumberOfRelocations</span>  <a href="/builtin#uint16">uint16</a>
+    <span id="SectionHeader.NumberOfLineNumbers">NumberOfLineNumbers</span>  <a href="/builtin#uint16">uint16</a>
+    <span id="SectionHeader.Characteristics">Characteristics</span>      <a href="/builtin#uint32">uint32</a>
+}</pre></div><p>
+SectionHeader is similar to SectionHeader32 with Name
+field replaced by Go string.
+</p>
+
+          
+          
+          
+  
+
+
+          
+
+          
+        
+          <h3 id="SectionHeader32" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/pe/section.go#L15">SectionHeader32</a> <a class="permalink" href="#SectionHeader32">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=SectionHeader32&amp;pkg=debug%2Fpe&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/pe/section.go#L15">❖</a><pre>type SectionHeader32 struct {
+    <span id="SectionHeader32.Name">Name</span>                 [8]<a href="/builtin#uint8">uint8</a>
+    <span id="SectionHeader32.VirtualSize">VirtualSize</span>          <a href="/builtin#uint32">uint32</a>
+    <span id="SectionHeader32.VirtualAddress">VirtualAddress</span>       <a href="/builtin#uint32">uint32</a>
+    <span id="SectionHeader32.SizeOfRawData">SizeOfRawData</span>        <a href="/builtin#uint32">uint32</a>
+    <span id="SectionHeader32.PointerToRawData">PointerToRawData</span>     <a href="/builtin#uint32">uint32</a>
+    <span id="SectionHeader32.PointerToRelocations">PointerToRelocations</span> <a href="/builtin#uint32">uint32</a>
+    <span id="SectionHeader32.PointerToLineNumbers">PointerToLineNumbers</span> <a href="/builtin#uint32">uint32</a>
+    <span id="SectionHeader32.NumberOfRelocations">NumberOfRelocations</span>  <a href="/builtin#uint16">uint16</a>
+    <span id="SectionHeader32.NumberOfLineNumbers">NumberOfLineNumbers</span>  <a href="/builtin#uint16">uint16</a>
+    <span id="SectionHeader32.Characteristics">Characteristics</span>      <a href="/builtin#uint32">uint32</a>
+}</pre></div><p>
+SectionHeader32 represents real PE COFF section header.
+</p>
+
+          
+          
+          
+  
+
+
+          
+
+          
+        
+          <h3 id="StringTable" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/pe/string.go#L23">StringTable</a> <a class="permalink" href="#StringTable">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=StringTable&amp;pkg=debug%2Fpe&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/pe/string.go#L23">❖</a><pre>type StringTable []<a href="/builtin#byte">byte</a></pre></div><p>
+StringTable is a COFF string table.
+</p>
+
+          
+          
+          
+  
+
+
+          
+
+          
+            <h4 id="StringTable.String" data-kind="m">func (StringTable) <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/pe/string.go#L56">String</a> <a class="permalink" href="#StringTable.String">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=StringTable%2FString&amp;pkg=debug%2Fpe&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/pe/string.go#L56">❖</a><pre>func (st <a href="#StringTable">StringTable</a>) String(start <a href="/builtin#uint32">uint32</a>) (<a href="/builtin#string">string</a>, <a href="/builtin#error">error</a>)</pre></div><p>
+String extracts string from COFF string table st at offset start.
+</p>
+
+            
+  
+
+          
+        
+          <h3 id="Symbol" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/pe/symbol.go#L92">Symbol</a> <a class="permalink" href="#Symbol">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=Symbol&amp;pkg=debug%2Fpe&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/pe/symbol.go#L92">❖</a><pre>type Symbol struct {
+    <span id="Symbol.Name">Name</span>          <a href="/builtin#string">string</a>
+    <span id="Symbol.Value">Value</span>         <a href="/builtin#uint32">uint32</a>
+    <span id="Symbol.SectionNumber">SectionNumber</span> <a href="/builtin#int16">int16</a>
+    <span id="Symbol.Type">Type</span>          <a href="/builtin#uint16">uint16</a>
+    <span id="Symbol.StorageClass">StorageClass</span>  <a href="/builtin#uint8">uint8</a>
+}</pre></div><p>
+Symbol is similar to COFFSymbol with Name field replaced
+by Go string. Symbol also does not have NumberOfAuxSymbols.
+</p>
+<div id="x-footer" class="clearfix">
+  <div class="container">
+    <a href="http://studygolang.com/">Go语言中文网</a>
+    <span class="text-muted">|</span> <a href="http://golang.org/">Go Language</a>
+    <span class="pull-right"><a href="#">Back to top</a></span>
+  </div>
+</div>
+<script src="../assets/jquery-2.0.3.min.js"></script>
+<script src="../assets/bootstrap.min.js"></script>
+<script src="../assets/site.js"></script>
+</body>
+</html>

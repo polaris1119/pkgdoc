@@ -1,0 +1,1180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="../assets/site.css" rel="stylesheet">
+  <title>debug/macho</title>
+  
+    <meta name="twitter:title" content="Package macho">
+    <meta property="og:title" content="Package macho">
+    <meta name="description" content="Package macho implements access to Mach-O object files.">
+    <meta name="twitter:description" content="Package macho implements access to Mach-O object files.">
+    <meta property="og:description" content="Package macho implements access to Mach-O object files.">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:site" content="@golang">
+  
+  
+
+  
+
+</head>
+<body>
+
+<div class="container">
+
+        <h2 id="pkg-overview">package macho</h2>
+
+        <p><code>import "debug/macho"</code>
+
+        <p>
+Package macho implements access to Mach-O object files.</p>
+
+
+        
+  
+
+
+        
+        <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+
+        
+
+        <ul class="list-unstyled">
+          <li><a href="#pkg-constants">Constants</a></li>
+          <li><a href="#pkg-variables">Variables</a></li>
+          
+          
+            <li><a href="#Cpu">type Cpu</a></li>
+            <ul>
+            
+            <li><a href="#Cpu.GoString">func (i Cpu) GoString() string</a></li><li><a href="#Cpu.String">func (i Cpu) String() string</a></li>
+            </ul>
+          
+            <li><a href="#Dylib">type Dylib</a></li>
+            
+            
+            
+            
+          
+            <li><a href="#DylibCmd">type DylibCmd</a></li>
+            
+            
+            
+            
+          
+            <li><a href="#Dysymtab">type Dysymtab</a></li>
+            
+            
+            
+            
+          
+            <li><a href="#DysymtabCmd">type DysymtabCmd</a></li>
+            
+            
+            
+            
+          
+            <li><a href="#FatArch">type FatArch</a></li>
+            
+            
+            
+            
+          
+            <li><a href="#FatArchHeader">type FatArchHeader</a></li>
+            
+            
+            
+            
+          
+            <li><a href="#FatFile">type FatFile</a></li>
+            <ul>
+            <li><a href="#NewFatFile">func NewFatFile(r io.ReaderAt) (*FatFile, error)</a></li><li><a href="#OpenFat">func OpenFat(name string) (*FatFile, error)</a></li>
+            <li><a href="#FatFile.Close">func (ff *FatFile) Close() error</a></li>
+            </ul>
+          
+            <li><a href="#File">type File</a></li>
+            <ul>
+            <li><a href="#NewFile">func NewFile(r io.ReaderAt) (*File, error)</a></li><li><a href="#Open">func Open(name string) (*File, error)</a></li>
+            <li><a href="#File.Close">func (f *File) Close() error</a></li><li><a href="#File.DWARF">func (f *File) DWARF() (*dwarf.Data, error)</a></li><li><a href="#File.ImportedLibraries">func (f *File) ImportedLibraries() ([]string, error)</a></li><li><a href="#File.ImportedSymbols">func (f *File) ImportedSymbols() ([]string, error)</a></li><li><a href="#File.Section">func (f *File) Section(name string) *Section</a></li><li><a href="#File.Segment">func (f *File) Segment(name string) *Segment</a></li>
+            </ul>
+          
+            <li><a href="#FileHeader">type FileHeader</a></li>
+            
+            
+            
+            
+          
+            <li><a href="#FormatError">type FormatError</a></li>
+            <ul>
+            
+            <li><a href="#FormatError.Error">func (e *FormatError) Error() string</a></li>
+            </ul>
+          
+            <li><a href="#Load">type Load</a></li>
+            
+            
+            
+            
+          
+            <li><a href="#LoadBytes">type LoadBytes</a></li>
+            <ul>
+            
+            <li><a href="#LoadBytes.Raw">func (b LoadBytes) Raw() []byte</a></li>
+            </ul>
+          
+            <li><a href="#LoadCmd">type LoadCmd</a></li>
+            <ul>
+            
+            <li><a href="#LoadCmd.GoString">func (i LoadCmd) GoString() string</a></li><li><a href="#LoadCmd.String">func (i LoadCmd) String() string</a></li>
+            </ul>
+          
+            <li><a href="#Nlist32">type Nlist32</a></li>
+            
+            
+            
+            
+          
+            <li><a href="#Nlist64">type Nlist64</a></li>
+            
+            
+            
+            
+          
+            <li><a href="#Regs386">type Regs386</a></li>
+            
+            
+            
+            
+          
+            <li><a href="#RegsAMD64">type RegsAMD64</a></li>
+            
+            
+            
+            
+          
+            <li><a href="#Section">type Section</a></li>
+            <ul>
+            
+            <li><a href="#Section.Data">func (s *Section) Data() ([]byte, error)</a></li><li><a href="#Section.Open">func (s *Section) Open() io.ReadSeeker</a></li>
+            </ul>
+          
+            <li><a href="#Section32">type Section32</a></li>
+            
+            
+            
+            
+          
+            <li><a href="#Section64">type Section64</a></li>
+            
+            
+            
+            
+          
+            <li><a href="#SectionHeader">type SectionHeader</a></li>
+            
+            
+            
+            
+          
+            <li><a href="#Segment">type Segment</a></li>
+            <ul>
+            
+            <li><a href="#Segment.Data">func (s *Segment) Data() ([]byte, error)</a></li><li><a href="#Segment.Open">func (s *Segment) Open() io.ReadSeeker</a></li>
+            </ul>
+          
+            <li><a href="#Segment32">type Segment32</a></li>
+            
+            
+            
+            
+          
+            <li><a href="#Segment64">type Segment64</a></li>
+            
+            
+            
+            
+          
+            <li><a href="#SegmentHeader">type SegmentHeader</a></li>
+            
+            
+            
+            
+          
+            <li><a href="#Symbol">type Symbol</a></li>
+            
+            
+            
+            
+          
+            <li><a href="#Symtab">type Symtab</a></li>
+            
+            
+            
+            
+          
+            <li><a href="#SymtabCmd">type SymtabCmd</a></li>
+            
+            
+            
+            
+          
+            <li><a href="#Thread">type Thread</a></li>
+            
+            
+            
+            
+          
+            <li><a href="#Type">type Type</a></li>
+            
+            
+            
+            
+          
+          
+        </ul>
+
+        
+        
+          <span id="pkg-examples"></span>
+        
+
+        
+        
+<h4 id="pkg-files">
+  <a href="https://github.com/golang/go/blob/master/src/debug/macho/">Package Files</a>
+  <a class="permalink" href="#pkg-files">&para;</a>
+</h4>
+
+<p><a href="https://github.com/golang/go/blob/master/src/debug/macho/fat.go">fat.go</a> <a href="https://github.com/golang/go/blob/master/src/debug/macho/file.go">file.go</a> <a href="https://github.com/golang/go/blob/master/src/debug/macho/macho.go">macho.go</a> </p>
+
+        
+        
+          <h3 id="pkg-constants">Constants <a class="permalink" href="#pkg-constants">&para;</a></h3>
+          <div class="decl" data-kind="c"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/macho.go#L28">❖</a><pre>const (
+    <span id="Magic32">Magic32</span>  <a href="/builtin#uint32">uint32</a> = 0xfeedface
+    <span id="Magic64">Magic64</span>  <a href="/builtin#uint32">uint32</a> = 0xfeedfacf
+    <span id="MagicFat">MagicFat</span> <a href="/builtin#uint32">uint32</a> = 0xcafebabe
+)</pre></div>
+        
+
+        
+        
+          <h3 id="pkg-variables">Variables <a class="permalink" href="#pkg-variables">&para;</a></h3>
+          <div class="decl" data-kind="v"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/fat.go#L40">❖</a><pre>var <span id="ErrNotFat">ErrNotFat</span> = &amp;<a href="#FormatError">FormatError</a>{0, &#34;not a fat Mach-O file&#34;, <a href="/builtin#nil">nil</a>}</pre></div><p>
+ErrNotFat is returned from NewFatFile or OpenFat when the file is not a
+universal binary but may be a thin binary, based on its magic number.
+</p>
+
+        
+
+        
+        
+        
+
+        
+        
+
+        
+          <h3 id="Cpu" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/macho.go#L45">Cpu</a> <a class="permalink" href="#Cpu">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=Cpu&amp;pkg=debug%2Fmacho&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/macho.go#L45">❖</a><pre>type Cpu <a href="/builtin#uint32">uint32</a></pre></div><p>
+A Cpu is a Mach-O cpu type.
+</p>
+
+          <div class="decl" data-kind="c"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/macho.go#L49">❖</a><pre>const (
+    <span id="Cpu386">Cpu386</span>   <a href="#Cpu">Cpu</a> = 7
+    <span id="CpuAmd64">CpuAmd64</span> <a href="#Cpu">Cpu</a> = <a href="#Cpu386">Cpu386</a> | cpuArch64
+    <span id="CpuArm">CpuArm</span>   <a href="#Cpu">Cpu</a> = 12
+    <span id="CpuPpc">CpuPpc</span>   <a href="#Cpu">Cpu</a> = 18
+    <span id="CpuPpc64">CpuPpc64</span> <a href="#Cpu">Cpu</a> = <a href="#CpuPpc">CpuPpc</a> | cpuArch64
+)</pre></div>
+          
+          
+  
+
+
+          
+
+          
+            <h4 id="Cpu.GoString" data-kind="m">func (Cpu) <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/macho.go#L66">GoString</a> <a class="permalink" href="#Cpu.GoString">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=Cpu%2FGoString&amp;pkg=debug%2Fmacho&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/macho.go#L66">❖</a><pre>func (i <a href="#Cpu">Cpu</a>) GoString() <a href="/builtin#string">string</a></pre></div>
+            
+  
+
+          
+            <h4 id="Cpu.String" data-kind="m">func (Cpu) <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/macho.go#L65">String</a> <a class="permalink" href="#Cpu.String">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=Cpu%2FString&amp;pkg=debug%2Fmacho&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/macho.go#L65">❖</a><pre>func (i <a href="#Cpu">Cpu</a>) String() <a href="/builtin#string">string</a></pre></div>
+            
+  
+
+          
+        
+          <h3 id="Dylib" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/file.go#L124">Dylib</a> <a class="permalink" href="#Dylib">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=Dylib&amp;pkg=debug%2Fmacho&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/file.go#L124">❖</a><pre>type Dylib struct {
+    <a href="#LoadBytes">LoadBytes</a>
+    <span id="Dylib.Name">Name</span>           <a href="/builtin#string">string</a>
+    <span id="Dylib.Time">Time</span>           <a href="/builtin#uint32">uint32</a>
+    <span id="Dylib.CurrentVersion">CurrentVersion</span> <a href="/builtin#uint32">uint32</a>
+    <span id="Dylib.CompatVersion">CompatVersion</span>  <a href="/builtin#uint32">uint32</a>
+}</pre></div><p>
+A Dylib represents a Mach-O load dynamic library command.
+</p>
+
+          
+          
+          
+  
+
+
+          
+
+          
+        
+          <h3 id="DylibCmd" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/macho.go#L124">DylibCmd</a> <a class="permalink" href="#DylibCmd">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=DylibCmd&amp;pkg=debug%2Fmacho&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/macho.go#L124">❖</a><pre>type DylibCmd struct {
+    <span id="DylibCmd.Cmd">Cmd</span>            <a href="#LoadCmd">LoadCmd</a>
+    <span id="DylibCmd.Len">Len</span>            <a href="/builtin#uint32">uint32</a>
+    <span id="DylibCmd.Name">Name</span>           <a href="/builtin#uint32">uint32</a>
+    <span id="DylibCmd.Time">Time</span>           <a href="/builtin#uint32">uint32</a>
+    <span id="DylibCmd.CurrentVersion">CurrentVersion</span> <a href="/builtin#uint32">uint32</a>
+    <span id="DylibCmd.CompatVersion">CompatVersion</span>  <a href="/builtin#uint32">uint32</a>
+}</pre></div><p>
+A DylibCmd is a Mach-O load dynamic library command.
+</p>
+
+          
+          
+          
+  
+
+
+          
+
+          
+        
+          <h3 id="Dysymtab" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/file.go#L140">Dysymtab</a> <a class="permalink" href="#Dysymtab">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=Dysymtab&amp;pkg=debug%2Fmacho&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/file.go#L140">❖</a><pre>type Dysymtab struct {
+    <a href="#LoadBytes">LoadBytes</a>
+    <a href="#DysymtabCmd">DysymtabCmd</a>
+    <span id="Dysymtab.IndirectSyms">IndirectSyms</span> []<a href="/builtin#uint32">uint32</a> <span class="com">// indices into Symtab.Syms</span>
+}</pre></div><p>
+A Dysymtab represents a Mach-O dynamic symbol table command.
+</p>
+
+          
+          
+          
+  
+
+
+          
+
+          
+        
+          <h3 id="DysymtabCmd" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/macho.go#L175">DysymtabCmd</a> <a class="permalink" href="#DysymtabCmd">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=DysymtabCmd&amp;pkg=debug%2Fmacho&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/macho.go#L175">❖</a><pre>type DysymtabCmd struct {
+    <span id="DysymtabCmd.Cmd">Cmd</span>            <a href="#LoadCmd">LoadCmd</a>
+    <span id="DysymtabCmd.Len">Len</span>            <a href="/builtin#uint32">uint32</a>
+    <span id="DysymtabCmd.Ilocalsym">Ilocalsym</span>      <a href="/builtin#uint32">uint32</a>
+    <span id="DysymtabCmd.Nlocalsym">Nlocalsym</span>      <a href="/builtin#uint32">uint32</a>
+    <span id="DysymtabCmd.Iextdefsym">Iextdefsym</span>     <a href="/builtin#uint32">uint32</a>
+    <span id="DysymtabCmd.Nextdefsym">Nextdefsym</span>     <a href="/builtin#uint32">uint32</a>
+    <span id="DysymtabCmd.Iundefsym">Iundefsym</span>      <a href="/builtin#uint32">uint32</a>
+    <span id="DysymtabCmd.Nundefsym">Nundefsym</span>      <a href="/builtin#uint32">uint32</a>
+    <span id="DysymtabCmd.Tocoffset">Tocoffset</span>      <a href="/builtin#uint32">uint32</a>
+    <span id="DysymtabCmd.Ntoc">Ntoc</span>           <a href="/builtin#uint32">uint32</a>
+    <span id="DysymtabCmd.Modtaboff">Modtaboff</span>      <a href="/builtin#uint32">uint32</a>
+    <span id="DysymtabCmd.Nmodtab">Nmodtab</span>        <a href="/builtin#uint32">uint32</a>
+    <span id="DysymtabCmd.Extrefsymoff">Extrefsymoff</span>   <a href="/builtin#uint32">uint32</a>
+    <span id="DysymtabCmd.Nextrefsyms">Nextrefsyms</span>    <a href="/builtin#uint32">uint32</a>
+    <span id="DysymtabCmd.Indirectsymoff">Indirectsymoff</span> <a href="/builtin#uint32">uint32</a>
+    <span id="DysymtabCmd.Nindirectsyms">Nindirectsyms</span>  <a href="/builtin#uint32">uint32</a>
+    <span id="DysymtabCmd.Extreloff">Extreloff</span>      <a href="/builtin#uint32">uint32</a>
+    <span id="DysymtabCmd.Nextrel">Nextrel</span>        <a href="/builtin#uint32">uint32</a>
+    <span id="DysymtabCmd.Locreloff">Locreloff</span>      <a href="/builtin#uint32">uint32</a>
+    <span id="DysymtabCmd.Nlocrel">Nlocrel</span>        <a href="/builtin#uint32">uint32</a>
+}</pre></div><p>
+A DysymtabCmd is a Mach-O dynamic symbol table command.
+</p>
+
+          
+          
+          
+  
+
+
+          
+
+          
+        
+          <h3 id="FatArch" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/fat.go#L33">FatArch</a> <a class="permalink" href="#FatArch">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=FatArch&amp;pkg=debug%2Fmacho&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/fat.go#L33">❖</a><pre>type FatArch struct {
+    <a href="#FatArchHeader">FatArchHeader</a>
+    *<a href="#File">File</a>
+}</pre></div><p>
+A FatArch is a Mach-O File inside a FatFile.
+</p>
+
+          
+          
+          
+  
+
+
+          
+
+          
+        
+          <h3 id="FatArchHeader" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/fat.go#L22">FatArchHeader</a> <a class="permalink" href="#FatArchHeader">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=FatArchHeader&amp;pkg=debug%2Fmacho&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/fat.go#L22">❖</a><pre>type FatArchHeader struct {
+    <span id="FatArchHeader.Cpu">Cpu</span>    <a href="#Cpu">Cpu</a>
+    <span id="FatArchHeader.SubCpu">SubCpu</span> <a href="/builtin#uint32">uint32</a>
+    <span id="FatArchHeader.Offset">Offset</span> <a href="/builtin#uint32">uint32</a>
+    <span id="FatArchHeader.Size">Size</span>   <a href="/builtin#uint32">uint32</a>
+    <span id="FatArchHeader.Align">Align</span>  <a href="/builtin#uint32">uint32</a>
+}</pre></div><p>
+A FatArchHeader represents a fat header for a specific image architecture.
+</p>
+
+          
+          
+          
+  
+
+
+          
+
+          
+        
+          <h3 id="FatFile" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/fat.go#L15">FatFile</a> <a class="permalink" href="#FatFile">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=FatFile&amp;pkg=debug%2Fmacho&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/fat.go#L15">❖</a><pre>type FatFile struct {
+    <span id="FatFile.Magic">Magic</span>  <a href="/builtin#uint32">uint32</a>
+    <span id="FatFile.Arches">Arches</span> []<a href="#FatArch">FatArch</a>
+    <span class="com">// contains filtered or unexported fields</span>
+}</pre></div><p>
+A FatFile is a Mach-O universal binary that contains at least one architecture.
+</p>
+
+          
+          
+          
+  
+
+
+          
+            <h4 id="NewFatFile" data-kind="f">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/fat.go#L45">NewFatFile</a> <a class="permalink" href="#NewFatFile">&para;</a> <a class="uses" title="List Function Callers" href="https://sourcegraph.com/-/godoc/refs?def=NewFatFile&amp;pkg=debug%2Fmacho&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/fat.go#L45">❖</a><pre>func NewFatFile(r <a href="/io">io</a>.<a href="/io#ReaderAt">ReaderAt</a>) (*<a href="#FatFile">FatFile</a>, <a href="/builtin#error">error</a>)</pre></div><p>
+NewFatFile creates a new FatFile for accessing all the Mach-O images in a
+universal binary. The Mach-O binary is expected to start at position 0 in
+the ReaderAt.
+</p>
+
+            
+  
+
+          
+            <h4 id="OpenFat" data-kind="f">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/fat.go#L125">OpenFat</a> <a class="permalink" href="#OpenFat">&para;</a> <a class="uses" title="List Function Callers" href="https://sourcegraph.com/-/godoc/refs?def=OpenFat&amp;pkg=debug%2Fmacho&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/fat.go#L125">❖</a><pre>func OpenFat(name <a href="/builtin#string">string</a>) (*<a href="#FatFile">FatFile</a>, <a href="/builtin#error">error</a>)</pre></div><p>
+OpenFat opens the named file using os.Open and prepares it for use as a Mach-O
+universal binary.
+</p>
+
+            
+  
+
+          
+
+          
+            <h4 id="FatFile.Close" data-kind="m">func (*FatFile) <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/fat.go#L139">Close</a> <a class="permalink" href="#FatFile.Close">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=FatFile%2FClose&amp;pkg=debug%2Fmacho&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/fat.go#L139">❖</a><pre>func (ff *<a href="#FatFile">FatFile</a>) Close() <a href="/builtin#error">error</a></pre></div>
+            
+  
+
+          
+        
+          <h3 id="File" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/file.go#L20">File</a> <a class="permalink" href="#File">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=File&amp;pkg=debug%2Fmacho&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/file.go#L20">❖</a><pre>type File struct {
+    <a href="#FileHeader">FileHeader</a>
+    <span id="File.ByteOrder">ByteOrder</span> <a href="/encoding/binary">binary</a>.<a href="/encoding/binary#ByteOrder">ByteOrder</a>
+    <span id="File.Loads">Loads</span>     []<a href="#Load">Load</a>
+    <span id="File.Sections">Sections</span>  []*<a href="#Section">Section</a>
+
+    <span id="File.Symtab">Symtab</span>   *<a href="#Symtab">Symtab</a>
+    <span id="File.Dysymtab">Dysymtab</span> *<a href="#Dysymtab">Dysymtab</a>
+    <span class="com">// contains filtered or unexported fields</span>
+}</pre></div><p>
+A File represents an open Mach-O file.
+</p>
+
+          
+          
+          
+  
+
+
+          
+            <h4 id="NewFile" data-kind="f">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/file.go#L196">NewFile</a> <a class="permalink" href="#NewFile">&para;</a> <a class="uses" title="List Function Callers" href="https://sourcegraph.com/-/godoc/refs?def=NewFile&amp;pkg=debug%2Fmacho&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/file.go#L196">❖</a><pre>func NewFile(r <a href="/io">io</a>.<a href="/io#ReaderAt">ReaderAt</a>) (*<a href="#File">File</a>, <a href="/builtin#error">error</a>)</pre></div><p>
+NewFile creates a new File for accessing a Mach-O binary in an underlying reader.
+The Mach-O binary is expected to start at position 0 in the ReaderAt.
+</p>
+
+            
+  
+
+          
+            <h4 id="Open" data-kind="f">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/file.go#L168">Open</a> <a class="permalink" href="#Open">&para;</a> <a class="uses" title="List Function Callers" href="https://sourcegraph.com/-/godoc/refs?def=Open&amp;pkg=debug%2Fmacho&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/file.go#L168">❖</a><pre>func Open(name <a href="/builtin#string">string</a>) (*<a href="#File">File</a>, <a href="/builtin#error">error</a>)</pre></div><p>
+Open opens the named file using os.Open and prepares it for use as a Mach-O binary.
+</p>
+
+            
+  
+
+          
+
+          
+            <h4 id="File.Close" data-kind="m">func (*File) <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/file.go#L185">Close</a> <a class="permalink" href="#File.Close">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=File%2FClose&amp;pkg=debug%2Fmacho&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/file.go#L185">❖</a><pre>func (f *<a href="#File">File</a>) Close() <a href="/builtin#error">error</a></pre></div><p>
+Close closes the File.
+If the File was created using NewFile directly instead of Open,
+Close has no effect.
+</p>
+
+            
+  
+
+          
+            <h4 id="File.DWARF" data-kind="m">func (*File) <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/file.go#L473">DWARF</a> <a class="permalink" href="#File.DWARF">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=File%2FDWARF&amp;pkg=debug%2Fmacho&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/file.go#L473">❖</a><pre>func (f *<a href="#File">File</a>) DWARF() (*<a href="/debug/dwarf">dwarf</a>.<a href="/debug/dwarf#Data">Data</a>, <a href="/builtin#error">error</a>)</pre></div><p>
+DWARF returns the DWARF debug information for the Mach-O file.
+</p>
+
+            
+  
+
+          
+            <h4 id="File.ImportedLibraries" data-kind="m">func (*File) <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/file.go#L516">ImportedLibraries</a> <a class="permalink" href="#File.ImportedLibraries">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=File%2FImportedLibraries&amp;pkg=debug%2Fmacho&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/file.go#L516">❖</a><pre>func (f *<a href="#File">File</a>) ImportedLibraries() ([]<a href="/builtin#string">string</a>, <a href="/builtin#error">error</a>)</pre></div><p>
+ImportedLibraries returns the paths of all libraries
+referred to by the binary f that are expected to be
+linked with the binary at dynamic link time.
+</p>
+
+            
+  
+
+          
+            <h4 id="File.ImportedSymbols" data-kind="m">func (*File) <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/file.go#L499">ImportedSymbols</a> <a class="permalink" href="#File.ImportedSymbols">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=File%2FImportedSymbols&amp;pkg=debug%2Fmacho&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/file.go#L499">❖</a><pre>func (f *<a href="#File">File</a>) ImportedSymbols() ([]<a href="/builtin#string">string</a>, <a href="/builtin#error">error</a>)</pre></div><p>
+ImportedSymbols returns the names of all symbols
+referred to by the binary f that are expected to be
+satisfied by other libraries at dynamic load time.
+</p>
+
+            
+  
+
+          
+            <h4 id="File.Section" data-kind="m">func (*File) <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/file.go#L463">Section</a> <a class="permalink" href="#File.Section">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=File%2FSection&amp;pkg=debug%2Fmacho&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/file.go#L463">❖</a><pre>func (f *<a href="#File">File</a>) Section(name <a href="/builtin#string">string</a>) *<a href="#Section">Section</a></pre></div><p>
+Section returns the first section with the given name, or nil if no such
+section exists.
+</p>
+
+            
+  
+
+          
+            <h4 id="File.Segment" data-kind="m">func (*File) <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/file.go#L452">Segment</a> <a class="permalink" href="#File.Segment">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=File%2FSegment&amp;pkg=debug%2Fmacho&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/file.go#L452">❖</a><pre>func (f *<a href="#File">File</a>) Segment(name <a href="/builtin#string">string</a>) *<a href="#Segment">Segment</a></pre></div><p>
+Segment returns the first Segment with the given name, or nil if no such segment exists.
+</p>
+
+            
+  
+
+          
+        
+          <h3 id="FileHeader" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/macho.go#L13">FileHeader</a> <a class="permalink" href="#FileHeader">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=FileHeader&amp;pkg=debug%2Fmacho&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/macho.go#L13">❖</a><pre>type FileHeader struct {
+    <span id="FileHeader.Magic">Magic</span>  <a href="/builtin#uint32">uint32</a>
+    <span id="FileHeader.Cpu">Cpu</span>    <a href="#Cpu">Cpu</a>
+    <span id="FileHeader.SubCpu">SubCpu</span> <a href="/builtin#uint32">uint32</a>
+    <span id="FileHeader.Type">Type</span>   <a href="#Type">Type</a>
+    <span id="FileHeader.Ncmd">Ncmd</span>   <a href="/builtin#uint32">uint32</a>
+    <span id="FileHeader.Cmdsz">Cmdsz</span>  <a href="/builtin#uint32">uint32</a>
+    <span id="FileHeader.Flags">Flags</span>  <a href="/builtin#uint32">uint32</a>
+}</pre></div><p>
+A FileHeader represents a Mach-O file header.
+</p>
+
+          
+          
+          
+  
+
+
+          
+
+          
+        
+          <h3 id="FormatError" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/file.go#L152">FormatError</a> <a class="permalink" href="#FormatError">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=FormatError&amp;pkg=debug%2Fmacho&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/file.go#L152">❖</a><pre>type FormatError struct {
+    <span class="com">// contains filtered or unexported fields</span>
+}</pre></div><p>
+FormatError is returned by some operations if the data does
+not have the correct format for an object file.
+</p>
+
+          
+          
+          
+  
+
+
+          
+
+          
+            <h4 id="FormatError.Error" data-kind="m">func (*FormatError) <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/file.go#L158">Error</a> <a class="permalink" href="#FormatError.Error">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=FormatError%2FError&amp;pkg=debug%2Fmacho&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/file.go#L158">❖</a><pre>func (e *<a href="#FormatError">FormatError</a>) Error() <a href="/builtin#string">string</a></pre></div>
+            
+  
+
+          
+        
+          <h3 id="Load" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/file.go#L33">Load</a> <a class="permalink" href="#Load">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=Load&amp;pkg=debug%2Fmacho&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="m"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/file.go#L33">❖</a><pre>type Load interface {
+    <span id="Load.Raw">Raw</span>() []<a href="/builtin#byte">byte</a>
+}</pre></div><p>
+A Load represents any Mach-O load command.
+</p>
+
+          
+          
+          
+  
+
+
+          
+
+          
+        
+          <h3 id="LoadBytes" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/file.go#L38">LoadBytes</a> <a class="permalink" href="#LoadBytes">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=LoadBytes&amp;pkg=debug%2Fmacho&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/file.go#L38">❖</a><pre>type LoadBytes []<a href="/builtin#byte">byte</a></pre></div><p>
+A LoadBytes is the uninterpreted bytes of a Mach-O load command.
+</p>
+
+          
+          
+          
+  
+
+
+          
+
+          
+            <h4 id="LoadBytes.Raw" data-kind="m">func (LoadBytes) <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/file.go#L40">Raw</a> <a class="permalink" href="#LoadBytes.Raw">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=LoadBytes%2FRaw&amp;pkg=debug%2Fmacho&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/file.go#L40">❖</a><pre>func (b <a href="#LoadBytes">LoadBytes</a>) Raw() []<a href="/builtin#byte">byte</a></pre></div>
+            
+  
+
+          
+        
+          <h3 id="LoadCmd" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/macho.go#L69">LoadCmd</a> <a class="permalink" href="#LoadCmd">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=LoadCmd&amp;pkg=debug%2Fmacho&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/macho.go#L69">❖</a><pre>type LoadCmd <a href="/builtin#uint32">uint32</a></pre></div><p>
+A LoadCmd is a Mach-O load command.
+</p>
+
+          <div class="decl" data-kind="c"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/macho.go#L71">❖</a><pre>const (
+    <span id="LoadCmdSegment">LoadCmdSegment</span>    <a href="#LoadCmd">LoadCmd</a> = 1
+    <span id="LoadCmdSymtab">LoadCmdSymtab</span>     <a href="#LoadCmd">LoadCmd</a> = 2
+    <span id="LoadCmdThread">LoadCmdThread</span>     <a href="#LoadCmd">LoadCmd</a> = 4
+    <span id="LoadCmdUnixThread">LoadCmdUnixThread</span> <a href="#LoadCmd">LoadCmd</a> = 5 <span class="com">// thread+stack</span>
+    <span id="LoadCmdDysymtab">LoadCmdDysymtab</span>   <a href="#LoadCmd">LoadCmd</a> = 11
+    <span id="LoadCmdDylib">LoadCmdDylib</span>      <a href="#LoadCmd">LoadCmd</a> = 12
+    <span id="LoadCmdDylinker">LoadCmdDylinker</span>   <a href="#LoadCmd">LoadCmd</a> = 15
+    <span id="LoadCmdSegment64">LoadCmdSegment64</span>  <a href="#LoadCmd">LoadCmd</a> = 25
+)</pre></div>
+          
+          
+  
+
+
+          
+
+          
+            <h4 id="LoadCmd.GoString" data-kind="m">func (LoadCmd) <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/macho.go#L91">GoString</a> <a class="permalink" href="#LoadCmd.GoString">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=LoadCmd%2FGoString&amp;pkg=debug%2Fmacho&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/macho.go#L91">❖</a><pre>func (i <a href="#LoadCmd">LoadCmd</a>) GoString() <a href="/builtin#string">string</a></pre></div>
+            
+  
+
+          
+            <h4 id="LoadCmd.String" data-kind="m">func (LoadCmd) <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/macho.go#L90">String</a> <a class="permalink" href="#LoadCmd.String">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=LoadCmd%2FString&amp;pkg=debug%2Fmacho&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/macho.go#L90">❖</a><pre>func (i <a href="#LoadCmd">LoadCmd</a>) String() <a href="/builtin#string">string</a></pre></div>
+            
+  
+
+          
+        
+          <h3 id="Nlist32" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/macho.go#L199">Nlist32</a> <a class="permalink" href="#Nlist32">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=Nlist32&amp;pkg=debug%2Fmacho&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/macho.go#L199">❖</a><pre>type Nlist32 struct {
+    <span id="Nlist32.Name">Name</span>  <a href="/builtin#uint32">uint32</a>
+    <span id="Nlist32.Type">Type</span>  <a href="/builtin#uint8">uint8</a>
+    <span id="Nlist32.Sect">Sect</span>  <a href="/builtin#uint8">uint8</a>
+    <span id="Nlist32.Desc">Desc</span>  <a href="/builtin#uint16">uint16</a>
+    <span id="Nlist32.Value">Value</span> <a href="/builtin#uint32">uint32</a>
+}</pre></div><p>
+An Nlist32 is a Mach-O 32-bit symbol table entry.
+</p>
+
+          
+          
+          
+  
+
+
+          
+
+          
+        
+          <h3 id="Nlist64" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/macho.go#L208">Nlist64</a> <a class="permalink" href="#Nlist64">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=Nlist64&amp;pkg=debug%2Fmacho&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/macho.go#L208">❖</a><pre>type Nlist64 struct {
+    <span id="Nlist64.Name">Name</span>  <a href="/builtin#uint32">uint32</a>
+    <span id="Nlist64.Type">Type</span>  <a href="/builtin#uint8">uint8</a>
+    <span id="Nlist64.Sect">Sect</span>  <a href="/builtin#uint8">uint8</a>
+    <span id="Nlist64.Desc">Desc</span>  <a href="/builtin#uint16">uint16</a>
+    <span id="Nlist64.Value">Value</span> <a href="/builtin#uint64">uint64</a>
+}</pre></div><p>
+An Nlist64 is a Mach-O 64-bit symbol table entry.
+</p>
+
+          
+          
+          
+  
+
+
+          
+
+          
+        
+          <h3 id="Regs386" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/macho.go#L234">Regs386</a> <a class="permalink" href="#Regs386">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=Regs386&amp;pkg=debug%2Fmacho&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/macho.go#L234">❖</a><pre>type Regs386 struct {
+    <span id="Regs386.AX">AX</span>    <a href="/builtin#uint32">uint32</a>
+    <span id="Regs386.BX">BX</span>    <a href="/builtin#uint32">uint32</a>
+    <span id="Regs386.CX">CX</span>    <a href="/builtin#uint32">uint32</a>
+    <span id="Regs386.DX">DX</span>    <a href="/builtin#uint32">uint32</a>
+    <span id="Regs386.DI">DI</span>    <a href="/builtin#uint32">uint32</a>
+    <span id="Regs386.SI">SI</span>    <a href="/builtin#uint32">uint32</a>
+    <span id="Regs386.BP">BP</span>    <a href="/builtin#uint32">uint32</a>
+    <span id="Regs386.SP">SP</span>    <a href="/builtin#uint32">uint32</a>
+    <span id="Regs386.SS">SS</span>    <a href="/builtin#uint32">uint32</a>
+    <span id="Regs386.FLAGS">FLAGS</span> <a href="/builtin#uint32">uint32</a>
+    <span id="Regs386.IP">IP</span>    <a href="/builtin#uint32">uint32</a>
+    <span id="Regs386.CS">CS</span>    <a href="/builtin#uint32">uint32</a>
+    <span id="Regs386.DS">DS</span>    <a href="/builtin#uint32">uint32</a>
+    <span id="Regs386.ES">ES</span>    <a href="/builtin#uint32">uint32</a>
+    <span id="Regs386.FS">FS</span>    <a href="/builtin#uint32">uint32</a>
+    <span id="Regs386.GS">GS</span>    <a href="/builtin#uint32">uint32</a>
+}</pre></div><p>
+Regs386 is the Mach-O 386 register structure.
+</p>
+
+          
+          
+          
+  
+
+
+          
+
+          
+        
+          <h3 id="RegsAMD64" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/macho.go#L254">RegsAMD64</a> <a class="permalink" href="#RegsAMD64">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=RegsAMD64&amp;pkg=debug%2Fmacho&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/macho.go#L254">❖</a><pre>type RegsAMD64 struct {
+    <span id="RegsAMD64.AX">AX</span>    <a href="/builtin#uint64">uint64</a>
+    <span id="RegsAMD64.BX">BX</span>    <a href="/builtin#uint64">uint64</a>
+    <span id="RegsAMD64.CX">CX</span>    <a href="/builtin#uint64">uint64</a>
+    <span id="RegsAMD64.DX">DX</span>    <a href="/builtin#uint64">uint64</a>
+    <span id="RegsAMD64.DI">DI</span>    <a href="/builtin#uint64">uint64</a>
+    <span id="RegsAMD64.SI">SI</span>    <a href="/builtin#uint64">uint64</a>
+    <span id="RegsAMD64.BP">BP</span>    <a href="/builtin#uint64">uint64</a>
+    <span id="RegsAMD64.SP">SP</span>    <a href="/builtin#uint64">uint64</a>
+    <span id="RegsAMD64.R8">R8</span>    <a href="/builtin#uint64">uint64</a>
+    <span id="RegsAMD64.R9">R9</span>    <a href="/builtin#uint64">uint64</a>
+    <span id="RegsAMD64.R10">R10</span>   <a href="/builtin#uint64">uint64</a>
+    <span id="RegsAMD64.R11">R11</span>   <a href="/builtin#uint64">uint64</a>
+    <span id="RegsAMD64.R12">R12</span>   <a href="/builtin#uint64">uint64</a>
+    <span id="RegsAMD64.R13">R13</span>   <a href="/builtin#uint64">uint64</a>
+    <span id="RegsAMD64.R14">R14</span>   <a href="/builtin#uint64">uint64</a>
+    <span id="RegsAMD64.R15">R15</span>   <a href="/builtin#uint64">uint64</a>
+    <span id="RegsAMD64.IP">IP</span>    <a href="/builtin#uint64">uint64</a>
+    <span id="RegsAMD64.FLAGS">FLAGS</span> <a href="/builtin#uint64">uint64</a>
+    <span id="RegsAMD64.CS">CS</span>    <a href="/builtin#uint64">uint64</a>
+    <span id="RegsAMD64.FS">FS</span>    <a href="/builtin#uint64">uint64</a>
+    <span id="RegsAMD64.GS">GS</span>    <a href="/builtin#uint64">uint64</a>
+}</pre></div><p>
+RegsAMD64 is the Mach-O AMD64 register structure.
+</p>
+
+          
+          
+          
+  
+
+
+          
+
+          
+        
+          <h3 id="Section" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/file.go#L97">Section</a> <a class="permalink" href="#Section">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=Section&amp;pkg=debug%2Fmacho&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/file.go#L97">❖</a><pre>type Section struct {
+    <a href="#SectionHeader">SectionHeader</a>
+
+    <span class="com">// Embed ReaderAt for ReadAt method.
+    // Do not embed SectionReader directly
+    // to avoid having Read and Seek.
+    // If a client wants Read and Seek it must use
+    // Open() to avoid fighting over the seek offset
+    // with other clients.</span>
+    <a href="/io">io</a>.<a href="/io#ReaderAt">ReaderAt</a>
+    <span class="com">// contains filtered or unexported fields</span>
+}</pre></div>
+          
+          
+          
+  
+
+
+          
+
+          
+            <h4 id="Section.Data" data-kind="m">func (*Section) <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/file.go#L111">Data</a> <a class="permalink" href="#Section.Data">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=Section%2FData&amp;pkg=debug%2Fmacho&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/file.go#L111">❖</a><pre>func (s *<a href="#Section">Section</a>) Data() ([]<a href="/builtin#byte">byte</a>, <a href="/builtin#error">error</a>)</pre></div><p>
+Data reads and returns the contents of the Mach-O section.
+</p>
+
+            
+  
+
+          
+            <h4 id="Section.Open" data-kind="m">func (*Section) <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/file.go#L121">Open</a> <a class="permalink" href="#Section.Open">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=Section%2FOpen&amp;pkg=debug%2Fmacho&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/file.go#L121">❖</a><pre>func (s *<a href="#Section">Section</a>) Open() <a href="/io">io</a>.<a href="/io#ReadSeeker">ReadSeeker</a></pre></div><p>
+Open returns a new ReadSeeker reading the Mach-O section.
+</p>
+
+            
+  
+
+          
+        
+          <h3 id="Section32" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/macho.go#L134">Section32</a> <a class="permalink" href="#Section32">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=Section32&amp;pkg=debug%2Fmacho&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/macho.go#L134">❖</a><pre>type Section32 struct {
+    <span id="Section32.Name">Name</span>     [16]<a href="/builtin#byte">byte</a>
+    <span id="Section32.Seg">Seg</span>      [16]<a href="/builtin#byte">byte</a>
+    <span id="Section32.Addr">Addr</span>     <a href="/builtin#uint32">uint32</a>
+    <span id="Section32.Size">Size</span>     <a href="/builtin#uint32">uint32</a>
+    <span id="Section32.Offset">Offset</span>   <a href="/builtin#uint32">uint32</a>
+    <span id="Section32.Align">Align</span>    <a href="/builtin#uint32">uint32</a>
+    <span id="Section32.Reloff">Reloff</span>   <a href="/builtin#uint32">uint32</a>
+    <span id="Section32.Nreloc">Nreloc</span>   <a href="/builtin#uint32">uint32</a>
+    <span id="Section32.Flags">Flags</span>    <a href="/builtin#uint32">uint32</a>
+    <span id="Section32.Reserve1">Reserve1</span> <a href="/builtin#uint32">uint32</a>
+    <span id="Section32.Reserve2">Reserve2</span> <a href="/builtin#uint32">uint32</a>
+}</pre></div><p>
+A Section32 is a 32-bit Mach-O section header.
+</p>
+
+          
+          
+          
+  
+
+
+          
+
+          
+        
+          <h3 id="Section64" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/macho.go#L149">Section64</a> <a class="permalink" href="#Section64">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=Section64&amp;pkg=debug%2Fmacho&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/macho.go#L149">❖</a><pre>type Section64 struct {
+    <span id="Section64.Name">Name</span>     [16]<a href="/builtin#byte">byte</a>
+    <span id="Section64.Seg">Seg</span>      [16]<a href="/builtin#byte">byte</a>
+    <span id="Section64.Addr">Addr</span>     <a href="/builtin#uint64">uint64</a>
+    <span id="Section64.Size">Size</span>     <a href="/builtin#uint64">uint64</a>
+    <span id="Section64.Offset">Offset</span>   <a href="/builtin#uint32">uint32</a>
+    <span id="Section64.Align">Align</span>    <a href="/builtin#uint32">uint32</a>
+    <span id="Section64.Reloff">Reloff</span>   <a href="/builtin#uint32">uint32</a>
+    <span id="Section64.Nreloc">Nreloc</span>   <a href="/builtin#uint32">uint32</a>
+    <span id="Section64.Flags">Flags</span>    <a href="/builtin#uint32">uint32</a>
+    <span id="Section64.Reserve1">Reserve1</span> <a href="/builtin#uint32">uint32</a>
+    <span id="Section64.Reserve2">Reserve2</span> <a href="/builtin#uint32">uint32</a>
+    <span id="Section64.Reserve3">Reserve3</span> <a href="/builtin#uint32">uint32</a>
+}</pre></div><p>
+A Section64 is a 64-bit Mach-O section header.
+</p>
+
+          
+          
+          
+  
+
+
+          
+
+          
+        
+          <h3 id="SectionHeader" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/file.go#L85">SectionHeader</a> <a class="permalink" href="#SectionHeader">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=SectionHeader&amp;pkg=debug%2Fmacho&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/file.go#L85">❖</a><pre>type SectionHeader struct {
+    <span id="SectionHeader.Name">Name</span>   <a href="/builtin#string">string</a>
+    <span id="SectionHeader.Seg">Seg</span>    <a href="/builtin#string">string</a>
+    <span id="SectionHeader.Addr">Addr</span>   <a href="/builtin#uint64">uint64</a>
+    <span id="SectionHeader.Size">Size</span>   <a href="/builtin#uint64">uint64</a>
+    <span id="SectionHeader.Offset">Offset</span> <a href="/builtin#uint32">uint32</a>
+    <span id="SectionHeader.Align">Align</span>  <a href="/builtin#uint32">uint32</a>
+    <span id="SectionHeader.Reloff">Reloff</span> <a href="/builtin#uint32">uint32</a>
+    <span id="SectionHeader.Nreloc">Nreloc</span> <a href="/builtin#uint32">uint32</a>
+    <span id="SectionHeader.Flags">Flags</span>  <a href="/builtin#uint32">uint32</a>
+}</pre></div>
+          
+          
+          
+  
+
+
+          
+
+          
+        
+          <h3 id="Segment" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/file.go#L58">Segment</a> <a class="permalink" href="#Segment">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=Segment&amp;pkg=debug%2Fmacho&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/file.go#L58">❖</a><pre>type Segment struct {
+    <a href="#LoadBytes">LoadBytes</a>
+    <a href="#SegmentHeader">SegmentHeader</a>
+
+    <span class="com">// Embed ReaderAt for ReadAt method.
+    // Do not embed SectionReader directly
+    // to avoid having Read and Seek.
+    // If a client wants Read and Seek it must use
+    // Open() to avoid fighting over the seek offset
+    // with other clients.</span>
+    <a href="/io">io</a>.<a href="/io#ReaderAt">ReaderAt</a>
+    <span class="com">// contains filtered or unexported fields</span>
+}</pre></div><p>
+A Segment represents a Mach-O 32-bit or 64-bit load segment command.
+</p>
+
+          
+          
+          
+  
+
+
+          
+
+          
+            <h4 id="Segment.Data" data-kind="m">func (*Segment) <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/file.go#L73">Data</a> <a class="permalink" href="#Segment.Data">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=Segment%2FData&amp;pkg=debug%2Fmacho&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/file.go#L73">❖</a><pre>func (s *<a href="#Segment">Segment</a>) Data() ([]<a href="/builtin#byte">byte</a>, <a href="/builtin#error">error</a>)</pre></div><p>
+Data reads and returns the contents of the segment.
+</p>
+
+            
+  
+
+          
+            <h4 id="Segment.Open" data-kind="m">func (*Segment) <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/file.go#L83">Open</a> <a class="permalink" href="#Segment.Open">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=Segment%2FOpen&amp;pkg=debug%2Fmacho&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/file.go#L83">❖</a><pre>func (s *<a href="#Segment">Segment</a>) Open() <a href="/io">io</a>.<a href="/io#ReadSeeker">ReadSeeker</a></pre></div><p>
+Open returns a new ReadSeeker reading the segment.
+</p>
+
+            
+  
+
+          
+        
+          <h3 id="Segment32" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/macho.go#L109">Segment32</a> <a class="permalink" href="#Segment32">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=Segment32&amp;pkg=debug%2Fmacho&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/macho.go#L109">❖</a><pre>type Segment32 struct {
+    <span id="Segment32.Cmd">Cmd</span>     <a href="#LoadCmd">LoadCmd</a>
+    <span id="Segment32.Len">Len</span>     <a href="/builtin#uint32">uint32</a>
+    <span id="Segment32.Name">Name</span>    [16]<a href="/builtin#byte">byte</a>
+    <span id="Segment32.Addr">Addr</span>    <a href="/builtin#uint32">uint32</a>
+    <span id="Segment32.Memsz">Memsz</span>   <a href="/builtin#uint32">uint32</a>
+    <span id="Segment32.Offset">Offset</span>  <a href="/builtin#uint32">uint32</a>
+    <span id="Segment32.Filesz">Filesz</span>  <a href="/builtin#uint32">uint32</a>
+    <span id="Segment32.Maxprot">Maxprot</span> <a href="/builtin#uint32">uint32</a>
+    <span id="Segment32.Prot">Prot</span>    <a href="/builtin#uint32">uint32</a>
+    <span id="Segment32.Nsect">Nsect</span>   <a href="/builtin#uint32">uint32</a>
+    <span id="Segment32.Flag">Flag</span>    <a href="/builtin#uint32">uint32</a>
+}</pre></div><p>
+A Segment32 is a 32-bit Mach-O segment load command.
+</p>
+
+          
+          
+          
+  
+
+
+          
+
+          
+        
+          <h3 id="Segment64" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/macho.go#L94">Segment64</a> <a class="permalink" href="#Segment64">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=Segment64&amp;pkg=debug%2Fmacho&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/macho.go#L94">❖</a><pre>type Segment64 struct {
+    <span id="Segment64.Cmd">Cmd</span>     <a href="#LoadCmd">LoadCmd</a>
+    <span id="Segment64.Len">Len</span>     <a href="/builtin#uint32">uint32</a>
+    <span id="Segment64.Name">Name</span>    [16]<a href="/builtin#byte">byte</a>
+    <span id="Segment64.Addr">Addr</span>    <a href="/builtin#uint64">uint64</a>
+    <span id="Segment64.Memsz">Memsz</span>   <a href="/builtin#uint64">uint64</a>
+    <span id="Segment64.Offset">Offset</span>  <a href="/builtin#uint64">uint64</a>
+    <span id="Segment64.Filesz">Filesz</span>  <a href="/builtin#uint64">uint64</a>
+    <span id="Segment64.Maxprot">Maxprot</span> <a href="/builtin#uint32">uint32</a>
+    <span id="Segment64.Prot">Prot</span>    <a href="/builtin#uint32">uint32</a>
+    <span id="Segment64.Nsect">Nsect</span>   <a href="/builtin#uint32">uint32</a>
+    <span id="Segment64.Flag">Flag</span>    <a href="/builtin#uint32">uint32</a>
+}</pre></div><p>
+A Segment64 is a 64-bit Mach-O segment load command.
+</p>
+
+          
+          
+          
+  
+
+
+          
+
+          
+        
+          <h3 id="SegmentHeader" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/file.go#L43">SegmentHeader</a> <a class="permalink" href="#SegmentHeader">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=SegmentHeader&amp;pkg=debug%2Fmacho&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/file.go#L43">❖</a><pre>type SegmentHeader struct {
+    <span id="SegmentHeader.Cmd">Cmd</span>     <a href="#LoadCmd">LoadCmd</a>
+    <span id="SegmentHeader.Len">Len</span>     <a href="/builtin#uint32">uint32</a>
+    <span id="SegmentHeader.Name">Name</span>    <a href="/builtin#string">string</a>
+    <span id="SegmentHeader.Addr">Addr</span>    <a href="/builtin#uint64">uint64</a>
+    <span id="SegmentHeader.Memsz">Memsz</span>   <a href="/builtin#uint64">uint64</a>
+    <span id="SegmentHeader.Offset">Offset</span>  <a href="/builtin#uint64">uint64</a>
+    <span id="SegmentHeader.Filesz">Filesz</span>  <a href="/builtin#uint64">uint64</a>
+    <span id="SegmentHeader.Maxprot">Maxprot</span> <a href="/builtin#uint32">uint32</a>
+    <span id="SegmentHeader.Prot">Prot</span>    <a href="/builtin#uint32">uint32</a>
+    <span id="SegmentHeader.Nsect">Nsect</span>   <a href="/builtin#uint32">uint32</a>
+    <span id="SegmentHeader.Flag">Flag</span>    <a href="/builtin#uint32">uint32</a>
+}</pre></div><p>
+A SegmentHeader is the header for a Mach-O 32-bit or 64-bit load segment command.
+</p>
+
+          
+          
+          
+  
+
+
+          
+
+          
+        
+          <h3 id="Symbol" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/macho.go#L217">Symbol</a> <a class="permalink" href="#Symbol">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=Symbol&amp;pkg=debug%2Fmacho&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/macho.go#L217">❖</a><pre>type Symbol struct {
+    <span id="Symbol.Name">Name</span>  <a href="/builtin#string">string</a>
+    <span id="Symbol.Type">Type</span>  <a href="/builtin#uint8">uint8</a>
+    <span id="Symbol.Sect">Sect</span>  <a href="/builtin#uint8">uint8</a>
+    <span id="Symbol.Desc">Desc</span>  <a href="/builtin#uint16">uint16</a>
+    <span id="Symbol.Value">Value</span> <a href="/builtin#uint64">uint64</a>
+}</pre></div><p>
+A Symbol is a Mach-O 32-bit or 64-bit symbol table entry.
+</p>
+
+          
+          
+          
+  
+
+
+          
+
+          
+        
+          <h3 id="Symtab" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/file.go#L133">Symtab</a> <a class="permalink" href="#Symtab">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=Symtab&amp;pkg=debug%2Fmacho&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/file.go#L133">❖</a><pre>type Symtab struct {
+    <a href="#LoadBytes">LoadBytes</a>
+    <a href="#SymtabCmd">SymtabCmd</a>
+    <span id="Symtab.Syms">Syms</span> []<a href="#Symbol">Symbol</a>
+}</pre></div><p>
+A Symtab represents a Mach-O symbol table command.
+</p>
+
+          
+          
+          
+  
+
+
+          
+
+          
+        
+          <h3 id="SymtabCmd" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/macho.go#L165">SymtabCmd</a> <a class="permalink" href="#SymtabCmd">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=SymtabCmd&amp;pkg=debug%2Fmacho&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/macho.go#L165">❖</a><pre>type SymtabCmd struct {
+    <span id="SymtabCmd.Cmd">Cmd</span>     <a href="#LoadCmd">LoadCmd</a>
+    <span id="SymtabCmd.Len">Len</span>     <a href="/builtin#uint32">uint32</a>
+    <span id="SymtabCmd.Symoff">Symoff</span>  <a href="/builtin#uint32">uint32</a>
+    <span id="SymtabCmd.Nsyms">Nsyms</span>   <a href="/builtin#uint32">uint32</a>
+    <span id="SymtabCmd.Stroff">Stroff</span>  <a href="/builtin#uint32">uint32</a>
+    <span id="SymtabCmd.Strsize">Strsize</span> <a href="/builtin#uint32">uint32</a>
+}</pre></div><p>
+A SymtabCmd is a Mach-O symbol table command.
+</p>
+
+          
+          
+          
+  
+
+
+          
+
+          
+        
+          <h3 id="Thread" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/macho.go#L226">Thread</a> <a class="permalink" href="#Thread">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=Thread&amp;pkg=debug%2Fmacho&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/macho.go#L226">❖</a><pre>type Thread struct {
+    <span id="Thread.Cmd">Cmd</span>  <a href="#LoadCmd">LoadCmd</a>
+    <span id="Thread.Len">Len</span>  <a href="/builtin#uint32">uint32</a>
+    <span id="Thread.Type">Type</span> <a href="/builtin#uint32">uint32</a>
+    <span id="Thread.Data">Data</span> []<a href="/builtin#uint32">uint32</a>
+}</pre></div><p>
+A Thread is a Mach-O thread state command.
+</p>
+
+          
+          
+          
+  
+
+
+          
+
+          
+        
+          <h3 id="Type" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/macho.go#L35">Type</a> <a class="permalink" href="#Type">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=Type&amp;pkg=debug%2Fmacho&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/macho.go#L35">❖</a><pre>type Type <a href="/builtin#uint32">uint32</a></pre></div><p>
+A Type is the Mach-O file type, e.g. an object file, executable, or dynamic library.
+</p>
+
+          <div class="decl" data-kind="c"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/macho/macho.go#L37">❖</a><pre>const (
+    <span id="TypeObj">TypeObj</span>    <a href="#Type">Type</a> = 1
+    <span id="TypeExec">TypeExec</span>   <a href="#Type">Type</a> = 2
+    <span id="TypeDylib">TypeDylib</span>  <a href="#Type">Type</a> = 6
+    <span id="TypeBundle">TypeBundle</span> <a href="#Type">Type</a> = 8
+)</pre></div>
+          
+<div id="x-footer" class="clearfix">
+  <div class="container">
+    <a href="http://studygolang.com/">Go语言中文网</a>
+    <span class="text-muted">|</span> <a href="http://golang.org/">Go Language</a>
+    <span class="pull-right"><a href="#">Back to top</a></span>
+  </div>
+</div>
+<script src="../assets/jquery-2.0.3.min.js"></script>
+<script src="../assets/bootstrap.min.js"></script>
+<script src="../assets/site.js"></script>
+</body>
+</html>

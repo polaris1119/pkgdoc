@@ -3,7 +3,7 @@
 <head profile="http://a9.com/-/spec/opensearch/1.1/">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link href="./site.css" rel="stylesheet">
+<link href="../assets/site.css" rel="stylesheet">
 <title>reflect</title>
 <meta name="private:description" content="刘志曦翻译于2014年夏，Go 1.3版本">
 </head>
@@ -637,5 +637,15 @@ fmt.Println(floatSwap(2.72, 3.14))</pre>
     <p>用来判断两个值是否深度一致：除了类型相同；在可以时（主要是基本类型）会使用==；但还会比较array、slice的成员，map的键值对，结构体字段进行深入比对。map的键值对，对键只使用==，但值会继续往深层比对。DeepEqual函数可以正确处理循环的类型。函数类型只有都会nil时才相等；空切片不等于nil切片；还会考虑array、slice的长度、map键值对数。</p>
     <h3 id="pkg-note-bug">Bugs <a class="permalink" href="#pkg-index">&para;</a></h3>
     <p><a title="View Source" href="https://github.com/golang/go/blob/master/src/reflect/type.go?name=release#192">☞</a>FieldByName及相关的函数会将名称相同的结构体字段视为相同的字段，即使它们是来自不同包的非导出字段。这导致如果结构体类型t包含多个名为x的字段的话（被不同的包嵌入）t.FieldByName("x")的行为没有良好的定义。FieldByName可能会返回其中一个名为x的字段，也可能报告说没有这个字段。细节参见golang.org/issue/4876。    </div>
+<div id="x-footer" class="clearfix">
+  <div class="container">
+    <a href="http://studygolang.com/">Go语言中文网</a>
+    <span class="text-muted">|</span> <a href="http://golang.org/">Go Language</a>
+    <span class="pull-right"><a href="#">Back to top</a></span>
+  </div>
+</div>
+<script src="../assets/jquery-2.0.3.min.js"></script>
+<script src="../assets/bootstrap.min.js"></script>
+<script src="../assets/site.js"></script>
 </body>
 </html>

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="../assets/site.css" rel="stylesheet">
+  <title>runtime/trace</title>
+  
+    <meta name="twitter:title" content="Package trace">
+    <meta property="og:title" content="Package trace">
+    <meta name="description" content="Go execution tracer.">
+    <meta name="twitter:description" content="Go execution tracer.">
+    <meta property="og:description" content="Go execution tracer.">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:site" content="@golang">
+  
+  
+
+  
+
+</head>
+<body>
+
+<div class="container">
+
+        <h2 id="pkg-overview">package trace</h2>
+
+        <p><code>import "runtime/trace"</code>
+
+        <p>
+Go execution tracer.
+The tracer captures a wide range of execution events like goroutine
+creation/blocking/unblocking, syscall enter/exit/block, GC-related events,
+changes of heap size, processor start/stop, etc and writes them to an io.Writer
+in a compact form. A precise nanosecond-precision timestamp and a stack
+trace is captured for most events. A trace can be analyzed later with
+&#39;go tool trace&#39; command.</p>
+
+
+        
+  
+
+
+        
+        <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+
+        
+
+        <ul class="list-unstyled">
+          
+          
+          <li><a href="#Start">func Start(w io.Writer) error</a></li><li><a href="#Stop">func Stop()</a></li>
+          
+          
+        </ul>
+
+        
+        
+          <span id="pkg-examples"></span>
+        
+
+        
+        
+<h4 id="pkg-files">
+  <a href="https://github.com/golang/go/blob/master/src/runtime/trace/">Package Files</a>
+  <a class="permalink" href="#pkg-files">&para;</a>
+</h4>
+
+<p><a href="https://github.com/golang/go/blob/master/src/runtime/trace/trace.go">trace.go</a> </p>
+
+        
+        
+
+        
+        
+
+        
+        
+        
+          <h3 id="Start" data-kind="f">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/runtime/trace/trace.go#L22">Start</a> <a class="permalink" href="#Start">&para;</a> <a class="uses" title="List Function Callers" href="https://sourcegraph.com/-/godoc/refs?def=Start&amp;pkg=runtime%2Ftrace&amp;repo=">Uses</a></h3>
+          <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/runtime/trace/trace.go#L22">❖</a><pre>func Start(w <a href="/io">io</a>.<a href="/io#Writer">Writer</a>) <a href="/builtin#error">error</a></pre></div><p>
+Start enables tracing for the current program.
+While tracing, the trace will be buffered and written to w.
+Start returns an error if tracing is already enabled.
+</p>
+
+          
+  
+
+        
+          <h3 id="Stop" data-kind="f">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/runtime/trace/trace.go#L40">Stop</a> <a class="permalink" href="#Stop">&para;</a> <a class="uses" title="List Function Callers" href="https://sourcegraph.com/-/godoc/refs?def=Stop&amp;pkg=runtime%2Ftrace&amp;repo=">Uses</a></h3>
+          <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/runtime/trace/trace.go#L40">❖</a><pre>func Stop()</pre></div><p>
+Stop stops the current tracing, if any.
+Stop only returns after all the writes for the trace have completed.
+</p>
+
+          
+<div id="x-footer" class="clearfix">
+  <div class="container">
+    <a href="http://studygolang.com/">Go语言中文网</a>
+    <span class="text-muted">|</span> <a href="http://golang.org/">Go Language</a>
+    <span class="pull-right"><a href="#">Back to top</a></span>
+  </div>
+</div>
+<script src="../assets/jquery-2.0.3.min.js"></script>
+<script src="../assets/bootstrap.min.js"></script>
+<script src="../assets/site.js"></script>
+</body>
+</html>

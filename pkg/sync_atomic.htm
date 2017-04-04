@@ -3,7 +3,7 @@
 <head profile="http://a9.com/-/spec/opensearch/1.1/">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link href="./site.css" rel="stylesheet">
+<link href="../assets/site.css" rel="stylesheet">
 <title>sync/atomic</title>
 </head>
 <body>
@@ -151,5 +151,15 @@ return *addr</pre>
     <p>CompareAndSwapPointer原子性的比较*addr和old，如果相同则将new赋值给*addr并返回真。</p>
     <h3 id="pkg-note-bug">Bugs <a class="permalink" href="#pkg-index">&para;</a></h3>
     <p><a title="View Source" href="https://github.com/golang/go/blob/master/src/sync/atomic/doc.go?name=release#48">☞ </a>在x86-32构架芯片上，64位函数使用的指令在Pentium MMX之前是不可用的；在非Linux的ARM芯片上，64位函数使用的指令在ARMv6k core之前是不可用的。不管是ARM又或x86-32芯片，安排原子性访问的64位word的64位对齐都是调用者的责任。可以依靠全局变量或申请的切片/结构体的第一个word来实现64位对齐。    </div>
+<div id="x-footer" class="clearfix">
+  <div class="container">
+    <a href="http://studygolang.com/">Go语言中文网</a>
+    <span class="text-muted">|</span> <a href="http://golang.org/">Go Language</a>
+    <span class="pull-right"><a href="#">Back to top</a></span>
+  </div>
+</div>
+<script src="../assets/jquery-2.0.3.min.js"></script>
+<script src="../assets/bootstrap.min.js"></script>
+<script src="../assets/site.js"></script>
 </body>
 </html>

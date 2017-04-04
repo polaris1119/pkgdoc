@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head profile="http://a9.com/-/spec/opensearch/1.1/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="../assets/site.css" rel="stylesheet">
+  <title>plugin</title>
+  
+    <meta name="twitter:title" content="Package plugin">
+    <meta property="og:title" content="Package plugin">
+    <meta name="description" content="Package plugin implements loading and symbol resolution of Go plugins.">
+    <meta name="twitter:description" content="Package plugin implements loading and symbol resolution of Go plugins.">
+    <meta property="og:description" content="Package plugin implements loading and symbol resolution of Go plugins.">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:site" content="@golang">
+  
+  
+
+  
+
+</head>
+<body>
+
+<div class="container">
+
+        <h2 id="pkg-overview">package plugin</h2>
+
+        <p><code>import "plugin"</code>
+
+        <p>
+Package plugin implements loading and symbol resolution of Go plugins.
+</p>
+<p>
+Currently plugins only work on Linux.
+</p>
+<p>
+A plugin is a Go main package with exported functions and variables that
+has been built with:
+</p>
+<pre>go build -buildmode=plugin
+</pre>
+<p>
+When a plugin is first opened, the init functions of all packages not
+already part of the program are called. The main function is not run.
+A plugin is only initialized once, and cannot be closed.</p>
+
+
+        
+  
+
+
+        
+        <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
+
+        
+
+        <ul class="list-unstyled">
+          
+          
+          
+          
+            <li><a href="#Plugin">type Plugin</a></li>
+            <ul>
+            <li><a href="#Open">func Open(path string) (*Plugin, error)</a></li>
+            <li><a href="#Plugin.Lookup">func (p *Plugin) Lookup(symName string) (Symbol, error)</a></li>
+            </ul>
+          
+            <li><a href="#Symbol">type Symbol</a></li>
+            
+            
+            
+            
+          
+          
+        </ul>
+
+        
+        
+          <span id="pkg-examples"></span>
+        
+
+        
+        
+<h4 id="pkg-files">
+  <a href="https://github.com/golang/go/blob/master/src/plugin/">Package Files</a>
+  <a class="permalink" href="#pkg-files">&para;</a>
+</h4>
+
+<p><a href="https://github.com/golang/go/blob/master/src/plugin/plugin.go">plugin.go</a> <a href="https://github.com/golang/go/blob/master/src/plugin/plugin_dlopen.go">plugin_dlopen.go</a> </p>
+
+        
+        
+
+        
+        
+
+        
+        
+        
+
+        
+        
+
+        
+          <h3 id="Plugin" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/plugin/plugin.go#L20">Plugin</a> <a class="permalink" href="#Plugin">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=Plugin&amp;pkg=plugin&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/plugin/plugin.go#L20">❖</a><pre>type Plugin struct {
+    <span class="com">// contains filtered or unexported fields</span>
+}</pre></div><p>
+Plugin is a loaded Go plugin.
+</p>
+
+          
+          
+          
+  
+
+
+          
+            <h4 id="Open" data-kind="f">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/plugin/plugin.go#L29">Open</a> <a class="permalink" href="#Open">&para;</a> <a class="uses" title="List Function Callers" href="https://sourcegraph.com/-/godoc/refs?def=Open&amp;pkg=plugin&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/plugin/plugin.go#L29">❖</a><pre>func Open(path <a href="/builtin#string">string</a>) (*<a href="#Plugin">Plugin</a>, <a href="/builtin#error">error</a>)</pre></div><p>
+Open opens a Go plugin.
+If a path has already been opened, then the existing *Plugin is returned.
+It is safe for concurrent use by multiple goroutines.
+</p>
+
+            
+  
+
+          
+
+          
+            <h4 id="Plugin.Lookup" data-kind="m">func (*Plugin) <a title="View Source" href="https://github.com/golang/go/blob/master/src/plugin/plugin.go#L37">Lookup</a> <a class="permalink" href="#Plugin.Lookup">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=Plugin%2FLookup&amp;pkg=plugin&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/plugin/plugin.go#L37">❖</a><pre>func (p *<a href="#Plugin">Plugin</a>) Lookup(symName <a href="/builtin#string">string</a>) (<a href="#Symbol">Symbol</a>, <a href="/builtin#error">error</a>)</pre></div><p>
+Lookup searches for a symbol named symName in plugin p.
+A symbol is any exported variable or function.
+It reports an error if the symbol is not found.
+It is safe for concurrent use by multiple goroutines.
+</p>
+
+            
+  
+
+          
+        
+          <h3 id="Symbol" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/plugin/plugin.go#L73">Symbol</a> <a class="permalink" href="#Symbol">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=Symbol&amp;pkg=plugin&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="m"><a title="View Source" href="https://github.com/golang/go/blob/master/src/plugin/plugin.go#L73">❖</a><pre>type Symbol interface{}</pre></div><p>
+A Symbol is a pointer to a variable or function.
+</p>
+<p>
+For example, a plugin defined as
+</p>
+<pre>package main
+
+// // No C code needed.
+import &#34;C&#34;
+
+import &#34;fmt&#34;
+
+var V int
+
+func F() { fmt.Printf(&#34;Hello, number %d\n&#34;, V) }
+</pre>
+<p>
+may be loaded with the Open function and then the exported package
+symbols V and F can be accessed
+</p>
+<pre>p, err := plugin.Open(&#34;plugin_name.so&#34;)
+if err != nil {
+	panic(err)
+}
+v, err := p.Lookup(&#34;V&#34;)
+if err != nil {
+	panic(err)
+}
+f, err := p.Lookup(&#34;F&#34;)
+if err != nil {
+	panic(err)
+}
+*v.(*int) = 7
+f.(func())() // prints &#34;Hello, number 7&#34;
+</pre>
+
+<div id="x-footer" class="clearfix">
+  <div class="container">
+    <a href="http://studygolang.com/">Go语言中文网</a>
+    <span class="text-muted">|</span> <a href="http://golang.org/">Go Language</a>
+    <span class="pull-right"><a href="#">Back to top</a></span>
+  </div>
+</div>
+<script src="../assets/jquery-2.0.3.min.js"></script>
+<script src="../assets/bootstrap.min.js"></script>
+<script src="../assets/site.js"></script>
+</body>
+</html>

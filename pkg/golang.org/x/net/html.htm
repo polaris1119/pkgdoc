@@ -3,7 +3,7 @@
 <head profile="http://a9.com/-/spec/opensearch/1.1/">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link href="../../../site.css" rel="stylesheet">
+<link href="../../.../assets/site.css" rel="stylesheet">
 <title>go.net/html</title>
 </head>
 <body>
@@ -294,5 +294,15 @@ f(doc)</pre>
     <p>对任意输入调用Parse函数一般总是生成格式正确的解析树。但是，也有可能生成格式错误的解析树。例如，在一个格式正确的解析树中，没有&lt;a&gt;元素是另一个&lt;a&gt;元素的子元素：解析&#34;&lt;a&gt;&lt;a&gt;&#34;生成两个兄弟元素。类似的，格式正确的解析树中，没有&lt;a&gt;元素是&lt;table&gt;元素的子元素：解析&#34;&lt;p&gt;&lt;table&gt;&lt;a&gt;&#34;生成一个具有两个互为兄弟元素的子元素的&lt;p&gt;元素；&lt;a&gt;元素的父元素被重设为&lt;table&gt;元素的父元素。但是，对&#34;&lt;a&gt;&lt;table&gt;&lt;a&gt;&#34;调用Parse函数不会返回错误，但是结果会含有一个具有&lt;a&gt;子元素的&lt;a&gt;元素，导致格式错误。</p>
 <p>从编程角度看，生成的树仍然是格式正确的。然而，有可能构造出一个看起来无害的树，但在翻译后再解析时却会生成不同的树。一个简单的例子，一个单独的文本元素会变成一个包含&lt;html&gt;、&lt;head&gt;和&lt;body&gt;元素的树。另一个例子， 标题等价的&#34;a&lt;head&gt;b&lt;/head&gt;c&#34;会变成&#34;&lt;html&gt;&lt;head&gt;&lt;head/&gt;&lt;body&gt;abc&lt;/body&gt;&lt;/html&gt;&#34;。</p>
 </div>
+<div id="x-footer" class="clearfix">
+  <div class="container">
+    <a href="http://studygolang.com/">Go语言中文网</a>
+    <span class="text-muted">|</span> <a href="http://golang.org/">Go Language</a>
+    <span class="pull-right"><a href="#">Back to top</a></span>
+  </div>
+</div>
+<script src="../assets/jquery-2.0.3.min.js"></script>
+<script src="../assets/bootstrap.min.js"></script>
+<script src="../assets/site.js"></script>
 </body>
 </html>

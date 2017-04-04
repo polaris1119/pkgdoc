@@ -269,11 +269,11 @@ executable files, as defined in the DWARF 2.0 Standard at
         
         
 <h4 id="pkg-files">
-  <a href="https://golang.org/src/debug/dwarf/">Package Files</a>
+  <a href="https://github.com/golang/go/blob/master/src/debug/dwarf/">Package Files</a>
   <a class="permalink" href="#pkg-files">&para;</a>
 </h4>
 
-<p><a href="https://golang.org/src/debug/dwarf/buf.go">buf.go</a> <a href="https://golang.org/src/debug/dwarf/class_string.go">class_string.go</a> <a href="https://golang.org/src/debug/dwarf/const.go">const.go</a> <a href="https://golang.org/src/debug/dwarf/entry.go">entry.go</a> <a href="https://golang.org/src/debug/dwarf/line.go">line.go</a> <a href="https://golang.org/src/debug/dwarf/open.go">open.go</a> <a href="https://golang.org/src/debug/dwarf/type.go">type.go</a> <a href="https://golang.org/src/debug/dwarf/typeunit.go">typeunit.go</a> <a href="https://golang.org/src/debug/dwarf/unit.go">unit.go</a> </p>
+<p><a href="https://github.com/golang/go/blob/master/src/debug/dwarf/buf.go">buf.go</a> <a href="https://github.com/golang/go/blob/master/src/debug/dwarf/class_string.go">class_string.go</a> <a href="https://github.com/golang/go/blob/master/src/debug/dwarf/const.go">const.go</a> <a href="https://github.com/golang/go/blob/master/src/debug/dwarf/entry.go">entry.go</a> <a href="https://github.com/golang/go/blob/master/src/debug/dwarf/line.go">line.go</a> <a href="https://github.com/golang/go/blob/master/src/debug/dwarf/open.go">open.go</a> <a href="https://github.com/golang/go/blob/master/src/debug/dwarf/type.go">type.go</a> <a href="https://github.com/golang/go/blob/master/src/debug/dwarf/typeunit.go">typeunit.go</a> <a href="https://github.com/golang/go/blob/master/src/debug/dwarf/unit.go">unit.go</a> </p>
 
         
         
@@ -281,7 +281,7 @@ executable files, as defined in the DWARF 2.0 Standard at
         
         
           <h3 id="pkg-variables">Variables <a class="permalink" href="#pkg-variables">&para;</a></h3>
-          <div class="decl" data-kind="v"><a title="View Source" href="https://golang.org/src/debug/dwarf/line.go#L537">❖</a><pre>var <span id="ErrUnknownPC">ErrUnknownPC</span> = <a href="/errors">errors</a>.<a href="/errors#New">New</a>(&#34;ErrUnknownPC&#34;)</pre></div><p>
+          <div class="decl" data-kind="v"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/line.go#L537">❖</a><pre>var <span id="ErrUnknownPC">ErrUnknownPC</span> = <a href="/errors">errors</a>.<a href="/errors#New">New</a>(&#34;ErrUnknownPC&#34;)</pre></div><p>
 ErrUnknownPC is the error returned by LineReader.ScanPC when the
 seek PC is not covered by any entry in the line table.
 </p>
@@ -296,8 +296,8 @@ seek PC is not covered by any entry in the line table.
         
 
         
-          <h3 id="AddrType" data-kind="t">type <a title="View Source" href="https://golang.org/src/debug/dwarf/type.go#L87">AddrType</a> <a class="permalink" href="#AddrType">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=AddrType&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h3>
-          <div class="decl" data-kind="d"><a title="View Source" href="https://golang.org/src/debug/dwarf/type.go#L87">❖</a><pre>type AddrType struct {
+          <h3 id="AddrType" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/type.go#L87">AddrType</a> <a class="permalink" href="#AddrType">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=AddrType&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/type.go#L87">❖</a><pre>type AddrType struct {
     <a href="#BasicType">BasicType</a>
 }</pre></div><p>
 An AddrType represents a machine address type.
@@ -313,8 +313,8 @@ An AddrType represents a machine address type.
 
           
         
-          <h3 id="ArrayType" data-kind="t">type <a title="View Source" href="https://golang.org/src/debug/dwarf/type.go#L110">ArrayType</a> <a class="permalink" href="#ArrayType">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=ArrayType&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h3>
-          <div class="decl" data-kind="d"><a title="View Source" href="https://golang.org/src/debug/dwarf/type.go#L110">❖</a><pre>type ArrayType struct {
+          <h3 id="ArrayType" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/type.go#L110">ArrayType</a> <a class="permalink" href="#ArrayType">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=ArrayType&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/type.go#L110">❖</a><pre>type ArrayType struct {
     <a href="#CommonType">CommonType</a>
     <span id="ArrayType.Type">Type</span>          <a href="#Type">Type</a>
     <span id="ArrayType.StrideBitSize">StrideBitSize</span> <a href="/builtin#int64">int64</a> <span class="com">// if &gt; 0, number of bits to hold each element</span>
@@ -332,25 +332,25 @@ An ArrayType represents a fixed size array type.
           
 
           
-            <h4 id="ArrayType.Size" data-kind="m">func (*ArrayType) <a title="View Source" href="https://golang.org/src/debug/dwarf/type.go#L121">Size</a> <a class="permalink" href="#ArrayType.Size">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=ArrayType%2FSize&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h4>
-            <div class="funcdecl decl"><a title="View Source" href="https://golang.org/src/debug/dwarf/type.go#L121">❖</a><pre>func (t *<a href="#ArrayType">ArrayType</a>) Size() <a href="/builtin#int64">int64</a></pre></div>
+            <h4 id="ArrayType.Size" data-kind="m">func (*ArrayType) <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/type.go#L121">Size</a> <a class="permalink" href="#ArrayType.Size">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=ArrayType%2FSize&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/type.go#L121">❖</a><pre>func (t *<a href="#ArrayType">ArrayType</a>) Size() <a href="/builtin#int64">int64</a></pre></div>
             
   
 
           
-            <h4 id="ArrayType.String" data-kind="m">func (*ArrayType) <a title="View Source" href="https://golang.org/src/debug/dwarf/type.go#L117">String</a> <a class="permalink" href="#ArrayType.String">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=ArrayType%2FString&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h4>
-            <div class="funcdecl decl"><a title="View Source" href="https://golang.org/src/debug/dwarf/type.go#L117">❖</a><pre>func (t *<a href="#ArrayType">ArrayType</a>) String() <a href="/builtin#string">string</a></pre></div>
+            <h4 id="ArrayType.String" data-kind="m">func (*ArrayType) <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/type.go#L117">String</a> <a class="permalink" href="#ArrayType.String">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=ArrayType%2FString&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/type.go#L117">❖</a><pre>func (t *<a href="#ArrayType">ArrayType</a>) String() <a href="/builtin#string">string</a></pre></div>
             
   
 
           
         
-          <h3 id="Attr" data-kind="t">type <a title="View Source" href="https://golang.org/src/debug/dwarf/const.go#L12">Attr</a> <a class="permalink" href="#Attr">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=Attr&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h3>
-          <div class="decl" data-kind="d"><a title="View Source" href="https://golang.org/src/debug/dwarf/const.go#L12">❖</a><pre>type Attr <a href="/builtin#uint32">uint32</a></pre></div><p>
+          <h3 id="Attr" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/const.go#L12">Attr</a> <a class="permalink" href="#Attr">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=Attr&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/const.go#L12">❖</a><pre>type Attr <a href="/builtin#uint32">uint32</a></pre></div><p>
 An Attr identifies the attribute type in a DWARF Entry&#39;s Field.
 </p>
 
-          <div class="decl" data-kind="c"><a title="View Source" href="https://golang.org/src/debug/dwarf/const.go#L14">❖</a><pre>const (
+          <div class="decl" data-kind="c"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/const.go#L14">❖</a><pre>const (
     <span id="AttrSibling">AttrSibling</span>        <a href="#Attr">Attr</a> = 0x01
     <span id="AttrLocation">AttrLocation</span>       <a href="#Attr">Attr</a> = 0x02
     <span id="AttrName">AttrName</span>           <a href="#Attr">Attr</a> = 0x03
@@ -432,21 +432,21 @@ An Attr identifies the attribute type in a DWARF Entry&#39;s Field.
           
 
           
-            <h4 id="Attr.GoString" data-kind="m">func (Attr) <a title="View Source" href="https://golang.org/src/debug/dwarf/const.go#L174">GoString</a> <a class="permalink" href="#Attr.GoString">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=Attr%2FGoString&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h4>
-            <div class="funcdecl decl"><a title="View Source" href="https://golang.org/src/debug/dwarf/const.go#L174">❖</a><pre>func (a <a href="#Attr">Attr</a>) GoString() <a href="/builtin#string">string</a></pre></div>
+            <h4 id="Attr.GoString" data-kind="m">func (Attr) <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/const.go#L174">GoString</a> <a class="permalink" href="#Attr.GoString">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=Attr%2FGoString&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/const.go#L174">❖</a><pre>func (a <a href="#Attr">Attr</a>) GoString() <a href="/builtin#string">string</a></pre></div>
             
   
 
           
-            <h4 id="Attr.String" data-kind="m">func (Attr) <a title="View Source" href="https://golang.org/src/debug/dwarf/const.go#L164">String</a> <a class="permalink" href="#Attr.String">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=Attr%2FString&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h4>
-            <div class="funcdecl decl"><a title="View Source" href="https://golang.org/src/debug/dwarf/const.go#L164">❖</a><pre>func (a <a href="#Attr">Attr</a>) String() <a href="/builtin#string">string</a></pre></div>
+            <h4 id="Attr.String" data-kind="m">func (Attr) <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/const.go#L164">String</a> <a class="permalink" href="#Attr.String">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=Attr%2FString&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/const.go#L164">❖</a><pre>func (a <a href="#Attr">Attr</a>) String() <a href="/builtin#string">string</a></pre></div>
             
   
 
           
         
-          <h3 id="BasicType" data-kind="t">type <a title="View Source" href="https://golang.org/src/debug/dwarf/type.go#L36">BasicType</a> <a class="permalink" href="#BasicType">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=BasicType&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h3>
-          <div class="decl" data-kind="d"><a title="View Source" href="https://golang.org/src/debug/dwarf/type.go#L36">❖</a><pre>type BasicType struct {
+          <h3 id="BasicType" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/type.go#L36">BasicType</a> <a class="permalink" href="#BasicType">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=BasicType&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/type.go#L36">❖</a><pre>type BasicType struct {
     <a href="#CommonType">CommonType</a>
     <span id="BasicType.BitSize">BitSize</span>   <a href="/builtin#int64">int64</a>
     <span id="BasicType.BitOffset">BitOffset</span> <a href="/builtin#int64">int64</a>
@@ -463,21 +463,21 @@ A BasicType holds fields common to all basic types.
           
 
           
-            <h4 id="BasicType.Basic" data-kind="m">func (*BasicType) <a title="View Source" href="https://golang.org/src/debug/dwarf/type.go#L42">Basic</a> <a class="permalink" href="#BasicType.Basic">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=BasicType%2FBasic&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h4>
-            <div class="funcdecl decl"><a title="View Source" href="https://golang.org/src/debug/dwarf/type.go#L42">❖</a><pre>func (b *<a href="#BasicType">BasicType</a>) Basic() *<a href="#BasicType">BasicType</a></pre></div>
+            <h4 id="BasicType.Basic" data-kind="m">func (*BasicType) <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/type.go#L42">Basic</a> <a class="permalink" href="#BasicType.Basic">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=BasicType%2FBasic&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/type.go#L42">❖</a><pre>func (b *<a href="#BasicType">BasicType</a>) Basic() *<a href="#BasicType">BasicType</a></pre></div>
             
   
 
           
-            <h4 id="BasicType.String" data-kind="m">func (*BasicType) <a title="View Source" href="https://golang.org/src/debug/dwarf/type.go#L44">String</a> <a class="permalink" href="#BasicType.String">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=BasicType%2FString&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h4>
-            <div class="funcdecl decl"><a title="View Source" href="https://golang.org/src/debug/dwarf/type.go#L44">❖</a><pre>func (t *<a href="#BasicType">BasicType</a>) String() <a href="/builtin#string">string</a></pre></div>
+            <h4 id="BasicType.String" data-kind="m">func (*BasicType) <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/type.go#L44">String</a> <a class="permalink" href="#BasicType.String">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=BasicType%2FString&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/type.go#L44">❖</a><pre>func (t *<a href="#BasicType">BasicType</a>) String() <a href="/builtin#string">string</a></pre></div>
             
   
 
           
         
-          <h3 id="BoolType" data-kind="t">type <a title="View Source" href="https://golang.org/src/debug/dwarf/type.go#L82">BoolType</a> <a class="permalink" href="#BoolType">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=BoolType&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h3>
-          <div class="decl" data-kind="d"><a title="View Source" href="https://golang.org/src/debug/dwarf/type.go#L82">❖</a><pre>type BoolType struct {
+          <h3 id="BoolType" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/type.go#L82">BoolType</a> <a class="permalink" href="#BoolType">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=BoolType&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/type.go#L82">❖</a><pre>type BoolType struct {
     <a href="#BasicType">BasicType</a>
 }</pre></div><p>
 A BoolType represents a boolean type.
@@ -493,8 +493,8 @@ A BoolType represents a boolean type.
 
           
         
-          <h3 id="CharType" data-kind="t">type <a title="View Source" href="https://golang.org/src/debug/dwarf/type.go#L52">CharType</a> <a class="permalink" href="#CharType">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=CharType&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h3>
-          <div class="decl" data-kind="d"><a title="View Source" href="https://golang.org/src/debug/dwarf/type.go#L52">❖</a><pre>type CharType struct {
+          <h3 id="CharType" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/type.go#L52">CharType</a> <a class="permalink" href="#CharType">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=CharType&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/type.go#L52">❖</a><pre>type CharType struct {
     <a href="#BasicType">BasicType</a>
 }</pre></div><p>
 A CharType represents a signed character type.
@@ -510,8 +510,8 @@ A CharType represents a signed character type.
 
           
         
-          <h3 id="Class" data-kind="t">type <a title="View Source" href="https://golang.org/src/debug/dwarf/entry.go#L260">Class</a> <a class="permalink" href="#Class">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=Class&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h3>
-          <div class="decl" data-kind="d"><a title="View Source" href="https://golang.org/src/debug/dwarf/entry.go#L260">❖</a><pre>type Class <a href="/builtin#int">int</a></pre></div><p>
+          <h3 id="Class" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/entry.go#L260">Class</a> <a class="permalink" href="#Class">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=Class&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/entry.go#L260">❖</a><pre>type Class <a href="/builtin#int">int</a></pre></div><p>
 A Class is the DWARF 4 class of an attribute value.
 </p>
 <p>
@@ -530,7 +530,7 @@ offsets to one of the Class*Ptr classes, even though these classes
 were only defined in DWARF 3.
 </p>
 
-          <div class="decl" data-kind="c"><a title="View Source" href="https://golang.org/src/debug/dwarf/entry.go#L262">❖</a><pre>const (
+          <div class="decl" data-kind="c"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/entry.go#L262">❖</a><pre>const (
     <span class="com">// ClassUnknown represents values of unknown DWARF class.</span>
     <span id="ClassUnknown">ClassUnknown</span> <a href="#Class">Class</a> = <a href="/builtin#iota">iota</a>
 
@@ -604,21 +604,21 @@ were only defined in DWARF 3.
           
 
           
-            <h4 id="Class.GoString" data-kind="m">func (Class) <a title="View Source" href="https://golang.org/src/debug/dwarf/entry.go#L331">GoString</a> <a class="permalink" href="#Class.GoString">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=Class%2FGoString&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h4>
-            <div class="funcdecl decl"><a title="View Source" href="https://golang.org/src/debug/dwarf/entry.go#L331">❖</a><pre>func (i <a href="#Class">Class</a>) GoString() <a href="/builtin#string">string</a></pre></div>
+            <h4 id="Class.GoString" data-kind="m">func (Class) <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/entry.go#L331">GoString</a> <a class="permalink" href="#Class.GoString">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=Class%2FGoString&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/entry.go#L331">❖</a><pre>func (i <a href="#Class">Class</a>) GoString() <a href="/builtin#string">string</a></pre></div>
             
   
 
           
-            <h4 id="Class.String" data-kind="m">func (Class) <a title="View Source" href="https://golang.org/src/debug/dwarf/class_string.go#L11">String</a> <a class="permalink" href="#Class.String">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=Class%2FString&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h4>
-            <div class="funcdecl decl"><a title="View Source" href="https://golang.org/src/debug/dwarf/class_string.go#L11">❖</a><pre>func (i <a href="#Class">Class</a>) String() <a href="/builtin#string">string</a></pre></div>
+            <h4 id="Class.String" data-kind="m">func (Class) <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/class_string.go#L11">String</a> <a class="permalink" href="#Class.String">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=Class%2FString&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/class_string.go#L11">❖</a><pre>func (i <a href="#Class">Class</a>) String() <a href="/builtin#string">string</a></pre></div>
             
   
 
           
         
-          <h3 id="CommonType" data-kind="t">type <a title="View Source" href="https://golang.org/src/debug/dwarf/type.go#L24">CommonType</a> <a class="permalink" href="#CommonType">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=CommonType&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h3>
-          <div class="decl" data-kind="d"><a title="View Source" href="https://golang.org/src/debug/dwarf/type.go#L24">❖</a><pre>type CommonType struct {
+          <h3 id="CommonType" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/type.go#L24">CommonType</a> <a class="permalink" href="#CommonType">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=CommonType&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/type.go#L24">❖</a><pre>type CommonType struct {
     <span id="CommonType.ByteSize">ByteSize</span> <a href="/builtin#int64">int64</a>  <span class="com">// size of value of this type, in bytes</span>
     <span id="CommonType.Name">Name</span>     <a href="/builtin#string">string</a> <span class="com">// name that can be used to refer to type</span>
 }</pre></div><p>
@@ -636,21 +636,21 @@ the zero value is used.
           
 
           
-            <h4 id="CommonType.Common" data-kind="m">func (*CommonType) <a title="View Source" href="https://golang.org/src/debug/dwarf/type.go#L29">Common</a> <a class="permalink" href="#CommonType.Common">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=CommonType%2FCommon&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h4>
-            <div class="funcdecl decl"><a title="View Source" href="https://golang.org/src/debug/dwarf/type.go#L29">❖</a><pre>func (c *<a href="#CommonType">CommonType</a>) Common() *<a href="#CommonType">CommonType</a></pre></div>
+            <h4 id="CommonType.Common" data-kind="m">func (*CommonType) <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/type.go#L29">Common</a> <a class="permalink" href="#CommonType.Common">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=CommonType%2FCommon&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/type.go#L29">❖</a><pre>func (c *<a href="#CommonType">CommonType</a>) Common() *<a href="#CommonType">CommonType</a></pre></div>
             
   
 
           
-            <h4 id="CommonType.Size" data-kind="m">func (*CommonType) <a title="View Source" href="https://golang.org/src/debug/dwarf/type.go#L31">Size</a> <a class="permalink" href="#CommonType.Size">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=CommonType%2FSize&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h4>
-            <div class="funcdecl decl"><a title="View Source" href="https://golang.org/src/debug/dwarf/type.go#L31">❖</a><pre>func (c *<a href="#CommonType">CommonType</a>) Size() <a href="/builtin#int64">int64</a></pre></div>
+            <h4 id="CommonType.Size" data-kind="m">func (*CommonType) <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/type.go#L31">Size</a> <a class="permalink" href="#CommonType.Size">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=CommonType%2FSize&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/type.go#L31">❖</a><pre>func (c *<a href="#CommonType">CommonType</a>) Size() <a href="/builtin#int64">int64</a></pre></div>
             
   
 
           
         
-          <h3 id="ComplexType" data-kind="t">type <a title="View Source" href="https://golang.org/src/debug/dwarf/type.go#L77">ComplexType</a> <a class="permalink" href="#ComplexType">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=ComplexType&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h3>
-          <div class="decl" data-kind="d"><a title="View Source" href="https://golang.org/src/debug/dwarf/type.go#L77">❖</a><pre>type ComplexType struct {
+          <h3 id="ComplexType" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/type.go#L77">ComplexType</a> <a class="permalink" href="#ComplexType">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=ComplexType&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/type.go#L77">❖</a><pre>type ComplexType struct {
     <a href="#BasicType">BasicType</a>
 }</pre></div><p>
 A ComplexType represents a complex floating point type.
@@ -666,8 +666,8 @@ A ComplexType represents a complex floating point type.
 
           
         
-          <h3 id="Data" data-kind="t">type <a title="View Source" href="https://golang.org/src/debug/dwarf/open.go#L14">Data</a> <a class="permalink" href="#Data">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=Data&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h3>
-          <div class="decl" data-kind="d"><a title="View Source" href="https://golang.org/src/debug/dwarf/open.go#L14">❖</a><pre>type Data struct {
+          <h3 id="Data" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/open.go#L14">Data</a> <a class="permalink" href="#Data">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=Data&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/open.go#L14">❖</a><pre>type Data struct {
     <span class="com">// contains filtered or unexported fields</span>
 }</pre></div><p>
 Data represents the DWARF debugging information
@@ -681,8 +681,8 @@ loaded from an executable file (for example, an ELF or Mach-O executable).
 
 
           
-            <h4 id="New" data-kind="f">func <a title="View Source" href="https://golang.org/src/debug/dwarf/open.go#L41">New</a> <a class="permalink" href="#New">&para;</a> <a class="uses" title="List Function Callers" href="https://sourcegraph.com/-/godoc/refs?def=New&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h4>
-            <div class="funcdecl decl"><a title="View Source" href="https://golang.org/src/debug/dwarf/open.go#L41">❖</a><pre>func New(abbrev, aranges, frame, info, line, pubnames, ranges, str []<a href="/builtin#byte">byte</a>) (*<a href="#Data">Data</a>, <a href="/builtin#error">error</a>)</pre></div><p>
+            <h4 id="New" data-kind="f">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/open.go#L41">New</a> <a class="permalink" href="#New">&para;</a> <a class="uses" title="List Function Callers" href="https://sourcegraph.com/-/godoc/refs?def=New&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/open.go#L41">❖</a><pre>func New(abbrev, aranges, frame, info, line, pubnames, ranges, str []<a href="/builtin#byte">byte</a>) (*<a href="#Data">Data</a>, <a href="/builtin#error">error</a>)</pre></div><p>
 New returns a new Data object initialized from the given parameters.
 Rather than calling this function directly, clients should typically use
 the DWARF method of the File type of the appropriate package debug/elf,
@@ -700,8 +700,8 @@ the &#34;.debug_abbrev&#34; section.
           
 
           
-            <h4 id="Data.AddTypes" data-kind="m">func (*Data) <a title="View Source" href="https://golang.org/src/debug/dwarf/open.go#L85">AddTypes</a> <a class="permalink" href="#Data.AddTypes">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=Data%2FAddTypes&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h4>
-            <div class="funcdecl decl"><a title="View Source" href="https://golang.org/src/debug/dwarf/open.go#L85">❖</a><pre>func (d *<a href="#Data">Data</a>) AddTypes(name <a href="/builtin#string">string</a>, types []<a href="/builtin#byte">byte</a>) <a href="/builtin#error">error</a></pre></div><p>
+            <h4 id="Data.AddTypes" data-kind="m">func (*Data) <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/open.go#L85">AddTypes</a> <a class="permalink" href="#Data.AddTypes">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=Data%2FAddTypes&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/open.go#L85">❖</a><pre>func (d *<a href="#Data">Data</a>) AddTypes(name <a href="/builtin#string">string</a>, types []<a href="/builtin#byte">byte</a>) <a href="/builtin#error">error</a></pre></div><p>
 AddTypes will add one .debug_types section to the DWARF data. A
 typical object with DWARF version 4 debug info will have multiple
 .debug_types sections. The name is used for error reporting only,
@@ -712,8 +712,8 @@ and serves to distinguish one .debug_types section from another.
   
 
           
-            <h4 id="Data.LineReader" data-kind="m">func (*Data) <a title="View Source" href="https://golang.org/src/debug/dwarf/line.go#L137">LineReader</a> <a class="permalink" href="#Data.LineReader">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=Data%2FLineReader&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h4>
-            <div class="funcdecl decl"><a title="View Source" href="https://golang.org/src/debug/dwarf/line.go#L137">❖</a><pre>func (d *<a href="#Data">Data</a>) LineReader(cu *<a href="#Entry">Entry</a>) (*<a href="#LineReader">LineReader</a>, <a href="/builtin#error">error</a>)</pre></div><p>
+            <h4 id="Data.LineReader" data-kind="m">func (*Data) <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/line.go#L137">LineReader</a> <a class="permalink" href="#Data.LineReader">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=Data%2FLineReader&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/line.go#L137">❖</a><pre>func (d *<a href="#Data">Data</a>) LineReader(cu *<a href="#Entry">Entry</a>) (*<a href="#LineReader">LineReader</a>, <a href="/builtin#error">error</a>)</pre></div><p>
 LineReader returns a new reader for the line table of compilation
 unit cu, which must be an Entry with tag TagCompileUnit.
 </p>
@@ -725,8 +725,8 @@ If this compilation unit has no line table, it returns nil, nil.
   
 
           
-            <h4 id="Data.Ranges" data-kind="m">func (*Data) <a title="View Source" href="https://golang.org/src/debug/dwarf/entry.go#L684">Ranges</a> <a class="permalink" href="#Data.Ranges">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=Data%2FRanges&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h4>
-            <div class="funcdecl decl"><a title="View Source" href="https://golang.org/src/debug/dwarf/entry.go#L684">❖</a><pre>func (d *<a href="#Data">Data</a>) Ranges(e *<a href="#Entry">Entry</a>) ([][2]<a href="/builtin#uint64">uint64</a>, <a href="/builtin#error">error</a>)</pre></div><p>
+            <h4 id="Data.Ranges" data-kind="m">func (*Data) <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/entry.go#L684">Ranges</a> <a class="permalink" href="#Data.Ranges">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=Data%2FRanges&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/entry.go#L684">❖</a><pre>func (d *<a href="#Data">Data</a>) Ranges(e *<a href="#Entry">Entry</a>) ([][2]<a href="/builtin#uint64">uint64</a>, <a href="/builtin#error">error</a>)</pre></div><p>
 Ranges returns the PC ranges covered by e, a slice of [low,high) pairs.
 Only some entry types, such as TagCompileUnit or TagSubprogram, have PC
 ranges; for others, this will return nil with no error.
@@ -736,8 +736,8 @@ ranges; for others, this will return nil with no error.
   
 
           
-            <h4 id="Data.Reader" data-kind="m">func (*Data) <a title="View Source" href="https://golang.org/src/debug/dwarf/entry.go#L524">Reader</a> <a class="permalink" href="#Data.Reader">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=Data%2FReader&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h4>
-            <div class="funcdecl decl"><a title="View Source" href="https://golang.org/src/debug/dwarf/entry.go#L524">❖</a><pre>func (d *<a href="#Data">Data</a>) Reader() *<a href="#Reader">Reader</a></pre></div><p>
+            <h4 id="Data.Reader" data-kind="m">func (*Data) <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/entry.go#L524">Reader</a> <a class="permalink" href="#Data.Reader">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=Data%2FReader&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/entry.go#L524">❖</a><pre>func (d *<a href="#Data">Data</a>) Reader() *<a href="#Reader">Reader</a></pre></div><p>
 Reader returns a new Reader for Data.
 The reader is positioned at byte offset 0 in the DWARF &ldquo;info&rdquo; section.
 </p>
@@ -746,8 +746,8 @@ The reader is positioned at byte offset 0 in the DWARF &ldquo;info&rdquo; sectio
   
 
           
-            <h4 id="Data.Type" data-kind="m">func (*Data) <a title="View Source" href="https://golang.org/src/debug/dwarf/type.go#L277">Type</a> <a class="permalink" href="#Data.Type">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=Data%2FType&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h4>
-            <div class="funcdecl decl"><a title="View Source" href="https://golang.org/src/debug/dwarf/type.go#L277">❖</a><pre>func (d *<a href="#Data">Data</a>) Type(off <a href="#Offset">Offset</a>) (<a href="#Type">Type</a>, <a href="/builtin#error">error</a>)</pre></div><p>
+            <h4 id="Data.Type" data-kind="m">func (*Data) <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/type.go#L277">Type</a> <a class="permalink" href="#Data.Type">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=Data%2FType&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/type.go#L277">❖</a><pre>func (d *<a href="#Data">Data</a>) Type(off <a href="#Offset">Offset</a>) (<a href="#Type">Type</a>, <a href="/builtin#error">error</a>)</pre></div><p>
 Type reads the type at off in the DWARF &ldquo;info&rdquo; section.
 </p>
 
@@ -756,8 +756,8 @@ Type reads the type at off in the DWARF &ldquo;info&rdquo; section.
 
           
         
-          <h3 id="DecodeError" data-kind="t">type <a title="View Source" href="https://golang.org/src/debug/dwarf/buf.go#L184">DecodeError</a> <a class="permalink" href="#DecodeError">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=DecodeError&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h3>
-          <div class="decl" data-kind="d"><a title="View Source" href="https://golang.org/src/debug/dwarf/buf.go#L184">❖</a><pre>type DecodeError struct {
+          <h3 id="DecodeError" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/buf.go#L184">DecodeError</a> <a class="permalink" href="#DecodeError">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=DecodeError&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/buf.go#L184">❖</a><pre>type DecodeError struct {
     <span id="DecodeError.Name">Name</span>   <a href="/builtin#string">string</a>
     <span id="DecodeError.Offset">Offset</span> <a href="#Offset">Offset</a>
     <span id="DecodeError.Err">Err</span>    <a href="/builtin#string">string</a>
@@ -771,15 +771,15 @@ Type reads the type at off in the DWARF &ldquo;info&rdquo; section.
           
 
           
-            <h4 id="DecodeError.Error" data-kind="m">func (DecodeError) <a title="View Source" href="https://golang.org/src/debug/dwarf/buf.go#L190">Error</a> <a class="permalink" href="#DecodeError.Error">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=DecodeError%2FError&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h4>
-            <div class="funcdecl decl"><a title="View Source" href="https://golang.org/src/debug/dwarf/buf.go#L190">❖</a><pre>func (e <a href="#DecodeError">DecodeError</a>) Error() <a href="/builtin#string">string</a></pre></div>
+            <h4 id="DecodeError.Error" data-kind="m">func (DecodeError) <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/buf.go#L190">Error</a> <a class="permalink" href="#DecodeError.Error">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=DecodeError%2FError&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/buf.go#L190">❖</a><pre>func (e <a href="#DecodeError">DecodeError</a>) Error() <a href="/builtin#string">string</a></pre></div>
             
   
 
           
         
-          <h3 id="DotDotDotType" data-kind="t">type <a title="View Source" href="https://golang.org/src/debug/dwarf/type.go#L248">DotDotDotType</a> <a class="permalink" href="#DotDotDotType">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=DotDotDotType&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h3>
-          <div class="decl" data-kind="d"><a title="View Source" href="https://golang.org/src/debug/dwarf/type.go#L248">❖</a><pre>type DotDotDotType struct {
+          <h3 id="DotDotDotType" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/type.go#L248">DotDotDotType</a> <a class="permalink" href="#DotDotDotType">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=DotDotDotType&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/type.go#L248">❖</a><pre>type DotDotDotType struct {
     <a href="#CommonType">CommonType</a>
 }</pre></div><p>
 A DotDotDotType represents the variadic ... function parameter.
@@ -794,15 +794,15 @@ A DotDotDotType represents the variadic ... function parameter.
           
 
           
-            <h4 id="DotDotDotType.String" data-kind="m">func (*DotDotDotType) <a title="View Source" href="https://golang.org/src/debug/dwarf/type.go#L252">String</a> <a class="permalink" href="#DotDotDotType.String">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=DotDotDotType%2FString&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h4>
-            <div class="funcdecl decl"><a title="View Source" href="https://golang.org/src/debug/dwarf/type.go#L252">❖</a><pre>func (t *<a href="#DotDotDotType">DotDotDotType</a>) String() <a href="/builtin#string">string</a></pre></div>
+            <h4 id="DotDotDotType.String" data-kind="m">func (*DotDotDotType) <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/type.go#L252">String</a> <a class="permalink" href="#DotDotDotType.String">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=DotDotDotType%2FString&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/type.go#L252">❖</a><pre>func (t *<a href="#DotDotDotType">DotDotDotType</a>) String() <a href="/builtin#string">string</a></pre></div>
             
   
 
           
         
-          <h3 id="Entry" data-kind="t">type <a title="View Source" href="https://golang.org/src/debug/dwarf/entry.go#L210">Entry</a> <a class="permalink" href="#Entry">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=Entry&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h3>
-          <div class="decl" data-kind="d"><a title="View Source" href="https://golang.org/src/debug/dwarf/entry.go#L210">❖</a><pre>type Entry struct {
+          <h3 id="Entry" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/entry.go#L210">Entry</a> <a class="permalink" href="#Entry">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=Entry&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/entry.go#L210">❖</a><pre>type Entry struct {
     <span id="Entry.Offset">Offset</span>   <a href="#Offset">Offset</a> <span class="com">// offset of Entry in DWARF info</span>
     <span id="Entry.Tag">Tag</span>      <a href="#Tag">Tag</a>    <span class="com">// tag (kind of Entry)</span>
     <span id="Entry.Children">Children</span> <a href="/builtin#bool">bool</a>   <span class="com">// whether Entry is followed by children</span>
@@ -820,8 +820,8 @@ An entry is a sequence of attribute/value pairs.
           
 
           
-            <h4 id="Entry.AttrField" data-kind="m">func (*Entry) <a title="View Source" href="https://golang.org/src/debug/dwarf/entry.go#L351">AttrField</a> <a class="permalink" href="#Entry.AttrField">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=Entry%2FAttrField&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h4>
-            <div class="funcdecl decl"><a title="View Source" href="https://golang.org/src/debug/dwarf/entry.go#L351">❖</a><pre>func (e *<a href="#Entry">Entry</a>) AttrField(a <a href="#Attr">Attr</a>) *<a href="#Field">Field</a></pre></div><p>
+            <h4 id="Entry.AttrField" data-kind="m">func (*Entry) <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/entry.go#L351">AttrField</a> <a class="permalink" href="#Entry.AttrField">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=Entry%2FAttrField&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/entry.go#L351">❖</a><pre>func (e *<a href="#Entry">Entry</a>) AttrField(a <a href="#Attr">Attr</a>) *<a href="#Field">Field</a></pre></div><p>
 AttrField returns the Field associated with attribute Attr in
 Entry, or nil if there is no such attribute.
 </p>
@@ -830,8 +830,8 @@ Entry, or nil if there is no such attribute.
   
 
           
-            <h4 id="Entry.Val" data-kind="m">func (*Entry) <a title="View Source" href="https://golang.org/src/debug/dwarf/entry.go#L342">Val</a> <a class="permalink" href="#Entry.Val">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=Entry%2FVal&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h4>
-            <div class="funcdecl decl"><a title="View Source" href="https://golang.org/src/debug/dwarf/entry.go#L342">❖</a><pre>func (e *<a href="#Entry">Entry</a>) Val(a <a href="#Attr">Attr</a>) interface{}</pre></div><p>
+            <h4 id="Entry.Val" data-kind="m">func (*Entry) <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/entry.go#L342">Val</a> <a class="permalink" href="#Entry.Val">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=Entry%2FVal&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/entry.go#L342">❖</a><pre>func (e *<a href="#Entry">Entry</a>) Val(a <a href="#Attr">Attr</a>) interface{}</pre></div><p>
 Val returns the value associated with attribute Attr in Entry,
 or nil if there is no such attribute.
 </p>
@@ -847,8 +847,8 @@ the check that the value has the expected dynamic type, as in:
 
           
         
-          <h3 id="EnumType" data-kind="t">type <a title="View Source" href="https://golang.org/src/debug/dwarf/type.go#L197">EnumType</a> <a class="permalink" href="#EnumType">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=EnumType&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h3>
-          <div class="decl" data-kind="d"><a title="View Source" href="https://golang.org/src/debug/dwarf/type.go#L197">❖</a><pre>type EnumType struct {
+          <h3 id="EnumType" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/type.go#L197">EnumType</a> <a class="permalink" href="#EnumType">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=EnumType&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/type.go#L197">❖</a><pre>type EnumType struct {
     <a href="#CommonType">CommonType</a>
     <span id="EnumType.EnumName">EnumName</span> <a href="/builtin#string">string</a>
     <span id="EnumType.Val">Val</span>      []*<a href="#EnumValue">EnumValue</a>
@@ -867,15 +867,15 @@ The only indication of its native integer type is its ByteSize
           
 
           
-            <h4 id="EnumType.String" data-kind="m">func (*EnumType) <a title="View Source" href="https://golang.org/src/debug/dwarf/type.go#L209">String</a> <a class="permalink" href="#EnumType.String">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=EnumType%2FString&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h4>
-            <div class="funcdecl decl"><a title="View Source" href="https://golang.org/src/debug/dwarf/type.go#L209">❖</a><pre>func (t *<a href="#EnumType">EnumType</a>) String() <a href="/builtin#string">string</a></pre></div>
+            <h4 id="EnumType.String" data-kind="m">func (*EnumType) <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/type.go#L209">String</a> <a class="permalink" href="#EnumType.String">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=EnumType%2FString&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/type.go#L209">❖</a><pre>func (t *<a href="#EnumType">EnumType</a>) String() <a href="/builtin#string">string</a></pre></div>
             
   
 
           
         
-          <h3 id="EnumValue" data-kind="t">type <a title="View Source" href="https://golang.org/src/debug/dwarf/type.go#L204">EnumValue</a> <a class="permalink" href="#EnumValue">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=EnumValue&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h3>
-          <div class="decl" data-kind="d"><a title="View Source" href="https://golang.org/src/debug/dwarf/type.go#L204">❖</a><pre>type EnumValue struct {
+          <h3 id="EnumValue" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/type.go#L204">EnumValue</a> <a class="permalink" href="#EnumValue">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=EnumValue&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/type.go#L204">❖</a><pre>type EnumValue struct {
     <span id="EnumValue.Name">Name</span> <a href="/builtin#string">string</a>
     <span id="EnumValue.Val">Val</span>  <a href="/builtin#int64">int64</a>
 }</pre></div><p>
@@ -892,8 +892,8 @@ An EnumValue represents a single enumeration value.
 
           
         
-          <h3 id="Field" data-kind="t">type <a title="View Source" href="https://golang.org/src/debug/dwarf/entry.go#L240">Field</a> <a class="permalink" href="#Field">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=Field&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h3>
-          <div class="decl" data-kind="d"><a title="View Source" href="https://golang.org/src/debug/dwarf/entry.go#L240">❖</a><pre>type Field struct {
+          <h3 id="Field" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/entry.go#L240">Field</a> <a class="permalink" href="#Field">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=Field&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/entry.go#L240">❖</a><pre>type Field struct {
     <span id="Field.Attr">Attr</span>  <a href="#Attr">Attr</a>
     <span id="Field.Val">Val</span>   interface{}
     <span id="Field.Class">Class</span> <a href="#Class">Class</a>
@@ -935,8 +935,8 @@ ClassUnknown.
 
           
         
-          <h3 id="FloatType" data-kind="t">type <a title="View Source" href="https://golang.org/src/debug/dwarf/type.go#L72">FloatType</a> <a class="permalink" href="#FloatType">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=FloatType&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h3>
-          <div class="decl" data-kind="d"><a title="View Source" href="https://golang.org/src/debug/dwarf/type.go#L72">❖</a><pre>type FloatType struct {
+          <h3 id="FloatType" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/type.go#L72">FloatType</a> <a class="permalink" href="#FloatType">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=FloatType&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/type.go#L72">❖</a><pre>type FloatType struct {
     <a href="#BasicType">BasicType</a>
 }</pre></div><p>
 A FloatType represents a floating point type.
@@ -952,8 +952,8 @@ A FloatType represents a floating point type.
 
           
         
-          <h3 id="FuncType" data-kind="t">type <a title="View Source" href="https://golang.org/src/debug/dwarf/type.go#L226">FuncType</a> <a class="permalink" href="#FuncType">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=FuncType&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h3>
-          <div class="decl" data-kind="d"><a title="View Source" href="https://golang.org/src/debug/dwarf/type.go#L226">❖</a><pre>type FuncType struct {
+          <h3 id="FuncType" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/type.go#L226">FuncType</a> <a class="permalink" href="#FuncType">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=FuncType&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/type.go#L226">❖</a><pre>type FuncType struct {
     <a href="#CommonType">CommonType</a>
     <span id="FuncType.ReturnType">ReturnType</span> <a href="#Type">Type</a>
     <span id="FuncType.ParamType">ParamType</span>  []<a href="#Type">Type</a>
@@ -970,15 +970,15 @@ A FuncType represents a function type.
           
 
           
-            <h4 id="FuncType.String" data-kind="m">func (*FuncType) <a title="View Source" href="https://golang.org/src/debug/dwarf/type.go#L232">String</a> <a class="permalink" href="#FuncType.String">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=FuncType%2FString&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h4>
-            <div class="funcdecl decl"><a title="View Source" href="https://golang.org/src/debug/dwarf/type.go#L232">❖</a><pre>func (t *<a href="#FuncType">FuncType</a>) String() <a href="/builtin#string">string</a></pre></div>
+            <h4 id="FuncType.String" data-kind="m">func (*FuncType) <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/type.go#L232">String</a> <a class="permalink" href="#FuncType.String">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=FuncType%2FString&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/type.go#L232">❖</a><pre>func (t *<a href="#FuncType">FuncType</a>) String() <a href="/builtin#string">string</a></pre></div>
             
   
 
           
         
-          <h3 id="IntType" data-kind="t">type <a title="View Source" href="https://golang.org/src/debug/dwarf/type.go#L62">IntType</a> <a class="permalink" href="#IntType">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=IntType&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h3>
-          <div class="decl" data-kind="d"><a title="View Source" href="https://golang.org/src/debug/dwarf/type.go#L62">❖</a><pre>type IntType struct {
+          <h3 id="IntType" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/type.go#L62">IntType</a> <a class="permalink" href="#IntType">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=IntType&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/type.go#L62">❖</a><pre>type IntType struct {
     <a href="#BasicType">BasicType</a>
 }</pre></div><p>
 An IntType represents a signed integer type.
@@ -994,8 +994,8 @@ An IntType represents a signed integer type.
 
           
         
-          <h3 id="LineEntry" data-kind="t">type <a title="View Source" href="https://golang.org/src/debug/dwarf/line.go#L48">LineEntry</a> <a class="permalink" href="#LineEntry">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=LineEntry&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h3>
-          <div class="decl" data-kind="d"><a title="View Source" href="https://golang.org/src/debug/dwarf/line.go#L48">❖</a><pre>type LineEntry struct {
+          <h3 id="LineEntry" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/line.go#L48">LineEntry</a> <a class="permalink" href="#LineEntry">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=LineEntry&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/line.go#L48">❖</a><pre>type LineEntry struct {
     <span class="com">// Address is the program-counter value of a machine
     // instruction generated by the compiler. This LineEntry
     // applies to each instruction from Address to just before the
@@ -1085,8 +1085,8 @@ A LineEntry is a row in a DWARF line table.
 
           
         
-          <h3 id="LineFile" data-kind="t">type <a title="View Source" href="https://golang.org/src/debug/dwarf/line.go#L127">LineFile</a> <a class="permalink" href="#LineFile">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=LineFile&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h3>
-          <div class="decl" data-kind="d"><a title="View Source" href="https://golang.org/src/debug/dwarf/line.go#L127">❖</a><pre>type LineFile struct {
+          <h3 id="LineFile" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/line.go#L127">LineFile</a> <a class="permalink" href="#LineFile">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=LineFile&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/line.go#L127">❖</a><pre>type LineFile struct {
     <span id="LineFile.Name">Name</span>   <a href="/builtin#string">string</a>
     <span id="LineFile.Mtime">Mtime</span>  <a href="/builtin#uint64">uint64</a> <span class="com">// Implementation defined modification time, or 0 if unknown</span>
     <span id="LineFile.Length">Length</span> <a href="/builtin#int">int</a>    <span class="com">// File length, or 0 if unknown</span>
@@ -1104,8 +1104,8 @@ A LineFile is a source file referenced by a DWARF line table entry.
 
           
         
-          <h3 id="LineReader" data-kind="t">type <a title="View Source" href="https://golang.org/src/debug/dwarf/line.go#L19">LineReader</a> <a class="permalink" href="#LineReader">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=LineReader&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h3>
-          <div class="decl" data-kind="d"><a title="View Source" href="https://golang.org/src/debug/dwarf/line.go#L19">❖</a><pre>type LineReader struct {
+          <h3 id="LineReader" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/line.go#L19">LineReader</a> <a class="permalink" href="#LineReader">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=LineReader&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/line.go#L19">❖</a><pre>type LineReader struct {
     <span class="com">// contains filtered or unexported fields</span>
 }</pre></div><p>
 A LineReader reads a sequence of LineEntry structures from a DWARF
@@ -1124,8 +1124,8 @@ LineEntry&#39;s PC. The last entry will have its EndSequence field set.
           
 
           
-            <h4 id="LineReader.Next" data-kind="m">func (*LineReader) <a title="View Source" href="https://golang.org/src/debug/dwarf/line.go#L315">Next</a> <a class="permalink" href="#LineReader.Next">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=LineReader%2FNext&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h4>
-            <div class="funcdecl decl"><a title="View Source" href="https://golang.org/src/debug/dwarf/line.go#L315">❖</a><pre>func (r *<a href="#LineReader">LineReader</a>) Next(entry *<a href="#LineEntry">LineEntry</a>) <a href="/builtin#error">error</a></pre></div><p>
+            <h4 id="LineReader.Next" data-kind="m">func (*LineReader) <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/line.go#L315">Next</a> <a class="permalink" href="#LineReader.Next">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=LineReader%2FNext&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/line.go#L315">❖</a><pre>func (r *<a href="#LineReader">LineReader</a>) Next(entry *<a href="#LineEntry">LineEntry</a>) <a href="/builtin#error">error</a></pre></div><p>
 Next sets *entry to the next row in this line table and moves to
 the next row. If there are no more entries and the line table is
 properly terminated, it returns io.EOF.
@@ -1139,8 +1139,8 @@ entry.Line may go forward or backward.
   
 
           
-            <h4 id="LineReader.Reset" data-kind="m">func (*LineReader) <a title="View Source" href="https://golang.org/src/debug/dwarf/line.go#L502">Reset</a> <a class="permalink" href="#LineReader.Reset">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=LineReader%2FReset&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h4>
-            <div class="funcdecl decl"><a title="View Source" href="https://golang.org/src/debug/dwarf/line.go#L502">❖</a><pre>func (r *<a href="#LineReader">LineReader</a>) Reset()</pre></div><p>
+            <h4 id="LineReader.Reset" data-kind="m">func (*LineReader) <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/line.go#L502">Reset</a> <a class="permalink" href="#LineReader.Reset">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=LineReader%2FReset&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/line.go#L502">❖</a><pre>func (r *<a href="#LineReader">LineReader</a>) Reset()</pre></div><p>
 Reset repositions the line table reader at the beginning of the
 line table.
 </p>
@@ -1149,8 +1149,8 @@ line table.
   
 
           
-            <h4 id="LineReader.Seek" data-kind="m">func (*LineReader) <a title="View Source" href="https://golang.org/src/debug/dwarf/line.go#L492">Seek</a> <a class="permalink" href="#LineReader.Seek">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=LineReader%2FSeek&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h4>
-            <div class="funcdecl decl"><a title="View Source" href="https://golang.org/src/debug/dwarf/line.go#L492">❖</a><pre>func (r *<a href="#LineReader">LineReader</a>) Seek(pos <a href="#LineReaderPos">LineReaderPos</a>)</pre></div><p>
+            <h4 id="LineReader.Seek" data-kind="m">func (*LineReader) <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/line.go#L492">Seek</a> <a class="permalink" href="#LineReader.Seek">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=LineReader%2FSeek&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/line.go#L492">❖</a><pre>func (r *<a href="#LineReader">LineReader</a>) Seek(pos <a href="#LineReaderPos">LineReaderPos</a>)</pre></div><p>
 Seek restores the line table reader to a position returned by Tell.
 </p>
 <p>
@@ -1162,8 +1162,8 @@ line table.
   
 
           
-            <h4 id="LineReader.SeekPC" data-kind="m">func (*LineReader) <a title="View Source" href="https://golang.org/src/debug/dwarf/line.go#L551">SeekPC</a> <a class="permalink" href="#LineReader.SeekPC">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=LineReader%2FSeekPC&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h4>
-            <div class="funcdecl decl"><a title="View Source" href="https://golang.org/src/debug/dwarf/line.go#L551">❖</a><pre>func (r *<a href="#LineReader">LineReader</a>) SeekPC(pc <a href="/builtin#uint64">uint64</a>, entry *<a href="#LineEntry">LineEntry</a>) <a href="/builtin#error">error</a></pre></div><p>
+            <h4 id="LineReader.SeekPC" data-kind="m">func (*LineReader) <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/line.go#L551">SeekPC</a> <a class="permalink" href="#LineReader.SeekPC">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=LineReader%2FSeekPC&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/line.go#L551">❖</a><pre>func (r *<a href="#LineReader">LineReader</a>) SeekPC(pc <a href="/builtin#uint64">uint64</a>, entry *<a href="#LineEntry">LineEntry</a>) <a href="/builtin#error">error</a></pre></div><p>
 SeekPC sets *entry to the LineEntry that includes pc and positions
 the reader on the next entry in the line table. If necessary, this
 will seek backwards to find pc.
@@ -1184,8 +1184,8 @@ should build an appropriate index of the line table.
   
 
           
-            <h4 id="LineReader.Tell" data-kind="m">func (*LineReader) <a title="View Source" href="https://golang.org/src/debug/dwarf/line.go#L484">Tell</a> <a class="permalink" href="#LineReader.Tell">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=LineReader%2FTell&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h4>
-            <div class="funcdecl decl"><a title="View Source" href="https://golang.org/src/debug/dwarf/line.go#L484">❖</a><pre>func (r *<a href="#LineReader">LineReader</a>) Tell() <a href="#LineReaderPos">LineReaderPos</a></pre></div><p>
+            <h4 id="LineReader.Tell" data-kind="m">func (*LineReader) <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/line.go#L484">Tell</a> <a class="permalink" href="#LineReader.Tell">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=LineReader%2FTell&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/line.go#L484">❖</a><pre>func (r *<a href="#LineReader">LineReader</a>) Tell() <a href="#LineReaderPos">LineReaderPos</a></pre></div><p>
 Tell returns the current position in the line table.
 </p>
 
@@ -1194,8 +1194,8 @@ Tell returns the current position in the line table.
 
           
         
-          <h3 id="LineReaderPos" data-kind="t">type <a title="View Source" href="https://golang.org/src/debug/dwarf/line.go#L472">LineReaderPos</a> <a class="permalink" href="#LineReaderPos">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=LineReaderPos&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h3>
-          <div class="decl" data-kind="d"><a title="View Source" href="https://golang.org/src/debug/dwarf/line.go#L472">❖</a><pre>type LineReaderPos struct {
+          <h3 id="LineReaderPos" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/line.go#L472">LineReaderPos</a> <a class="permalink" href="#LineReaderPos">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=LineReaderPos&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/line.go#L472">❖</a><pre>type LineReaderPos struct {
     <span class="com">// contains filtered or unexported fields</span>
 }</pre></div><p>
 A LineReaderPos represents a position in a line table.
@@ -1211,8 +1211,8 @@ A LineReaderPos represents a position in a line table.
 
           
         
-          <h3 id="Offset" data-kind="t">type <a title="View Source" href="https://golang.org/src/debug/dwarf/entry.go#L362">Offset</a> <a class="permalink" href="#Offset">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=Offset&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h3>
-          <div class="decl" data-kind="d"><a title="View Source" href="https://golang.org/src/debug/dwarf/entry.go#L362">❖</a><pre>type Offset <a href="/builtin#uint32">uint32</a></pre></div><p>
+          <h3 id="Offset" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/entry.go#L362">Offset</a> <a class="permalink" href="#Offset">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=Offset&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/entry.go#L362">❖</a><pre>type Offset <a href="/builtin#uint32">uint32</a></pre></div><p>
 An Offset represents the location of an Entry within the DWARF info.
 (See Reader.Seek.)
 </p>
@@ -1227,8 +1227,8 @@ An Offset represents the location of an Entry within the DWARF info.
 
           
         
-          <h3 id="PtrType" data-kind="t">type <a title="View Source" href="https://golang.org/src/debug/dwarf/type.go#L136">PtrType</a> <a class="permalink" href="#PtrType">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=PtrType&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h3>
-          <div class="decl" data-kind="d"><a title="View Source" href="https://golang.org/src/debug/dwarf/type.go#L136">❖</a><pre>type PtrType struct {
+          <h3 id="PtrType" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/type.go#L136">PtrType</a> <a class="permalink" href="#PtrType">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=PtrType&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/type.go#L136">❖</a><pre>type PtrType struct {
     <a href="#CommonType">CommonType</a>
     <span id="PtrType.Type">Type</span> <a href="#Type">Type</a>
 }</pre></div><p>
@@ -1244,15 +1244,15 @@ A PtrType represents a pointer type.
           
 
           
-            <h4 id="PtrType.String" data-kind="m">func (*PtrType) <a title="View Source" href="https://golang.org/src/debug/dwarf/type.go#L141">String</a> <a class="permalink" href="#PtrType.String">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=PtrType%2FString&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h4>
-            <div class="funcdecl decl"><a title="View Source" href="https://golang.org/src/debug/dwarf/type.go#L141">❖</a><pre>func (t *<a href="#PtrType">PtrType</a>) String() <a href="/builtin#string">string</a></pre></div>
+            <h4 id="PtrType.String" data-kind="m">func (*PtrType) <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/type.go#L141">String</a> <a class="permalink" href="#PtrType.String">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=PtrType%2FString&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/type.go#L141">❖</a><pre>func (t *<a href="#PtrType">PtrType</a>) String() <a href="/builtin#string">string</a></pre></div>
             
   
 
           
         
-          <h3 id="QualType" data-kind="t">type <a title="View Source" href="https://golang.org/src/debug/dwarf/type.go#L99">QualType</a> <a class="permalink" href="#QualType">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=QualType&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h3>
-          <div class="decl" data-kind="d"><a title="View Source" href="https://golang.org/src/debug/dwarf/type.go#L99">❖</a><pre>type QualType struct {
+          <h3 id="QualType" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/type.go#L99">QualType</a> <a class="permalink" href="#QualType">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=QualType&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/type.go#L99">❖</a><pre>type QualType struct {
     <a href="#CommonType">CommonType</a>
     <span id="QualType.Qual">Qual</span> <a href="/builtin#string">string</a>
     <span id="QualType.Type">Type</span> <a href="#Type">Type</a>
@@ -1269,21 +1269,21 @@ A QualType represents a type that has the C/C++ &#34;const&#34;, &#34;restrict&#
           
 
           
-            <h4 id="QualType.Size" data-kind="m">func (*QualType) <a title="View Source" href="https://golang.org/src/debug/dwarf/type.go#L107">Size</a> <a class="permalink" href="#QualType.Size">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=QualType%2FSize&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h4>
-            <div class="funcdecl decl"><a title="View Source" href="https://golang.org/src/debug/dwarf/type.go#L107">❖</a><pre>func (t *<a href="#QualType">QualType</a>) Size() <a href="/builtin#int64">int64</a></pre></div>
+            <h4 id="QualType.Size" data-kind="m">func (*QualType) <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/type.go#L107">Size</a> <a class="permalink" href="#QualType.Size">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=QualType%2FSize&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/type.go#L107">❖</a><pre>func (t *<a href="#QualType">QualType</a>) Size() <a href="/builtin#int64">int64</a></pre></div>
             
   
 
           
-            <h4 id="QualType.String" data-kind="m">func (*QualType) <a title="View Source" href="https://golang.org/src/debug/dwarf/type.go#L105">String</a> <a class="permalink" href="#QualType.String">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=QualType%2FString&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h4>
-            <div class="funcdecl decl"><a title="View Source" href="https://golang.org/src/debug/dwarf/type.go#L105">❖</a><pre>func (t *<a href="#QualType">QualType</a>) String() <a href="/builtin#string">string</a></pre></div>
+            <h4 id="QualType.String" data-kind="m">func (*QualType) <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/type.go#L105">String</a> <a class="permalink" href="#QualType.String">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=QualType%2FString&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/type.go#L105">❖</a><pre>func (t *<a href="#QualType">QualType</a>) String() <a href="/builtin#string">string</a></pre></div>
             
   
 
           
         
-          <h3 id="Reader" data-kind="t">type <a title="View Source" href="https://golang.org/src/debug/dwarf/entry.go#L513">Reader</a> <a class="permalink" href="#Reader">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=Reader&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h3>
-          <div class="decl" data-kind="d"><a title="View Source" href="https://golang.org/src/debug/dwarf/entry.go#L513">❖</a><pre>type Reader struct {
+          <h3 id="Reader" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/entry.go#L513">Reader</a> <a class="permalink" href="#Reader">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=Reader&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/entry.go#L513">❖</a><pre>type Reader struct {
     <span class="com">// contains filtered or unexported fields</span>
 }</pre></div><p>
 A Reader allows reading Entry structures from a DWARF &ldquo;info&rdquo; section.
@@ -1302,8 +1302,8 @@ follow, terminated by an Entry with Tag 0.
           
 
           
-            <h4 id="Reader.AddressSize" data-kind="m">func (*Reader) <a title="View Source" href="https://golang.org/src/debug/dwarf/entry.go#L532">AddressSize</a> <a class="permalink" href="#Reader.AddressSize">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=Reader%2FAddressSize&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h4>
-            <div class="funcdecl decl"><a title="View Source" href="https://golang.org/src/debug/dwarf/entry.go#L532">❖</a><pre>func (r *<a href="#Reader">Reader</a>) AddressSize() <a href="/builtin#int">int</a></pre></div><p>
+            <h4 id="Reader.AddressSize" data-kind="m">func (*Reader) <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/entry.go#L532">AddressSize</a> <a class="permalink" href="#Reader.AddressSize">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=Reader%2FAddressSize&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/entry.go#L532">❖</a><pre>func (r *<a href="#Reader">Reader</a>) AddressSize() <a href="/builtin#int">int</a></pre></div><p>
 AddressSize returns the size in bytes of addresses in the current compilation
 unit.
 </p>
@@ -1312,8 +1312,8 @@ unit.
   
 
           
-            <h4 id="Reader.Next" data-kind="m">func (*Reader) <a title="View Source" href="https://golang.org/src/debug/dwarf/entry.go#L575">Next</a> <a class="permalink" href="#Reader.Next">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=Reader%2FNext&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h4>
-            <div class="funcdecl decl"><a title="View Source" href="https://golang.org/src/debug/dwarf/entry.go#L575">❖</a><pre>func (r *<a href="#Reader">Reader</a>) Next() (*<a href="#Entry">Entry</a>, <a href="/builtin#error">error</a>)</pre></div><p>
+            <h4 id="Reader.Next" data-kind="m">func (*Reader) <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/entry.go#L575">Next</a> <a class="permalink" href="#Reader.Next">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=Reader%2FNext&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/entry.go#L575">❖</a><pre>func (r *<a href="#Reader">Reader</a>) Next() (*<a href="#Entry">Entry</a>, <a href="/builtin#error">error</a>)</pre></div><p>
 Next reads the next entry from the encoded entry stream.
 It returns nil, nil when it reaches the end of the section.
 It returns an error if the current offset is invalid or the data at the
@@ -1324,8 +1324,8 @@ offset cannot be decoded as a valid Entry.
   
 
           
-            <h4 id="Reader.Seek" data-kind="m">func (*Reader) <a title="View Source" href="https://golang.org/src/debug/dwarf/entry.go#L538">Seek</a> <a class="permalink" href="#Reader.Seek">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=Reader%2FSeek&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h4>
-            <div class="funcdecl decl"><a title="View Source" href="https://golang.org/src/debug/dwarf/entry.go#L538">❖</a><pre>func (r *<a href="#Reader">Reader</a>) Seek(off <a href="#Offset">Offset</a>)</pre></div><p>
+            <h4 id="Reader.Seek" data-kind="m">func (*Reader) <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/entry.go#L538">Seek</a> <a class="permalink" href="#Reader.Seek">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=Reader%2FSeek&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/entry.go#L538">❖</a><pre>func (r *<a href="#Reader">Reader</a>) Seek(off <a href="#Offset">Offset</a>)</pre></div><p>
 Seek positions the Reader at offset off in the encoded entry stream.
 Offset 0 can be used to denote the first entry.
 </p>
@@ -1334,8 +1334,8 @@ Offset 0 can be used to denote the first entry.
   
 
           
-            <h4 id="Reader.SeekPC" data-kind="m">func (*Reader) <a title="View Source" href="https://golang.org/src/debug/dwarf/entry.go#L652">SeekPC</a> <a class="permalink" href="#Reader.SeekPC">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=Reader%2FSeekPC&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h4>
-            <div class="funcdecl decl"><a title="View Source" href="https://golang.org/src/debug/dwarf/entry.go#L652">❖</a><pre>func (r *<a href="#Reader">Reader</a>) SeekPC(pc <a href="/builtin#uint64">uint64</a>) (*<a href="#Entry">Entry</a>, <a href="/builtin#error">error</a>)</pre></div><p>
+            <h4 id="Reader.SeekPC" data-kind="m">func (*Reader) <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/entry.go#L652">SeekPC</a> <a class="permalink" href="#Reader.SeekPC">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=Reader%2FSeekPC&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/entry.go#L652">❖</a><pre>func (r *<a href="#Reader">Reader</a>) SeekPC(pc <a href="/builtin#uint64">uint64</a>) (*<a href="#Entry">Entry</a>, <a href="/builtin#error">error</a>)</pre></div><p>
 SeekPC returns the Entry for the compilation unit that includes pc,
 and positions the reader to read the children of that unit.  If pc
 is not covered by any unit, SeekPC returns ErrUnknownPC and the
@@ -1355,8 +1355,8 @@ an appropriate index using the Ranges method.
   
 
           
-            <h4 id="Reader.SkipChildren" data-kind="m">func (*Reader) <a title="View Source" href="https://golang.org/src/debug/dwarf/entry.go#L603">SkipChildren</a> <a class="permalink" href="#Reader.SkipChildren">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=Reader%2FSkipChildren&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h4>
-            <div class="funcdecl decl"><a title="View Source" href="https://golang.org/src/debug/dwarf/entry.go#L603">❖</a><pre>func (r *<a href="#Reader">Reader</a>) SkipChildren()</pre></div><p>
+            <h4 id="Reader.SkipChildren" data-kind="m">func (*Reader) <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/entry.go#L603">SkipChildren</a> <a class="permalink" href="#Reader.SkipChildren">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=Reader%2FSkipChildren&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/entry.go#L603">❖</a><pre>func (r *<a href="#Reader">Reader</a>) SkipChildren()</pre></div><p>
 SkipChildren skips over the child entries associated with
 the last Entry returned by Next. If that Entry did not have
 children or Next has not been called, SkipChildren is a no-op.
@@ -1367,8 +1367,8 @@ children or Next has not been called, SkipChildren is a no-op.
 
           
         
-          <h3 id="StructField" data-kind="t">type <a title="View Source" href="https://golang.org/src/debug/dwarf/type.go#L153">StructField</a> <a class="permalink" href="#StructField">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=StructField&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h3>
-          <div class="decl" data-kind="d"><a title="View Source" href="https://golang.org/src/debug/dwarf/type.go#L153">❖</a><pre>type StructField struct {
+          <h3 id="StructField" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/type.go#L153">StructField</a> <a class="permalink" href="#StructField">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=StructField&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/type.go#L153">❖</a><pre>type StructField struct {
     <span id="StructField.Name">Name</span>       <a href="/builtin#string">string</a>
     <span id="StructField.Type">Type</span>       <a href="#Type">Type</a>
     <span id="StructField.ByteOffset">ByteOffset</span> <a href="/builtin#int64">int64</a>
@@ -1389,8 +1389,8 @@ A StructField represents a field in a struct, union, or C++ class type.
 
           
         
-          <h3 id="StructType" data-kind="t">type <a title="View Source" href="https://golang.org/src/debug/dwarf/type.go#L144">StructType</a> <a class="permalink" href="#StructType">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=StructType&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h3>
-          <div class="decl" data-kind="d"><a title="View Source" href="https://golang.org/src/debug/dwarf/type.go#L144">❖</a><pre>type StructType struct {
+          <h3 id="StructType" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/type.go#L144">StructType</a> <a class="permalink" href="#StructType">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=StructType&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/type.go#L144">❖</a><pre>type StructType struct {
     <a href="#CommonType">CommonType</a>
     <span id="StructType.StructName">StructName</span> <a href="/builtin#string">string</a>
     <span id="StructType.Kind">Kind</span>       <a href="/builtin#string">string</a> <span class="com">// &#34;struct&#34;, &#34;union&#34;, or &#34;class&#34;.</span>
@@ -1409,25 +1409,25 @@ A StructType represents a struct, union, or C++ class type.
           
 
           
-            <h4 id="StructType.Defn" data-kind="m">func (*StructType) <a title="View Source" href="https://golang.org/src/debug/dwarf/type.go#L169">Defn</a> <a class="permalink" href="#StructType.Defn">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=StructType%2FDefn&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h4>
-            <div class="funcdecl decl"><a title="View Source" href="https://golang.org/src/debug/dwarf/type.go#L169">❖</a><pre>func (t *<a href="#StructType">StructType</a>) Defn() <a href="/builtin#string">string</a></pre></div>
+            <h4 id="StructType.Defn" data-kind="m">func (*StructType) <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/type.go#L169">Defn</a> <a class="permalink" href="#StructType.Defn">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=StructType%2FDefn&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/type.go#L169">❖</a><pre>func (t *<a href="#StructType">StructType</a>) Defn() <a href="/builtin#string">string</a></pre></div>
             
   
 
           
-            <h4 id="StructType.String" data-kind="m">func (*StructType) <a title="View Source" href="https://golang.org/src/debug/dwarf/type.go#L162">String</a> <a class="permalink" href="#StructType.String">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=StructType%2FString&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h4>
-            <div class="funcdecl decl"><a title="View Source" href="https://golang.org/src/debug/dwarf/type.go#L162">❖</a><pre>func (t *<a href="#StructType">StructType</a>) String() <a href="/builtin#string">string</a></pre></div>
+            <h4 id="StructType.String" data-kind="m">func (*StructType) <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/type.go#L162">String</a> <a class="permalink" href="#StructType.String">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=StructType%2FString&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/type.go#L162">❖</a><pre>func (t *<a href="#StructType">StructType</a>) String() <a href="/builtin#string">string</a></pre></div>
             
   
 
           
         
-          <h3 id="Tag" data-kind="t">type <a title="View Source" href="https://golang.org/src/debug/dwarf/const.go#L222">Tag</a> <a class="permalink" href="#Tag">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=Tag&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h3>
-          <div class="decl" data-kind="d"><a title="View Source" href="https://golang.org/src/debug/dwarf/const.go#L222">❖</a><pre>type Tag <a href="/builtin#uint32">uint32</a></pre></div><p>
+          <h3 id="Tag" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/const.go#L222">Tag</a> <a class="permalink" href="#Tag">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=Tag&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/const.go#L222">❖</a><pre>type Tag <a href="/builtin#uint32">uint32</a></pre></div><p>
 A Tag is the classification (the type) of an Entry.
 </p>
 
-          <div class="decl" data-kind="c"><a title="View Source" href="https://golang.org/src/debug/dwarf/const.go#L224">❖</a><pre>const (
+          <div class="decl" data-kind="c"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/const.go#L224">❖</a><pre>const (
     <span id="TagArrayType">TagArrayType</span>              <a href="#Tag">Tag</a> = 0x01
     <span id="TagClassType">TagClassType</span>              <a href="#Tag">Tag</a> = 0x02
     <span id="TagEntryPoint">TagEntryPoint</span>             <a href="#Tag">Tag</a> = 0x03
@@ -1500,21 +1500,21 @@ A Tag is the classification (the type) of an Entry.
           
 
           
-            <h4 id="Tag.GoString" data-kind="m">func (Tag) <a title="View Source" href="https://golang.org/src/debug/dwarf/const.go#L364">GoString</a> <a class="permalink" href="#Tag.GoString">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=Tag%2FGoString&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h4>
-            <div class="funcdecl decl"><a title="View Source" href="https://golang.org/src/debug/dwarf/const.go#L364">❖</a><pre>func (t <a href="#Tag">Tag</a>) GoString() <a href="/builtin#string">string</a></pre></div>
+            <h4 id="Tag.GoString" data-kind="m">func (Tag) <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/const.go#L364">GoString</a> <a class="permalink" href="#Tag.GoString">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=Tag%2FGoString&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/const.go#L364">❖</a><pre>func (t <a href="#Tag">Tag</a>) GoString() <a href="/builtin#string">string</a></pre></div>
             
   
 
           
-            <h4 id="Tag.String" data-kind="m">func (Tag) <a title="View Source" href="https://golang.org/src/debug/dwarf/const.go#L354">String</a> <a class="permalink" href="#Tag.String">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=Tag%2FString&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h4>
-            <div class="funcdecl decl"><a title="View Source" href="https://golang.org/src/debug/dwarf/const.go#L354">❖</a><pre>func (t <a href="#Tag">Tag</a>) String() <a href="/builtin#string">string</a></pre></div>
+            <h4 id="Tag.String" data-kind="m">func (Tag) <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/const.go#L354">String</a> <a class="permalink" href="#Tag.String">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=Tag%2FString&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/const.go#L354">❖</a><pre>func (t <a href="#Tag">Tag</a>) String() <a href="/builtin#string">string</a></pre></div>
             
   
 
           
         
-          <h3 id="Type" data-kind="t">type <a title="View Source" href="https://golang.org/src/debug/dwarf/type.go#L15">Type</a> <a class="permalink" href="#Type">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=Type&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h3>
-          <div class="decl" data-kind="m"><a title="View Source" href="https://golang.org/src/debug/dwarf/type.go#L15">❖</a><pre>type Type interface {
+          <h3 id="Type" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/type.go#L15">Type</a> <a class="permalink" href="#Type">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=Type&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="m"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/type.go#L15">❖</a><pre>type Type interface {
     <span id="Type.Common">Common</span>() *<a href="#CommonType">CommonType</a>
     <span id="Type.String">String</span>() <a href="/builtin#string">string</a>
     <span id="Type.Size">Size</span>() <a href="/builtin#int64">int64</a>
@@ -1533,8 +1533,8 @@ specific Type structures (CharType, StructType, etc.).
 
           
         
-          <h3 id="TypedefType" data-kind="t">type <a title="View Source" href="https://golang.org/src/debug/dwarf/type.go#L255">TypedefType</a> <a class="permalink" href="#TypedefType">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=TypedefType&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h3>
-          <div class="decl" data-kind="d"><a title="View Source" href="https://golang.org/src/debug/dwarf/type.go#L255">❖</a><pre>type TypedefType struct {
+          <h3 id="TypedefType" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/type.go#L255">TypedefType</a> <a class="permalink" href="#TypedefType">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=TypedefType&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/type.go#L255">❖</a><pre>type TypedefType struct {
     <a href="#CommonType">CommonType</a>
     <span id="TypedefType.Type">Type</span> <a href="#Type">Type</a>
 }</pre></div><p>
@@ -1550,21 +1550,21 @@ A TypedefType represents a named type.
           
 
           
-            <h4 id="TypedefType.Size" data-kind="m">func (*TypedefType) <a title="View Source" href="https://golang.org/src/debug/dwarf/type.go#L262">Size</a> <a class="permalink" href="#TypedefType.Size">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=TypedefType%2FSize&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h4>
-            <div class="funcdecl decl"><a title="View Source" href="https://golang.org/src/debug/dwarf/type.go#L262">❖</a><pre>func (t *<a href="#TypedefType">TypedefType</a>) Size() <a href="/builtin#int64">int64</a></pre></div>
+            <h4 id="TypedefType.Size" data-kind="m">func (*TypedefType) <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/type.go#L262">Size</a> <a class="permalink" href="#TypedefType.Size">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=TypedefType%2FSize&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/type.go#L262">❖</a><pre>func (t *<a href="#TypedefType">TypedefType</a>) Size() <a href="/builtin#int64">int64</a></pre></div>
             
   
 
           
-            <h4 id="TypedefType.String" data-kind="m">func (*TypedefType) <a title="View Source" href="https://golang.org/src/debug/dwarf/type.go#L260">String</a> <a class="permalink" href="#TypedefType.String">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=TypedefType%2FString&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h4>
-            <div class="funcdecl decl"><a title="View Source" href="https://golang.org/src/debug/dwarf/type.go#L260">❖</a><pre>func (t *<a href="#TypedefType">TypedefType</a>) String() <a href="/builtin#string">string</a></pre></div>
+            <h4 id="TypedefType.String" data-kind="m">func (*TypedefType) <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/type.go#L260">String</a> <a class="permalink" href="#TypedefType.String">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=TypedefType%2FString&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/type.go#L260">❖</a><pre>func (t *<a href="#TypedefType">TypedefType</a>) String() <a href="/builtin#string">string</a></pre></div>
             
   
 
           
         
-          <h3 id="UcharType" data-kind="t">type <a title="View Source" href="https://golang.org/src/debug/dwarf/type.go#L57">UcharType</a> <a class="permalink" href="#UcharType">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=UcharType&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h3>
-          <div class="decl" data-kind="d"><a title="View Source" href="https://golang.org/src/debug/dwarf/type.go#L57">❖</a><pre>type UcharType struct {
+          <h3 id="UcharType" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/type.go#L57">UcharType</a> <a class="permalink" href="#UcharType">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=UcharType&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/type.go#L57">❖</a><pre>type UcharType struct {
     <a href="#BasicType">BasicType</a>
 }</pre></div><p>
 A UcharType represents an unsigned character type.
@@ -1580,8 +1580,8 @@ A UcharType represents an unsigned character type.
 
           
         
-          <h3 id="UintType" data-kind="t">type <a title="View Source" href="https://golang.org/src/debug/dwarf/type.go#L67">UintType</a> <a class="permalink" href="#UintType">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=UintType&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h3>
-          <div class="decl" data-kind="d"><a title="View Source" href="https://golang.org/src/debug/dwarf/type.go#L67">❖</a><pre>type UintType struct {
+          <h3 id="UintType" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/type.go#L67">UintType</a> <a class="permalink" href="#UintType">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=UintType&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/type.go#L67">❖</a><pre>type UintType struct {
     <a href="#BasicType">BasicType</a>
 }</pre></div><p>
 A UintType represents an unsigned integer type.
@@ -1597,8 +1597,8 @@ A UintType represents an unsigned integer type.
 
           
         
-          <h3 id="UnspecifiedType" data-kind="t">type <a title="View Source" href="https://golang.org/src/debug/dwarf/type.go#L92">UnspecifiedType</a> <a class="permalink" href="#UnspecifiedType">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=UnspecifiedType&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h3>
-          <div class="decl" data-kind="d"><a title="View Source" href="https://golang.org/src/debug/dwarf/type.go#L92">❖</a><pre>type UnspecifiedType struct {
+          <h3 id="UnspecifiedType" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/type.go#L92">UnspecifiedType</a> <a class="permalink" href="#UnspecifiedType">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=UnspecifiedType&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/type.go#L92">❖</a><pre>type UnspecifiedType struct {
     <a href="#BasicType">BasicType</a>
 }</pre></div><p>
 An UnspecifiedType represents an implicit, unknown, ambiguous or nonexistent type.
@@ -1614,8 +1614,8 @@ An UnspecifiedType represents an implicit, unknown, ambiguous or nonexistent typ
 
           
         
-          <h3 id="VoidType" data-kind="t">type <a title="View Source" href="https://golang.org/src/debug/dwarf/type.go#L129">VoidType</a> <a class="permalink" href="#VoidType">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=VoidType&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h3>
-          <div class="decl" data-kind="d"><a title="View Source" href="https://golang.org/src/debug/dwarf/type.go#L129">❖</a><pre>type VoidType struct {
+          <h3 id="VoidType" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/type.go#L129">VoidType</a> <a class="permalink" href="#VoidType">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=VoidType&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h3>
+          <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/type.go#L129">❖</a><pre>type VoidType struct {
     <a href="#CommonType">CommonType</a>
 }</pre></div><p>
 A VoidType represents the C void type.
@@ -1630,8 +1630,8 @@ A VoidType represents the C void type.
           
 
           
-            <h4 id="VoidType.String" data-kind="m">func (*VoidType) <a title="View Source" href="https://golang.org/src/debug/dwarf/type.go#L133">String</a> <a class="permalink" href="#VoidType.String">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=VoidType%2FString&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h4>
-            <div class="funcdecl decl"><a title="View Source" href="https://golang.org/src/debug/dwarf/type.go#L133">❖</a><pre>func (t *<a href="#VoidType">VoidType</a>) String() <a href="/builtin#string">string</a></pre></div>
+            <h4 id="VoidType.String" data-kind="m">func (*VoidType) <a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/type.go#L133">String</a> <a class="permalink" href="#VoidType.String">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=VoidType%2FString&amp;pkg=debug%2Fdwarf&amp;repo=">Uses</a></h4>
+            <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/debug/dwarf/type.go#L133">❖</a><pre>func (t *<a href="#VoidType">VoidType</a>) String() <a href="/builtin#string">string</a></pre></div>
             
 </div>
 <div id="x-footer" class="clearfix">
@@ -1642,7 +1642,7 @@ A VoidType represents the C void type.
   </div>
 </div>
 <script src="../assets/jquery-2.0.3.min.js"></script>
-<script src="../bootstrap.min.js"></script>
-<script src="../site.js"></script>
+<script src="../assets/bootstrap.min.js"></script>
+<script src="../assets/site.js"></script>
 </body>
 </html>
