@@ -639,8 +639,8 @@ fmt.Println(floatSwap(2.72, 3.14))</pre>
     <p><a title="View Source" href="https://github.com/golang/go/blob/master/src/reflect/type.go?name=release#192">☞</a>FieldByName及相关的函数会将名称相同的结构体字段视为相同的字段，即使它们是来自不同包的非导出字段。这导致如果结构体类型t包含多个名为x的字段的话（被不同的包嵌入）t.FieldByName("x")的行为没有良好的定义。FieldByName可能会返回其中一个名为x的字段，也可能报告说没有这个字段。细节参见golang.org/issue/4876。    </div>
 <div id="x-footer" class="clearfix">
   <div class="container">
-    <a href="http://studygolang.com/">Go语言中文网</a>
-    <span class="text-muted">|</span> <a href="http://golang.org/">Go Language</a>
+    <a href="http://studygolang.com/" target="_blank">Go语言中文网</a>
+    <span class="text-muted">|</span> <a href="http://golang.org/" target="_blank">Go Language</a>
     <span class="pull-right"><a href="#">Back to top</a></span>
   </div>
 </div>
