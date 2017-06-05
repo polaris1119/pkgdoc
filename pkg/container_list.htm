@@ -119,7 +119,7 @@ for e := l.Front(); e != nil; e = e.Next() {
     <p>PushBack创建链表other的拷贝，并将链表l的最后一个位置连接到拷贝的第一个位置。</p>
     <h4 id="List.InsertBefore">func (*List) <a title="View Source" href="https://github.com/golang/go/blob/master/src/container/list/list.go?name=release#144">InsertBefore</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
     <pre class="funcdecl">func (l *<a href="#List">List</a>) InsertBefore(v interface{}, mark *<a href="#Element">Element</a>) *<a href="#Element">Element</a></pre>
-    <p>InsertDefore将一个值为v的新元素插入到mark前面，并返回生成的新元素。如果mark不是l的元素，l不会被修改。</p>
+    <p>InsertBefore将一个值为v的新元素插入到mark前面，并返回生成的新元素。如果mark不是l的元素，l不会被修改。</p>
     <h4 id="List.InsertAfter">func (*List) <a title="View Source" href="https://github.com/golang/go/blob/master/src/container/list/list.go?name=release#154">InsertAfter</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
     <pre class="funcdecl">func (l *<a href="#List">List</a>) InsertAfter(v interface{}, mark *<a href="#Element">Element</a>) *<a href="#Element">Element</a></pre>
     <p>InsertAfter将一个值为v的新元素插入到mark后面，并返回新生成的元素。如果mark不是l的元素，l不会被修改。</p>
