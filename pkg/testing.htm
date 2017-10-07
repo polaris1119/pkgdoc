@@ -25,29 +25,22 @@
         <p><code>import "testing"</code>
 
         <p>
-Package testing provides support for automated testing of Go packages.
-It is intended to be used in concert with the &ldquo;go test&rdquo; command, which automates
-execution of any function of the form
+testing 提供对 Go 包的自动化测试的支持。通过 `go test` 命令，能够自动执行如下形式的任何函数：
 </p>
 <pre>func TestXxx(*testing.T)
 </pre>
 <p>
-where Xxx can be any alphanumeric string (but the first letter must not be in
-[a-z]) and serves to identify the test routine.
+其中 Xxx 可以是任何字母数字字符串（但第一个字母不能是
+[a-z]），用于识别测试例程。
 </p>
 <p>
-Within these functions, use the Error, Fail or related methods to signal failure.
+在这些函数中，使用 Error, Fail 或相关方法来发出失败信号。
 </p>
 <p>
-To write a new test suite, create a file whose name ends _test.go that
-contains the TestXxx functions as described here. Put the file in the same
-package as the one being tested. The file will be excluded from regular
-package builds but will be included when the &ldquo;go test&rdquo; command is run.
-For more detail, run &ldquo;go help test&rdquo; and &ldquo;go help testflag&rdquo;.
+要编写一个新的测试套件，需要创建一个名称以 _test.go 结尾的文件，该文件包含 `TestXxx` 函数，如上所述。 将该文件放在与被测试的包相同的包中。该文件将被排除在正常的程序包之外，但在运行 “go test” 命令时将被包含。 有关详细信息，请运行 “go help test” 和 “go help testflag” 了解。
 </p>
 <p>
-Tests and benchmarks may be skipped if not applicable with a call to
-the Skip method of *T and *B:
+如果有需要，可以调用 *T 和 *B 的 Skip 方法，跳过该测试或基准测试：
 </p>
 <pre>func TestTimeConsuming(t *testing.T) {
     if testing.Short() {
@@ -58,20 +51,19 @@ the Skip method of *T and *B:
 </pre>
 <h4 id="hdr-Benchmarks">Benchmarks <a class="permalink" href="#hdr-Benchmarks">&para</a></h4>
 <p>
-Functions of the form
+如下形式的函数：
 </p>
 <pre>func BenchmarkXxx(*testing.B)
 </pre>
 <p>
-are considered benchmarks, and are executed by the &#34;go test&#34; command when
-its -bench flag is provided. Benchmarks are run sequentially.
+被认为是基准测试，通过 &#34;go test&#34; 命令，加上 -bench flag 来执行。多个基准测试按照顺序运行。
 </p>
 <p>
-For a description of the testing flags, see
+testing flags 的详细描述, 参见
 <a href="https://github.com/golang/go/blob/master/cmd/go/#hdr-Description_of_testing_flags">https://github.com/golang/go/blob/master/cmd/go/#hdr-Description_of_testing_flags</a>.
 </p>
 <p>
-A sample benchmark function looks like this:
+基准测试函数样例看起来如下所示：
 </p>
 <pre>func BenchmarkHello(b *testing.B) {
     for i := 0; i &lt; b.N; i++ {
@@ -80,18 +72,15 @@ A sample benchmark function looks like this:
 }
 </pre>
 <p>
-The benchmark function must run the target code b.N times.
-During benchmark execution, b.N is adjusted until the benchmark function lasts
-long enough to be timed reliably. The output
+基准函数会运行目标代码 b.N 次。在基准执行期间，会调整 b.N 直到基准测试函数持续足够长的时间。输出
 </p>
 <pre>BenchmarkHello    10000000    282 ns/op
 </pre>
 <p>
-means that the loop ran 10000000 times at a speed of 282 ns per loop.
+意味着循环执行了 10000000 次，每次循环花费 282 纳秒(ns)。
 </p>
 <p>
-If a benchmark needs some expensive setup before running, the timer
-may be reset:
+如果在运行前基准测试需要一些耗时的配置，则可以先重置定时器：
 </p>
 <pre>func BenchmarkBigLen(b *testing.B) {
     big := NewBig()
@@ -102,9 +91,7 @@ may be reset:
 }
 </pre>
 <p>
-If a benchmark needs to test performance in a parallel setting, it may use
-the RunParallel helper function; such benchmarks are intended to be used with
-the go test -cpu flag:
+如果基准测试需要在并行设置中测试性能，则可以使用 RunParallel 辅助函数; 这样的基准测试一般与 go test -cpu 标志一起使用：
 </p>
 <pre>func BenchmarkTemplateParallel(b *testing.B) {
     templ := template.Must(template.New(&#34;test&#34;).Parse(&#34;Hello, {{.}}!&#34;))
@@ -119,10 +106,7 @@ the go test -cpu flag:
 </pre>
 <h4 id="hdr-Examples">Examples <a class="permalink" href="#hdr-Examples">&para</a></h4>
 <p>
-The package also runs and verifies example code. Example functions may
-include a concluding line comment that begins with &#34;Output:&#34; and is compared with
-the standard output of the function when the tests are run. (The comparison
-ignores leading and trailing space.) These are examples of an example:
+该包还运行并验证示例代码。示例函数可以包括以 "Output：" 开头的行注释，并在运行测试时与函数的标准输出进行比较。 （比较时会忽略前导和尾随空格。）这些是一个 example 的例子：
 </p>
 <pre>func ExampleHello() {
         fmt.Println(&#34;hello&#34;)
@@ -138,11 +122,25 @@ func ExampleSalutations() {
 }
 </pre>
 <p>
-Example functions without output comments are compiled but not executed.
+"Unordered output:" 形式的注释，和 "Output:" 类似，但是能够以任意顺序匹配行：
+</p>
+<pre>
+func ExamplePerm() {
+    for _, value := range Perm(4) {
+        fmt.Println(value)
+    }
+    // Unordered output: 4
+    // 2
+    // 1
+    // 3
+    // 0
+}
+</pre>
+<p>
+没有输出注释的示例函数被编译但不执行。
 </p>
 <p>
-The naming convention to declare examples for the package, a function F, a type T and
-method M on type T are:
+example 声明的命名约定：包，函数 F，类型 T，类型 T 上的方法 M 依次是：
 </p>
 <pre>func Example() { ... }
 func ExampleF() { ... }
@@ -150,9 +148,7 @@ func ExampleT() { ... }
 func ExampleT_M() { ... }
 </pre>
 <p>
-Multiple example functions for a package/type/function/method may be provided by
-appending a distinct suffix to the name. The suffix must start with a
-lower-case letter.
+可以为 包/类型/函数/方法 提供多个 example 函数，这通过在名称上附加一个不同的后缀来实现。后缀必须是以小写字母开头。
 </p>
 <pre>func Example_suffix() { ... }
 func ExampleF_suffix() { ... }
@@ -160,16 +156,11 @@ func ExampleT_suffix() { ... }
 func ExampleT_M_suffix() { ... }
 </pre>
 <p>
-The entire test file is presented as the example when it contains a single
-example function, at least one other function, type, variable, or constant
-declaration, and no test or benchmark functions.
+当一个文件包含一个示例函数，同时至少一个其他函数，类型，变量或常量声明，或没有测试或基准函数时，这个测试文件作为示例存在，通常命名为 example_test.go
 </p>
-<h4 id="hdr-Subtests_and_Sub_benchmarks">Subtests and Sub-benchmarks <a class="permalink" href="#hdr-Subtests_and_Sub_benchmarks">&para</a></h4>
+<h4 id="hdr-Subtests_and_Sub_benchmarks">Subtests 和 Sub-benchmarks <a class="permalink" href="#hdr-Subtests_and_Sub_benchmarks">&para</a></h4>
 <p>
-The Run methods of T and B allow defining subtests and sub-benchmarks,
-without having to define separate functions for each. This enables uses
-like table-driven benchmarks and creating hierarchical tests.
-It also provides a way to share common setup and tear-down code:
+T 和 B 的 Run 方法允许定义子单元测试和子基准测试，而不必为每个子测试和子基准定义单独的函数。这使得可以使用 Table-Driven 的基准测试和创建层级测试。它还提供了一种共享通用 setup 和 tear-down 代码的方法：
 </p>
 <pre>func TestFoo(t *testing.T) {
     // &lt;setup code&gt;
@@ -180,28 +171,18 @@ It also provides a way to share common setup and tear-down code:
 }
 </pre>
 <p>
-Each subtest and sub-benchmark has a unique name: the combination of the name
-of the top-level test and the sequence of names passed to Run, separated by
-slashes, with an optional trailing sequence number for disambiguation.
+每个子测试和子基准测试都有一个唯一的名称：顶级测试的名称和传递给 Run 的名称的组合，以斜杠分隔，并具有用于消歧的可选尾随序列号。
 </p>
 <p>
-The argument to the -run and -bench command-line flags is an unanchored regular
-expression that matches the test&#39;s name. For tests with multiple slash-separated
-elements, such as subtests, the argument is itself slash-separated, with
-expressions matching each name element in turn. Because it is unanchored, an
-empty expression matches any string.
-For example, using &#34;matching&#34; to mean &#34;whose name contains&#34;:
+-run 和 -bench 命令行标志的参数是与测试名称相匹配的非固定的正则表达式。对于具有多个斜杠分隔元素（例如子测试）的测试，该参数本身是斜杠分隔的，其中表达式依次匹配每个名称元素。因为它是非固定的，一个空的表达式匹配任何字符串。例如，使用 &#34;匹配&#34; 表示 &#34;其名称包含&#34;：
 </p>
-<pre>go test -run &#39;&#39;      # Run all tests.
-go test -run Foo     # Run top-level tests matching &#34;Foo&#34;, such as &#34;TestFooBar&#34;.
-go test -run Foo/A=  # For top-level tests matching &#34;Foo&#34;, run subtests matching &#34;A=&#34;.
-go test -run /A=1    # For all top-level tests, run subtests matching &#34;A=1&#34;.
+<pre>go test -run &#39;&#39;      # Run 所有测试。
+go test -run Foo     # Run 匹配 "Foo" 的顶层测试，例如 "TestFooBar"。
+go test -run Foo/A=  # 匹配顶层测试 "Foo"，运行其匹配 "A=" 的子测试。
+go test -run /A=1    # 运行所有匹配 "A=1" 的子测试。
 </pre>
 <p>
-Subtests can also be used to control parallelism. A parent test will only
-complete once all of its subtests complete. In this example, all tests are
-run in parallel with each other, and only with each other, regardless of
-other top-level tests that may be defined:
+子测试也可用于控制并行性。所有的子测试完成后，父测试才会完成。在这个例子中，所有的测试是相互并行运行的，当然也只是彼此之间，不包括定义在其他顶层测试的子测试：
 </p>
 <pre>func TestGroupedParallel(t *testing.T) {
     for _, tc := range tests {
@@ -214,8 +195,7 @@ other top-level tests that may be defined:
 }
 </pre>
 <p>
-Run does not return until parallel subtests have completed, providing a way
-to clean up after a group of parallel tests:
+在并行子测试完成之前，Run 方法不会返回，这提供了一种测试后清理的方法：
 </p>
 <pre>func TestTeardownParallel(t *testing.T) {
     // This Run will not return until the parallel tests finish.
@@ -364,20 +344,14 @@ A simple implementation of TestMain is:
         
           <h3 id="AllocsPerRun" data-kind="f">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/allocs.go#L20">AllocsPerRun</a> <a class="permalink" href="#AllocsPerRun">&para;</a> <a class="uses" title="List Function Callers" href="https://sourcegraph.com/-/godoc/refs?def=AllocsPerRun&amp;pkg=testing&amp;repo=">Uses</a></h3>
           <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/allocs.go#L20">❖</a><pre>func AllocsPerRun(runs <a href="/builtin#int">int</a>, f func()) (avg <a href="/builtin#float64">float64</a>)</pre></div><p>
-AllocsPerRun returns the average number of allocations during calls to f.
-Although the return value has type float64, it will always be an integral value.
+AllocsPerRun 返回在调用 f 期间内存平均分配次数。虽然返回值的类型为 float64，但它始终是一个整数值。
 </p>
 <p>
-To compute the number of allocations, the function will first be run once as
-a warm-up. The average number of allocations over the specified number of
-runs will then be measured and returned.
+要计算分配次数，该函数将首先作为热身运行一次。然后将测量并返回指定数量（runs 参数）运行的内存平均分配次数。
 </p>
 <p>
-AllocsPerRun sets GOMAXPROCS to 1 during its measurement and will restore
-it before returning.
+AllocsPerRun 在测量过程中将 GOMAXPROCS 设置为1，并在返回前将其还原。
 </p>
-
-          
   
 
         
@@ -491,35 +465,20 @@ Verbose reports whether the -test.v flag is set.
     <span id="B.N">N</span> <a href="/builtin#int">int</a>
     <span class="com">// contains filtered or unexported fields</span>
 }</pre></div><p>
-B is a type passed to Benchmark functions to manage benchmark
-timing and to specify the number of iterations to run.
+B 是传递给基准测试函数的一种类型，它用于管理基准测试的计时行为，并指示应该迭代地运行测试多少次。
 </p>
 <p>
-A benchmark ends when its Benchmark function returns or calls any of the methods
-FailNow, Fatal, Fatalf, SkipNow, Skip, or Skipf. Those methods must be called
-only from the goroutine running the Benchmark function.
-The other reporting methods, such as the variations of Log and Error,
-may be called simultaneously from multiple goroutines.
+一个基准测试在它的基准测试函数返回时，又或者在它的基准测试函数调用 FailNow、Fatal、Fatalf、SkipNow、Skip 或者 Skipf 中的任意一个方法时，测试即宣告结束。至于其他报告方法，比如 Log 和 Error 的变种，则可以在其他 goroutine 中同时进行调用。
 </p>
 <p>
-Like in tests, benchmark logs are accumulated during execution
-and dumped to standard error when done. Unlike in tests, benchmark logs
-are always printed, so as not to hide output whose existence may be
-affecting benchmark results.
+跟单元测试一样，基准测试会在执行的过程中积累日志，并在测试完毕时将日志转储到标准错误。但跟单元测试不一样的是，为了避免基准测试的结果受到日志打印操作的影响，基准测试总是会把日志打印出来。
 </p>
 
           
-          
-          
-  
-
-
-          
-
           
             <h4 id="B.Error" data-kind="m">func (*B) <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L510">Error</a> <a class="permalink" href="#B.Error">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=common%2FError&amp;pkg=testing&amp;repo=">Uses</a></h4>
             <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L510">❖</a><pre>func (c *B) Error(args ...interface{})</pre></div><p>
-Error is equivalent to Log followed by Fail.
+调用 Error 相当于在调用 Log 之后调用 Fail 。
 </p>
 
             
@@ -528,7 +487,7 @@ Error is equivalent to Log followed by Fail.
           
             <h4 id="B.Errorf" data-kind="m">func (*B) <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L516">Errorf</a> <a class="permalink" href="#B.Errorf">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=common%2FErrorf&amp;pkg=testing&amp;repo=">Uses</a></h4>
             <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L516">❖</a><pre>func (c *B) Errorf(format <a href="/builtin#string">string</a>, args ...interface{})</pre></div><p>
-Errorf is equivalent to Logf followed by Fail.
+调用 Errorf 相当于在调用 Logf 之后调用 Fail 。
 </p>
 
             
@@ -537,7 +496,7 @@ Errorf is equivalent to Logf followed by Fail.
           
             <h4 id="B.Fail" data-kind="m">func (*B) <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L437">Fail</a> <a class="permalink" href="#B.Fail">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=common%2FFail&amp;pkg=testing&amp;repo=">Uses</a></h4>
             <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L437">❖</a><pre>func (c *B) Fail()</pre></div><p>
-Fail marks the function as having failed but continues execution.
+将当前的测试函数标识为“失败”，但仍然继续执行该函数。
 </p>
 
             
@@ -546,12 +505,9 @@ Fail marks the function as having failed but continues execution.
           
             <h4 id="B.FailNow" data-kind="m">func (*B) <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L463">FailNow</a> <a class="permalink" href="#B.FailNow">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=common%2FFailNow&amp;pkg=testing&amp;repo=">Uses</a></h4>
             <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L463">❖</a><pre>func (c *B) FailNow()</pre></div><p>
-FailNow marks the function as having failed and stops its execution.
-Execution will continue at the next test or benchmark.
-FailNow must be called from the goroutine running the
-test or benchmark function, not from other goroutines
-created during the test. Calling FailNow does not stop
-those other goroutines.
+将当前的测试函数标识为“失败”，并停止执行该函数。在此之后，测试过程将在下一个测试或者下一个基准测试中继续。
+
+FailNow 必须在运行测试函数或者基准测试函数的 goroutine 中调用，而不能在测试期间创建的 goroutine 中调用。调用 FailNow 不会导致其他 goroutine 停止。
 </p>
 
             
@@ -560,7 +516,7 @@ those other goroutines.
           
             <h4 id="B.Failed" data-kind="m">func (*B) <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L451">Failed</a> <a class="permalink" href="#B.Failed">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=common%2FFailed&amp;pkg=testing&amp;repo=">Uses</a></h4>
             <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L451">❖</a><pre>func (c *B) Failed() <a href="/builtin#bool">bool</a></pre></div><p>
-Failed reports whether the function has failed.
+Failed 用于报告测试函数是否已失败。
 </p>
 
             
@@ -569,7 +525,7 @@ Failed reports whether the function has failed.
           
             <h4 id="B.Fatal" data-kind="m">func (*B) <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L522">Fatal</a> <a class="permalink" href="#B.Fatal">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=common%2FFatal&amp;pkg=testing&amp;repo=">Uses</a></h4>
             <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L522">❖</a><pre>func (c *B) Fatal(args ...interface{})</pre></div><p>
-Fatal is equivalent to Log followed by FailNow.
+调用 Fatal 相当于在调用 Log 之后调用 FailNow 。
 </p>
 
             
@@ -578,7 +534,7 @@ Fatal is equivalent to Log followed by FailNow.
           
             <h4 id="B.Fatalf" data-kind="m">func (*B) <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L528">Fatalf</a> <a class="permalink" href="#B.Fatalf">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=common%2FFatalf&amp;pkg=testing&amp;repo=">Uses</a></h4>
             <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L528">❖</a><pre>func (c *B) Fatalf(format <a href="/builtin#string">string</a>, args ...interface{})</pre></div><p>
-Fatalf is equivalent to Logf followed by FailNow.
+调用 Fatalf 相当于在调用 Logf 之后调用 FailNow 。
 </p>
 
             
@@ -587,10 +543,11 @@ Fatalf is equivalent to Logf followed by FailNow.
           
             <h4 id="B.Log" data-kind="m">func (*B) <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L500">Log</a> <a class="permalink" href="#B.Log">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=common%2FLog&amp;pkg=testing&amp;repo=">Uses</a></h4>
             <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L500">❖</a><pre>func (c *B) Log(args ...interface{})</pre></div><p>
-Log formats its arguments using default formatting, analogous to Println,
-and records the text in the error log. For tests, the text will be printed only if
-the test fails or the -test.v flag is set. For benchmarks, the text is always
-printed to avoid having performance depend on the value of the -test.v flag.
+Log 使用与 Println 相同的格式化语法对它的参数进行格式化， 然后将格式化后的文本记录到错误日志里面：
+</p>
+<p>
+对于测试来说， 格式化文本只会在测试失败或者设置了 -test.v 标志的情况下被打印出来；
+对于基准测试来说， 为了避免 -test.v 标志的值对测试的性能产生影响， 格式化文本总会被打印出来。
 </p>
 
             
@@ -599,11 +556,10 @@ printed to avoid having performance depend on the value of the -test.v flag.
           
             <h4 id="B.Logf" data-kind="m">func (*B) <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L507">Logf</a> <a class="permalink" href="#B.Logf">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=common%2FLogf&amp;pkg=testing&amp;repo=">Uses</a></h4>
             <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L507">❖</a><pre>func (c *B) Logf(format <a href="/builtin#string">string</a>, args ...interface{})</pre></div><p>
-Logf formats its arguments according to the format, analogous to Printf, and
-records the text in the error log. A final newline is added if not provided. For
-tests, the text will be printed only if the test fails or the -test.v flag is
-set. For benchmarks, the text is always printed to avoid having performance
-depend on the value of the -test.v flag.
+Log 使用与 Printf 相同的格式化语法对它的参数进行格式化， 然后将格式化后的文本记录到错误日志里面。 如果输入的格式化文本最末尾没有出现新行， 那么将一个新行添加到格式化后的文本末尾。
+</p>
+<p>
+对于测试来说，Logf 产生的格式化文本只会在测试失败或者设置了 -test.v 标志的情况下被打印出来； 对于基准测试来说， 为了避免 -test.v 标志的值对测试的性能产生影响， Logf 产生的格式化文本总会被打印出来。
 </p>
 
             
@@ -612,7 +568,7 @@ depend on the value of the -test.v flag.
           
             <h4 id="B.Name" data-kind="m">func (*B) <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L423">Name</a> <a class="permalink" href="#B.Name">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=common%2FName&amp;pkg=testing&amp;repo=">Uses</a></h4>
             <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L423">❖</a><pre>func (c *B) Name() <a href="/builtin#string">string</a></pre></div><p>
-Name returns the name of the running test or benchmark.
+返回正在运行的测试或者基准测试的名字。
 </p>
 
             
@@ -621,9 +577,7 @@ Name returns the name of the running test or benchmark.
           
             <h4 id="B.ReportAllocs" data-kind="m">func (*B) <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/benchmark.go#L117">ReportAllocs</a> <a class="permalink" href="#B.ReportAllocs">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=B%2FReportAllocs&amp;pkg=testing&amp;repo=">Uses</a></h4>
             <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/benchmark.go#L117">❖</a><pre>func (b *<a href="#B">B</a>) ReportAllocs()</pre></div><p>
-ReportAllocs enables malloc statistics for this benchmark.
-It is equivalent to setting -test.benchmem, but it only affects the
-benchmark function that calls ReportAllocs.
+打开当前基准测试的内存统计功能，与使用 -test.benchmem 设置类似，但 ReportAllocs 只影响那些调用了该函数的基准测试。
 </p>
 
             
@@ -632,8 +586,7 @@ benchmark function that calls ReportAllocs.
           
             <h4 id="B.ResetTimer" data-kind="m">func (*B) <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/benchmark.go#L98">ResetTimer</a> <a class="permalink" href="#B.ResetTimer">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=B%2FResetTimer&amp;pkg=testing&amp;repo=">Uses</a></h4>
             <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/benchmark.go#L98">❖</a><pre>func (b *<a href="#B">B</a>) ResetTimer()</pre></div><p>
-ResetTimer zeros the elapsed benchmark time and memory allocation counters.
-It does not affect whether the timer is running.
+对已经逝去的基准测试时间以及内存分配计数器进行清零。对于正在运行中的计时器，这个方法不会产生任何效果。
 </p>
 
             
@@ -642,16 +595,13 @@ It does not affect whether the timer is running.
           
             <h4 id="B.Run" data-kind="m">func (*B) <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/benchmark.go#L466">Run</a> <a class="permalink" href="#B.Run">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=B%2FRun&amp;pkg=testing&amp;repo=">Uses</a></h4>
             <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/benchmark.go#L466">❖</a><pre>func (b *<a href="#B">B</a>) Run(name <a href="/builtin#string">string</a>, f func(b *<a href="#B">B</a>)) <a href="/builtin#bool">bool</a></pre></div><p>
-Run benchmarks f as a subbenchmark with the given name. It reports
-whether there were any failures.
+执行名字为 name 的子基准测试（subbenchmark）f ，并报告 f 在执行过程中是否出现了任何失败。
 </p>
 <p>
-A subbenchmark is like any other benchmark. A benchmark that calls Run at
-least once will not be measured itself and will be called once with N=1.
+子基准测试跟其他普通的基准测试一样。一个调用了 Run 方法至少一次的基准测试将不会对其自身进行测量（measure），并且在 N 为 1 时， 这个基准测试将只会被执行一次。
 </p>
 <p>
-Run may be called simultaneously from multiple goroutines, but all such
-calls must happen before the outer benchmark function for b returns.
+Run 可以同时在多个 goroutine 中被调用，但这些调用必须发生在 b 的外部基准函数（outer benchmark function）返回之前。
 </p>
 
             
@@ -660,17 +610,10 @@ calls must happen before the outer benchmark function for b returns.
           
             <h4 id="B.RunParallel" data-kind="m">func (*B) <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/benchmark.go#L573">RunParallel</a> <a class="permalink" href="#B.RunParallel">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=B%2FRunParallel&amp;pkg=testing&amp;repo=">Uses</a></h4>
             <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/benchmark.go#L573">❖</a><pre>func (b *<a href="#B">B</a>) RunParallel(body func(*<a href="#PB">PB</a>))</pre></div><p>
-RunParallel runs a benchmark in parallel.
-It creates multiple goroutines and distributes b.N iterations among them.
-The number of goroutines defaults to GOMAXPROCS. To increase parallelism for
-non-CPU-bound benchmarks, call SetParallelism before RunParallel.
-RunParallel is usually used with the go test -cpu flag.
+以并行的方式执行给定的基准测试。 RunParallel 会创建出多个 goroutine ，并将 b.N 分配给这些 goroutine 执行， 其中 goroutine 数量的默认值为 GOMAXPROCS 。用户如果想要增加非CPU受限（non-CPU-bound）基准测试的并行性， 那么可以在 RunParallel 之前调用 SetParallelism 。RunParallel 通常会与 -cpu 标志一同使用。
 </p>
 <p>
-The body function will be run in each goroutine. It should set up any
-goroutine-local state and then iterate until pb.Next returns false.
-It should not use the StartTimer, StopTimer, or ResetTimer functions,
-because they have global effect. It should also not call Run.
+body 函数将在每个 goroutine 中执行，这个函数需要设置所有 goroutine 本地的状态， 并迭代直到 pb.Next 返回 false 值为止。因为 StartTimer 、 StopTimer 和 ResetTimer 这三个函数都带有全局作用，所以 body 函数不应该调用这些函数；除此之外，body 函数也不应该调用 Run 函数。
 </p>
 
             
@@ -709,8 +652,7 @@ testing.Benchmark(func(b *testing.B) {
           
             <h4 id="B.SetBytes" data-kind="m">func (*B) <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/benchmark.go#L112">SetBytes</a> <a class="permalink" href="#B.SetBytes">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=B%2FSetBytes&amp;pkg=testing&amp;repo=">Uses</a></h4>
             <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/benchmark.go#L112">❖</a><pre>func (b *<a href="#B">B</a>) SetBytes(n <a href="/builtin#int64">int64</a>)</pre></div><p>
-SetBytes records the number of bytes processed in a single operation.
-If this is called, the benchmark will report ns/op and MB/s.
+记录在单个操作中处理的字节数量。在调用了这个方法之后，基准测试将会报告 ns/op 以及 MB/s 。
 </p>
 
             
@@ -719,9 +661,10 @@ If this is called, the benchmark will report ns/op and MB/s.
           
             <h4 id="B.SetParallelism" data-kind="m">func (*B) <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/benchmark.go#L617">SetParallelism</a> <a class="permalink" href="#B.SetParallelism">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=B%2FSetParallelism&amp;pkg=testing&amp;repo=">Uses</a></h4>
             <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/benchmark.go#L617">❖</a><pre>func (b *<a href="#B">B</a>) SetParallelism(p <a href="/builtin#int">int</a>)</pre></div><p>
-SetParallelism sets the number of goroutines used by RunParallel to p*GOMAXPROCS.
-There is usually no need to call SetParallelism for CPU-bound benchmarks.
-If p is less than 1, this call will have no effect.
+将 RunParallel 使用的 goroutine 数量设置为 p*GOMAXPROCS ，如果 p 小于 1 ，那么调用将不产生任何效果。
+</p>
+<p>
+CPU受限（CPU-bound）的基准测试通常不需要调用这个方法。
 </p>
 
             
@@ -730,7 +673,7 @@ If p is less than 1, this call will have no effect.
           
             <h4 id="B.Skip" data-kind="m">func (*B) <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L534">Skip</a> <a class="permalink" href="#B.Skip">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=common%2FSkip&amp;pkg=testing&amp;repo=">Uses</a></h4>
             <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L534">❖</a><pre>func (c *B) Skip(args ...interface{})</pre></div><p>
-Skip is equivalent to Log followed by SkipNow.
+调用 Skip 相当于在调用 Log 之后调用 SkipNow 。
 </p>
 
             
@@ -739,13 +682,13 @@ Skip is equivalent to Log followed by SkipNow.
           
             <h4 id="B.SkipNow" data-kind="m">func (*B) <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L552">SkipNow</a> <a class="permalink" href="#B.SkipNow">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=common%2FSkipNow&amp;pkg=testing&amp;repo=">Uses</a></h4>
             <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L552">❖</a><pre>func (c *B) SkipNow()</pre></div><p>
-SkipNow marks the test as having been skipped and stops its execution.
-If a test fails (see Error, Errorf, Fail) and is then skipped,
-it is still considered to have failed.
-Execution will continue at the next test or benchmark. See also FailNow.
-SkipNow must be called from the goroutine running the test, not from
-other goroutines created during the test. Calling SkipNow does not stop
-those other goroutines.
+将当前测试标识为“被跳过”并停止执行该测试。 如果一个测试在失败（参考 Error 、 Errorf 和 Fail）之后被跳过了， 那么它还是会被判断为是“失败的”。
+</p>
+<p>
+在停止当前测试之后， 测试过程将在下一个测试或者下一个基准测试中继续， 具体请参考 FailNow 。
+</p>
+<p>
+SkipNow 必须在运行测试的 goroutine 中进行调用， 而不能在测试期间创建的 goroutine 中调用。 调用 SkipNow 不会导致其他 goroutine 停止。
 </p>
 
             
@@ -754,7 +697,7 @@ those other goroutines.
           
             <h4 id="B.Skipf" data-kind="m">func (*B) <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L540">Skipf</a> <a class="permalink" href="#B.Skipf">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=common%2FSkipf&amp;pkg=testing&amp;repo=">Uses</a></h4>
             <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L540">❖</a><pre>func (c *B) Skipf(format <a href="/builtin#string">string</a>, args ...interface{})</pre></div><p>
-Skipf is equivalent to Logf followed by SkipNow.
+调用 Skipf 相当于在调用 Logf 之后调用 SkipNow 。
 </p>
 
             
@@ -763,7 +706,7 @@ Skipf is equivalent to Logf followed by SkipNow.
           
             <h4 id="B.Skipped" data-kind="m">func (*B) <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L565">Skipped</a> <a class="permalink" href="#B.Skipped">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=common%2FSkipped&amp;pkg=testing&amp;repo=">Uses</a></h4>
             <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L565">❖</a><pre>func (c *B) Skipped() <a href="/builtin#bool">bool</a></pre></div><p>
-Skipped reports whether the test was skipped.
+报告测试是否已被跳过。
 </p>
 
             
@@ -772,9 +715,9 @@ Skipped reports whether the test was skipped.
           
             <h4 id="B.StartTimer" data-kind="m">func (*B) <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/benchmark.go#L73">StartTimer</a> <a class="permalink" href="#B.StartTimer">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=B%2FStartTimer&amp;pkg=testing&amp;repo=">Uses</a></h4>
             <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/benchmark.go#L73">❖</a><pre>func (b *<a href="#B">B</a>) StartTimer()</pre></div><p>
-StartTimer starts timing a test. This function is called automatically
-before a benchmark starts, but it can also used to resume timing after
-a call to StopTimer.
+开始对测试进行计时。
+
+这个函数在基准测试开始时会自动被调用， 它也可以在调用 StopTimer 之后恢复进行计时。
 </p>
 
             
@@ -783,9 +726,9 @@ a call to StopTimer.
           
             <h4 id="B.StopTimer" data-kind="m">func (*B) <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/benchmark.go#L86">StopTimer</a> <a class="permalink" href="#B.StopTimer">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=B%2FStopTimer&amp;pkg=testing&amp;repo=">Uses</a></h4>
             <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/benchmark.go#L86">❖</a><pre>func (b *<a href="#B">B</a>) StopTimer()</pre></div><p>
-StopTimer stops timing a test. This can be used to pause the timer
-while performing complex initialization that you don&#39;t
-want to measure.
+停止对测试进行计时。
+
+当你需要执行一些复杂的初始化操作， 并且你不想对这些操作进行测量时， 就可以使用这个方法来暂时地停止计时。
 </p>
 
             
@@ -801,31 +744,22 @@ want to measure.
     <span id="BenchmarkResult.MemAllocs">MemAllocs</span> <a href="/builtin#uint64">uint64</a>        <span class="com">// The total number of memory allocations.</span>
     <span id="BenchmarkResult.MemBytes">MemBytes</span>  <a href="/builtin#uint64">uint64</a>        <span class="com">// The total number of bytes allocated.</span>
 }</pre></div><p>
-The results of a benchmark run.
+基准测试运行的结果。
 </p>
 
           
           
-          
-  
-
 
           
             <h4 id="Benchmark" data-kind="f">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/benchmark.go#L628">Benchmark</a> <a class="permalink" href="#Benchmark">&para;</a> <a class="uses" title="List Function Callers" href="https://sourcegraph.com/-/godoc/refs?def=Benchmark&amp;pkg=testing&amp;repo=">Uses</a></h4>
             <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/benchmark.go#L628">❖</a><pre>func Benchmark(f func(b *<a href="#B">B</a>)) <a href="#BenchmarkResult">BenchmarkResult</a></pre></div><p>
-Benchmark benchmarks a single function. Useful for creating
-custom benchmarks that do not use the &#34;go test&#34; command.
+测试单个函数。用于创建不使用 &#34;go test&#34; 命令的自定义基准测试。
 </p>
 <p>
-If f calls Run, the result will be an estimate of running all its
-subbenchmarks that don&#39;t call Run in sequence in a single benchmark.
+如果 f 调用 Run，则结果将是运行其所有子基准的结果估计，该子基准在单个基准测试中不会顺序调用 Run。
 </p>
 
             
-  
-
-          
-
           
             <h4 id="BenchmarkResult.AllocedBytesPerOp" data-kind="m">func (BenchmarkResult) <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/benchmark.go#L316">AllocedBytesPerOp</a> <a class="permalink" href="#BenchmarkResult.AllocedBytesPerOp">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=BenchmarkResult%2FAllocedBytesPerOp&amp;pkg=testing&amp;repo=">Uses</a></h4>
             <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/benchmark.go#L316">❖</a><pre>func (r <a href="#BenchmarkResult">BenchmarkResult</a>) AllocedBytesPerOp() <a href="/builtin#int64">int64</a></pre></div>
@@ -999,7 +933,7 @@ Run runs the tests. It returns an exit code to pass to os.Exit.
           <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/benchmark.go#L540">❖</a><pre>type PB struct {
     <span class="com">// contains filtered or unexported fields</span>
 }</pre></div><p>
-A PB is used by RunParallel for running parallel benchmarks.
+PB 被 RunParallel 使用来运行并行基准测试。
 </p>
 
           
@@ -1013,7 +947,7 @@ A PB is used by RunParallel for running parallel benchmarks.
           
             <h4 id="PB.Next" data-kind="m">func (*PB) <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/benchmark.go#L548">Next</a> <a class="permalink" href="#PB.Next">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=PB%2FNext&amp;pkg=testing&amp;repo=">Uses</a></h4>
             <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/benchmark.go#L548">❖</a><pre>func (pb *<a href="#PB">PB</a>) Next() <a href="/builtin#bool">bool</a></pre></div><p>
-Next reports whether there are more iterations to execute.
+Next 判断是否有更多的迭代要执行
 </p>
 
             
@@ -1025,64 +959,40 @@ Next reports whether there are more iterations to execute.
           <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L414">❖</a><pre>type T struct {
     <span class="com">// contains filtered or unexported fields</span>
 }</pre></div><p>
-T is a type passed to Test functions to manage test state and support formatted test logs.
-Logs are accumulated during execution and dumped to standard output when done.
+T 是传递给测试函数的一种类型，它用于管理测试状态并支持格式化测试日志。测试日志会在执行测试的过程中不断累积， 并在测试完成时转储至标准输出。
 </p>
 <p>
-A test ends when its Test function returns or calls any of the methods
-FailNow, Fatal, Fatalf, SkipNow, Skip, or Skipf. Those methods, as well as
-the Parallel method, must be called only from the goroutine running the
-Test function.
+当一个测试的测试函数返回时， 又或者当一个测试函数调用 FailNow 、 Fatal 、 Fatalf 、 SkipNow 、 Skip 或者 Skipf 中的任意一个时， 该测试即宣告结束。 跟 Parallel 方法一样， 以上提到的这些方法只能在运行测试函数的 goroutine 中调用。
 </p>
 <p>
-The other reporting methods, such as the variations of Log and Error,
-may be called simultaneously from multiple goroutines.
+至于其他报告方法， 比如 Log 以及 Error 的变种， 则可以在多个 goroutine 中同时进行调用。
 </p>
 
-          
-          
-          
-  
-
-
-          
-
-          
             <h4 id="T.Error" data-kind="m">func (*T) <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L510">Error</a> <a class="permalink" href="#T.Error">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=common%2FError&amp;pkg=testing&amp;repo=">Uses</a></h4>
             <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L510">❖</a><pre>func (c *T) Error(args ...interface{})</pre></div><p>
-Error is equivalent to Log followed by Fail.
+调用 Error 相当于在调用 Log 之后调用 Fail 。
 </p>
 
-            
-  
-
-          
             <h4 id="T.Errorf" data-kind="m">func (*T) <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L516">Errorf</a> <a class="permalink" href="#T.Errorf">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=common%2FErrorf&amp;pkg=testing&amp;repo=">Uses</a></h4>
             <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L516">❖</a><pre>func (c *T) Errorf(format <a href="/builtin#string">string</a>, args ...interface{})</pre></div><p>
-Errorf is equivalent to Logf followed by Fail.
+调用 Errorf 相当于在调用 Logf 之后调用 Fail 。
 </p>
 
             
-  
-
           
             <h4 id="T.Fail" data-kind="m">func (*T) <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L437">Fail</a> <a class="permalink" href="#T.Fail">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=common%2FFail&amp;pkg=testing&amp;repo=">Uses</a></h4>
             <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L437">❖</a><pre>func (c *T) Fail()</pre></div><p>
-Fail marks the function as having failed but continues execution.
+将当前测试标识为失败，但是仍继续执行该测试。
 </p>
 
             
   
-
-          
             <h4 id="T.FailNow" data-kind="m">func (*T) <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L463">FailNow</a> <a class="permalink" href="#T.FailNow">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=common%2FFailNow&amp;pkg=testing&amp;repo=">Uses</a></h4>
             <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L463">❖</a><pre>func (c *T) FailNow()</pre></div><p>
-FailNow marks the function as having failed and stops its execution.
-Execution will continue at the next test or benchmark.
-FailNow must be called from the goroutine running the
-test or benchmark function, not from other goroutines
-created during the test. Calling FailNow does not stop
-those other goroutines.
+将当前测试标识为失败并停止执行该测试，在此之后，测试过程将在下一个测试或者下一个基准测试中继续。
+</p>
+<p>
+FailNow 必须在运行测试函数或者基准测试函数的 goroutine 中调用，而不能在测试期间创建的 goroutine 中调用。调用 FailNow 不会导致其他 goroutine 停止。
 </p>
 
             
@@ -1091,7 +1001,7 @@ those other goroutines.
           
             <h4 id="T.Failed" data-kind="m">func (*T) <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L451">Failed</a> <a class="permalink" href="#T.Failed">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=common%2FFailed&amp;pkg=testing&amp;repo=">Uses</a></h4>
             <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L451">❖</a><pre>func (c *T) Failed() <a href="/builtin#bool">bool</a></pre></div><p>
-Failed reports whether the function has failed.
+Failed 用于报告测试函数是否已失败。
 </p>
 
             
@@ -1100,7 +1010,7 @@ Failed reports whether the function has failed.
           
             <h4 id="T.Fatal" data-kind="m">func (*T) <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L522">Fatal</a> <a class="permalink" href="#T.Fatal">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=common%2FFatal&amp;pkg=testing&amp;repo=">Uses</a></h4>
             <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L522">❖</a><pre>func (c *T) Fatal(args ...interface{})</pre></div><p>
-Fatal is equivalent to Log followed by FailNow.
+调用 Fatal 相当于在调用 Log 之后调用 FailNow 。
 </p>
 
             
@@ -1109,7 +1019,7 @@ Fatal is equivalent to Log followed by FailNow.
           
             <h4 id="T.Fatalf" data-kind="m">func (*T) <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L528">Fatalf</a> <a class="permalink" href="#T.Fatalf">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=common%2FFatalf&amp;pkg=testing&amp;repo=">Uses</a></h4>
             <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L528">❖</a><pre>func (c *T) Fatalf(format <a href="/builtin#string">string</a>, args ...interface{})</pre></div><p>
-Fatalf is equivalent to Logf followed by FailNow.
+调用 Fatalf 相当于在调用 Logf 之后调用 FailNow 。
 </p>
 
             
@@ -1118,10 +1028,11 @@ Fatalf is equivalent to Logf followed by FailNow.
           
             <h4 id="T.Log" data-kind="m">func (*T) <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L500">Log</a> <a class="permalink" href="#T.Log">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=common%2FLog&amp;pkg=testing&amp;repo=">Uses</a></h4>
             <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L500">❖</a><pre>func (c *T) Log(args ...interface{})</pre></div><p>
-Log formats its arguments using default formatting, analogous to Println,
-and records the text in the error log. For tests, the text will be printed only if
-the test fails or the -test.v flag is set. For benchmarks, the text is always
-printed to avoid having performance depend on the value of the -test.v flag.
+Log 使用与 Println 相同的格式化语法对它的参数进行格式化，然后将格式化后的文本记录到错误日志里面：
+</p>
+<p>
+1）对于测试来说，格式化文本只会在测试失败或者设置了 -test.v 标志的情况下被打印出来；
+2）对于基准测试来说，为了避免 -test.v 标志的值对测试的性能产生影响， 格式化文本总会被打印出来。
 </p>
 
             
@@ -1130,11 +1041,11 @@ printed to avoid having performance depend on the value of the -test.v flag.
           
             <h4 id="T.Logf" data-kind="m">func (*T) <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L507">Logf</a> <a class="permalink" href="#T.Logf">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=common%2FLogf&amp;pkg=testing&amp;repo=">Uses</a></h4>
             <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L507">❖</a><pre>func (c *T) Logf(format <a href="/builtin#string">string</a>, args ...interface{})</pre></div><p>
-Logf formats its arguments according to the format, analogous to Printf, and
-records the text in the error log. A final newline is added if not provided. For
-tests, the text will be printed only if the test fails or the -test.v flag is
-set. For benchmarks, the text is always printed to avoid having performance
-depend on the value of the -test.v flag.
+Log 使用与 Printf 相同的格式化语法对它的参数进行格式化，然后将格式化后的文本记录到错误日志里面。 如果输入的格式化文本最末尾没有出现新行，那么将一个新行添加到格式化后的文本末尾。
+</p>
+<p>
+1）对于测试来说，Logf 产生的格式化文本只会在测试失败或者设置了 -test.v 标志的情况下被打印出来；
+2）对于基准测试来说，为了避免 -test.v 标志的值对测试的性能产生影响，Logf 产生的格式化文本总会被打印出来。
 </p>
 
             
@@ -1143,7 +1054,7 @@ depend on the value of the -test.v flag.
           
             <h4 id="T.Name" data-kind="m">func (*T) <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L423">Name</a> <a class="permalink" href="#T.Name">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=common%2FName&amp;pkg=testing&amp;repo=">Uses</a></h4>
             <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L423">❖</a><pre>func (c *T) Name() <a href="/builtin#string">string</a></pre></div><p>
-Name returns the name of the running test or benchmark.
+返回正在运行的测试或基准测试的名字。
 </p>
 
             
@@ -1152,8 +1063,7 @@ Name returns the name of the running test or benchmark.
           
             <h4 id="T.Parallel" data-kind="m">func (*T) <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L573">Parallel</a> <a class="permalink" href="#T.Parallel">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=T%2FParallel&amp;pkg=testing&amp;repo=">Uses</a></h4>
             <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L573">❖</a><pre>func (t *<a href="#T">T</a>) Parallel()</pre></div><p>
-Parallel signals that this test is to be run in parallel with (and only with)
-other parallel tests.
+Parallel 用于表示当前测试只会与其他带有 Parallel 方法的测试并行进行测试。
 </p>
 
             
@@ -1162,12 +1072,10 @@ other parallel tests.
           
             <h4 id="T.Run" data-kind="m">func (*T) <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L666">Run</a> <a class="permalink" href="#T.Run">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=T%2FRun&amp;pkg=testing&amp;repo=">Uses</a></h4>
             <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L666">❖</a><pre>func (t *<a href="#T">T</a>) Run(name <a href="/builtin#string">string</a>, f func(t *<a href="#T">T</a>)) <a href="/builtin#bool">bool</a></pre></div><p>
-Run runs f as a subtest of t called name. It reports whether f succeeded.
-Run will block until all its parallel subtests have completed.
+执行名字为 name 的子测试 f ，并报告 f 在执行过程中是否出现了任何失败。Run 将一直阻塞直到 f 的所有并行测试执行完毕。
 </p>
 <p>
-Run may be called simultaneously from multiple goroutines, but all such
-calls must happen before the outer test function for t returns.
+Run 可以在多个 goroutine 里面同时进行调用，但这些调用必须发生在 t 的外层测试函数（outer test function）返回之前。
 </p>
 
             
@@ -1176,7 +1084,7 @@ calls must happen before the outer test function for t returns.
           
             <h4 id="T.Skip" data-kind="m">func (*T) <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L534">Skip</a> <a class="permalink" href="#T.Skip">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=common%2FSkip&amp;pkg=testing&amp;repo=">Uses</a></h4>
             <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L534">❖</a><pre>func (c *T) Skip(args ...interface{})</pre></div><p>
-Skip is equivalent to Log followed by SkipNow.
+调用 Skip 相当于在调用 Log 之后调用 SkipNow 。
 </p>
 
             
@@ -1185,13 +1093,13 @@ Skip is equivalent to Log followed by SkipNow.
           
             <h4 id="T.SkipNow" data-kind="m">func (*T) <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L552">SkipNow</a> <a class="permalink" href="#T.SkipNow">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=common%2FSkipNow&amp;pkg=testing&amp;repo=">Uses</a></h4>
             <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L552">❖</a><pre>func (c *T) SkipNow()</pre></div><p>
-SkipNow marks the test as having been skipped and stops its execution.
-If a test fails (see Error, Errorf, Fail) and is then skipped,
-it is still considered to have failed.
-Execution will continue at the next test or benchmark. See also FailNow.
-SkipNow must be called from the goroutine running the test, not from
-other goroutines created during the test. Calling SkipNow does not stop
-those other goroutines.
+将当前测试标识为“被跳过”并停止执行该测试。 如果一个测试在失败（参考 Error、Errorf 和 Fail）之后被跳过了， 那么它还是会被判断为是“失败的”。
+</p>
+<p>
+在停止当前测试之后，测试过程将在下一个测试或者下一个基准测试中继续，具体请参考 FailNow 。
+</p>
+<p>
+SkipNow 必须在运行测试的 goroutine 中进行调用，而不能在测试期间创建的 goroutine 中调用。 调用 SkipNow 不会导致其他 goroutine 停止。
 </p>
 
             
@@ -1200,7 +1108,7 @@ those other goroutines.
           
             <h4 id="T.Skipf" data-kind="m">func (*T) <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L540">Skipf</a> <a class="permalink" href="#T.Skipf">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=common%2FSkipf&amp;pkg=testing&amp;repo=">Uses</a></h4>
             <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L540">❖</a><pre>func (c *T) Skipf(format <a href="/builtin#string">string</a>, args ...interface{})</pre></div><p>
-Skipf is equivalent to Logf followed by SkipNow.
+调用 Skipf 相当于在调用 Logf 之后调用 SkipNow 。
 </p>
 
             
@@ -1209,7 +1117,7 @@ Skipf is equivalent to Logf followed by SkipNow.
           
             <h4 id="T.Skipped" data-kind="m">func (*T) <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L565">Skipped</a> <a class="permalink" href="#T.Skipped">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=common%2FSkipped&amp;pkg=testing&amp;repo=">Uses</a></h4>
             <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L565">❖</a><pre>func (c *T) Skipped() <a href="/builtin#bool">bool</a></pre></div><p>
-Skipped reports whether the test was skipped.
+Skipped 用于报告测试函数是否已被跳过。
 </p>
 
             
@@ -1235,7 +1143,7 @@ Skipped reports whether the test was skipped.
     <span id="TB.Skipped">Skipped</span>() <a href="/builtin#bool">bool</a>
     <span class="com">// contains filtered or unexported methods</span>
 }</pre></div><p>
-TB is the interface common to T and B.
+TB 是一个接口，类型 T 和 B 实现了该接口。
 </p>
 
           
