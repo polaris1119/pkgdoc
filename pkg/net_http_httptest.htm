@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link href="../assets/site.css" rel="stylesheet">
 <title>net/http/httptest</title>
-<meta name="private:description" content="刘志曦翻译于2014年夏，Go 1.3版本">
+<meta name="private:description" content="刘志曦翻译于2014年夏，Go 1.3版本；徐新华更新">
 </head>
 <body>
 <div class="container">
@@ -16,34 +16,50 @@
     <a href="../main.html"><h3>返回首页</h3></a>
 		</br>
         <li><a href="#pkg-constants">Constants</a></li>
+        <li><a href="#NewRequest">func NewRequest(method, target string, body io.Reader) *http.Request</a></li>
         <li><a href="#ResponseRecorder">type ResponseRecorder</a></li>
         <ul>
             <li><a href="#NewRecorder">func NewRecorder() *ResponseRecorder</a></li>
-            <li><a href="#ResponseRecorder.Header">func (rw *ResponseRecorder) Header() http.Header</a></li>
-            <li><a href="#ResponseRecorder.WriteHeader">func (rw *ResponseRecorder) WriteHeader(code int)</a></li>
-            <li><a href="#ResponseRecorder.Write">func (rw *ResponseRecorder) Write(buf []byte) (int, error)</a></li>
             <li><a href="#ResponseRecorder.Flush">func (rw *ResponseRecorder) Flush()</a></li>
+            <li><a href="#ResponseRecorder.Header">func (rw *ResponseRecorder) Header() http.Header</a></li>
+            <li><a href="#ResponseRecorder.Result">func (rw *ResponseRecorder) Result() *http.Response</a></li>
+            <li><a href="#ResponseRecorder.Write">func (rw *ResponseRecorder) Write(buf []byte) (int, error)</a></li>
+            <li><a href="#ResponseRecorder.WriteHeader">func (rw *ResponseRecorder) WriteHeader(code int)</a></li>
+            <li><a href="#ResponseRecorder.WriteString">func (rw *ResponseRecorder) WriteString(str string) (int, error)</a></li>
         </ul>
         <li><a href="#Server">type Server</a></li>
         <ul>
             <li><a href="#NewServer">func NewServer(handler http.Handler) *Server</a></li>
             <li><a href="#NewTLSServer">func NewTLSServer(handler http.Handler) *Server</a></li>
             <li><a href="#NewUnstartedServer">func NewUnstartedServer(handler http.Handler) *Server</a></li>
+            <li><a href="#Server.Certificate">func (s *Server) Certificate() *x509.Certificate</a></li>
+            <li><a href="#Server.Client">func (s *Server) Client() *http.Client</a></li>
+            <li><a href="#Server.Close">func (s *Server) Close()</a></li>
+            <li><a href="#Server.CloseClientConnections">func (s *Server) CloseClientConnections()</a></li>
             <li><a href="#Server.Start">func (s *Server) Start()</a></li>
             <li><a href="#Server.StartTLS">func (s *Server) StartTLS()</a></li>
-            <li><a href="#Server.CloseClientConnections">func (s *Server) CloseClientConnections()</a></li>
-            <li><a href="#Server.Close">func (s *Server) Close()</a></li>
         </ul>
     </ul>
     <h4 id="pkg-examples">Examples <a class="permalink" href="#pkg-index">&para;</a></h4>
     <a href="../main.html"><h3>返回首页</h3></a>
 		</br>
+        <li><a href="#example-NewTLSServer" onclick="$('#ex-NewTLSServer').addClass('in').removeClass('collapse').height('auto')">NewTLSServer</a></li>
         <li><a href="#example-ResponseRecorder" onclick="$('#ex-ResponseRecorder').addClass('in').removeClass('collapse').height('auto')">ResponseRecorder</a></li>
         <li><a href="#example-Server" onclick="$('#ex-Server').addClass('in').removeClass('collapse').height('auto')">Server</a></li>
     </ul>
     <h3 id="pkg-constants">Constants <a class="permalink" href="#pkg-index">&para;</a></h3>
     <pre>const <span id="DefaultRemoteAddr">DefaultRemoteAddr</span> = &#34;1.2.3.4&#34;</pre>
     <p>DefaultRemoteAddr是默认的远端地址。如果ResponseRecorder未显式的设置该属性，RemoteAddr方法就会返回该值。</p>
+    <h3 id="NewRequest" data-kind="f">func <a title="View Source" href="https://github.com/golang/go/blob/master/src//net/http/httptest/httptest.go#L41">NewRequest</a> <a class="permalink" href="#NewRequest">¶</a> <a class="uses" title="List Function Callers" href="https://sourcegraph.com/-/godoc/refs?def=NewRequest&amp;pkg=net%2Fhttp%2Fhttptest&amp;repo=">Uses</a></h3>
+    <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/httptest/httptest.go#L41">❖</a><pre>func NewRequest(method, target <a href="/builtin#string">string</a>, body <a href="/io">io</a>.<a href="/io#Reader">Reader</a>) *<a href="/net/http">http</a>.<a href="/net/http#Request">Request</a></pre></div>
+    <p>NewRequest 返回一个新的服务器访问请求，这个请求可以传递给 http.Handler 以便进行测试。</p>
+    <p>target 参数的值为 <a href="http://tools.ietf.org/html/rfc7230">RFC 7230</a> 中提到的“请求目标”（request-target)： 它可以是一个路径或者一个绝对 URL。如果 target 是一个绝对 URL，那么 URL 中的主机名（host name）将被使用；否则主机名将为 example.com。</p>
+    <p>当 target 的模式为 https 时，TLS 字段的值将被设置为一个非 nil 的随意值（dummy value）。</p>
+    <p>Request.Proto 总是为 HTTP/1.1。</p>
+    <p>如果 method 参数的值为空， 那么使用 GET 方法作为默认值。</p>
+    <p>body 参数的值可以为 nil；另一方面，如果 body 参数的值为 *bytes.Reader 类型、 *strings.Reader 类型或者 *bytes.Buffer 类型，那么 Request.ContentLength 将被设置。</p>
+    <p>为了使用的方便，NewRequest 将在 panic 可以被接受的情况下，使用 panic 代替错误。</p>
+    <p>如果你想要生成的不是服务器访问请求，而是一个客户端 HTTP 请求，那么请使用 net/http 包中的 NewRequest 函数。</p>
     <h3 id="ResponseRecorder">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/httptest/recorder.go?name=release#15">ResponseRecorder</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
     <pre>type ResponseRecorder struct {
     <span id="ResponseRecorder.Code">Code</span>      <a href="builtin.htm#int">int</a>           <span class="com">// HTTP回复的状态码</span>
@@ -78,18 +94,28 @@ fmt.Printf(&#34;%d - %s&#34;, w.Code, w.Body.String())</pre>
     <h4 id="NewRecorder">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/httptest/recorder.go?name=release#25">NewRecorder</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
     <pre class="funcdecl">func NewRecorder() *<a href="#ResponseRecorder">ResponseRecorder</a></pre>
     <p>NewRecorder返回一个初始化了的ResponseRecorder.</p>
-    <h4 id="ResponseRecorder.Header">func (*ResponseRecorder) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/httptest/recorder.go?name=release#38">Header</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
-    <pre class="funcdecl">func (rw *<a href="#ResponseRecorder">ResponseRecorder</a>) Header() <a href="net/http.htm">http</a>.<a href="net/http.htm#Header">Header</a></pre>
-    <p>Header返回回复的头域，即Header字段。</p>
-    <h4 id="ResponseRecorder.WriteHeader">func (*ResponseRecorder) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/httptest/recorder.go?name=release#59">WriteHeader</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
-    <pre class="funcdecl">func (rw *<a href="#ResponseRecorder">ResponseRecorder</a>) WriteHeader(code <a href="builtin.htm#int">int</a>)</pre>
-    <p>WriteHeader设置rw.Code。</p>
-    <h4 id="ResponseRecorder.Write">func (*ResponseRecorder) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/httptest/recorder.go?name=release#48">Write</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
-    <pre class="funcdecl">func (rw *<a href="#ResponseRecorder">ResponseRecorder</a>) Write(buf []<a href="builtin.htm#byte">byte</a>) (<a href="builtin.htm#int">int</a>, <a href="builtin.htm#error">error</a>)</pre>
-    <p>Write总是成功，如果rw.Body非nil会把数据写入该字段。</p>
     <h4 id="ResponseRecorder.Flush">func (*ResponseRecorder) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/httptest/recorder.go?name=release#67">Flush</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
     <pre class="funcdecl">func (rw *<a href="#ResponseRecorder">ResponseRecorder</a>) Flush()</pre>
     <p>Flush将rw.Flushed设置为真。</p>
+    <h4 id="ResponseRecorder.Header">func (*ResponseRecorder) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/httptest/recorder.go?name=release#38">Header</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (rw *<a href="#ResponseRecorder">ResponseRecorder</a>) Header() <a href="net/http.htm">http</a>.<a href="net/http.htm#Header">Header</a></pre>
+    <p>Header返回回复的头域，即Header字段。</p>
+    <h4 id="ResponseRecorder.Result" data-kind="m" class="">func (*ResponseRecorder) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/httptest/recorder.go#L162">Result</a> <a class="permalink" href="#ResponseRecorder.Result">¶</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=ResponseRecorder%2FResult&amp;pkg=net%2Fhttp%2Fhttptest&amp;repo=">Uses</a></h4>
+    <div class="funcdecl decl"><a title="View Source" href="https://golang.org/src/net/http/httptest/recorder.go#L162">❖</a><pre>func (rw *<a href="#ResponseRecorder">ResponseRecorder</a>) Result() *<a href="/net/http">http</a>.<a href="/net/http#Response">Response</a></pre></div>
+    <p>Result 返回处理器生成的响应。</p>
+    <p>处理器返回的响应至少会对状态码（StatusCode）、首部（Header）、主体（Body）以及可选的 Trailer 进行设置。 因为未来可能会有更多字段被设置，所以用户不应该在测试里面对结果调用 DeepEqual。</p>
+    <p>Response.Header 是写入操作第一次调用时的首部快照（snapshot of the headers）； 另一方面， 如果处理器没有执行过写入操作， 那么 Response.Header 就是 Result 方法调用时的首部快照。</p>
+    <p>Response.Body 将被生成为一个非 nil 值，而 Body.Read 则保证不会返回除 io.EOF 之外的其他任何错误。</p>
+    <p>Result 必须在处理器执行完毕之后调用。</p>
+    <h4 id="ResponseRecorder.Write">func (*ResponseRecorder) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/httptest/recorder.go?name=release#48">Write</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (rw *<a href="#ResponseRecorder">ResponseRecorder</a>) Write(buf []<a href="builtin.htm#byte">byte</a>) (<a href="builtin.htm#int">int</a>, <a href="builtin.htm#error">error</a>)</pre>
+    <p>Write总是成功，如果rw.Body非nil会把数据写入该字段。</p>
+    <h4 id="ResponseRecorder.WriteHeader">func (*ResponseRecorder) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/httptest/recorder.go?name=release#59">WriteHeader</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
+    <pre class="funcdecl">func (rw *<a href="#ResponseRecorder">ResponseRecorder</a>) WriteHeader(code <a href="builtin.htm#int">int</a>)</pre>
+    <p>WriteHeader设置rw.Code。</p>
+    <h4 id="ResponseRecorder.WriteString" data-kind="m">func (*ResponseRecorder) <a title="View Source" href="https://golang.org/src/net/http/httptest/recorder.go#L107">WriteString</a> <a class="permalink" href="#ResponseRecorder.WriteString">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=ResponseRecorder%2FWriteString&amp;pkg=net%2Fhttp%2Fhttptest&amp;repo=">Uses</a></h4>
+    <div class="funcdecl decl"><a title="View Source" href="https://golang.org/src/net/http/httptest/recorder.go#L107">❖</a><pre>func (rw *<a href="#ResponseRecorder">ResponseRecorder</a>) WriteString(str <a href="/builtin#string">string</a>) (<a href="/builtin#int">int</a>, <a href="/builtin#error">error</a>)</pre></div>
+    <p>在 str 不为 nil 的情况下， WriteString 总会成功地将 buf 中的内容写入到 rw.Body 当中。</p>
     <h3 id="Server">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/httptest/server.go?name=release#21">Server</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
     <pre>type Server struct {
     <span id="Server.URL">URL</span>      <a href="builtin.htm#string">string</a> <span class="com">// 格式为http://ipaddr:port，没有末尾斜杠的基地址</span>
@@ -152,8 +178,8 @@ fmt.Printf(&#34;%s&#34;, greeting)</pre>
 </div>
 <div id="x-footer" class="clearfix">
   <div class="container">
-    <a href="http://studygolang.com/" target="_blank">Go语言中文网</a>
-    <span class="text-muted">|</span> <a href="http://golang.org/" target="_blank">Go Language</a>
+    <a href="https://studygolang.com/" target="_blank">Go语言中文网</a>
+    <span class="text-muted">|</span> <a href="https://golang.org/" target="_blank">Go Language</a>
     <span class="pull-right"><a href="#">Back to top</a></span>
   </div>
 </div>

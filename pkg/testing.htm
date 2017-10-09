@@ -209,35 +209,25 @@ go test -run /A=1    # 运行所有匹配 "A=1" 的子测试。
 </pre>
 <h4 id="hdr-Main">Main <a class="permalink" href="#hdr-Main">&para</a></h4>
 <p>
-It is sometimes necessary for a test program to do extra setup or teardown
-before or after testing. It is also sometimes necessary for a test to control
-which code runs on the main thread. To support these and other cases,
-if a test file contains a function:
+测试程序有时需要在测试之前或之后进行额外的设置（setup）或拆卸（teardown）。有时, 测试还需要控制在主线程上运行的代码。为了支持这些和其他一些情况, 如果测试文件包含函数:
 </p>
 <pre>func TestMain(m *testing.M)
 </pre>
 <p>
-then the generated test will call TestMain(m) instead of running the tests
-directly. TestMain runs in the main goroutine and can do whatever setup
-and teardown is necessary around a call to m.Run. It should then call
-os.Exit with the result of m.Run. When TestMain is called, flag.Parse has
-not been run. If TestMain depends on command-line flags, including those
-of the testing package, it should call flag.Parse explicitly.
+那么生成的测试将调用 TestMain(m)，而不是直接运行测试。TestMain 运行在主 goroutine 中, 可以在调用 m.Run 前后做任何设置和拆卸。应该使用 m.Run 的返回值作为参数调用 os.Exit。在调用 TestMain 时, flag.Parse 并没有被调用。所以，如果 TestMain 依赖于 command-line 标志 (包括 testing 包的标记), 则应该显示的调用 flag.Parse。
 </p>
 <p>
-A simple implementation of TestMain is:
+一个简单的 TestMain 的实现：
 </p>
 <pre>func TestMain(m *testing.M) {
 	// call flag.Parse() here if TestMain uses flags
+    // 如果 TestMain 使用了 flags，这里应该加上 flag.Parse()
 	os.Exit(m.Run())
 }</pre>
 
 
         
   
-
-
-        
         <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
 
         
@@ -896,7 +886,7 @@ of the &#34;go test&#34; command.
           <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L779">❖</a><pre>type M struct {
     <span class="com">// contains filtered or unexported fields</span>
 }</pre></div><p>
-M is a type passed to a TestMain function to run the actual tests.
+M 是传递给 TestMain 函数以运行实际测试的类型。
 </p>
 
           
@@ -921,7 +911,7 @@ It may change signature from release to release.
           
             <h4 id="M.Run" data-kind="m">func (*M) <a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L811">Run</a> <a class="permalink" href="#M.Run">&para;</a> <a class="uses" title="List Method Callers" href="https://sourcegraph.com/-/godoc/refs?def=M%2FRun&amp;pkg=testing&amp;repo=">Uses</a></h4>
             <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/testing/testing.go#L811">❖</a><pre>func (m *<a href="#M">M</a>) Run() <a href="/builtin#int">int</a></pre></div><p>
-Run runs the tests. It returns an exit code to pass to os.Exit.
+Run 运行这些测试。它返回要传递给 os.Exit 的退出代码。
 </p>
 
             
