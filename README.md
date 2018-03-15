@@ -14,3 +14,5 @@ go 标准库和部分第三方包的包文档中文翻译。
 # JOIN US
 
 欢迎 pull request.
+
+不知道如何提交代码?参照[github的多人协作](https://gist.github.com/suziewong/4378619)
