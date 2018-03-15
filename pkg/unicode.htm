@@ -10,8 +10,7 @@
 <div class="container">
     <h2 id="pkg-overview">package unicode</h2>
     <p><code>import "unicode"</code>
-    <p>Package unicode provides data and functions to test some properties of
-        Unicode code points.</p>
+    <p>unicode包提供数据和函数来测试Unicode代码点的一些属性。</p>
     <h3 id="pkg-index" class="section-header">Index <a class="permalink" href="#pkg-index">&para;</a></h3>
     <a href="../main.html"><h3>返回首页</h3></a>
 		</br>
@@ -261,8 +260,7 @@
 )</pre>
     <p>这些变量的类型还是*RangeTable。</p>
     <pre>var <span id="CaseRanges">CaseRanges</span> = _CaseRanges</pre>
-    <p>CaseRanges is the table describing case mappings for all letters with
-        non-self mappings.</p>
+    <p>CaseRanges是描述具有非自映射的所有字母的大小写映射的表格。</p>
     <pre>var <span id="Categories">Categories</span> = map[<a href="builtin.htm#string">string</a>]*<a href="#RangeTable">RangeTable</a>{
     &#34;C&#34;:  <a href="#C">C</a>,
     &#34;Cc&#34;: <a href="#Cc">Cc</a>,
@@ -301,7 +299,7 @@
     &#34;Zp&#34;: <a href="#Zp">Zp</a>,
     &#34;Zs&#34;: <a href="#Zs">Zs</a>,
 }</pre>
-    <p>Categories is the set of Unicode category tables.</p>
+    <p>Categories是一组Unicode类别表.</p>
     <pre>var <span id="FoldCategory">FoldCategory</span> = map[<a href="builtin.htm#string">string</a>]*<a href="#RangeTable">RangeTable</a>{
     &#34;Common&#34;:    foldCommon,
     &#34;Greek&#34;:     foldGreek,
@@ -313,24 +311,17 @@
     &#34;M&#34;:         foldM,
     &#34;Mn&#34;:        foldMn,
 }</pre>
-    <p>FoldCategory maps a category name to a table of
-        code points outside the category that are equivalent under
-        simple case folding to code points inside the category.
-        If there is no entry for a category name, there are no such points.</p>
+    <p>FoldCategory将类别名称映射到类别外的代码点表，这些代码点在简单大小写折叠的情况下等同于类别内的代码点。如果没有类别名称的条目，则不存在这样的点。</p>
     <pre>var <span id="FoldScript">FoldScript</span> = map[<a href="builtin.htm#string">string</a>]*<a href="#RangeTable">RangeTable</a>{}</pre>
-    <p>FoldScript maps a script name to a table of
-        code points outside the script that are equivalent under
-        simple case folding to code points inside the script.
-        If there is no entry for a script name, there are no such points.</p>
+    <p>FoldScript将脚本名称映射到脚本外的代码点表，这些代码点在简单案例折叠到脚本内的代码点之后是等同的。如果没有条目名称的条目，则没有这样的条目。</p>
     <pre>var <span id="GraphicRanges">GraphicRanges</span> = []*<a href="#RangeTable">RangeTable</a>{
     <a href="#L">L</a>, <a href="#M">M</a>, <a href="#N">N</a>, <a href="#P">P</a>, <a href="#S">S</a>, <a href="#Zs">Zs</a>,
 }</pre>
-    <p>GraphicRanges defines the set of graphic characters according to Unicode.</p>
+    <p>GraphicRanges根据Unicode定义了一组图形字符。</p>
     <pre>var <span id="PrintRanges">PrintRanges</span> = []*<a href="#RangeTable">RangeTable</a>{
     <a href="#L">L</a>, <a href="#M">M</a>, <a href="#N">N</a>, <a href="#P">P</a>, <a href="#S">S</a>,
 }</pre>
-    <p>PrintRanges defines the set of printable characters according to Go.
-        ASCII space, U+0020, is handled separately.</p>
+    <p>PrintRanges根据Go定义一组可打印的字符。ASCII space, U+0020, 分开处理。</p>
     <pre>var <span id="Properties">Properties</span> = map[<a href="builtin.htm#string">string</a>]*<a href="#RangeTable">RangeTable</a>{
     &#34;ASCII_Hex_Digit&#34;:                    <a href="#ASCII_Hex_Digit">ASCII_Hex_Digit</a>,
     &#34;Bidi_Control&#34;:                       <a href="#Bidi_Control">Bidi_Control</a>,
@@ -365,7 +356,7 @@
     &#34;Variation_Selector&#34;:                 <a href="#Variation_Selector">Variation_Selector</a>,
     &#34;White_Space&#34;:                        <a href="#White_Space">White_Space</a>,
 }</pre>
-    <p>Properties is the set of Unicode property tables.</p>
+    <p>Properties是Unicode属性表的集合。</p>
     <pre>var <span id="Scripts">Scripts</span> = map[<a href="builtin.htm#string">string</a>]*<a href="#RangeTable">RangeTable</a>{
     &#34;Arabic&#34;:                 <a href="#Arabic">Arabic</a>,
     &#34;Armenian&#34;:               <a href="#Armenian">Armenian</a>,
@@ -470,7 +461,7 @@
     &#34;Vai&#34;:                    <a href="#Vai">Vai</a>,
     &#34;Yi&#34;:                     <a href="#Yi">Yi</a>,
 }</pre>
-    <p>Scripts is the set of Unicode script tables.</p>
+    <p>Scripts是一组Unicode脚本表。</p>
     <h3 id="CaseRange">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/unicode/letter.go?name=release#54">CaseRange</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
     <pre>type CaseRange struct {
     <span id="CaseRange.Lo">Lo</span>    <a href="builtin.htm#uint32">uint32</a>
@@ -525,7 +516,7 @@
     <p>函数报告r是否在rangeTab指定的字符范围内。</p>
     <h3 id="In">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/unicode/graphic.go?name=release#69">In</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
     <pre class="funcdecl">func In(r <a href="builtin.htm#rune">rune</a>, ranges ...*<a href="#RangeTable">RangeTable</a>) <a href="builtin.htm#bool">bool</a></pre>
-    <p>函数报告r是否是给出的某个字母集的成员。</p>
+    <p>函数报告r是否是给出的ranges字母集中的某个成员。</p>
     <h3 id="IsOneOf">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/unicode/graphic.go?name=release#59">IsOneOf</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
     <pre class="funcdecl">func IsOneOf(ranges []*<a href="#RangeTable">RangeTable</a>, r <a href="builtin.htm#rune">rune</a>) <a href="builtin.htm#bool">bool</a></pre>
     <p>函数报告r是否是ranges某个成员指定的字符范围内。本函数的功能类似In，应优先使用In函数。</p>
@@ -535,18 +526,99 @@
     <pre>&#39;\t&#39;, &#39;\n&#39;, &#39;\v&#39;, &#39;\f&#39;, &#39;\r&#39;, &#39; &#39;, U+0085 (NEL), U+00A0 (NBSP).
 </pre>
     <p>其它的空白字符请参见策略Z和属性Pattern_White_Space。</p>
+    <div class="panel-group">
+        <div class="panel panel-default">
+            <div class="panel-heading" onclick="document.getElementById('ex-IsSpace').style.display = document.getElementById('ex-IsSpace').style.display=='none'?'block':'none';">Example</div>
+            <div id="ex-IsSpace" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre>
+fmt.Println(unicode.IsSpace(' ')) // true
+fmt.Println(unicode.IsSpace('\n')) // true
+fmt.Println(unicode.IsSpace('\t')) // true
+</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <h3 id="IsDigit">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/unicode/digit.go?name=release#8">IsDigit</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
     <pre class="funcdecl">func IsDigit(r <a href="builtin.htm#rune">rune</a>) <a href="builtin.htm#bool">bool</a></pre>
-    <p>IsDigit报告一个字符是否是十进制数字字符。</p>
+    <p>IsDigit报告一个r字符是否是十进制数字字符。</p>
+    <div class="panel-group">
+        <div class="panel panel-default">
+            <div class="panel-heading" onclick="document.getElementById('ex-IsDigit').style.display = document.getElementById('ex-IsDigit').style.display=='none'?'block':'none';">Example</div>
+            <div id="ex-IsDigit" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre>
+fmt.Println(unicode.IsDigit('0')) // true
+fmt.Println(unicode.IsDigit('9')) // true
+fmt.Println(unicode.IsDigit('A')) // false
+fmt.Println(unicode.IsDigit('f')) // false
+</pre>
+                </div>
+            </div>
+        </div>
+    </div>
     <h3 id="IsNumber">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/unicode/graphic.go?name=release#104">IsNumber</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
     <pre class="funcdecl">func IsNumber(r <a href="builtin.htm#rune">rune</a>) <a href="builtin.htm#bool">bool</a></pre>
     <p>IsNumber报告一个字符是否是数字字符，参见策略N。</p>
+    <div class="panel-group">
+        <div class="panel panel-default">
+            <div class="panel-heading" onclick="document.getElementById('ex-IsNumber').style.display = document.getElementById('ex-IsNumber').style.display=='none'?'block':'none';">Example</div>
+            <div id="ex-IsNumber" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre>
+fmt.Println(unicode.IsNumber('0')) // true
+fmt.Println(unicode.IsNumber('9')) // true
+fmt.Println(unicode.IsNumber('A')) // false
+fmt.Println(unicode.IsNumber('f')) // false
+</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <h3 id="IsLetter">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/unicode/graphic.go?name=release#90">IsLetter</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
     <pre class="funcdecl">func IsLetter(r <a href="builtin.htm#rune">rune</a>) <a href="builtin.htm#bool">bool</a></pre>
     <p>IsLetter报告一个字符是否是字母，参见策略L。</p>
+    <div class="panel-group">
+        <div class="panel panel-default">
+            <div class="panel-heading" onclick="document.getElementById('ex-IsLetter').style.display = document.getElementById('ex-IsLetter').style.display=='none'?'block':'none';">Example</div>
+            <div id="ex-IsLetter" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre>
+fmt.Println(unicode.IsLetter('0')) // false
+fmt.Println(unicode.IsLetter('9')) // false
+fmt.Println(unicode.IsLetter('A')) // true
+fmt.Println(unicode.IsLetter('z')) // true
+fmt.Println(unicode.IsLetter('😘')) // false
+</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <h3 id="IsGraphic">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/unicode/graphic.go?name=release#36">IsGraphic</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
     <pre class="funcdecl">func IsGraphic(r <a href="builtin.htm#rune">rune</a>) <a href="builtin.htm#bool">bool</a></pre>
     <p>报告一个字符是否是unicode图形。包括字母、标记、数字、符号、标点、空白，参见L、M、N、P、S、Zs。</p>
+    <div class="panel-group">
+        <div class="panel panel-default">
+            <div class="panel-heading" onclick="document.getElementById('ex-IsGraphic').style.display = document.getElementById('ex-IsGraphic').style.display=='none'?'block':'none';">Example</div>
+            <div id="ex-IsGraphic" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <pre>
+fmt.Println(unicode.IsGraphic('0')) // true
+fmt.Println(unicode.IsGraphic('9')) // true
+fmt.Println(unicode.IsGraphic('A')) // true
+fmt.Println(unicode.IsGraphic('z')) // true
+fmt.Println(unicode.IsGraphic('😘')) // true
+fmt.Println(unicode.IsGraphic('尶')) // true
+</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <h3 id="IsMark">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/unicode/graphic.go?name=release#98">IsMark</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
     <pre class="funcdecl">func IsMark(r <a href="builtin.htm#rune">rune</a>) <a href="builtin.htm#bool">bool</a></pre>
     <p>IsMark报告一个字符是否是标记字符，参见策略M。</p>
