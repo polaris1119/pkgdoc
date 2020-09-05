@@ -117,7 +117,7 @@ for _, p := range paths {
     <p>ToSlash函数将path中的路径分隔符替换为斜杠（'/'）并返回替换结果，多个路径分隔符会替换为多个斜杠。</p>
     <h3 id="VolumeName">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/path/filepath/path.go?name=release#465">VolumeName</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
     <pre class="funcdecl">func VolumeName(path <a href="builtin.htm#string">string</a>) (v <a href="builtin.htm#string">string</a>)</pre>
-    <p>VolumeName函数返回最前面的卷名。如Windows系统里提供参数"C:\foo\bar"会返回"C:"；Unix/linux系统的&#34;\\host\share\foo&#34;会返回&#34;\\host\share&#34;；其他平台会返回&#34;&#34;。</p>
+    <p>VolumeName函数返回最前面的卷名。如Windows系统里提供参数"C:\foo\bar"会返回"C:"；提供&#34;\\host\share\foo&#34;会返回&#34;\\host\share&#34;；其他平台(包括unix/linux)会返回&#34;&#34;。</p>
     <h3 id="Dir">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/path/filepath/path.go?name=release#444">Dir</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
     <pre class="funcdecl">func Dir(path <a href="builtin.htm#string">string</a>) <a href="builtin.htm#string">string</a></pre>
     <p>Dir返回路径除去最后一个路径元素的部分，即该路径最后一个元素所在的目录。在使用Split去掉最后一个元素后，会简化路径并去掉末尾的斜杠。如果路径是空字符串，会返回"."；如果路径由1到多个路径分隔符后跟0到多个非路径分隔符字符组成，会返回单个路径分隔符；其他任何情况下都不会返回以路径分隔符结尾的路径。</p>
