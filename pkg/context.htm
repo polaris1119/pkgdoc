@@ -20,54 +20,30 @@
 
   <p><code>import "context"</code>
 
-  <p>
-Package context defines the Context type, which carries deadlines,
-cancelation signals, and other request-scoped values across API boundaries
-and between processes.
+  <p>context包定义了 "Context" 类型(上下文类型)，该类型的主要作用就是用来控制goroutine的生命周期的。这个类型通过触发几种信号来达到通知子goroutine的目的，比如到期终止的信号、取消操作的信号，当子goroutine接收到这些信号之后就可以做出相应的清理工作结束goroutine。此外该类型还可以跨程序单元(多个goroutine之间)传递一些请求相关的变量。</p>
+<p>
+在应用中使用Context的时候，我们通常在接收请求的goroutine中创建Context变量 A，然后在派生的子goroutine中接收一个Context变量B，注意接收的这个B必须是A的一个副本或者说子Context。产生子Context的方式就是通过WithCancel，WithDeadline，WithTimeout或WithValue这几个方法得到的。如此方式产生Context变量并且传递子Context变量之后，我们就可以达到链式调用Context的目的了，这就意味着当我们在主goroutine中取消了Context的时候，传递到各个子goroutine中的子Context也同样链式的接收到了这个取消操作。假如你的子goroutine中的子Context还按照如上的规则派生出孙子Context到孙子goroutine，也没关系，链式调用的强大之处就在于孙子也接收到了。
+</p>
+<p>具体到上面提及的几个派生方法来说，WithCancel/WithDeadline/WithTimeout 函数都需要一个Context变量作为父节点，然后这几个函数会返回一个基于该父Context的子Context以及一个CancelFunc类型的取消函数。当主动调用CancelFunc函数的时候就会取消父Context与子Context以及链条上所有Context之间的关系和定时器，(这句话看着有点蒙，实际调用就是给各个子Context的Done通道发送了一个可读事件)。如果需要终止子Context而又不主动调用取消函数的话，就会产生子Context的泄漏了，只能等到主goroutine结束才能回收。go vet工具可以检查所有流程控制路径上使用CancelFuncs的情况。
 </p>
 <p>
-Incoming requests to a server should create a Context, and outgoing
-calls to servers should accept a Context. The chain of function
-calls between them must propagate the Context, optionally replacing
-it with a derived Context created using WithCancel, WithDeadline,
-WithTimeout, or WithValue. When a Context is canceled, all
-Contexts derived from it are also canceled.
+使用Context的时候应该遵守以下几个规则，以便保持包接口之间的一致性，方便静态分析工具检查Context的上下文传播情况：
 </p>
 <p>
-The WithCancel, WithDeadline, and WithTimeout functions take a
-Context (the parent) and return a derived Context (the child) and a
-CancelFunc. Calling the CancelFunc cancels the child and its
-children, removes the parent&#39;s reference to the child, and stops
-any associated timers. Failing to call the CancelFunc leaks the
-child and its children until the parent is canceled or the timer
-fires. The go vet tool checks that CancelFuncs are used on all
-control-flow paths.
-</p>
-<p>
-Programs that use Contexts should follow these rules to keep interfaces
-consistent across packages and enable static analysis tools to check context
-propagation:
-</p>
-<p>
-Do not store Contexts inside a struct type; instead, pass a Context
-explicitly to each function that needs it. The Context should be the first
-parameter, typically named ctx:
+1. 不要将 Contexts 放入结构体，context变量应该作为第一个参数传入，最好命名为ctx。
 </p>
 <pre>func DoSomething(ctx context.Context, arg Arg) error {
 	// ... use ctx ...
 }
 </pre>
 <p>
-Do not pass a nil Context, even if a function permits it. Pass context.TODO
-if you are unsure about which Context to use.
+2. 即使函数允许，也不要传入nil的 Context。如果不知道用哪种 Context，可以使用context.TODO()。
 </p>
 <p>
-Use context Values only for request-scoped data that transits processes and
-APIs, not for passing optional parameters to functions.
+3. 使用context的Value相关方法只应该用于在程序和接口中传递的和请求相关的元数据，不要用它来传递一些可选的参数
 </p>
 <p>
-The same Context may be passed to functions running in different goroutines;
-Contexts are safe for simultaneous use by multiple goroutines.
+4. 相同的 Context 可以传递给在不同的goroutine；Context 是并发安全的。
 </p>
 <p>
 See <a href="https://blog.golang.org/context">https://blog.golang.org/context</a> for example code for a server that uses
