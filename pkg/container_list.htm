@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head profile="http://a9.com/-/spec/opensearch/1.1/">
 <meta charset="utf-8">
@@ -107,7 +107,7 @@ for e := l.Front(); e != nil; e = e.Next() {
     <p>Back返回链表最后一个元素或nil。</p>
     <h4 id="List.PushFront">func (*List) <a title="View Source" href="https://github.com/golang/go/blob/master/src/container/list/list.go?name=release#131">PushFront</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
     <pre class="funcdecl">func (l *<a href="#List">List</a>) PushFront(v interface{}) *<a href="#Element">Element</a></pre>
-    <p>PushBack将一个值为v的新元素插入链表的第一个位置，返回生成的新元素。</p>
+    <p>PushFront将一个值为v的新元素插入链表的第一个位置，返回生成的新元素。</p>
     <h4 id="List.PushFrontList">func (*List) <a title="View Source" href="https://github.com/golang/go/blob/master/src/container/list/list.go?name=release#211">PushFrontList</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
     <pre class="funcdecl">func (l *<a href="#List">List</a>) PushFrontList(other *<a href="#List">List</a>)</pre>
     <p>PushFrontList创建链表other的拷贝，并将拷贝的最后一个位置连接到链表l的第一个位置。</p>
