@@ -27,6 +27,7 @@
         <li><a href="#Copysign">func Copysign(x, y float64) float64</a></li>
         <li><a href="#Ceil">func Ceil(x float64) float64</a></li>
         <li><a href="#Floor">func Floor(x float64) float64</a></li>
+        <li><a href="#Round">func Round(x float64) float64</a></li>
         <li><a href="#Trunc">func Trunc(x float64) float64</a></li>
         <li><a href="#Modf">func Modf(f float64) (int float64, frac float64)</a></li>
         <li><a href="#Nextafter">func Nextafter(x, y float64) (r float64)</a></li>
@@ -156,6 +157,12 @@ Ceil(NaN) = NaN</pre>
     <pre>Floor(±0) = ±0
 Floor(±Inf) = ±Inf
 Floor(NaN) = NaN</pre>
+    <h3 id="Round">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/floor.go?name=release#36">Round</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
+        <pre class="funcdecl">func Round(x <a href="builtin.htm#float64">float64</a>) <a href="builtin.htm#float64">float64</a></pre>
+        <p>返回x的四舍五入值（的浮点值），特例如下：</p>
+        <pre>Round(±1.2) = ±1
+Round(±1.5) = ±2
+Round(NaN) = NaN</pre>
     <h3 id="Trunc">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/math/floor.go?name=release#48">Trunc</a> <a class="permalink" href="#pkg-index">&para;</a></h3>
     <pre class="funcdecl">func Trunc(x <a href="builtin.htm#float64">float64</a>) <a href="builtin.htm#float64">float64</a></pre>
     <p>返回x的整数部分（的浮点值）。特例如下：</p>
