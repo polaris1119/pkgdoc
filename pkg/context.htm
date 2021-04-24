@@ -20,54 +20,30 @@
 
   <p><code>import "context"</code>
 
-  <p>
-Package context defines the Context type, which carries deadlines,
-cancelation signals, and other request-scoped values across API boundaries
-and between processes.
+  <p>context包定义了 "Context" 类型(上下文类型)，该类型的主要作用就是用来控制goroutine的生命周期的。这个类型通过触发几种信号来达到通知子goroutine的目的，比如到期终止的信号、取消操作的信号，当子goroutine接收到这些信号之后就可以做出相应的清理工作结束goroutine。此外该类型还可以跨程序单元(多个goroutine之间)传递一些请求相关的变量。</p>
+<p>
+在应用中使用Context的时候，我们通常在接收请求的goroutine中创建Context变量 A，然后在派生的子goroutine中接收一个Context变量B，注意接收的这个B必须是A的一个副本或者说子Context。产生子Context的方式就是通过WithCancel，WithDeadline，WithTimeout或WithValue这几个方法得到的。如此方式产生Context变量并且传递子Context变量之后，我们就可以达到链式调用Context的目的了，这就意味着当我们在主goroutine中取消了Context的时候，传递到各个子goroutine中的子Context也同样链式的接收到了这个取消操作。假如你的子goroutine中的子Context还按照如上的规则派生出孙子Context到孙子goroutine，也没关系，链式调用的强大之处就在于孙子也接收到了。
+</p>
+<p>具体到上面提及的几个派生方法来说，WithCancel/WithDeadline/WithTimeout 函数都需要一个Context变量作为父节点，然后这几个函数会返回一个基于该父Context的子Context以及一个CancelFunc类型的取消函数。当主动调用CancelFunc函数的时候就会取消父Context与子Context以及链条上所有Context之间的关系和定时器，(这句话看着有点蒙，实际调用就是给各个子Context的Done通道发送了一个可读事件)。如果需要终止子Context而又不主动调用取消函数的话，就会产生子Context的泄漏了，只能等到主goroutine结束才能回收。go vet工具可以检查所有流程控制路径上使用CancelFuncs的情况。
 </p>
 <p>
-Incoming requests to a server should create a Context, and outgoing
-calls to servers should accept a Context. The chain of function
-calls between them must propagate the Context, optionally replacing
-it with a derived Context created using WithCancel, WithDeadline,
-WithTimeout, or WithValue. When a Context is canceled, all
-Contexts derived from it are also canceled.
+使用Context的时候应该遵守以下几个规则，以便保持包接口之间的一致性，方便静态分析工具检查Context的上下文传播情况：
 </p>
 <p>
-The WithCancel, WithDeadline, and WithTimeout functions take a
-Context (the parent) and return a derived Context (the child) and a
-CancelFunc. Calling the CancelFunc cancels the child and its
-children, removes the parent&#39;s reference to the child, and stops
-any associated timers. Failing to call the CancelFunc leaks the
-child and its children until the parent is canceled or the timer
-fires. The go vet tool checks that CancelFuncs are used on all
-control-flow paths.
-</p>
-<p>
-Programs that use Contexts should follow these rules to keep interfaces
-consistent across packages and enable static analysis tools to check context
-propagation:
-</p>
-<p>
-Do not store Contexts inside a struct type; instead, pass a Context
-explicitly to each function that needs it. The Context should be the first
-parameter, typically named ctx:
+1. 不要将 Contexts 放入结构体，context变量应该作为第一个参数传入，最好命名为ctx。
 </p>
 <pre>func DoSomething(ctx context.Context, arg Arg) error {
 	// ... use ctx ...
 }
 </pre>
 <p>
-Do not pass a nil Context, even if a function permits it. Pass context.TODO
-if you are unsure about which Context to use.
+2. 即使函数允许，也不要传入nil的 Context。如果不知道用哪种 Context，可以使用context.TODO()。
 </p>
 <p>
-Use context Values only for request-scoped data that transits processes and
-APIs, not for passing optional parameters to functions.
+3. 使用context的Value相关方法只应该用于在程序和接口中传递的和请求相关的元数据，不要用它来传递一些可选的参数
 </p>
 <p>
-The same Context may be passed to functions running in different goroutines;
-Contexts are safe for simultaneous use by multiple goroutines.
+4. 相同的 Context 可以传递给在不同的goroutine；Context 是并发安全的。
 </p>
 <p>
 See <a href="https://blog.golang.org/context">https://blog.golang.org/context</a> for example code for a server that uses
@@ -127,44 +103,43 @@ Contexts.</p>
         
           <h3 id="pkg-variables">Variables <a class="permalink" href="#pkg-variables">&para;</a></h3>
           <div class="decl" data-kind="v"><a title="View Source" href="https://github.com/golang/go/blob/master/src/context/context.go#L154">❖</a><pre>var <span id="Canceled">Canceled</span> = <a href="/errors">errors</a>.<a href="/errors#New">New</a>(&#34;context canceled&#34;)</pre></div><p>
-Canceled is the error returned by Context.Err when the context is canceled.
+当一个上下文被取消之后，调用Context.Err()方法会得到 Canceled 错误。
 </p>
 <div class="decl" data-kind="v"><a title="View Source" href="https://github.com/golang/go/blob/master/src/context/context.go#L158">❖</a><pre>var <span id="DeadlineExceeded">DeadlineExceeded</span> <a href="/builtin#error">error</a> = deadlineExceededError{}</pre></div><p>
-DeadlineExceeded is the error returned by Context.Err when the context&#39;s
-deadline passes.
+当一个上下文超时之后，调用Context.Err()方法会得到 DeadlineExceeded 错误。
 </p>
 
         
         
           <h3 id="CancelFunc" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/context/context.go#L221">CancelFunc</a> <a class="permalink" href="#CancelFunc">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=CancelFunc&amp;pkg=context&amp;repo=">Uses</a></h3>
           <div class="decl" data-kind="d"><a title="View Source" href="https://github.com/golang/go/blob/master/src/context/context.go#L221">❖</a><pre>type CancelFunc func()</pre></div><p>
-A CancelFunc tells an operation to abandon its work.
-A CancelFunc does not wait for the work to stop.
-After the first call, subsequent calls to a CancelFunc do nothing.
+CancelFunc 会告知正在进行的操作放弃执行, 但是CancelFunc并不会等待该操作完全执行完毕。
+在第一次调用之后，对CancelFunc的后续调用将不再执行任何操作。
 </p>
 
           
         
           <h3 id="Context" data-kind="t">type <a title="View Source" href="https://github.com/golang/go/blob/master/src/context/context.go#L62">Context</a> <a class="permalink" href="#Context">&para;</a> <a class="uses" title="List Uses of This Type" href="https://sourcegraph.com/-/godoc/refs?def=Context&amp;pkg=context&amp;repo=">Uses</a></h3>
           <div class="decl" data-kind="m"><a title="View Source" href="https://github.com/golang/go/blob/master/src/context/context.go#L62">❖</a><pre>type Context interface {
-    <span class="com">// Deadline returns the time when work done on behalf of this context
-    // should be canceled. Deadline returns ok==false when no deadline is
-    // set. Successive calls to Deadline return the same results.</span>
+    <span class="com">
+    // Deadline返回代表此上下文必须要结束工作时的时间点。
+    // 如果时间点已经到达了，但是上下文仍然没有被取消，则该上下文会被强行取消。
+    // 未设置截止日期时，Deadline返回ok==false。
+    // 连续调用Deadline返回相同的结果。</span>
     <span id="Context.Deadline">Deadline</span>() (deadline <a href="/time">time</a>.<a href="/time#Time">Time</a>, ok <a href="/builtin#bool">bool</a>)
 
-    <span class="com">// Done returns a channel that&#39;s closed when work done on behalf of this
-    // context should be canceled. Done may return nil if this context can
-    // never be canceled. Successive calls to Done return the same value.
+    <span class="com">// Done() 方法返回一个空结构体类型的通道，如果当前上下文被取消了，该通道就会被关闭了。
+    // 如果当前上下文永远不取消的话，Done() 有可能会返回 nil.(没理解！！)
+    // 连续调用Done方法返回相同的结果。
+    // 
+    // WithCancel方法生成的上下文会在cancel取消函数被调用的时候将done通道关闭；
+    // WithDeadline方法生成的上下文会在截止时间点达到的时候将done通道关闭；
+    // WithTimeout方法生成的上下文会在超过了timeout时间后将done通道关闭。
     //
-    // WithCancel arranges for Done to be closed when cancel is called;
-    // WithDeadline arranges for Done to be closed when the deadline
-    // expires; WithTimeout arranges for Done to be closed when the timeout
-    // elapses.
+    // done通道通畅用在 select 语句中：
     //
-    // Done is provided for use in select statements:
-    //
-    //  // Stream generates values with DoSomething and sends them to out
-    //  // until DoSomething returns an error or ctx.Done is closed.
+    //  // Stream方法会使用 DoSomething方法生成一些值，
+    //  // 如果DoSomething没有出错，并且ctx上下文没有被取消的情况下，这些值会被发送到out通道中去
     //  func Stream(ctx context.Context, out chan&lt;- Value) error {
     //  	for {
     //  		v, err := DoSomething(ctx)
@@ -179,35 +154,31 @@ After the first call, subsequent calls to a CancelFunc do nothing.
     //  	}
     //  }
     //
-    // See https://blog.golang.org/pipelines for more examples of how to use
-    // a Done channel for cancelation.</span>
+    // 想看更多Done通道在取消上下文时的使用案例的话可以参考 https://blog.golang.org/pipelines</span>
     <span id="Context.Done">Done</span>() &lt;-chan struct{}
 
-    <span class="com">// Err returns a non-nil error value after Done is closed. Err returns
-    // Canceled if the context was canceled or DeadlineExceeded if the
-    // context&#39;s deadline passed. No other values for Err are defined.
-    // After Done is closed, successive calls to Err return the same value.</span>
+    <span class="com">
+    // 如果Done通道已经被关闭了，调用上下文的Err方法会返回一个非nil的错误:
+    // 1. 如果上下文是被Cancel函数取消的，会返回 Canceled 错误
+    // 2. 如果上下文是因为达到了截止时间点而被取消的，会返回 DeadlineExceeded 错误
+    // 没有其他类型的错误。在done通道被关闭之后，多次调用该方法返回相同的结果</span>
     <span id="Context.Err">Err</span>() <a href="/builtin#error">error</a>
 
-    <span class="com">// Value returns the value associated with this context for key, or nil
-    // if no value is associated with key. Successive calls to Value with
-    // the same key returns the same result.
+    <span class="com">// 
+    // Value方法会根据参数key,返回该上下文通过withValue方法设置的key的value值，
+    // 如果没有设置就返回nil, 多次调用返回相同结果。
+    // 
+    // 使用上下文传递key-value这种模式最好只是传递那些跨进程或者跨API使用的请求相关的数据，
+    // 不要用这种方式传递函数参数类的值。
     //
-    // Use context values only for request-scoped data that transits
-    // processes and API boundaries, not for passing optional parameters to
-    // functions.
-    //
-    // A key identifies a specific value in a Context. Functions that wish
-    // to store values in Context typically allocate a key in a global
-    // variable then use that key as the argument to context.WithValue and
-    // Context.Value. A key can be any type that supports equality;
-    // packages should define keys as an unexported type to avoid
-    // collisions.
+    // 参数key确定一个value。一般来说想要把value存储到上下文的程序会定一个全局的key变量，
+    // 然后把这个变量作为 Context.WithValue 或者 Context.Value 的参数。
+    // 这个key可以是任何支持大小比较的类型，为了防止使用冲突，最好在包内定义为非导出的类型。
     //
     // Packages that define a Context key should provide type-safe accessors
     // for the values stored using that key:
     //
-    // 	// Package user defines a User type that&#39;s stored in Contexts.
+    //  // user包定义了一个User类型，我们会将一个该类型的变量存储在context中
     // 	package user
     //
     // 	import &#34;context&#34;
@@ -215,32 +186,30 @@ After the first call, subsequent calls to a CancelFunc do nothing.
     // 	// User is the type of value stored in the Contexts.
     // 	type User struct {...}
     //
-    // 	// key is an unexported type for keys defined in this package.
-    // 	// This prevents collisions with keys defined in other packages.
+    //  // key 定义为一个不可导出的类型，防止与其他包定义的key相冲突
     // 	type key int
     //
-    // 	// userKey is the key for user.User values in Contexts. It is
-    // 	// unexported; clients use user.NewContext and user.FromContext
-    // 	// instead of using this key directly.
+    //  // userKey 在上下文中用来存储值 user.User。
+    //  // userKey 是不可导出的。
+    //  // 调用者使用 user.NewContext 和 user.FromContext 来获取userKey的值，而不是直接使用userkey访问
     // 	var userKey key = 0
     //
-    // 	// NewContext returns a new Context that carries value u.
+    //  // NewContext方法会返回一个新的上下文变量，该变量会携带一个User类型的变量
     // 	func NewContext(ctx context.Context, u *User) context.Context {
     // 		return context.WithValue(ctx, userKey, u)
     // 	}
     //
-    // 	// FromContext returns the User value stored in ctx, if any.
+    //  // FromContext方法用来取出User类型变量。
     // 	func FromContext(ctx context.Context) (*User, bool) {
     // 		u, ok := ctx.Value(userKey).(*User)
     // 		return u, ok
     // 	}</span>
     <span id="Context.Value">Value</span>(key interface{}) interface{}
 }</pre></div><p>
-A Context carries a deadline, a cancelation signal, and other values across
-API boundaries.
+综上所述，context会包含截止时间以及一个用来标识上下文被取消的通道，以及一些可以传递的值。
 </p>
 <p>
-Context&#39;s methods may be called by multiple goroutines simultaneously.
+上下文的方法有可能被多个goroutine同时调用。
 </p>
 
           
@@ -252,10 +221,8 @@ Context&#39;s methods may be called by multiple goroutines simultaneously.
           
             <h4 id="Background" data-kind="f">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/context/context.go#L205">Background</a> <a class="permalink" href="#Background">&para;</a> <a class="uses" title="List Function Callers" href="https://sourcegraph.com/-/godoc/refs?def=Background&amp;pkg=context&amp;repo=">Uses</a></h4>
             <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/context/context.go#L205">❖</a><pre>func Background() <a href="#Context">Context</a></pre></div><p>
-Background returns a non-nil, empty Context. It is never canceled, has no
-values, and has no deadline. It is typically used by the main function,
-initialization, and tests, and as the top-level Context for incoming
-requests.
+Background方法返回一个非nil的空的上下文。该上下文变量是一个顶级上下文变量，不能被取消，
+无法携带值，也没有截止日期。该变量只会被用于主函数、或者初始化或者测试或者接收请求的顶级上下文中
 </p>
 
             
@@ -264,11 +231,10 @@ requests.
           
             <h4 id="TODO" data-kind="f">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/context/context.go#L214">TODO</a> <a class="permalink" href="#TODO">&para;</a> <a class="uses" title="List Function Callers" href="https://sourcegraph.com/-/godoc/refs?def=TODO&amp;pkg=context&amp;repo=">Uses</a></h4>
             <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/context/context.go#L214">❖</a><pre>func TODO() <a href="#Context">Context</a></pre></div><p>
-TODO returns a non-nil, empty Context. Code should use context.TODO when
-it&#39;s unclear which Context to use or it is not yet available (because the
-surrounding function has not yet been extended to accept a Context
-parameter). TODO is recognized by static analysis tools that determine
-whether Contexts are propagated correctly in a program.
+TODO方法返回一个非nil的空上下文。
+在实际代码中使用context.TODO 的时候一般是不清楚要使用哪个上下文
+或它还不可用（因为周围函数尚未扩展到接受上下文参数）。
+TODO方法可以被静态分析工具识别出上下文是否在程序中正确传播。
 </p>
 
             
@@ -277,13 +243,12 @@ whether Contexts are propagated correctly in a program.
           
             <h4 id="WithCancel" data-kind="f">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/context/context.go#L229">WithCancel</a> <a class="permalink" href="#WithCancel">&para;</a> <a class="uses" title="List Function Callers" href="https://sourcegraph.com/-/godoc/refs?def=WithCancel&amp;pkg=context&amp;repo=">Uses</a></h4>
             <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/context/context.go#L229">❖</a><pre>func WithCancel(parent <a href="#Context">Context</a>) (ctx <a href="#Context">Context</a>, cancel <a href="#CancelFunc">CancelFunc</a>)</pre></div><p>
-WithCancel returns a copy of parent with a new Done channel. The returned
-context&#39;s Done channel is closed when the returned cancel function is called
-or when the parent context&#39;s Done channel is closed, whichever happens first.
+WithCancel方法返回一个基于parent上下问的副本，该副本拥有一个Done通道，并且会返回一个可以调用的取消函数。
+当取消函数被调用执行的时候done通道就会被关闭 
+或者 当parent上下文的Done通道被关闭的时候，该上下文的done通道也会被关闭。
 </p>
 <p>
-Canceling this context releases resources associated with it, so code should
-call cancel as soon as the operations running in this Context complete.
+取消上下文有利于系统资源的释放，所以调用者应该再使用完上下文的时候尽快的调用该上下文的取消函数。
 </p>
 
             
@@ -294,17 +259,14 @@ call cancel as soon as the operations running in this Context complete.
         <div class="panel-heading"><a class="accordion-toggle" data-toggle="collapse" href="#ex-WithCancel">Example</a></div>
         <div id="ex-WithCancel" class="panel-collapse collapse"><div class="panel-body">
           <p><p>
-This example demonstrates the use of a cancelable context to prevent a
-goroutine leak. By the end of the example function, the goroutine started
-by gen will return without leaking.
+该示例演示了使用一个可取消的上下文来组织goroutine泄漏的方法。
+在该示例方法的最后，由gen衍生出来的goroutine会必然正常返回，而不会发生泄漏。
 </p>
 
           <p>Code:<span class="pull-right"><a href="?play=WithCancel">play</a>&nbsp;</span>
-          <pre><span class="com">// gen generates integers in a separate goroutine and
-// sends them to the returned channel.
-// The callers of gen need to cancel the context once
-// they are done consuming generated integers not to leak
-// the internal goroutine started by gen.</span>
+          <pre><span class="com">
+// gen函数返回一个通道，该通道会接收一个由gen函数衍生的goroutine不断产生的整数数字
+// gen函数的调用者需要在处理所有生成的整数数字完毕之后取消掉上下文，从而避免由gen生成的goroutine发生泄漏</span>
 gen := func(ctx context.Context) &lt;-chan int {
     dst := make(chan int)
     n := 1
@@ -312,7 +274,7 @@ gen := func(ctx context.Context) &lt;-chan int {
         for {
             select {
             case &lt;-ctx.Done():
-                return <span class="com">// returning not to leak the goroutine</span>
+                return <span class="com">// 接收到上下文取消的信号的时候在此处返回，从而避免groutine的泄漏</span>
             case dst &lt;- n:
                 n++
             }
@@ -322,7 +284,7 @@ gen := func(ctx context.Context) &lt;-chan int {
 }
 
 ctx, cancel := context.WithCancel(context.Background())
-defer cancel() <span class="com">// cancel when we are finished consuming integers</span>
+defer cancel() <span class="com">// 当我们处理完程序的时候主动取消上下文</span>
 
 for n := range gen(ctx) {
     fmt.Println(n)
@@ -345,16 +307,16 @@ for n := range gen(ctx) {
           
             <h4 id="WithDeadline" data-kind="f">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/context/context.go#L369">WithDeadline</a> <a class="permalink" href="#WithDeadline">&para;</a> <a class="uses" title="List Function Callers" href="https://sourcegraph.com/-/godoc/refs?def=WithDeadline&amp;pkg=context&amp;repo=">Uses</a></h4>
             <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/context/context.go#L369">❖</a><pre>func WithDeadline(parent <a href="#Context">Context</a>, deadline <a href="/time">time</a>.<a href="/time#Time">Time</a>) (<a href="#Context">Context</a>, <a href="#CancelFunc">CancelFunc</a>)</pre></div><p>
-WithDeadline returns a copy of the parent context with the deadline adjusted
-to be no later than d. If the parent&#39;s deadline is already earlier than d,
-WithDeadline(parent, d) is semantically equivalent to parent. The returned
-context&#39;s Done channel is closed when the deadline expires, when the returned
-cancel function is called, or when the parent context&#39;s Done channel is
-closed, whichever happens first.
+WithDeadline方法同样会返回一个parent上下文的副本上下文，该上下文的有效期不会超过参数deadline设置的时间点。
+如果parent上下文的deadline已经比现在设置的deadline要早的话，该上下文的截止时间就使用parent上下文的截止时间。
+Done通道会以下几种情况下被关闭：
+<br>1. 截止时间到达的时候
+<br>2. 主动调用了Cancel方法
+<br>3. parent上下文的done通道被关闭了
+
 </p>
 <p>
-Canceling this context releases resources associated with it, so code should
-call cancel as soon as the operations running in this Context complete.
+一旦上下文被用完，尽快取消掉该上下文，会节省系统资源。
 </p>
 
             
@@ -365,17 +327,17 @@ call cancel as soon as the operations running in this Context complete.
         <div class="panel-heading"><a class="accordion-toggle" data-toggle="collapse" href="#ex-WithDeadline">Example</a></div>
         <div id="ex-WithDeadline" class="panel-collapse collapse"><div class="panel-body">
           <p><p>
-This example passes a context with a arbitrary deadline to tell a blocking
-function that it should abandon its work as soon as it gets to it.
+这个示例中我们给你一个阻塞中的函数传递了一个设置了截止时间的上下文，
+该函数应该在捕获到上下文被取消了就终止自己的工作。
 </p>
 
           <p>Code:<span class="pull-right"><a href="?play=WithDeadline">play</a>&nbsp;</span>
           <pre>d := time.Now().Add(50 * time.Millisecond)
 ctx, cancel := context.WithDeadline(context.Background(), d)
 
-<span class="com">// Even though ctx will be expired, it is good practice to call its
-// cancelation function in any case. Failure to do so may keep the
-// context and its parent alive longer than necessary.</span>
+<span class="com">// 
+即便ctx会应为过期而必然会被取消，我们最好还是使用defer语法主动调用取消方法。
+如果不这么干的话，有可能会导致上下文无谓的存在而占用系统资源。</span>
 defer cancel()
 
 select {
@@ -395,11 +357,10 @@ case &lt;-ctx.Done():
           
             <h4 id="WithTimeout" data-kind="f">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/context/context.go#L436">WithTimeout</a> <a class="permalink" href="#WithTimeout">&para;</a> <a class="uses" title="List Function Callers" href="https://sourcegraph.com/-/godoc/refs?def=WithTimeout&amp;pkg=context&amp;repo=">Uses</a></h4>
             <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/context/context.go#L436">❖</a><pre>func WithTimeout(parent <a href="#Context">Context</a>, timeout <a href="/time">time</a>.<a href="/time#Duration">Duration</a>) (<a href="#Context">Context</a>, <a href="#CancelFunc">CancelFunc</a>)</pre></div><p>
-WithTimeout returns WithDeadline(parent, time.Now().Add(timeout)).
+WithTimeout 其实就是封装了一下 WithDeadline(parent, time.Now().Add(timeout)).
 </p>
 <p>
-Canceling this context releases resources associated with it, so code should
-call cancel as soon as the operations running in this Context complete:
+一旦上下文被用完，尽快取消掉该上下文，会节省系统资源。
 </p>
 <pre>func slowOperationWithTimeout(ctx context.Context) (Result, error) {
 	ctx, cancel := context.WithTimeout(ctx, 100*time.Millisecond)
@@ -416,13 +377,13 @@ call cancel as soon as the operations running in this Context complete:
         <div class="panel-heading"><a class="accordion-toggle" data-toggle="collapse" href="#ex-WithTimeout">Example</a></div>
         <div id="ex-WithTimeout" class="panel-collapse collapse"><div class="panel-body">
           <p><p>
-This example passes a context with a timeout to tell a blocking function that
-it should abandon its work after the timeout elapses.
+这个示例中我们给你一个阻塞中的函数传递了一个设置了工作时长的上下文，
+该函数应该在捕获到上下文被取消了就终止自己的工作。
 </p>
 
           <p>Code:<span class="pull-right"><a href="?play=WithTimeout">play</a>&nbsp;</span>
-          <pre><span class="com">// Pass a context with a timeout to tell a blocking function that it
-// should abandon its work after the timeout elapses.</span>
+          <pre><span class="com">// 
+给一个阻塞的函数传递一个拥有工作时长的上下文，以便在时长超过的时候该函数可以放弃工作</span>
 ctx, cancel := context.WithTimeout(context.Background(), 50*time.Millisecond)
 defer cancel()
 
@@ -443,21 +404,18 @@ case &lt;-ctx.Done():
           
             <h4 id="WithValue" data-kind="f">func <a title="View Source" href="https://github.com/golang/go/blob/master/src/context/context.go#L453">WithValue</a> <a class="permalink" href="#WithValue">&para;</a> <a class="uses" title="List Function Callers" href="https://sourcegraph.com/-/godoc/refs?def=WithValue&amp;pkg=context&amp;repo=">Uses</a></h4>
             <div class="funcdecl decl"><a title="View Source" href="https://github.com/golang/go/blob/master/src/context/context.go#L453">❖</a><pre>func WithValue(parent <a href="#Context">Context</a>, key, val interface{}) <a href="#Context">Context</a></pre></div><p>
-WithValue returns a copy of parent in which the value associated with key is
-val.
+WithValue方法会返回一个parent上下文的副本，该副本中会设置key-value信息。
 </p>
 <p>
-Use context Values only for request-scoped data that transits processes and
-APIs, not for passing optional parameters to functions.
+不要过度的通过上下文来传递key-value, 
+最好只在那些与请求信息相关的、跨进程API之间的信息传递先关的情景下使用，
+坚决避免使用上下文来传递函数的参数。
 </p>
 <p>
-The provided key must be comparable and should not be of type
-string or any other built-in type to avoid collisions between
-packages using context. Users of WithValue should define their own
-types for keys. To avoid allocating when assigning to an
-interface{}, context keys often have concrete type
-struct{}. Alternatively, exported context key variables&#39; static
-type should be a pointer or interface.
+设置上下文的key-value的时候，key必须是一个可比较的变量，
+为了避免包之间的冲突，尽量避免使用内建类型：调用者最好为key自定义一些类型。
+<br><br>尽量避免使用万能的interface{}作为key的类型，一定要具体一点。
+或者，可导出的上下文键静态变量的类型应该是指针或接口。
 </p>
 
             
