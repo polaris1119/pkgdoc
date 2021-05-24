@@ -928,7 +928,7 @@ mux.HandleFunc(&#34;/&#34;, func(w http.ResponseWriter, req *http.Request) {
     <p>Serve会接手监听器l收到的每一个连接，并为每一个连接创建一个新的服务go程。该go程会读取请求，然后调用srv.Handler回复请求。</p>
     <h4 id="Server.ListenAndServe">func (*Server) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/server.go?name=release#1679">ListenAndServe</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
     <pre class="funcdecl">func (srv *<a href="#Server">Server</a>) ListenAndServe() <a href="http://godoc.org/builtin#error">error</a></pre>
-    <p>ListenAndServe监听srv.Addr指定的TCP地址，并且会调用Serve方法接收到的连接。如果srv.Addr为空字符串，会使用":http"。</p>
+    <p>ListenAndServe监听srv.Addr指定的TCP地址，并且会调用Serve方法处理接收到的连接。如果srv.Addr为空字符串，会使用":http"。</p>
     <h4 id="Server.ListenAndServeTLS">func (*Server) <a title="View Source" href="https://github.com/golang/go/blob/master/src/net/http/server.go?name=release#1823">ListenAndServeTLS</a> <a class="permalink" href="#pkg-index">&para;</a></h4>
     <pre class="funcdecl">func (srv *<a href="#Server">Server</a>) ListenAndServeTLS(certFile, keyFile <a href="http://godoc.org/builtin#string">string</a>) <a href="http://godoc.org/builtin#error">error</a></pre>
     <p>ListenAndServeTLS监听srv.Addr确定的TCP地址，并且会调用Serve方法处理接收到的连接。必须提供证书文件和对应的私钥文件。如果证书是由权威机构签发的，certFile参数必须是顺序串联的服务端证书和CA证书。如果srv.Addr为空字符串，会使用":https"。</p>
