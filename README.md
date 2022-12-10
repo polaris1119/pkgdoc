@@ -9,7 +9,6 @@ go 标准库和部分第三方包的包文档中文翻译。
 # 在线预览
 
 - [Go语言中文网标准库中文版](http://studygolang.com/pkgdoc)
-- [http://godoc.ml/](http://godoc.ml/)
 
 # JOIN US
 
